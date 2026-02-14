@@ -1,0 +1,79 @@
+domain_name: avm_regulation
+workflow: regulatory_impact
+description: Automated Valuation Model (AVM) quality control standards.
+
+classify_severity:
+  categories: |
+    - high_impact_immediate: Directly affects core business, significant changes needed, near-term deadline.
+    - moderate_impact_planned: Affects operations but can be planned within normal cycles.
+    - low_impact_monitor: Minimal direct impact, monitor for developments.
+    - clarification_needed: Ambiguous applicability, needs legal review.
+  criteria: |
+    Consider: Does this affect products we offer? How many business lines?
+    Compliance timeline? Significance of required changes?
+
+investigate_deep:
+  scope: |
+    1. PRODUCT: Which products affected? Underwriting, origination, servicing changes?
+    2. TECHNOLOGY: System changes? AVM vendor, model validation, testing?
+    3. COMPLIANCE: New policies? Training? Exam prep? Monitoring?
+    4. FINANCIAL: Vendor costs, technology investment, staffing, revenue impact?
+    5. TIMELINE: Comment period vs effective date. Phased implementation?
+    6. FAIR LENDING: Nondiscrimination requirements. Current AVM disparate impact risk?
+    7. VENDOR: Do contracts support compliance? Changes needed?
+
+investigate_standard:
+  scope: |
+    1. Which products/processes directly affected?
+    2. Key compliance requirements?
+    3. Implementation timeline?
+    4. Cost implications?
+
+classify_business_impact:
+  categories: |
+    - critical_multiple_lines: 3+ business lines significantly affected.
+    - significant_primary_line: Primary line heavily affected with ripple effects.
+    - contained_single_line: Impact contained to one line or function.
+  criteria: |
+    For each business line assess: severity of change, timeline pressure,
+    resource requirements, dependencies between lines.
+
+generate_report:
+  requirements: |
+    Executive impact assessment with:
+    1. Executive summary (2-3 paragraphs)
+    2. Impact classification
+    3. Affected areas
+    4. Key requirements
+    5. Implementation roadmap
+    6. Resource estimate
+    7. Risk assessment
+    8. Recommendation
+    9. Comment period strategy
+  constraints: |
+    - Actionable — leadership knows what to decide
+    - Distinguish certain from interpreted
+    - Flag areas needing legal counsel
+    - Include specific dates and deadlines
+    - 1000-2000 words, no unexplained jargon
+
+challenge_report:
+  perspective: Chief Compliance Officer and NCUA examiner
+  threat_model: |
+    1. Completeness: All business lines covered?
+    2. Accuracy: Regulatory references correct?
+    3. Actionability: Can leadership decide from this?
+    4. Proportionality: Urgency appropriate?
+    5. Legal risk: Any mischaracterizations?
+    6. Missing analysis: Unconsidered impacts?
+    7. Timeline realism: Achievable given capacity?
+    8. Comment period: Positions defensible?
+
+escalate:
+  requirements: |
+    What regulation appears to require, why applicability is unclear,
+    specific questions for compliance/legal, deadline constraints.
+  constraints: |
+    - Concise request for analysis
+    - Flag comment period deadline
+    - Suggest priority level

@@ -1,0 +1,99 @@
+# Nurse Triage Workflow
+# Classify symptoms → Classify urgency → Investigate clinical picture →
+# Verify guidance safety → Generate script → Challenge
+
+name: nurse_triage
+description: Triage patient calls with symptom classification, clinical investigation, and safety verification.
+
+steps:
+  - name: classify_symptoms
+    primitive: classify
+    params:
+      categories: "${domain.classify_symptoms.categories}"
+      criteria: |
+        Caller: ${input.caller_name}, ${input.caller_age}yo ${input.caller_sex}
+        Chief complaint: ${input.chief_complaint}
+        History: ${input.patient_history}
+        ${domain.classify_symptoms.criteria}
+      confidence_threshold: "0.7"
+
+  - name: classify_urgency
+    primitive: classify
+    params:
+      categories: "${domain.classify_urgency.categories}"
+      criteria: |
+        Symptom category: ${classify_symptoms.category}
+        Patient: ${input.caller_age}yo ${input.caller_sex}
+        History: ${input.patient_history}
+        Vitals: ${input.vitals_if_available}
+        ${domain.classify_urgency.criteria}
+      confidence_threshold: "0.8"
+
+  - name: investigate_clinical
+    primitive: investigate
+    params:
+      question: |
+        Symptoms: ${classify_symptoms.category}, Urgency: ${classify_urgency.category}
+        What is the most likely clinical picture and differential?
+      scope: "${domain.investigate_clinical.scope}"
+      available_evidence: |
+        Complaint: ${input.chief_complaint}
+        History: ${input.patient_history}
+        Vitals: ${input.vitals_if_available}
+      effort_level: moderate
+
+  - name: verify_guidance_safety
+    primitive: verify
+    params:
+      input: |
+        Triage level: ${classify_urgency.category}
+        Clinical assessment: ${investigate_clinical.finding}
+        Patient: ${input.caller_age}yo ${input.caller_sex}
+        History: ${input.patient_history}
+      rules: "${domain.verify_guidance_safety.rules}"
+    transitions:
+      - when: "output.conforms == false"
+        goto: escalate
+      - default: generate_script
+
+  - name: generate_script
+    primitive: generate
+    max_loops: 3
+    params:
+      requirements: |
+        Caller: ${input.caller_name}, ${input.caller_age}yo ${input.caller_sex}
+        Triage: ${classify_urgency.category}
+        Clinical: ${investigate_clinical.finding}
+        Safety: ${verify_guidance_safety.reasoning}
+        ${domain.generate_script.requirements}
+      format: telephone_nurse_script
+      constraints: "${domain.generate_script.constraints}"
+    transitions:
+      - default: challenge_script
+
+  - name: challenge_script
+    primitive: challenge
+    max_loops: 3
+    params:
+      input: "${generate_script.artifact}"
+      perspective: "${domain.challenge_script.perspective}"
+      threat_model: "${domain.challenge_script.threat_model}"
+    transitions:
+      - when: "output.survives == true"
+        goto: __end__
+      - when: "output.survives == false"
+        goto: generate_script
+      - default: __end__
+
+  - name: escalate
+    primitive: generate
+    params:
+      requirements: |
+        Patient: ${input.caller_name}, ${input.caller_age}yo
+        Urgency: ${classify_urgency.category}
+        Safety concern: ${verify_guidance_safety.reasoning}
+        ${domain.escalate.requirements}
+      format: clinical_escalation
+      constraints: "${domain.escalate.constraints}"
+    transitions:
+      - default: __end__

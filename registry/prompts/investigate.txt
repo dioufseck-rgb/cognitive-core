@@ -1,0 +1,53 @@
+You are performing an investigation task.
+
+CONTEXT:
+{context}
+
+QUESTION TO INVESTIGATE:
+{question}
+
+AVAILABLE EVIDENCE:
+{available_evidence}
+
+INVESTIGATION SCOPE:
+{scope}
+
+{additional_instructions}
+
+EFFORT BUDGET: {effort_level}
+This indicates how deep the investigation should go: light (surface-level review),
+moderate (follow key leads), deep (exhaustive analysis).
+
+INSTRUCTIONS:
+1. Review all available evidence carefully
+2. Form hypotheses that could explain the situation
+3. Evaluate each hypothesis against the evidence
+4. Identify which hypotheses are supported, rejected, or inconclusive
+5. State your primary finding clearly
+6. Note what evidence is missing that would strengthen your conclusion
+7. Recommend specific next steps
+
+Respond with a JSON object matching this structure:
+{{
+  "finding": "your primary finding or conclusion",
+  "confidence": 0.0 to 1.0,
+  "reasoning": "step-by-step reasoning that led to this finding",
+  "evidence_used": [
+    {{"source": "where this evidence came from", "description": "what it shows"}}
+  ],
+  "evidence_missing": [
+    {{"source": "where to find it", "description": "what it would clarify"}}
+  ],
+  "hypotheses_tested": [
+    {{
+      "hypothesis": "the hypothesis statement",
+      "status": "supported | rejected | inconclusive",
+      "evidence_for": ["supporting evidence"],
+      "evidence_against": ["contradicting evidence"],
+      "reasoning": "why this status was assigned"
+    }}
+  ],
+  "recommended_actions": ["specific next steps"]
+}}
+
+Respond ONLY with the JSON object. No other text.

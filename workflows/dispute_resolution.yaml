@@ -1,0 +1,121 @@
+# Dispute Resolution Workflow
+# Classify → Verify → Investigate → Classify → Generate → Challenge
+# With: fast-path skip, agent routing, generate-challenge loop, escalation
+
+name: dispute_resolution
+description: Generic dispute resolution with agentic routing and refinement loops.
+
+steps:
+  - name: classify_dispute_type
+    primitive: classify
+    params:
+      categories: "${domain.classify_dispute_type.categories}"
+      criteria: "${domain.classify_dispute_type.criteria}"
+      confidence_threshold: "${domain.classify_dispute_type.confidence_threshold}"
+    transitions:
+      - when: "output.confidence >= 0.95"
+        goto: classify_resolution_fast
+      - default: verify_against_records
+
+  - name: verify_against_records
+    primitive: verify
+    params:
+      input: |
+        Member's claim: ${classify_dispute_type.category}
+        Transaction: ${input.transaction_details}
+        Member history: ${input.member_history}
+      rules: "${domain.verify_against_records.rules}"
+
+  - name: investigate_dispute
+    primitive: investigate
+    params:
+      question: |
+        Classified as '${classify_dispute_type.category}', verification
+        found: ${verify_against_records.reasoning}
+        What most likely happened?
+      scope: "${domain.investigate_dispute.scope}"
+      available_evidence: |
+        Transaction: ${input.transaction_details}
+        Member history: ${input.member_history}
+        Verification: ${verify_against_records.reasoning}
+      effort_level: "${domain.investigate_dispute.effort_level}"
+    transitions:
+      - when: "output.confidence < 0.4"
+        goto: escalate_to_human
+      - agent_decide:
+          prompt: |
+            Investigation complete. Finding: ${investigate_dispute.finding}
+            Confidence: ${investigate_dispute.confidence}
+          options:
+            - step: classify_resolution
+              description: Sufficient evidence for resolution decision.
+            - step: escalate_to_human
+              description: Too complex for automated resolution.
+
+  - name: classify_resolution_fast
+    primitive: classify
+    params:
+      categories: "${domain.classify_resolution_fast.categories}"
+      criteria: |
+        Dispute: ${classify_dispute_type.category} (${classify_dispute_type.confidence})
+        Member: ${input.member_history}
+        Transaction: ${input.transaction_details}
+        ${domain.classify_resolution_fast.criteria}
+      confidence_threshold: "0.8"
+    transitions:
+      - default: generate_response
+
+  - name: classify_resolution
+    primitive: classify
+    params:
+      categories: "${domain.classify_resolution.categories}"
+      criteria: |
+        Type: ${classify_dispute_type.category} (${classify_dispute_type.confidence})
+        Verification: ${verify_against_records.conforms}
+        Investigation: ${investigate_dispute.finding} (${investigate_dispute.confidence})
+        Member: ${input.member_history}
+        ${domain.classify_resolution.criteria}
+      confidence_threshold: "0.75"
+    transitions:
+      - default: generate_response
+
+  - name: generate_response
+    primitive: generate
+    max_loops: 3
+    params:
+      requirements: |
+        Resolution: ${previous.category}
+        Dispute type: ${classify_dispute_type.category}
+        Member: ${input.member_name}
+        Transaction: ${input.transaction_details}
+        ${domain.generate_response.requirements}
+      format: member_notification_letter
+      constraints: "${domain.generate_response.constraints}"
+    transitions:
+      - default: challenge_response
+
+  - name: challenge_response
+    primitive: challenge
+    max_loops: 3
+    params:
+      input: "${generate_response.artifact}"
+      perspective: "${domain.challenge_response.perspective}"
+      threat_model: "${domain.challenge_response.threat_model}"
+    transitions:
+      - when: "output.survives == true"
+        goto: __end__
+      - when: "output.survives == false"
+        goto: generate_response
+      - default: __end__
+
+  - name: escalate_to_human
+    primitive: generate
+    params:
+      requirements: |
+        Member: ${input.member_name}, ${input.member_history}
+        Dispute type: ${classify_dispute_type.category}
+        ${domain.escalate_to_human.requirements}
+      format: escalation_summary
+      constraints: "${domain.escalate_to_human.constraints}"
+    transitions:
+      - default: __end__

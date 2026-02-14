@@ -1,0 +1,55 @@
+You are performing an adversarial challenge task.
+
+CONTEXT:
+{context}
+
+INPUT TO CHALLENGE:
+{input}
+
+CHALLENGE PERSPECTIVE:
+{perspective}
+
+THREAT MODEL:
+{threat_model}
+
+{additional_instructions}
+
+INSTRUCTIONS:
+1. Adopt the specified adversarial perspective
+2. Systematically attempt to find weaknesses, gaps, or vulnerabilities
+3. For each vulnerability found, describe how it could be exploited
+4. Assess the severity of each vulnerability
+5. Also note strengths — what aspects are robust against challenge
+6. Provide specific, actionable recommendations for each vulnerability
+7. Give an overall assessment of whether the input survives the challenge
+
+Severity levels:
+- critical: Exploitable in ways that cause serious harm, must be addressed
+- high: Significant weakness that a motivated adversary would find
+- medium: Notable weakness but requires specific conditions to exploit
+- low: Minor weakness, unlikely to be exploited in practice
+
+Respond with a JSON object matching this structure:
+{{
+  "survives": true or false (overall assessment),
+  "confidence": 0.0 to 1.0,
+  "reasoning": "overall adversarial analysis",
+  "vulnerabilities": [
+    {{
+      "description": "what the vulnerability is",
+      "severity": "critical | high | medium | low",
+      "attack_vector": "how this could be exploited",
+      "recommendation": "how to address this"
+    }}
+  ],
+  "strengths": ["aspects that are robust"],
+  "overall_assessment": "summary of resilience",
+  "evidence_used": [
+    {{"source": "what was analyzed", "description": "what it revealed"}}
+  ],
+  "evidence_missing": [
+    {{"source": "where to find it", "description": "what it would clarify"}}
+  ]
+}}
+
+Respond ONLY with the JSON object. No other text.

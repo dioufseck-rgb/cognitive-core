@@ -1,0 +1,132 @@
+# ACH Dispute Domain Configuration
+#
+# Domain-specific content for the dispute_resolution workflow
+# when applied to ACH (electronic funds transfer) disputes.
+# Demonstrates same workflow, completely different domain knowledge.
+
+domain_name: ach_dispute
+workflow: dispute_resolution
+description: >
+  Domain configuration for ACH transaction disputes including
+  unauthorized debits, incorrect amounts, duplicate transactions,
+  and revoked authorizations.
+
+classify_dispute_type:
+  confidence_threshold: "0.8"
+  categories: |
+    - unauthorized_debit: Member did not authorize this ACH debit.
+      No authorization on file, or authorization was revoked.
+    - incorrect_amount: ACH debit was for a different amount than
+      the member authorized.
+    - duplicate_transaction: Same ACH debit posted more than once.
+    - revoked_authorization: Member previously authorized recurring
+      ACH debits but has revoked authorization and debits continue.
+    - account_error: ACH debit posted to wrong account or wrong
+      member's account.
+  criteria: |
+    Analyze the member's description. Consider:
+    - Does the member recognize the originator (company name)?
+    - Is this a one-time or recurring ACH?
+    - Did the member previously authorize debits from this originator?
+    - Is the dispute about the existence, amount, or timing?
+    - Has the member contacted the originator directly?
+
+verify_against_records:
+  rules: |
+    1. ACH debit entry exists with matching details (amount, date, originator)
+    2. ACH authorization on file for this originator (if recurring)
+    3. If recurring: authorization has not been formally revoked
+    4. Transaction amount matches authorized amount (if authorization exists)
+    5. No duplicate entries for same originator, amount, and date
+    6. ODFI and trace number are valid
+    7. Dispute filed within 60 calendar days of statement (Reg E)
+    8. For unauthorized: filed within 2 business days for limited
+       liability ($50), or within 60 days ($500 max liability)
+
+investigate_dispute:
+  effort_level: moderate
+  scope: |
+    - Authorization history: was there ever a valid authorization?
+    - Originator patterns: known complaint patterns for this originator
+    - Timing: did the member recently close a subscription or service?
+    - Communication: has the member attempted to contact the originator?
+    - Revocation: if revoked, was revocation properly communicated
+      to both the originator and the credit union?
+    - NACHA rules: which return reason code applies?
+
+classify_resolution_fast:
+  categories: |
+    - immediate_credit_return: Return the ACH and credit the member
+      immediately. Clear unauthorized debit or duplicate.
+    - provisional_credit_and_return: Issue provisional credit and
+      initiate ACH return while completing investigation.
+  criteria: |
+    If clearly unauthorized (no authorization on file) AND within
+    return timeframe: immediate_credit_return.
+    If authorization status is unclear: provisional_credit_and_return.
+
+classify_resolution:
+  categories: |
+    - return_unauthorized: Initiate ACH return with R10 (unauthorized)
+      or R07 (revoked authorization). Credit member.
+    - return_incorrect_amount: Initiate return with R03 or contact
+      originator for correction.
+    - deny_valid_authorization: Authorization exists and is valid.
+      Direct member to contact originator to resolve.
+    - late_return_request: Outside NACHA return timeframe. Initiate
+      extended return or contact originator directly.
+    - provisional_credit_investigate: Issue provisional credit while
+      investigating authorization status.
+  criteria: |
+    NACHA return timeframes:
+    - Unauthorized: 2 banking days from settlement (expedited)
+    - Other consumer returns: 60 calendar days from statement
+    - Extended returns possible in some cases
+
+    If within return window and unauthorized: return immediately.
+    If outside return window: may need extended return process.
+    If valid authorization exists: deny and refer to originator.
+
+generate_response:
+  requirements: |
+    The letter should:
+    1. Address member by name
+    2. Reference the specific ACH transaction (originator, amount, date)
+    3. Explain the action taken (return initiated, credit issued, etc.)
+    4. If returning: explain the return process and timeline
+    5. If denying: explain why and provide originator contact guidance
+    6. Include stop payment options for recurring unauthorized debits
+    7. Recommend placing an ACH block if appropriate
+  constraints: |
+    - Regulation E: Electronic fund transfer dispute rights and timelines
+    - Must explain member's liability based on when dispute was filed
+      ($50 if within 2 business days, $500 if within 60 days)
+    - UDAAP: must not blame member for unauthorized transactions
+    - If recurring: explain how to formally revoke ACH authorization
+    - Include both credit union contact and originator contact info
+    - Reading level: 8th grade or below
+
+challenge_response:
+  perspective: |
+    NCUA examiner reviewing Reg E compliance and consumer rights attorney
+  threat_model: |
+    1. Reg E compliance: liability limits correctly stated?
+    2. NACHA rules: return reason codes and timeframes accurate?
+    3. Member rights: all dispute rights clearly communicated?
+    4. Stop payment: was the option to block future debits mentioned?
+    5. Accuracy: originator name, amounts, dates all correct?
+    6. Completeness: all member concerns addressed?
+    7. Tone: supportive and non-judgmental?
+
+escalate_to_human:
+  requirements: |
+    Include:
+    - ACH trace number and originator details
+    - Authorization status (on file, not on file, revoked)
+    - NACHA return timeframe status
+    - Whether this appears to be part of a larger pattern
+    - Recommended return reason code if applicable
+  constraints: |
+    - Include full transaction details for NACHA dispute process
+    - Flag if return timeframe is expiring soon
+    - Note if originator has pattern of complaints

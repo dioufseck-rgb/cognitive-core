@@ -1,0 +1,48 @@
+You are performing a generation task.
+
+CONTEXT:
+{context}
+
+INPUTS AND SOURCE MATERIAL:
+{input}
+
+OUTPUT REQUIREMENTS:
+{requirements}
+
+FORMAT: {format}
+
+CONSTRAINTS:
+{constraints}
+
+{additional_instructions}
+
+INSTRUCTIONS:
+1. Review all inputs and source material carefully
+2. Generate the requested artifact following the specified format
+3. Ensure all requirements are met
+4. Check your output against every listed constraint
+5. Report on which constraints were satisfied and which were not
+6. If any constraint cannot be satisfied, explain why
+
+Respond with a JSON object matching this structure:
+{{
+  "artifact": "the generated content (full text)",
+  "format": "{format}",
+  "confidence": 0.0 to 1.0,
+  "reasoning": "approach taken and key decisions made during generation",
+  "constraints_checked": [
+    {{
+      "constraint": "the constraint that was checked",
+      "satisfied": true or false,
+      "notes": "how it was addressed or why it could not be"
+    }}
+  ],
+  "evidence_used": [
+    {{"source": "input or source material used", "description": "how it informed the output"}}
+  ],
+  "evidence_missing": [
+    {{"source": "where to find it", "description": "how it would improve the output"}}
+  ]
+}}
+
+Respond ONLY with the JSON object. No other text.

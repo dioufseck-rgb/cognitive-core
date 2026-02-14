@@ -1,0 +1,111 @@
+# Loan Hardship Assessment Workflow
+# Classify hardship → Investigate (military or general path) →
+# Classify assistance → Generate guidance → Challenge
+# With: military-specific routing, agent decides escalation
+
+name: loan_hardship
+description: Assess member hardship and determine loan modification options.
+
+steps:
+  - name: classify_hardship
+    primitive: classify
+    params:
+      categories: "${domain.classify_hardship.categories}"
+      criteria: |
+        Member statement: ${input.member_statement}
+        ${domain.classify_hardship.criteria}
+      confidence_threshold: "0.7"
+    transitions:
+      - when: "output.category == 'military_transition'"
+        goto: investigate_military
+      - when: "output.category == 'disaster_hardship'"
+        goto: escalate
+      - default: investigate_financial
+
+  - name: investigate_military
+    primitive: investigate
+    params:
+      question: |
+        What military-specific benefits and protections apply?
+      scope: "${domain.investigate_military.scope}"
+      available_evidence: |
+        Statement: ${input.member_statement}
+        Loans: ${input.loan_details}
+        Profile: ${input.member_profile}
+      effort_level: deep
+    transitions:
+      - default: classify_assistance
+
+  - name: investigate_financial
+    primitive: investigate
+    params:
+      question: |
+        What is the overall financial picture and hardship trajectory?
+      scope: "${domain.investigate_financial.scope}"
+      available_evidence: |
+        Statement: ${input.member_statement}
+        Loans: ${input.loan_details}
+        Profile: ${input.member_profile}
+      effort_level: moderate
+    transitions:
+      - default: classify_assistance
+
+  - name: classify_assistance
+    primitive: classify
+    params:
+      categories: "${domain.classify_assistance.categories}"
+      criteria: |
+        Hardship: ${classify_hardship.category}
+        Profile: ${input.member_profile}
+        ${domain.classify_assistance.criteria}
+      confidence_threshold: "0.6"
+    transitions:
+      - agent_decide:
+          prompt: |
+            Assistance option: ${classify_assistance.category}
+            Confidence: ${classify_assistance.confidence}
+          options:
+            - step: generate_guidance
+              description: Clear enough to generate member-facing guidance.
+            - step: escalate
+              description: Requires human specialist for complex modification.
+
+  - name: generate_guidance
+    primitive: generate
+    max_loops: 3
+    params:
+      requirements: |
+        Member: ${input.member_name}
+        Hardship: ${classify_hardship.category}
+        Option: ${classify_assistance.category}
+        ${domain.generate_guidance.requirements}
+      format: member_hardship_response
+      constraints: "${domain.generate_guidance.constraints}"
+    transitions:
+      - default: challenge_guidance
+
+  - name: challenge_guidance
+    primitive: challenge
+    max_loops: 3
+    params:
+      input: "${generate_guidance.artifact}"
+      perspective: "${domain.challenge_guidance.perspective}"
+      threat_model: "${domain.challenge_guidance.threat_model}"
+    transitions:
+      - when: "output.survives == true"
+        goto: __end__
+      - when: "output.survives == false"
+        goto: generate_guidance
+      - default: __end__
+
+  - name: escalate
+    primitive: generate
+    params:
+      requirements: |
+        Member: ${input.member_name} (${input.member_profile.tenure_years}yr member)
+        Hardship: ${classify_hardship.category}
+        ${domain.escalate.requirements}
+      format: specialist_handoff
+      constraints: "${domain.escalate.constraints}"
+    transitions:
+      - default: __end__

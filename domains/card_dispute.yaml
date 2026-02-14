@@ -1,0 +1,131 @@
+# Card Dispute Domain Configuration
+#
+# Domain-specific content for the dispute_resolution workflow
+# when applied to card (credit/debit) transaction disputes.
+#
+# This file contains the subject matter expertise: what categories
+# exist, what rules apply, what compliance constraints govern
+# card disputes specifically.
+
+domain_name: card_dispute
+workflow: dispute_resolution
+description: >
+  Domain configuration for credit and debit card transaction disputes.
+  Covers unauthorized transactions, billing errors, quality disputes,
+  and processing errors on card products.
+
+# Step-specific domain content
+# Each key matches a step name in the workflow
+
+classify_dispute_type:
+  confidence_threshold: "0.8"
+  categories: |
+    - unauthorized_transaction: Member did not authorize this transaction.
+      Possible fraud or stolen card information.
+    - billing_error: Incorrect amount, double charge, or charge for
+      returned/cancelled item.
+    - quality_dispute: Goods/services defective, not as described,
+      or never delivered.
+    - processing_error: Technical or processing error (wrong account,
+      duplicate posting, incorrect date).
+  criteria: |
+    Analyze the member's description. Consider:
+    - Does the member recognize the merchant?
+    - Is the dispute about the amount, the transaction, or what was received?
+    - Are there fraud indicators (unknown merchant, unusual location)?
+    - Does the member claim card was in their possession?
+    - Was this a card-present or card-not-present transaction?
+
+verify_against_records:
+  rules: |
+    1. Transaction exists and matches member-provided details (amount, date, merchant)
+    2. Authorization method consistent with dispute type
+       (card-not-present for unauthorized online, chip-and-pin for in-store)
+    3. Transaction geolocation consistent with member's known location
+    4. Device fingerprint matches known member devices
+    5. Transaction pattern consistent with spending history
+       (merchant category, amount range, frequency)
+    6. No prior disputes filed for this transaction
+    7. Filed within regulatory timeframe (60 days Reg E, 120 days Reg Z)
+
+investigate_dispute:
+  effort_level: moderate
+  scope: |
+    - Fraud indicators: transaction pattern vs. known fraud typologies
+      (card-not-present from unusual geolocation, unknown device,
+      merchant category inconsistency)
+    - Member behavior: history suggesting first-party fraud or legitimate mistake
+    - Merchant patterns: merchant associated with known fraud
+    - Authorization: how was the transaction authorized, failed attempts prior
+    - Velocity: multiple fraudulent charges in a short period
+
+classify_resolution_fast:
+  categories: |
+    - immediate_credit_close: Issue permanent credit and close.
+      Strong evidence, good standing, amount within threshold.
+    - provisional_credit_and_investigate: Issue provisional credit
+      while completing formal investigation.
+  criteria: |
+    If confidence > 0.95 AND tenure > 2 years AND amount < $500
+    AND no prior disputes: lean toward immediate_credit_close.
+    Otherwise: provisional_credit_and_investigate.
+
+classify_resolution:
+  categories: |
+    - provisional_credit_and_investigate: Issue provisional credit
+      while conducting full investigation.
+    - full_investigation_no_credit: Investigate further before
+      deciding on credit.
+    - immediate_credit_close: Issue permanent credit and close.
+    - deny_dispute: Deny based on evidence.
+  criteria: |
+    Resolution principles:
+    - If fraud confidence > 0.85 and good standing: provisional credit
+    - If fraud confidence > 0.95 and amount < $500: immediate credit
+    - If investigation inconclusive: full investigation no credit
+    - If evidence suggests member authorized: deny
+    - If complex multi-transaction or first-party fraud indicators: escalate
+
+generate_response:
+  requirements: |
+    The letter should:
+    1. Address member by name
+    2. Reference the specific transaction in dispute
+    3. Clearly state what action is being taken
+    4. Explain next steps and timeline
+    5. Provide dispute department contact information
+    6. Be empathetic but professional
+  constraints: |
+    - Regulation E: If provisional credit issued, state amount and
+      investigation timeline (10 business days or 45 calendar days)
+    - Regulation Z: Reference Fair Credit Billing Act rights for credit cards
+    - UDAAP: Tone must not be unfair, deceptive, or abusive
+    - Must not include internal investigation details or fraud scores
+    - Must include credit union dispute department contact info
+    - Reading level: 8th grade or below
+    - Must not make promises about outcomes not yet determined
+
+challenge_response:
+  perspective: |
+    NCUA regulatory compliance examiner and consumer advocacy attorney
+  threat_model: |
+    1. Reg E / Reg Z compliance: all required disclosures present?
+    2. UDAAP risk: any unfair, deceptive, or abusive language?
+    3. Fair lending: disparate impact risk if sent consistently?
+    4. Privacy: internal fraud scoring or investigation methods revealed?
+    5. Litigation risk: exploitable statements?
+    6. Member experience: will they feel heard and respected?
+    7. Accuracy: facts consistent with dispute details?
+
+escalate_to_human:
+  requirements: |
+    Include:
+    - All evidence gathered so far
+    - Why automated resolution was not appropriate
+    - Specific questions the specialist should focus on
+    - Recommended priority level
+    - Any regulatory filing deadlines
+  constraints: |
+    - Must include all context so specialist doesn't re-investigate
+    - State what the automation could and could not determine
+    - Flag time-sensitive regulatory deadlines

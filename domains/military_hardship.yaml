@@ -1,0 +1,91 @@
+domain_name: military_hardship
+workflow: loan_hardship
+description: Loan hardship for military families — medical retirement, PCS, separation.
+
+classify_hardship:
+  categories: |
+    - income_reduction_temporary: Temporary loss with recovery expectation (3-12 months).
+    - income_reduction_permanent: Permanent reduction requiring restructuring.
+    - medical_hardship: Medical event causing financial strain.
+    - disaster_hardship: Catastrophic event affecting home or livelihood.
+    - military_transition: Related to military service change — deployment, PCS, separation, retirement, medical retirement. May trigger SCRA protections.
+    - overextension: Too much debt relative to income, no specific event.
+  criteria: |
+    Root cause, not symptoms. Is this military transition? Temporary or
+    permanent? Is the member proactive?
+    Military status: ${input.member_profile.military_status}
+
+investigate_military:
+  scope: |
+    1. SCRA: Does Servicemembers Civil Relief Act apply? Rate reduction eligibility?
+    2. VA BENEFITS: Transitioning to VA disability? Timeline to stabilize?
+    3. MILITARY PROGRAMS: Enhanced options for military families?
+    4. TIMELINE: Medical retirement transitions take 3-6 months. Temporary relief sufficient?
+    5. COMBINED OBLIGATIONS: Both loans together vs. likely new income?
+
+investigate_financial:
+  scope: |
+    1. DEBT-TO-INCOME: Current obligations vs income change
+    2. PAYMENT CAPACITY: Can they make reduced payments?
+    3. ASSET POSITION: LTV, equity available
+    4. TIMELINE: How long will hardship last?
+    5. RISK: Default risk without help vs cost of assistance
+
+classify_assistance:
+  categories: |
+    - temporary_forbearance: Reduce/pause payments 3-6 months. Deferred amounts to end.
+    - rate_reduction: Temporarily or permanently reduce rate.
+    - term_extension: Extend term to reduce monthly payment.
+    - loan_modification: Comprehensive restructuring.
+    - referral_to_counseling: Financial counseling, no immediate changes.
+    - multiple_options_present: Present 2-3 options for member choice.
+  criteria: |
+    Reward proactive behavior. Perfect history = strong forbearance candidate.
+    Military families get enhanced consideration.
+    Consider BOTH loans together. Goal: keep member in home and good standing.
+
+generate_guidance:
+  requirements: |
+    Response MUST:
+    1. Acknowledge difficulty with genuine empathy
+    2. Recognize responsible behavior (proactive, perfect history)
+    3. Explain options in plain language
+    4. For each option: what changes, how long, what happens after
+    5. Next steps and documentation needed
+    6. Direct specialist contact
+    7. Reassure about standing (if true)
+    8. Acknowledge family's service if military
+    TONE: Warm, respectful, empowering.
+  constraints: |
+    - NEVER language implying judgment
+    - NEVER promise unapproved terms
+    - Disclaimer: final terms subject to approval
+    - ECOA: cannot base decisions on military status (but can offer military programs)
+    - Reading level 8th grade
+    - If forbearance: payments deferred not forgiven
+    - If SCRA applicable: mention rate protection rights
+
+challenge_guidance:
+  perspective: |
+    The member — do I feel helped? Fair lending examiner — ECOA concerns?
+    Consumer attorney — misleading promises?
+  threat_model: |
+    1. Empathy: genuine or scripted?
+    2. Accuracy: options consistent with classification?
+    3. ECOA: discrimination concerns?
+    4. UDAAP: unfair/deceptive/abusive?
+    5. Clarity: member knows what to do next?
+    6. Completeness: both loans addressed?
+    7. False reassurance: uncertain outcome promised?
+    8. SCRA: rights properly communicated?
+
+escalate:
+  requirements: |
+    Member situation in own words, system assessment and recommendation,
+    why specialist needed, both loans considered together, military
+    eligibility, suggested approach and tone, time-sensitive factors.
+    Specialist should call the member, not wait.
+  constraints: |
+    - Convey emotional state so specialist is prepared
+    - Include all loan details
+    - Flag regulatory deadlines

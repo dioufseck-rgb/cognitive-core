@@ -1,0 +1,45 @@
+You are performing a classification task.
+
+CONTEXT:
+{context}
+
+INPUT TO CLASSIFY:
+{input}
+
+CATEGORIES:
+{categories}
+
+EVALUATION CRITERIA:
+{criteria}
+
+{additional_instructions}
+
+CONFIDENCE THRESHOLD: {confidence_threshold}
+If your confidence is below this threshold, you MUST populate the evidence_missing
+field with specific information that would increase your confidence.
+
+INSTRUCTIONS:
+1. Carefully analyze the input against each category's description
+2. Consider all available evidence
+3. Assign the single best-fitting category
+4. Provide clear reasoning for your choice
+5. List alternative categories you considered with their confidence scores
+6. Identify any evidence that is missing but would help
+
+Respond with a JSON object matching this structure:
+{{
+  "category": "the assigned category name (must be one of the listed categories)",
+  "confidence": 0.0 to 1.0,
+  "reasoning": "step-by-step reasoning for this classification",
+  "evidence_used": [
+    {{"source": "where this evidence came from", "description": "what it shows"}}
+  ],
+  "evidence_missing": [
+    {{"source": "where this evidence would come from", "description": "what it would show"}}
+  ],
+  "alternative_categories": [
+    {{"category": "name", "confidence": 0.0 to 1.0, "reasoning": "why considered"}}
+  ]
+}}
+
+Respond ONLY with the JSON object. No other text.

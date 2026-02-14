@@ -1,0 +1,88 @@
+domain_name: cardiac_triage
+workflow: nurse_triage
+description: Triage for potential cardiac symptoms — chest pain, pressure, SOB.
+
+classify_symptoms:
+  categories: |
+    - cardiac: Chest pain/pressure, arm/jaw pain, SOB, diaphoresis.
+    - respiratory: Primary breathing difficulty without cardiac indicators.
+    - gastrointestinal: Abdominal pain, nausea, heartburn, reflux.
+    - musculoskeletal: Movement/injury-related pain.
+    - neurological: Headache, dizziness, numbness, confusion.
+    - psychiatric: Anxiety, panic attack, mental health crisis.
+    - other: Does not fit above categories.
+  criteria: |
+    Location, quality, radiation of pain. Associated symptoms.
+    Onset and timing. What helps/worsens. History and risk factors.
+    When cardiac and GI overlap, err toward cardiac.
+
+classify_urgency:
+  categories: |
+    - emergent_call_911: Life-threatening. Call 911 immediately.
+    - urgent_ed_now: ED within 1-2 hours, not immediately life-threatening.
+    - urgent_same_day: Medical evaluation today.
+    - routine_24_48h: Seen within 1-2 days.
+    - self_care: Manage at home, follow up if worse.
+  criteria: |
+    Chest pressure + SOB + arm tingling in male 40+ with risk factors = HIGHEST.
+    2am awakening significant. Antacid not relieving = red flag against GI.
+    Compound risk factors. When in doubt, triage UP.
+
+investigate_clinical:
+  scope: |
+    1. Primary differentials ranked by likelihood and severity
+    2. Historical factors supporting/against each diagnosis
+    3. Additional information to narrow differential
+    4. Red flags present
+    5. Red flags to ask about (diaphoresis, nausea, jaw pain, travel, leg swelling)
+
+verify_guidance_safety:
+  rules: |
+    1. Schmitt-Thompson: urgency matches published protocols?
+    2. Cardiac protocol: male 40+ with pressure/SOB/risk factors must be emergent
+    3. Medication safety: no conflict with current meds/allergies
+    4. Time-of-day: night acute onset = more conservative
+    5. Never "wait and see" for cardiac symptoms in high-risk
+    6. If emergent: must include calling 911, not self-driving
+    7. Aspirin: if cardiac suspected and no contraindication, include chewing aspirin
+
+generate_script:
+  requirements: |
+    Script should:
+    1. Stay calm but convey urgency
+    2. Validate decision to call
+    3. Clear, specific instructions for RIGHT NOW
+    4. If 911 indicated, say so directly
+    5. Dos and don'ts while waiting
+    6. Address "overreacting" concern
+    7. Guidance for spouse (what to tell EMS)
+    8. Plain language, no jargon
+  constraints: |
+    - Must not diagnose ("symptoms need evaluation" not "heart attack")
+    - No medications beyond OTC unless verified safe
+    - If aspirin: verify no contraindications
+    - Include callback number
+    - Document triage level
+    - No false reassurance or panic
+    - Tone: calm, confident, caring, direct
+
+challenge_script:
+  perspective: Clinical quality reviewer and medical malpractice attorney
+  threat_model: |
+    1. Under-triage: could patient delay care for time-sensitive condition?
+    2. Over-triage: unnecessary panic causing harm?
+    3. Medication safety: conflicts with known conditions?
+    4. Scope of practice: within nurse triage, not diagnosing?
+    5. Documentation: adequate for later review?
+    6. Omission: critical instructions missing?
+    7. Communication: could instructions be misunderstood?
+    8. Liability: exploitable statements?
+
+escalate:
+  requirements: |
+    Patient details, urgency classification, safety concern specifics,
+    what automated triage found, why escalation needed.
+  constraints: |
+    - Include all clinical details
+    - Flag if life-threatening
+    - Immediate callback priority

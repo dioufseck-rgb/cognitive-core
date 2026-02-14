@@ -1,0 +1,22 @@
+{
+  "caller_name": "David Park",
+  "caller_age": 42,
+  "caller_sex": "male",
+  "call_time": "2026-02-13T02:15:00Z",
+  "chief_complaint": "I woke up about an hour ago with really bad chest tightness. It's not exactly pain, more like pressure, right in the center of my chest. I'm also feeling kind of short of breath. I thought it might be heartburn because I had a big dinner, but the antacid didn't help. My left arm feels a little tingly. I don't want to overreact but my wife told me to call.",
+  "patient_history": {
+    "known_conditions": ["hypertension", "high cholesterol"],
+    "medications": ["lisinopril 10mg", "atorvastatin 20mg"],
+    "allergies": ["sulfa drugs"],
+    "family_history": "father had MI at age 58",
+    "smoking": "quit 5 years ago, 15 pack-year history",
+    "last_physical": "2025-06-15",
+    "bmi": 29.1
+  },
+  "vitals_if_available": {
+    "has_home_bp_monitor": true,
+    "reported_bp": "158/95",
+    "reported_hr": "92",
+    "temperature": "not taken"
+  }
+}
