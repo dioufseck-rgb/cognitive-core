@@ -10,9 +10,11 @@ from registry.schemas import (
     BaseOutput,
     ClassifyOutput,
     InvestigateOutput,
+    ThinkOutput,
     VerifyOutput,
     GenerateOutput,
     ChallengeOutput,
+    RetrieveOutput,
     SCHEMA_REGISTRY,
 )
 
@@ -26,8 +28,10 @@ __all__ = [
     "BaseOutput",
     "ClassifyOutput",
     "InvestigateOutput",
+    "ThinkOutput",
     "VerifyOutput",
     "GenerateOutput",
     "ChallengeOutput",
+    "RetrieveOutput",
     "SCHEMA_REGISTRY",
 ]

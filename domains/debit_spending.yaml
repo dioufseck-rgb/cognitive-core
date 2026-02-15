@@ -1,0 +1,183 @@
+# Debit Card Spending Advisor - Domain Configuration
+#
+# Domain-specific content for the spending_advisor workflow.
+# Covers debit card spending analysis, pattern detection,
+# and personalized financial advice tied to member goals.
+
+domain_name: debit_spending
+workflow: spending_advisor
+description: >
+  Domain configuration for debit card spending analysis and advisory.
+  Analyzes transaction patterns, category breakdowns, temporal trends,
+  and progress toward financial goals.
+
+gather_member_data:
+  strategy: deterministic
+  specification: |
+    Required data sources:
+      - member_profile: Name, age, tenure, income band, balances
+      - member_question: The member's question or request
+      - financial_goals: Stated savings and spending goals
+      - monthly_summaries: Pre-aggregated monthly spending by category
+      - transactions: Raw transaction history for detailed analysis
+
+    Conditional (include if available):
+      - prior_conversation: Previous turns in this conversation, including
+        prior questions, classifications, findings, and responses. Use this
+        to maintain continuity — do not repeat information already provided,
+        and build on prior analysis rather than starting from scratch.
+
+classify_inquiry:
+  confidence_threshold: "0.7"
+  categories: |
+    - spending_category_inquiry: Member asks about spending in a specific category
+      (coffee, dining out, groceries, gas, shopping, etc.)
+      Examples: "How much do I spend on coffee?" "What's my takeout spending?"
+    - pattern_analysis: Member asks about spending patterns or trends over time.
+      Examples: "Do I spend more mid-month?" "Is my spending going up?"
+      "What are my biggest expenses?"
+    - goal_progress: Member asks about progress toward a financial goal.
+      Examples: "Am I on track for my emergency fund?" "How's my savings going?"
+    - reduction_advice: Member asks for advice on how to cut spending.
+      Examples: "How can I save money?" "Where should I cut back?"
+    - comparison: Member compares spending across time periods or categories.
+      Examples: "Am I spending more than last month?" "Did my grocery bill go up?"
+    - multi_topic: Member asks about multiple things at once.
+      Examples: "How's my coffee spending AND am I on track for savings?"
+  criteria: |
+    Consider the member's exact words and intent.
+    If the question covers multiple topics, classify as multi_topic.
+    If the member expresses frustration about spending, lean toward
+    reduction_advice even if they phrase it as a question.
+
+    CONVERSATION CONTINUITY:
+    If prior_conversation data is present, consider whether this question
+    is a follow-up to a previous exchange. A follow-up that drills into
+    a specific aspect of a previous broad answer (e.g., "what about just
+    Starbucks?" after a general spending breakdown) should be classified
+    by what the NEW question is asking, not the prior topic. The prior
+    context informs scope, not classification.
+
+investigate_spending:
+  effort_level: deep
+  scope: |
+    Analyze the member's debit card transaction data to answer their question.
+
+    CONVERSATION CONTINUITY:
+    If prior_conversation data is available, you MUST:
+    - Reference findings from prior turns rather than re-deriving them
+    - Focus your analysis on what is NEW in this question
+    - Do not repeat analysis already performed — drill deeper instead
+    - If the member is asking a narrower version of a prior question
+      (e.g., "what about Starbucks?" after a general coffee breakdown),
+      filter the data to that specific scope and provide merchant-level
+      detail the prior turn did not include
+
+    Focus areas based on inquiry type:
+
+    For spending_category_inquiry:
+      - Total and average monthly spend in the requested category
+      - Trend over the 12-month period (increasing, decreasing, stable)
+      - How this compares to their overall spending
+      - Top merchants in that category
+
+    For pattern_analysis:
+      - Day-of-month spending distribution
+      - Month-over-month trends
+      - Seasonal patterns
+      - Identify spending peaks and explain likely causes
+
+    For goal_progress:
+      - Current progress toward each goal (percentage, dollar amount remaining)
+      - Projected completion date at current rate
+      - Whether they'll hit their target date
+      - What adjustment would get them on track if behind
+
+    For reduction_advice:
+      - Identify the most impactful categories to reduce
+      - Calculate savings potential per category
+      - Identify specific patterns that suggest waste (daily coffee, frequent small purchases)
+      - Compare discretionary vs. essential spending ratio
+
+    For multi_topic:
+      - Address each topic with appropriate depth
+      - Connect the topics if they relate (e.g., spending reduction → goal progress)
+
+    IMPORTANT: Use specific numbers from the data. Never generalize when you
+    have exact figures. Round to whole dollars for readability.
+
+generate_advice:
+  format: conversational_message
+  requirements: |
+    Write a response as a personal financial advisor in a mobile chat interface.
+
+    CONVERSATION CONTINUITY:
+    If prior_conversation data is available, this is a follow-up message.
+    - DO NOT re-introduce yourself or re-greet the member
+    - DO NOT repeat information already provided in a prior turn
+    - Reference the prior conversation naturally: "Looking at just
+      Starbucks like you asked..." not "As I mentioned before..."
+    - Match the depth to the question — a drill-down question gets
+      a focused answer, not another broad overview
+
+    TONE:
+    - Warm, direct, encouraging — like a smart friend who's good with money
+    - Use the member's first name
+    - Don't lecture. Don't patronize. Don't use corporate language.
+    - Be specific: "You spent $273 on dining in January" not "your dining spending is elevated"
+    - If the news is bad, be honest but frame constructively
+    - If they're doing well, celebrate it genuinely
+
+    STRUCTURE:
+    - Lead with the direct answer to what they asked
+    - Support with 2-3 specific data points
+    - Connect to their stated goals where relevant
+    - End with 1-2 specific, actionable suggestions (not generic platitudes)
+    - Keep it under 300 words — this is a chat, not a report
+
+    DATA ACCURACY:
+    - Every number must come from the investigation findings
+    - If you cite a trend, it must be supported by the month-over-month data
+    - Don't invent statistics or benchmarks
+  constraints: |
+    1. Never provide specific investment advice or recommend financial products
+    2. Never say "you should" about investment decisions
+    3. All dollar amounts must be traceable to the transaction data
+    4. Do not reference other members' spending or "average" benchmarks
+       unless they come from the investigation data
+    5. Advice must be actionable and specific to this member's situation
+    6. Keep the response under 300 words
+    7. Do not use bullet points or numbered lists — write naturally
+
+challenge_advice:
+  perspective: |
+    You are reviewing this financial advice from three angles:
+
+    1. ACCURACY: Do the numbers match the investigation findings?
+       Every dollar amount, trend claim, and comparison must be supported.
+
+    2. REGULATORY SAFETY: Could anything in this response be construed as
+       investment advice, a guarantee of outcomes, or a recommendation
+       that requires a licensed advisor? Financial institutions cannot
+       provide personalized investment advice without appropriate licensing.
+
+    3. MEMBER EXPERIENCE: Would a real person find this helpful? Is it
+       too long? Too generic? Condescending? Does it actually answer
+       what they asked?
+  threat_model: |
+    CRITICAL vulnerabilities:
+    - Fabricated numbers not in the data
+    - Specific investment recommendations ("put your money in...")
+    - Guarantees ("you will save $X if...")
+    - Dismissive tone about member's concerns
+
+    MEDIUM vulnerabilities:
+    - Generic advice not tied to this member's data
+    - Missing the member's actual question
+    - Response too long for mobile chat
+    - Ignoring stated goals when they're relevant
+
+    LOW vulnerabilities:
+    - Minor tone issues
+    - Slightly verbose
+    - Could be more specific

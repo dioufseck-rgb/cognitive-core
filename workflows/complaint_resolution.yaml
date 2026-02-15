@@ -1,0 +1,111 @@
+# Complaint Resolution Workflow
+# Classify type → Classify severity → Investigate → Generate response → Challenge
+# With: escalation path for high-severity, fee waiver decision, retention logic
+#
+# Run:
+#   python -m engine.runner \
+#     -w workflows/complaint_resolution.yaml \
+#     -d domains/member_complaint.yaml \
+#     -c cases/complaint_torres.json
+
+name: complaint_resolution
+description: >
+  Process member complaints from intake through investigation to
+  resolution. Routes by complaint type and severity, investigates
+  root cause, generates an empathetic response with remediation.
+
+steps:
+  - name: classify_complaint_type
+    primitive: classify
+    temperature: 0.05
+    params:
+      categories: "${domain.classify_complaint_type.categories}"
+      criteria: |
+        Complaint: ${input.complaint_text}
+        Member: ${input.member_profile.name}, ${input.member_profile.tenure_years}yr member
+        Products: ${input.member_profile.products}
+        ${domain.classify_complaint_type.criteria}
+      confidence_threshold: "0.7"
+    transitions:
+      - default: classify_severity
+
+  - name: classify_severity
+    primitive: classify
+    temperature: 0.05
+    params:
+      categories: "${domain.classify_severity.categories}"
+      criteria: |
+        Complaint type: ${classify_complaint_type.category}
+        Complaint: ${input.complaint_text}
+        Interaction history: ${input.interaction_history}
+        Member value: $${input.member_profile.total_relationship_value}
+        Attrition risk: ${input.member_profile.attrition_risk_score}
+        ${domain.classify_severity.criteria}
+      confidence_threshold: "0.7"
+    transitions:
+      - when: "output.category == 'critical_escalation'"
+        goto: escalate
+      - default: investigate_complaint
+
+  - name: investigate_complaint
+    primitive: investigate
+    params:
+      question: |
+        What went wrong and what remediation is appropriate?
+        Complaint type: ${classify_complaint_type.category}
+        Severity: ${classify_severity.category}
+      scope: "${domain.investigate_complaint.scope}"
+      available_evidence: |
+        Complaint: ${input.complaint_text}
+        Account context: ${input.account_context}
+        Interaction history: ${input.interaction_history}
+        Member profile: ${input.member_profile}
+      effort_level: "${domain.investigate_complaint.effort_level}"
+    transitions:
+      - default: generate_response
+
+  - name: generate_response
+    primitive: generate
+    temperature: 0.3
+    max_loops: 3
+    params:
+      requirements: |
+        Member: ${input.member_profile.name} (${input.member_profile.tenure_years}yr member)
+        Complaint type: ${classify_complaint_type.category}
+        Severity: ${classify_severity.category}
+        Investigation: ${investigate_complaint.finding}
+        ${domain.generate_response.requirements}
+      format: "${domain.generate_response.format}"
+      constraints: "${domain.generate_response.constraints}"
+    transitions:
+      - default: challenge_response
+
+  - name: challenge_response
+    primitive: challenge
+    model: gemini-2.5-pro
+    temperature: 0.05
+    max_loops: 3
+    params:
+      input: "${generate_response.artifact}"
+      perspective: "${domain.challenge_response.perspective}"
+      threat_model: "${domain.challenge_response.threat_model}"
+    transitions:
+      - when: "output.survives == true"
+        goto: __end__
+      - when: "output.survives == false"
+        goto: generate_response
+      - default: __end__
+
+  - name: escalate
+    primitive: generate
+    temperature: 0.1
+    params:
+      requirements: |
+        Member: ${input.member_profile.name} (${input.member_profile.tenure_years}yr member)
+        Complaint type: ${classify_complaint_type.category}
+        Severity: ${classify_severity.category}
+        ${domain.escalate.requirements}
+      format: escalation_brief
+      constraints: "${domain.escalate.constraints}"
+    transitions:
+      - default: __end__

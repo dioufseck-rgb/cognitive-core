@@ -26,11 +26,23 @@ INSTRUCTIONS:
 5. List alternative categories you considered with their confidence scores
 6. Identify any evidence that is missing but would help
 
+GROUNDEDNESS REQUIREMENTS:
+- Your reasoning MUST quote or cite specific phrases, values, or facts
+  from the input that led to your classification. Do not make general
+  statements like "the input suggests..." without citing what specifically
+  in the input suggests it.
+- For each alternative category you considered, cite the specific evidence
+  that argued for AND against it.
+- If you classify with confidence above 0.9, you must cite at least two
+  independent pieces of evidence from the input that support the classification.
+- NEVER classify based on inference or assumption when the input contains
+  explicit statements. Prefer explicit evidence over implied meaning.
+
 Respond with a JSON object matching this structure:
 {{
   "category": "the assigned category name (must be one of the listed categories)",
   "confidence": 0.0 to 1.0,
-  "reasoning": "step-by-step reasoning for this classification",
+  "reasoning": "step-by-step reasoning citing specific evidence from the input",
   "evidence_used": [
     {{"source": "where this evidence came from", "description": "what it shows"}}
   ],
@@ -38,7 +50,7 @@ Respond with a JSON object matching this structure:
     {{"source": "where this evidence would come from", "description": "what it would show"}}
   ],
   "alternative_categories": [
-    {{"category": "name", "confidence": 0.0 to 1.0, "reasoning": "why considered"}}
+    {{"category": "name", "confidence": 0.0 to 1.0, "reasoning": "specific evidence for and against"}}
   ]
 }}
 

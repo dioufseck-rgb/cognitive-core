@@ -1,0 +1,40 @@
+# Agentic Spending Advisor — Workflow Layer
+#
+# The orchestrator LLM decides which primitives to invoke and in what
+# order. This file defines ONLY the cognitive pattern and constraints.
+# Domain expertise (primitive_configs, goal details, orchestrator
+# strategy) comes from the domain YAML.
+#
+# Run:
+#   python -m engine.runner \
+#     -w workflows/spending_advisor_agentic.yaml \
+#     -d domains/debit_spending_agentic.yaml \
+#     -c cases/spending_advisor_williams.json
+
+name: spending_advisor_agentic
+mode: agentic
+
+goal: "${domain.goal}"
+
+available_primitives:
+  - retrieve
+  - classify
+  - investigate
+  - think
+  - generate
+  - challenge
+
+constraints:
+  max_steps: 9
+  max_repeat: 2
+  must_include:
+    - retrieve
+    - generate
+    - challenge
+  must_end_with: challenge
+  challenge_must_pass: true
+
+orchestrator:
+  strategy: "${domain.orchestrator_strategy}"
+
+primitive_configs: "${domain.primitive_configs}"

@@ -1,0 +1,760 @@
+# Cognitive Core — Schema Glossary
+#
+# This file maps production system field names to the canonical field
+# names used in domain configs and case data. When building the
+# production registry or assembling case data from APIs, use this
+# glossary to translate field names.
+#
+# Structure:
+#   Each top-level key is a canonical data source name (used in domain
+#   configs as ${input.SOURCE.field} or in retrieve specifications).
+#   Under each source, fields are listed with:
+#     - canonical: The field name used in the framework
+#     - type: Data type
+#     - description: What this field represents
+#     - production_sources: Where this data comes from in production,
+#       with the exact field path in each source system
+#     - required: Whether this field must be present
+#     - example: Example value
+#
+# USAGE:
+#   When writing a new domain config, reference canonical names.
+#   When building production integrations, use production_sources
+#   to find the right field in each backend system.
+#
+# ADDING NEW FIELDS:
+#   1. Check if a canonical name already exists for this concept
+#   2. If yes, add your production system as a new production_source
+#   3. If no, add a new field entry with a clear canonical name
+#   4. Follow naming conventions below
+#
+# NAMING CONVENTIONS:
+#   - Snake case for all canonical names: member_profile, not memberProfile
+#   - Dates as ISO 8601: "2026-01-15"
+#   - Currency as numbers (not strings): 1842.00, not "$1,842.00"
+#   - Booleans as true/false, not "Y"/"N" or 1/0
+#   - Status enums in lowercase: "current", "delinquent", not "CURRENT"
+#   - IDs keep their source format: "MBR-2024-55102"
+
+# ═══════════════════════════════════════════════════════════════════
+# MEMBER PROFILE
+# Core member identity, demographics, and relationship data.
+# Used by: all workflows
+# ═══════════════════════════════════════════════════════════════════
+
+member_profile:
+  fields:
+
+    member_id:
+      type: string
+      description: Unique member identifier
+      required: true
+      example: "MBR-2024-55102"
+      production_sources:
+        core_banking:
+          system: "Member360"
+          field: "memberDetail.memberId"
+          notes: "Primary key, always present"
+        card_processor:
+          system: "FIS"
+          field: "cardHolder.externalMemberId"
+          notes: "Cross-reference ID, may differ from core"
+
+    name:
+      type: string
+      description: Member's full name (first and last)
+      required: true
+      example: "Angela Reeves"
+      production_sources:
+        core_banking:
+          system: "Member360"
+          field: "memberDetail.fullName"
+          notes: "Formatted as 'First Last'"
+
+    first_name:
+      type: string
+      description: Member's first name (for personalized messages)
+      required: false
+      example: "Angela"
+      production_sources:
+        core_banking:
+          system: "Member360"
+          field: "memberDetail.firstName"
+
+    age:
+      type: integer
+      description: Member's current age
+      required: false
+      example: 34
+      production_sources:
+        core_banking:
+          system: "Member360"
+          field: "memberDetail.dateOfBirth"
+          notes: "COMPUTE: age from DOB, not stored directly"
+
+    member_since:
+      type: string (ISO date)
+      description: Date member joined the institution
+      required: true
+      example: "2019-06-01"
+      production_sources:
+        core_banking:
+          system: "Member360"
+          field: "memberDetail.accountOpenDate"
+          notes: "Format: YYYY-MM-DD"
+
+    tenure_years:
+      type: integer
+      description: Years of membership (computed from member_since)
+      required: false
+      example: 9
+      production_sources:
+        core_banking:
+          system: "Member360"
+          field: "memberDetail.accountOpenDate"
+          notes: "COMPUTE: years from open date to today"
+
+    income_band:
+      type: string
+      description: Income range bracket
+      required: false
+      example: "75k-100k"
+      production_sources:
+        core_banking:
+          system: "Member360"
+          field: "memberDetail.incomeRange"
+          notes: "May not be current; self-reported at account open"
+
+    credit_score:
+      type: integer
+      description: Current credit score
+      required: false
+      example: 742
+      production_sources:
+        credit_bureau:
+          system: "Experian/TransUnion"
+          field: "creditReport.score"
+          notes: "Pull fresh for hardship assessments"
+
+    military_status:
+      type: string
+      description: "Military affiliation status"
+      required: false
+      enum: ["active_duty", "reserve", "veteran", "retired", "spouse_of_active", "spouse_of_retired", "none"]
+      example: "spouse_of_retired"
+      production_sources:
+        core_banking:
+          system: "Member360"
+          field: "memberDetail.militaryAffiliation.currentStatus"
+          notes: "TRANSLATE: 'SPOUSE-RET' → 'spouse_of_retired'"
+        military_verification:
+          system: "DMDC/SCRA"
+          field: "verificationResult.affiliationStatus"
+          notes: "Authoritative source; prefer over self-reported"
+
+    payment_history:
+      type: string
+      description: Payment history summary
+      required: false
+      enum: ["perfect_48_months", "perfect_24_months", "perfect_12_months", "minor_delinquency", "major_delinquency"]
+      example: "perfect_48_months"
+      production_sources:
+        core_banking:
+          system: "Member360"
+          field: "memberDetail.paymentPerformance.summary"
+          notes: "COMPUTE from raw payment history array"
+
+    total_relationship_value:
+      type: number
+      description: Total balances across all products
+      required: false
+      example: 310000
+      production_sources:
+        core_banking:
+          system: "Member360"
+          field: "memberDetail.totalRelationshipBalance"
+
+    products:
+      type: array of strings
+      description: List of active products
+      required: false
+      example: ["checking", "savings", "debit_card", "auto_loan"]
+      production_sources:
+        core_banking:
+          system: "Member360"
+          field: "memberDetail.activeProducts[].productType"
+          notes: "TRANSLATE: 'CHK' → 'checking', 'SAV' → 'savings'"
+
+    checking_balance:
+      type: number
+      description: Current checking account balance
+      required: false
+      example: 3842.17
+      production_sources:
+        core_banking:
+          system: "Member360"
+          field: "accounts.checking.currentBalance"
+
+    savings_balance:
+      type: number
+      description: Current savings account balance
+      required: false
+      example: 12450.00
+      production_sources:
+        core_banking:
+          system: "Member360"
+          field: "accounts.savings.currentBalance"
+
+
+# ═══════════════════════════════════════════════════════════════════
+# LOAN DETAILS
+# Loan account information for hardship and dispute workflows.
+# Used by: loan_hardship, dispute_resolution
+# ═══════════════════════════════════════════════════════════════════
+
+loan_details:
+  fields:
+
+    # Nested under loan_details.mortgage or loan_details.auto_loan
+    loan_number:
+      type: string
+      description: Loan account number
+      required: true
+      example: "MTG-2019-44821"
+      production_sources:
+        loan_system:
+          system: "LoanServ"
+          field: "loanAccount.accountNumber"
+
+    original_amount:
+      type: number
+      description: Original loan amount
+      required: true
+      example: 285000
+      production_sources:
+        loan_system:
+          system: "LoanServ"
+          field: "loanAccount.originalPrincipal"
+
+    current_balance:
+      type: number
+      description: Current outstanding balance
+      required: true
+      example: 261400
+      production_sources:
+        loan_system:
+          system: "LoanServ"
+          field: "loanAccount.currentPrincipalBalance"
+
+    monthly_payment:
+      type: number
+      description: Scheduled monthly payment amount
+      required: true
+      example: 1842
+      production_sources:
+        loan_system:
+          system: "LoanServ"
+          field: "loanAccount.scheduledPaymentAmount"
+
+    rate:
+      type: number
+      description: Current interest rate (percentage)
+      required: true
+      example: 3.25
+      production_sources:
+        loan_system:
+          system: "LoanServ"
+          field: "loanAccount.currentInterestRate"
+          notes: "Stored as decimal in some systems: 0.0325 → multiply by 100"
+
+    type:
+      type: string
+      description: Loan type
+      required: true
+      example: "30yr_fixed"
+      production_sources:
+        loan_system:
+          system: "LoanServ"
+          field: "loanAccount.productType"
+          notes: "TRANSLATE: '30YR-FX' → '30yr_fixed', '60MO-FX' → '60mo_fixed'"
+
+    ltv:
+      type: number
+      description: Loan-to-value ratio (percentage, mortgage only)
+      required: false
+      example: 78
+      production_sources:
+        loan_system:
+          system: "LoanServ"
+          field: "loanAccount.currentLTV"
+          notes: "May need fresh appraisal for accuracy"
+
+    payment_status:
+      type: string
+      description: Current payment status
+      required: true
+      enum: ["current", "30_days", "60_days", "90_days", "default", "forbearance"]
+      example: "current"
+      production_sources:
+        loan_system:
+          system: "LoanServ"
+          field: "loanAccount.delinquencyStatus"
+          notes: "TRANSLATE: 'CUR' → 'current', '030' → '30_days'"
+
+    days_past_due:
+      type: integer
+      description: Number of days past due (0 if current)
+      required: true
+      example: 0
+      production_sources:
+        loan_system:
+          system: "LoanServ"
+          field: "loanAccount.daysPastDue"
+
+
+# ═══════════════════════════════════════════════════════════════════
+# TRANSACTION DATA
+# Individual transaction records and summaries.
+# Used by: spending_advisor, dispute_resolution, sar_investigation
+# ═══════════════════════════════════════════════════════════════════
+
+transactions:
+  description: "Array of individual transactions"
+  fields:
+
+    id:
+      type: string
+      description: Unique transaction identifier
+      required: true
+      example: "TXN-1042"
+      production_sources:
+        card_processor:
+          system: "FIS"
+          field: "transaction.transactionId"
+        core_banking:
+          system: "Member360"
+          field: "transactionHistory[].referenceNumber"
+
+    date:
+      type: string (ISO date)
+      description: Transaction date
+      required: true
+      example: "2025-07-15"
+      production_sources:
+        card_processor:
+          system: "FIS"
+          field: "transaction.postDate"
+          notes: "Use postDate not authDate for spending analysis"
+
+    merchant:
+      type: string
+      description: Merchant name (normalized)
+      required: true
+      example: "STARBUCKS"
+      production_sources:
+        card_processor:
+          system: "FIS"
+          field: "transaction.merchantName"
+          notes: "Raw names may need normalization: 'STARBUCKS #12345 FAIRFAX VA' → 'STARBUCKS'"
+
+    category:
+      type: string
+      description: Spending category
+      required: true
+      example: "coffee"
+      production_sources:
+        card_processor:
+          system: "FIS"
+          field: "transaction.merchantCategoryCode"
+          notes: "TRANSLATE from MCC to human-readable category. MCC 5812 → 'dining_out', MCC 5814 → 'coffee'"
+
+    amount:
+      type: number
+      description: Transaction amount (positive = debit)
+      required: true
+      example: 6.50
+      production_sources:
+        card_processor:
+          system: "FIS"
+          field: "transaction.amount"
+          notes: "Always positive for debits. Credits are separate records."
+
+
+# ═══════════════════════════════════════════════════════════════════
+# MONTHLY SUMMARIES
+# Pre-aggregated monthly spending by category.
+# Used by: spending_advisor
+# ═══════════════════════════════════════════════════════════════════
+
+monthly_summaries:
+  description: "Dict keyed by YYYY-MM with category breakdowns"
+  notes: |
+    Can be pre-computed from raw transactions or served by an
+    analytics API. The framework doesn't care — it sees the same shape.
+  fields:
+
+    total_spending:
+      type: number
+      description: Total spending for the month
+      required: true
+      example: 2847.33
+
+    categories:
+      type: object
+      description: "Dict of category → {total, count, avg_per_txn}"
+      required: true
+      example:
+        dining_out:
+          total: 272.61
+          count: 12
+          avg_per_txn: 22.72
+      production_sources:
+        analytics:
+          system: "Internal Analytics"
+          field: "monthlySpendSummary.categoryBreakdown"
+          notes: "COMPUTE from raw transactions if no analytics API"
+
+
+# ═══════════════════════════════════════════════════════════════════
+# FINANCIAL GOALS
+# Member-stated financial goals.
+# Used by: spending_advisor
+# ═══════════════════════════════════════════════════════════════════
+
+financial_goals:
+  description: "Dict of goal_name → goal details"
+  notes: |
+    May come from a goals feature in the mobile app, from a
+    conversation with a financial advisor, or from member preferences.
+  fields:
+
+    target:
+      type: number
+      description: Dollar amount target
+      required: true
+      example: 15000
+
+    current:
+      type: number
+      description: Current progress toward target
+      required: false
+      example: 12450
+
+    monthly_contribution:
+      type: number
+      description: Regular monthly contribution amount
+      required: false
+      example: 400
+
+    target_date:
+      type: string (ISO date)
+      description: Goal completion target date
+      required: false
+      example: "2026-06-01"
+
+    target_monthly:
+      type: number
+      description: Monthly spending target (for reduction goals)
+      required: false
+      example: 200
+
+    description:
+      type: string
+      description: Human-readable goal description
+      required: true
+      example: "Build 3-month emergency fund"
+
+
+# ═══════════════════════════════════════════════════════════════════
+# DISPUTE INTAKE
+# Information captured when a dispute is filed.
+# Used by: dispute_resolution
+# ═══════════════════════════════════════════════════════════════════
+
+dispute_intake:
+  fields:
+
+    dispute_id:
+      type: string
+      description: Unique dispute case identifier
+      required: true
+      example: "DSP-2026-001847"
+      production_sources:
+        case_management:
+          system: "CaseTrack"
+          field: "caseDetail.caseId"
+
+    filed_date:
+      type: string (ISO date)
+      description: Date dispute was filed
+      required: true
+      example: "2026-01-15"
+      production_sources:
+        case_management:
+          system: "CaseTrack"
+          field: "caseDetail.openDate"
+
+    channel:
+      type: string
+      description: How the dispute was filed
+      required: true
+      enum: ["phone", "branch", "mobile_app", "web", "mail"]
+      example: "mobile_app"
+      production_sources:
+        case_management:
+          system: "CaseTrack"
+          field: "caseDetail.sourceChannel"
+          notes: "TRANSLATE: 'MOB' → 'mobile_app', 'WEB' → 'web'"
+
+    member_description:
+      type: string
+      description: Member's description of the dispute in their own words
+      required: true
+      example: "I didn't make this purchase. I've never heard of this merchant."
+      production_sources:
+        case_management:
+          system: "CaseTrack"
+          field: "caseDetail.memberNarrative"
+
+    disputed_amount:
+      type: number
+      description: Dollar amount being disputed
+      required: true
+      example: 487.32
+      production_sources:
+        case_management:
+          system: "CaseTrack"
+          field: "caseDetail.disputedAmount"
+
+    disputed_transaction_id:
+      type: string
+      description: Transaction ID being disputed
+      required: true
+      example: "TXN-2026-998271"
+      production_sources:
+        case_management:
+          system: "CaseTrack"
+          field: "caseDetail.transactionReference"
+
+
+# ═══════════════════════════════════════════════════════════════════
+# FRAUD SCORING
+# Real-time fraud risk assessment.
+# Used by: dispute_resolution
+# ═══════════════════════════════════════════════════════════════════
+
+fraud_score:
+  fields:
+
+    score:
+      type: integer
+      description: "Fraud risk score (0-1000, higher = more likely fraud)"
+      required: true
+      example: 892
+      production_sources:
+        fraud_engine:
+          system: "FICO Falcon / Internal"
+          field: "fraudAssessment.riskScore"
+
+    risk_level:
+      type: string
+      enum: ["low", "medium", "high", "critical"]
+      description: Categorized risk level
+      required: true
+      example: "critical"
+      production_sources:
+        fraud_engine:
+          system: "FICO Falcon / Internal"
+          field: "fraudAssessment.riskCategory"
+          notes: "TRANSLATE: 'HI' → 'high', 'CR' → 'critical'"
+
+    factors:
+      type: array of strings
+      description: Key factors contributing to the score
+      required: false
+      example: ["device_mismatch", "geo_anomaly", "velocity_spike"]
+      production_sources:
+        fraud_engine:
+          system: "FICO Falcon / Internal"
+          field: "fraudAssessment.topReasons[].reasonCode"
+          notes: "TRANSLATE reason codes to human-readable factors"
+
+
+# ═══════════════════════════════════════════════════════════════════
+# MEMBER QUESTION
+# For conversational / advisory workflows.
+# Used by: spending_advisor
+# ═══════════════════════════════════════════════════════════════════
+
+member_question:
+  fields:
+
+    text:
+      type: string
+      description: The member's question or request in their own words
+      required: true
+      example: "How much do I spend on coffee?"
+      production_sources:
+        chat_platform:
+          system: "Chat / IVR"
+          field: "message.content"
+
+    channel:
+      type: string
+      description: Channel the question came through
+      required: true
+      enum: ["mobile_app", "web_chat", "phone", "branch"]
+      example: "mobile_app"
+
+    timestamp:
+      type: string (ISO datetime)
+      description: When the question was asked
+      required: true
+      example: "2026-01-28T19:32:00Z"
+
+    turn:
+      type: integer
+      description: Conversation turn number (1 = first question)
+      required: false
+      example: 1
+
+
+# ═══════════════════════════════════════════════════════════════════
+# PRIOR CONVERSATION
+# Previous turns for multi-turn conversations.
+# Used by: spending_advisor (follow-up questions)
+# ═══════════════════════════════════════════════════════════════════
+
+prior_conversation:
+  description: "Dict keyed by turn_N with prior exchange data"
+  fields:
+
+    question:
+      type: string
+      description: What the member asked in this turn
+      required: true
+      example: "How much do I spend on coffee?"
+
+    classification:
+      type: string
+      description: How the question was classified
+      required: true
+      example: "spending_category_inquiry"
+
+    finding:
+      type: string
+      description: Key finding from the investigation
+      required: true
+      example: "Coffee spending averaged $98/month over 12 months"
+
+    response:
+      type: string
+      description: The response that was delivered
+      required: true
+      example: "Hey Marcus, your coffee spending has been..."
+
+    timestamp:
+      type: string (ISO datetime)
+      description: When this turn occurred
+      required: true
+      example: "2026-01-28T19:33:00Z"
+
+
+# ═══════════════════════════════════════════════════════════════════
+# MEMBER STATEMENT
+# Free-text member input for non-conversational workflows.
+# Used by: loan_hardship
+# ═══════════════════════════════════════════════════════════════════
+
+member_statement:
+  type: string
+  description: >
+    Member's description of their situation in their own words.
+    For phone calls, this is a transcription or agent summary.
+    For digital channels, this is the member's written input.
+  required: true
+  example: "My husband was medically retired from the Navy last month..."
+  production_sources:
+    case_management:
+      system: "CaseTrack"
+      field: "caseDetail.memberNarrative"
+    ivr:
+      system: "IVR / Transcription"
+      field: "callTranscript.memberStatements"
+      notes: "May need summarization before use"
+
+
+# ═══════════════════════════════════════════════════════════════════
+# TRANSLATION RULES
+# Common transformations needed when mapping production data.
+# ═══════════════════════════════════════════════════════════════════
+
+translation_rules:
+
+  dates:
+    description: "Convert all dates to ISO 8601 format"
+    examples:
+      - from: "01/15/2026"
+        to: "2026-01-15"
+      - from: "15-Jan-2026"
+        to: "2026-01-15"
+      - from: "20260115"
+        to: "2026-01-15"
+
+  currency:
+    description: "Convert all currency to plain numbers (no symbols, no commas)"
+    examples:
+      - from: "$1,842.00"
+        to: 1842.00
+      - from: "1842"
+        to: 1842
+
+  interest_rates:
+    description: "Store as percentage (3.25), not decimal (0.0325)"
+    examples:
+      - from: 0.0325
+        to: 3.25
+
+  booleans:
+    description: "Convert to true/false"
+    examples:
+      - from: "'Y'"
+        to: true
+      - from: "1"
+        to: true
+      - from: "'N'"
+        to: false
+
+  enums:
+    description: "Convert system codes to lowercase descriptive strings"
+    examples:
+      - from: "'CUR'"
+        to: "'current'"
+      - from: "'030'"
+        to: "'30_days'"
+      - from: "'SPOUSE-RET'"
+        to: "'spouse_of_retired'"
+      - from: "'MOB'"
+        to: "'mobile_app'"
+      - from: "'CHK'"
+        to: "'checking'"
+
+  merchant_names:
+    description: "Normalize to clean uppercase names"
+    examples:
+      - from: "'STARBUCKS #12345 FAIRFAX VA 22030'"
+        to: "'STARBUCKS'"
+      - from: "'AMAZON.COM*1A2B3C AMZN.COM/BILL WA'"
+        to: "'AMAZON'"
+
+  mcc_to_category:
+    description: "Map Merchant Category Codes to spending categories"
+    examples:
+      - from: "5411 (Grocery)"
+        to: "'grocery'"
+      - from: "5812 (Eating Places)"
+        to: "'dining_out'"
+      - from: "5814 (Fast Food)"
+        to: "'dining_out'"
+      - from: "5541 (Service Stations)"
+        to: "'gas'"

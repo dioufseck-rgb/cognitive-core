@@ -14,36 +14,94 @@ THREAT MODEL:
 
 {additional_instructions}
 
-INSTRUCTIONS:
-1. Adopt the specified adversarial perspective
-2. Systematically attempt to find weaknesses, gaps, or vulnerabilities
-3. For each vulnerability found, describe how it could be exploited
-4. Assess the severity of each vulnerability
-5. Also note strengths — what aspects are robust against challenge
-6. Provide specific, actionable recommendations for each vulnerability
-7. Give an overall assessment of whether the input survives the challenge
+INSTRUCTIONS — FOLLOW THIS EXACT SEQUENCE:
+
+STEP 1: FACT-CHECK EVERY CLAIM
+Before assessing any other dimension, extract every factual claim from
+the input — every number, date, trend statement, comparison, name,
+and characterization. Cross-reference EACH claim against the source
+data available in the context.
+
+For each claim, record:
+- The claim as stated in the input
+- The source data value it should match
+- Whether it matches: CONFIRMED / CONTRADICTED / UNVERIFIABLE
+
+This fact-check MUST be included in your reasoning.
+
+A single CONTRADICTED fact is a HIGH severity vulnerability. Two or
+more CONTRADICTED facts make the input fail the challenge automatically
+(survives = false).
+
+STEP 2: CHECK TREND ACCURACY
+For any claim that characterizes a trend (increasing, decreasing,
+improving, worsening, stable, "making progress", "trending up/down"):
+- Extract the actual start value and end value from the source data
+- Determine the actual direction
+- Compare to the claimed direction
+- A reversed trend (claiming improvement when data shows worsening,
+  or vice versa) is a CRITICAL severity vulnerability.
+
+STEP 3: ADVERSARIAL ANALYSIS
+Now adopt the specified adversarial perspective and systematically
+look for weaknesses beyond factual accuracy:
+- Logical soundness of conclusions
+- Regulatory or compliance risks
+- Missing considerations
+- Tone or framing issues
+- Omissions that could mislead
+
+STEP 4: ASSESS STRENGTHS
+Note what aspects of the input are robust.
+
+STEP 5: OVERALL DETERMINATION
+The input survives ONLY if:
+- Zero CRITICAL vulnerabilities
+- Zero CONTRADICTED factual claims
+- No more than two MEDIUM vulnerabilities
+If any of these conditions are violated, survives = false.
+
+GROUNDEDNESS REQUIREMENTS:
+- Every vulnerability must cite the SPECIFIC text in the input that
+  is problematic and the SPECIFIC source data that contradicts it
+  or demonstrates the issue.
+- Do not flag "inaccurate data" without stating what the input says
+  AND what the source data actually shows.
+  CORRECT: "Input states '$131.17 for coffee in January' but source
+           data shows $131.17 — this is actually correct."
+  CORRECT: "Input claims 'trending in the right direction' but Feb
+           combined was $304 and Jan combined is $404 — spending
+           INCREASED by $100, not decreased. CONTRADICTED."
+  WRONG: "The spending data may be inaccurate."
+- Your confidence reflects the thoroughness of fact-checking:
+    0.9+ = every factual claim cross-referenced against source data
+    0.7-0.9 = most claims checked, a few unverifiable
+    <0.7 = significant claims could not be verified
 
 Severity levels:
-- critical: Exploitable in ways that cause serious harm, must be addressed
-- high: Significant weakness that a motivated adversary would find
-- medium: Notable weakness but requires specific conditions to exploit
-- low: Minor weakness, unlikely to be exploited in practice
+- critical: Factual inversion (trend direction wrong), fabricated data,
+  dangerous advice, regulatory violation. MUST fail.
+- high: Factual error (wrong number), misleading framing, significant
+  omission. Should fail unless other strengths compensate.
+- medium: Minor inaccuracy, slightly misleading tone, missed opportunity.
+  Does not automatically fail.
+- low: Style issue, minor verbosity, could be better. Informational only.
 
 Respond with a JSON object matching this structure:
 {{
-  "survives": true or false (overall assessment),
+  "survives": true or false,
   "confidence": 0.0 to 1.0,
-  "reasoning": "overall adversarial analysis",
+  "reasoning": "FACT-CHECK: [claim-by-claim verification with source values] TREND-CHECK: [each trend claim with start/end values and actual direction] ADVERSARIAL: [broader analysis] DETERMINATION: [why it passes or fails]",
   "vulnerabilities": [
     {{
-      "description": "what the vulnerability is",
+      "description": "what the vulnerability is — cite the specific text AND the source data",
       "severity": "critical | high | medium | low",
-      "attack_vector": "how this could be exploited",
-      "recommendation": "how to address this"
+      "attack_vector": "how this could cause harm or be exploited",
+      "recommendation": "specific fix, citing what the correct text should say"
     }}
   ],
-  "strengths": ["aspects that are robust"],
-  "overall_assessment": "summary of resilience",
+  "strengths": ["aspects that are robust, citing specific examples"],
+  "overall_assessment": "summary including fact-check results",
   "evidence_used": [
     {{"source": "what was analyzed", "description": "what it revealed"}}
   ],

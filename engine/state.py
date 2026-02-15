@@ -83,6 +83,13 @@ def resolve_param(value: str, state: WorkflowState) -> str:
             if obj is None:
                 return "[no previous step output]"
             parts = parts[1:]
+        elif parts[0].startswith("_last_"):
+            # ${_last_generate.artifact} → most recent generate step's output
+            primitive_name = parts[0][len("_last_"):]
+            obj = _get_last_primitive_output(state, primitive_name)
+            if obj is None:
+                return f"[no completed '{primitive_name}' step found]"
+            parts = parts[1:]
         else:
             step_name = parts[0]
             obj = get_step_output(state, step_name)
@@ -106,6 +113,15 @@ def resolve_param(value: str, state: WorkflowState) -> str:
         return str(obj)
 
     return re.sub(r'\$\{([^}]+)\}', _replace_ref, str(value))
+
+
+def _get_last_primitive_output(state: WorkflowState, primitive_name: str) -> dict[str, Any] | None:
+    """Find the most recent step that used the given primitive, return its output."""
+    result = None
+    for step in state.get("steps", []):
+        if step["primitive"] == primitive_name:
+            result = step["output"]
+    return result
 
 
 def build_context_from_state(state: WorkflowState) -> str:
@@ -148,6 +164,20 @@ def build_context_from_state(state: WorkflowState) -> str:
             parts.append(f"Assessment: {output.get('overall_assessment', 'N/A')}")
             for v in output.get("vulnerabilities", []):
                 parts.append(f"  Vulnerability [{v.get('severity', '')}]: {v.get('description', '')}")
+        elif primitive == "retrieve":
+            data = output.get("data", {})
+            parts.append(f"Sources retrieved: {list(data.keys())}")
+            for key, val in data.items():
+                parts.append(f"  {key}: {json.dumps(val, indent=2)[:200]}...")
+        elif primitive == "think":
+            parts.append(f"Thought: {str(output.get('thought', ''))[:300]}...")
+            conclusions = output.get("conclusions", [])
+            if conclusions:
+                parts.append(f"Conclusions: {conclusions}")
+            decision = output.get("decision")
+            if decision:
+                parts.append(f"Decision: {decision}")
+            parts.append(f"Confidence: {output.get('confidence', 'N/A')}")
 
     routing_log = state.get("routing_log", [])
     if routing_log:

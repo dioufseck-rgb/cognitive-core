@@ -22,7 +22,9 @@ from pathlib import Path
 from datetime import datetime
 
 from engine.composer import load_use_case, load_three_layer, validate_use_case, run_workflow
+from engine.agentic import validate_agentic_config, run_agentic_workflow
 from engine.nodes import set_trace
+from engine.tools import create_case_registry
 
 
 # ---------------------------------------------------------------------------
@@ -87,6 +89,12 @@ class ConsoleTrace:
             n_vulns = len(output.get("vulnerabilities", []))
             icon = "✓ passed" if survives else f"✗ failed ({n_vulns} vulnerabilities)"
             self._log(f"    → {icon}")
+        elif primitive == "retrieve":
+            data = output.get("data", {})
+            n_sources = len(output.get("sources_queried", []))
+            n_ok = sum(1 for s in output.get("sources_queried", []) if s.get("status") == "success")
+            conf = output.get("confidence", 0)
+            self._log(f"    → {n_ok}/{n_sources} sources retrieved, {len(data)} data keys ({conf:.2f})")
 
     def on_parse_error(self, step_name: str, error: str):
         self._log(f"    ⚠ PARSE ERROR: {error[:100]}")
@@ -96,6 +104,13 @@ class ConsoleTrace:
         icon = icons.get(decision_type, "?")
         target = "END" if to_step == "__end__" else to_step
         self._log(f"    {icon} route → {target} ({decision_type}: {reason[:60]})")
+
+    def on_retrieve_start(self, step_name: str, source_name: str):
+        self._log(f"    📡 fetching {source_name}...")
+
+    def on_retrieve_end(self, step_name: str, source_name: str, status: str, latency_ms: float):
+        icon = "✓" if status == "success" else "✗"
+        self._log(f"    📡 {source_name}: {icon} {status} ({latency_ms:.0f}ms)")
 
 
 # ---------------------------------------------------------------------------
@@ -153,6 +168,28 @@ def print_step_result(step: dict, verbose: bool = False):
             if verbose:
                 print(f"      Attack: {v['attack_vector']}")
                 print(f"      Fix: {v['recommendation']}")
+
+    elif primitive == "retrieve":
+        data = output.get("data", {})
+        print(f"\n  → Data sources assembled: {list(data.keys())}")
+        for sq in output.get("sources_queried", []):
+            icon = "✓" if sq.get("status") == "success" else "✗"
+            latency = sq.get("latency_ms", 0)
+            print(f"    {icon} {sq['source']}: {sq['status']} ({latency:.0f}ms)")
+            if sq.get("error"):
+                print(f"      Error: {sq['error']}")
+        skipped = output.get("sources_skipped", [])
+        if skipped:
+            print(f"  Skipped: {', '.join(skipped)}")
+        plan = output.get("retrieval_plan", "")
+        if plan:
+            print(f"  Plan: {plan}")
+        if verbose:
+            for key, val in data.items():
+                print(f"\n  [{key}]:")
+                preview = json.dumps(val, indent=2)[:300]
+                for line in preview.split("\n"):
+                    print(f"    {line}")
 
     missing = output.get("evidence_missing", [])
     if missing:
@@ -230,7 +267,13 @@ Single-file (legacy):
         sys.exit(1)
 
     # Validate
-    errors = validate_use_case(config)
+    is_agentic = config.get("mode") == "agentic"
+
+    if is_agentic:
+        errors = validate_agentic_config(config)
+    else:
+        errors = validate_use_case(config)
+
     if errors:
         print("Config errors:", file=sys.stderr)
         for e in errors:
@@ -238,14 +281,21 @@ Single-file (legacy):
         sys.exit(1)
 
     if args.validate_only:
-        print(f"✓ Valid: {config['name']}")
-        for s in config["steps"]:
-            t = s.get("transitions", [])
-            modes = []
-            if any("when" in tr for tr in t): modes.append("det")
-            if any("agent_decide" in tr for tr in t): modes.append("agent")
-            suffix = f"  [{','.join(modes)}]" if modes else ""
-            print(f"  {s['primitive']:12s} {s['name']}{suffix}")
+        print(f"✓ Valid: {config['name']} (mode: {'agentic' if is_agentic else 'sequential'})")
+        if is_agentic:
+            print(f"  Goal: {config.get('goal', '?')[:80]}")
+            print(f"  Primitives: {config.get('available_primitives', [])}")
+            print(f"  Max steps: {config.get('constraints', {}).get('max_steps', '?')}")
+            for k, v in config.get("primitive_configs", {}).items():
+                print(f"  config: {k} ({v.get('primitive', '?')})")
+        else:
+            for s in config["steps"]:
+                t = s.get("transitions", [])
+                modes = []
+                if any("when" in tr for tr in t): modes.append("det")
+                if any("agent_decide" in tr for tr in t): modes.append("agent")
+                suffix = f"  [{','.join(modes)}]" if modes else ""
+                print(f"  {s['primitive']:12s} {s['name']}{suffix}")
         sys.exit(0)
 
     # Input
@@ -265,18 +315,46 @@ Single-file (legacy):
         set_trace(trace)
 
     # Header
-    mode = "three-layer" if three_layer else "single-file"
+    mode = "agentic" if is_agentic else ("three-layer" if three_layer else "single-file")
     print(f"\n{'─'*70}", file=sys.stderr)
     print(f"  {config['name']}  ({mode})", file=sys.stderr)
     print(f"  model: {args.model}", file=sys.stderr)
-    steps_list = " → ".join(s["name"] for s in config["steps"])
-    print(f"  steps: {steps_list}", file=sys.stderr)
+    if is_agentic:
+        prims = ", ".join(config.get("available_primitives", []))
+        max_s = config.get("constraints", {}).get("max_steps", "?")
+        print(f"  primitives: {prims}", file=sys.stderr)
+        print(f"  max_steps: {max_s}", file=sys.stderr)
+    else:
+        steps_list = " → ".join(s["name"] for s in config["steps"])
+        print(f"  steps: {steps_list}", file=sys.stderr)
     print(f"{'─'*70}", file=sys.stderr, flush=True)
+
+    # Build tool registry from case data (dev/test mode)
+    has_retrieve = False
+    if is_agentic:
+        has_retrieve = "retrieve" in config.get("available_primitives", [])
+    else:
+        has_retrieve = any(s["primitive"] == "retrieve" for s in config.get("steps", []))
+
+    tool_registry = None
+    if has_retrieve:
+        tool_registry = create_case_registry(workflow_input)
+        if not args.no_trace:
+            print(f"  tools: {', '.join(tool_registry.list_tools())}", file=sys.stderr)
 
     # Run
     start = time.time()
     try:
-        final_state = run_workflow(config, workflow_input, args.model, args.temperature)
+        if is_agentic:
+            final_state = run_agentic_workflow(
+                config, workflow_input, args.model, args.temperature,
+                tool_registry=tool_registry,
+            )
+        else:
+            final_state = run_workflow(
+                config, workflow_input, args.model, args.temperature,
+                tool_registry=tool_registry,
+            )
     except Exception as e:
         print(f"\n  ⚠ FAILED: {e}", file=sys.stderr)
         if args.verbose:

@@ -18,6 +18,27 @@ INSTRUCTIONS:
 4. Provide an overall conformance determination
 5. Note any rules that could not be fully checked due to missing information
 
+GROUNDEDNESS REQUIREMENTS:
+- For EACH rule, cite the specific part of the input you checked and
+  the specific evidence that demonstrates conformance or violation.
+  Do not say "the input conforms to rule X" without quoting or citing
+  the specific content that conforms.
+- For violations, cite the EXACT text or value that violates the rule,
+  not a paraphrase. For example:
+    CORRECT: "Rule requires filing within 60 days. Filed date is 2026-02-01,
+             transaction date is 2025-11-15 — 78 days elapsed. VIOLATION."
+    WRONG: "Filing was not within the required timeframe."
+- If a rule cannot be fully verified because data is missing, mark it
+  explicitly as "unverifiable" and state what data would be needed.
+- Do not assume conformance when evidence is absent. Absence of evidence
+  of a violation is NOT evidence of conformance if the relevant data
+  wasn't available to check.
+- Your confidence MUST reflect verification coverage:
+    1.0 = every rule checked against specific evidence, no gaps
+    0.8 = all rules checked, minor gaps in evidence
+    0.5 = some rules could not be fully verified
+    <0.5 = significant gaps, verification is incomplete
+
 Severity levels:
 - critical: Must be fixed before proceeding, regulatory or safety risk
 - major: Should be fixed, significant quality or compliance concern
@@ -27,18 +48,18 @@ Respond with a JSON object matching this structure:
 {{
   "conforms": true or false (overall determination),
   "confidence": 0.0 to 1.0,
-  "reasoning": "overall assessment of conformance",
+  "reasoning": "overall assessment citing specific evidence for each rule checked",
   "violations": [
     {{
       "rule": "which rule was violated",
-      "description": "what the violation is",
+      "description": "what the violation is, citing the specific text or value",
       "severity": "critical | major | minor",
       "location": "where in the input the violation occurs"
     }}
   ],
   "rules_checked": ["list of all rules that were checked"],
   "evidence_used": [
-    {{"source": "where this evidence came from", "description": "what it shows"}}
+    {{"source": "where this evidence came from", "description": "the specific content checked"}}
   ],
   "evidence_missing": [
     {{"source": "where to find it", "description": "what it would clarify"}}

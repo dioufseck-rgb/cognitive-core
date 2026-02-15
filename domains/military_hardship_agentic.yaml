@@ -1,0 +1,306 @@
+# Military Hardship — Agentic Domain Configuration
+#
+# Domain expertise for military family loan hardship assessment.
+# All primitive_configs use ${_last_<primitive>} references so the
+# orchestrator can name steps freely.
+
+domain_name: military_hardship_agentic
+workflow: loan_hardship_agentic
+description: >
+  Agentic domain for military family loan hardship. The orchestrator
+  adapts the investigation path based on what it discovers — military
+  cases get SCRA analysis, ambiguous cases get deeper investigation,
+  clear cases move directly to guidance.
+
+goal: |
+  Assess a member's loan hardship request and provide appropriate
+  guidance or escalation.
+
+  The member has contacted us about financial difficulty. Their
+  statement, loan details, and profile are in the case data.
+
+  Your final deliverable is EITHER:
+  1. A member-facing guidance letter explaining their options, OR
+  2. A specialist handoff brief if the case is too complex for
+     automated guidance.
+
+  REGULATORY CONTEXT:
+  - SCRA (Servicemembers Civil Relief Act) may apply to military families
+  - ECOA prohibits discrimination based on military status
+  - UDAAP requires clear, non-deceptive communication about options
+  - If forbearance is offered, payments are deferred not forgiven
+
+  The response MUST be challenged for regulatory compliance, empathy,
+  accuracy, and completeness before delivery.
+
+orchestrator_strategy: |
+  SEQUENCING GUIDANCE:
+  - Start by classifying the hardship type. This determines the investigation path.
+  - If military-related: investigate SCRA protections, VA benefits, military
+    programs, and timeline to income stabilization.
+  - If not military: investigate financial situation, DTI, payment capacity,
+    and hardship duration.
+  - After investigation, classify the appropriate assistance option.
+  - If the case involves multiple factors (military + financial, two loans,
+    regulatory considerations), use THINK to synthesize findings before
+    generating guidance. Think connects the dots that individual steps miss.
+  - If the case is complex (multiple loans, unclear timeline, regulatory
+    sensitivity), consider investigating deeper before generating guidance.
+  - Generate the guidance letter or escalation brief.
+  - Challenge for regulatory compliance (SCRA, ECOA, UDAAP), empathy,
+    accuracy, and completeness.
+  - If challenge fails, regenerate with the feedback.
+
+  KEY PRINCIPLES:
+  - Proactive members with perfect payment history deserve enhanced consideration.
+  - Military families get military-specific analysis (SCRA, VA benefits).
+  - Both loans must be addressed together, not separately.
+  - If in doubt about whether to escalate, escalate. Better safe.
+  - You may skip classify_assistance and go straight to generate if
+    the investigation makes the right option obvious.
+  - Use THINK when you have multiple findings that need to be reconciled
+    before generating a response. Don't use think for simple cases where
+    the investigation finding directly answers the question.
+
+primitive_configs:
+
+  classify_hardship:
+    primitive: classify
+    temperature: 0.05
+    params:
+      categories: |
+        - income_reduction_temporary: Temporary loss with recovery expectation (3-12 months).
+        - income_reduction_permanent: Permanent reduction requiring restructuring.
+        - medical_hardship: Medical event causing financial strain.
+        - disaster_hardship: Catastrophic event affecting home or livelihood.
+        - military_transition: Related to military service change — deployment,
+          PCS, separation, retirement, medical retirement. May trigger SCRA protections.
+        - overextension: Too much debt relative to income, no specific event.
+      criteria: |
+        Classify the ROOT CAUSE, not symptoms.
+        Is this military-related? Temporary or permanent?
+        Is the member being proactive (reaching out before missing payments)?
+
+        Member statement: ${input.member_statement}
+        Military status: ${input.member_profile.military_status}
+        Payment history: ${input.member_profile.payment_history}
+        Loan details: ${input.loan_details}
+      confidence_threshold: "0.7"
+
+  investigate_military:
+    primitive: investigate
+    params:
+      question: |
+        What military-specific benefits and protections apply to this member's situation?
+        Hardship classification: ${_last_classify.category}
+      scope: |
+        1. SCRA: Does the Servicemembers Civil Relief Act apply? Is rate reduction
+           to 6% available? What's the eligibility based on spouse-of-retired status?
+        2. VA BENEFITS: Is the husband transitioning to VA disability? What's the
+           timeline to income stabilization?
+        3. MILITARY PROGRAMS: Are there enhanced options for military families at
+           this institution?
+        4. TIMELINE: Medical retirement transitions typically take 3-6 months.
+           Is temporary relief sufficient or does this need restructuring?
+        5. COMBINED OBLIGATIONS: Both the mortgage ($${input.loan_details.mortgage.monthly_payment}/mo)
+           and auto loan ($${input.loan_details.auto_loan.monthly_payment}/mo) together vs.
+           likely new income level.
+      available_evidence: |
+        Member statement: ${input.member_statement}
+        Loan details: ${input.loan_details}
+        Member profile: ${input.member_profile}
+      effort_level: deep
+
+  investigate_financial:
+    primitive: investigate
+    params:
+      question: |
+        What is the overall financial picture and hardship trajectory?
+        Hardship classification: ${_last_classify.category}
+      scope: |
+        1. DEBT-TO-INCOME: Current total obligations vs income change
+        2. PAYMENT CAPACITY: Can they make reduced payments during hardship?
+        3. ASSET POSITION: Mortgage LTV is ${input.loan_details.mortgage.ltv}%. Equity available?
+        4. TIMELINE: How long will the hardship last?
+        5. RISK: Default risk without help vs cost of providing assistance
+      available_evidence: |
+        Member statement: ${input.member_statement}
+        Loan details: ${input.loan_details}
+        Member profile: ${input.member_profile}
+      effort_level: moderate
+
+  classify_assistance:
+    primitive: classify
+    temperature: 0.05
+    params:
+      categories: |
+        - temporary_forbearance: Reduce/pause payments for 3-6 months.
+          Deferred amounts added to end of loan.
+        - rate_reduction: Temporarily or permanently reduce interest rate.
+        - term_extension: Extend loan term to reduce monthly payment.
+        - loan_modification: Comprehensive restructuring of loan terms.
+        - referral_to_counseling: Financial counseling referral, no immediate changes.
+        - multiple_options_present: Present 2-3 options for member choice.
+        - escalate_to_specialist: Case too complex for automated guidance.
+      criteria: |
+        Hardship type: ${_last_classify.category}
+        Investigation finding: ${_last_investigate.finding}
+        Payment history: ${input.member_profile.payment_history}
+        Credit score: ${input.member_profile.credit_score}
+
+        PRINCIPLES:
+        - Perfect payment history = strong forbearance candidate
+        - Military families get enhanced consideration
+        - Consider BOTH loans together
+        - Goal: keep member in home and in good standing
+        - If temporary hardship with clear recovery path → forbearance
+        - If permanent reduction → modification or restructuring
+        - If unclear → present multiple options
+      confidence_threshold: "0.6"
+
+  verify_scra:
+    primitive: verify
+    temperature: 0.0
+    params:
+      input: |
+        Member military status: ${input.member_profile.military_status}
+        Investigation findings: ${_last_investigate.finding}
+        Proposed assistance: ${_last_classify.category}
+      rules: |
+        1. SCRA APPLICABILITY: If member or spouse is active duty, reserve,
+           or recently separated, SCRA rate cap of 6% may apply to pre-service debts.
+           Verify whether the member's status qualifies.
+        2. ECOA COMPLIANCE: The proposed assistance must not be more restrictive
+           BECAUSE of military status. Military status can ENHANCE but not
+           RESTRICT options.
+        3. VA BENEFIT COORDINATION: If transitioning to VA disability, verify
+           that guidance accounts for the income stabilization timeline.
+        4. BOTH LOANS: Verify that both mortgage and auto loan are addressed
+           in the proposed approach.
+
+  synthesize_approach:
+    primitive: think
+    temperature: 0.2
+    params:
+      instruction: |
+        You've gathered multiple perspectives on this member's situation:
+        - Hardship classification: ${_last_classify.category}
+        - Investigation findings: ${_last_investigate.finding}
+        - Member statement: ${input.member_statement}
+        - Payment history: ${input.member_profile.payment_history}
+        - Loan obligations: mortgage at $${input.loan_details.mortgage.monthly_payment}/mo
+          and auto at $${input.loan_details.auto_loan.monthly_payment}/mo
+
+        Think through how these factors interact. Consider:
+        1. What does the COMBINATION of military transition + perfect payment
+           history + proactive outreach mean for how we should treat this member?
+        2. Both loans need to be addressed together. What's the best combined
+           approach — same treatment for both, or different strategies?
+        3. What's the member's likely emotional state? How should that shape
+           the tone and structure of our response?
+        4. What's the timeline? Is temporary relief sufficient, or does this
+           need a longer-term plan?
+        5. What are we missing that a specialist would catch?
+      focus: |
+        Prioritize the member's best outcome while staying within regulatory
+        guardrails. If the right answer isn't clear, say so — recommend
+        escalation rather than guessing.
+
+  generate_guidance:
+    primitive: generate
+    temperature: 0.3
+    params:
+      requirements: |
+        Member: ${input.member_name}
+        Tenure: ${input.member_profile.tenure_years} years
+        Hardship: ${_last_classify.category}
+        Investigation: ${_last_investigate.finding}
+
+        Response MUST:
+        1. Acknowledge the difficulty with genuine empathy
+        2. Recognize responsible behavior (proactive outreach, perfect payment history)
+        3. Explain options in plain language (8th grade reading level)
+        4. For each option: what changes, how long, what happens after
+        5. Next steps and documentation needed
+        6. Direct specialist contact information
+        7. Reassure about standing (if payment history warrants it)
+        8. Acknowledge the family's military service
+
+        TONE: Warm, respectful, empowering. This is a family going through
+        a difficult transition. They did the right thing by calling.
+      format: member_hardship_response
+      constraints: |
+        - NEVER use language implying judgment about their situation
+        - NEVER promise specific terms that haven't been approved
+        - Include disclaimer: "Final terms are subject to review and approval"
+        - ECOA: cannot base decisions on military status (but CAN offer military programs)
+        - Reading level: 8th grade
+        - If forbearance: explicitly state payments are deferred, not forgiven
+        - If SCRA applicable: mention rate protection rights
+        - Address BOTH loans (mortgage and auto)
+
+  generate_escalation:
+    primitive: generate
+    temperature: 0.1
+    params:
+      requirements: |
+        Member: ${input.member_name} (${input.member_profile.tenure_years}yr member)
+        Hardship: ${_last_classify.category}
+        Investigation: ${_last_investigate.finding}
+
+        Create a specialist handoff brief:
+        1. Member's situation in their own words
+        2. System assessment and recommendation
+        3. Why specialist review is needed
+        4. Both loans — details and current status
+        5. Military eligibility considerations
+        6. Suggested approach and tone for the specialist
+        7. Time-sensitive factors
+        8. Specialist should CALL the member, not wait for them to call back
+      format: specialist_handoff
+      constraints: |
+        - Convey the member's emotional state so specialist is prepared
+        - Include all loan details (numbers, rates, balances)
+        - Flag any regulatory deadlines or SCRA timelines
+        - Do NOT include content meant for the member — this is internal only
+
+  challenge_guidance:
+    primitive: challenge
+    model: gemini-2.5-pro
+    temperature: 0.05
+    params:
+      input: "${_last_generate.artifact}"
+      perspective: |
+        Challenge from three simultaneous perspectives:
+        1. THE MEMBER (Angela Reeves): Do I feel genuinely helped? Do I
+           understand my options? Do I know what to do next? Do I feel
+           respected, not judged?
+        2. FAIR LENDING EXAMINER: Any ECOA concerns? Is military status
+           being used appropriately (to enhance, never restrict)? Any UDAAP
+           issues (unfair, deceptive, abusive)?
+        3. CONSUMER ATTORNEY: Any misleading promises about terms? Are
+           deferral vs. forgiveness clearly distinguished? Are both loans
+           addressed?
+      threat_model: |
+        CRITICAL:
+        - SCRA rights not mentioned when applicable
+        - False promises about approval or specific terms
+        - ECOA violation (restricting options due to military status)
+        - Only one loan addressed when member has two
+
+        HIGH:
+        - Scripted empathy that feels hollow
+        - Missing next steps (member doesn't know what to do)
+        - Forbearance described without clarifying deferral vs forgiveness
+        - UDAAP: unclear or deceptive language about terms
+
+        MEDIUM:
+        - Generic language not tailored to this member's situation
+        - Missing acknowledgment of military service
+        - Reading level too high (above 8th grade)
+        - Missing specialist contact information
+
+        LOW:
+        - Tone slightly off
+        - Could be more concise
+        - Minor formatting issues

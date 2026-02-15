@@ -1,0 +1,92 @@
+# Personal Finance Advisor Workflow
+# Retrieve → Classify → Investigate → Generate → Challenge
+# Conversational, advisory, data-driven
+
+name: spending_advisor
+description: >
+  Conversational spending advisor that analyzes a member's debit card
+  history, identifies patterns, and provides personalized financial
+  advice tied to their stated goals.
+
+steps:
+  # Step 1: Gather member data from sources
+  - name: gather_member_data
+    primitive: retrieve
+    # retrieve: default model/temp — precision for data assembly
+    params:
+      specification: "${domain.gather_member_data.specification}"
+      strategy: "${domain.gather_member_data.strategy}"
+
+  # Step 2: What is the member asking about?
+  - name: classify_inquiry
+    primitive: classify
+    # classify: default model, low temp — picking from fixed categories
+    temperature: 0.05
+    params:
+      categories: "${domain.classify_inquiry.categories}"
+      criteria: |
+        Member question: ${gather_member_data.data.member_question}
+        Member profile: ${gather_member_data.data.member_profile}
+        ${domain.classify_inquiry.criteria}
+      confidence_threshold: "${domain.classify_inquiry.confidence_threshold}"
+    transitions:
+      - default: investigate_spending
+
+  # Step 3: Analyze the data to answer the question
+  - name: investigate_spending
+    primitive: investigate
+    # investigate: default model, low temp — extracting data and testing hypotheses
+    params:
+      question: |
+        The member asked: "${gather_member_data.data.member_question}"
+        This was classified as: ${classify_inquiry.category}
+        
+        Analyze their transaction data to answer this question thoroughly.
+      scope: "${domain.investigate_spending.scope}"
+      available_evidence: |
+        Monthly summaries: ${gather_member_data.data.monthly_summaries}
+        Financial goals: ${gather_member_data.data.financial_goals}
+        Member profile: ${gather_member_data.data.member_profile}
+      effort_level: "${domain.investigate_spending.effort_level}"
+    transitions:
+      - default: generate_advice
+
+  # Step 4: Generate conversational advice
+  - name: generate_advice
+    primitive: generate
+    max_loops: 2
+    # generate: higher temp for natural conversational tone
+    temperature: 0.3
+    params:
+      requirements: |
+        Member name: ${gather_member_data.data.member_profile.name}
+        Their question: "${gather_member_data.data.member_question}"
+        Inquiry type: ${classify_inquiry.category}
+        Analysis finding: ${investigate_spending.finding}
+        Hypotheses: ${investigate_spending.hypotheses_tested}
+        Recommended actions: ${investigate_spending.recommended_actions}
+        Goals: ${gather_member_data.data.financial_goals}
+        ${domain.generate_advice.requirements}
+      format: "${domain.generate_advice.format}"
+      constraints: "${domain.generate_advice.constraints}"
+    transitions:
+      - default: challenge_advice
+
+  # Step 5: Is this advice safe and sound?
+  - name: challenge_advice
+    primitive: challenge
+    max_loops: 2
+    # challenge: use Pro for adversarial diversity — different model catches
+    # errors the generator's model might share as blind spots
+    model: gemini-2.5-pro
+    temperature: 0.05
+    params:
+      input: "${generate_advice.artifact}"
+      perspective: "${domain.challenge_advice.perspective}"
+      threat_model: "${domain.challenge_advice.threat_model}"
+    transitions:
+      - when: "output.survives == true"
+        goto: __end__
+      - when: "output.survives == false"
+        goto: generate_advice
+      - default: __end__

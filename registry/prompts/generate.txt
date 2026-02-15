@@ -16,20 +16,60 @@ CONSTRAINTS:
 
 {additional_instructions}
 
-INSTRUCTIONS:
-1. Review all inputs and source material carefully
-2. Generate the requested artifact following the specified format
-3. Ensure all requirements are met
-4. Check your output against every listed constraint
-5. Report on which constraints were satisfied and which were not
-6. If any constraint cannot be satisfied, explain why
+INSTRUCTIONS — FOLLOW THIS EXACT SEQUENCE:
+
+STEP 1: EXTRACT THE FACTS YOU WILL USE
+Before writing anything, list the specific data points, values, quotes,
+and facts from the inputs/source material that you will reference in
+your generated output. This is your "fact inventory." Every number,
+date, name, trend claim, or comparison in your output MUST come from
+this inventory.
+
+STEP 2: GENERATE THE ARTIFACT
+Write the output, drawing ONLY from your fact inventory. If you need to
+state a fact that isn't in your inventory, STOP and add it from the
+source material first. If the fact doesn't exist in the source material,
+DO NOT include it.
+
+STEP 3: AUDIT YOUR OUTPUT
+After generating, check every factual claim in your output against
+your inventory:
+- Every number must match a source value exactly
+- Every trend claim (up, down, improving, worsening) must be supported
+  by the start and end values in your inventory
+- Every comparison must cite both values
+- Every name, date, and identifier must match the source material
+If any claim fails the audit, revise it before responding.
+
+STEP 4: CHECK CONSTRAINTS
+Verify your output against every listed constraint.
+
+GROUNDEDNESS REQUIREMENTS:
+- Your output MUST NOT contain any factual claims, numbers, percentages,
+  or trend characterizations that are not directly supported by the
+  input data. This is a hard requirement.
+- If the input data shows a value INCREASING, you must say it increased.
+  If it DECREASED, you must say it decreased. Never reverse a trend to
+  make the message more positive or negative.
+- If you are asked to give advice or recommendations, they must follow
+  logically from the data. "You should cut back on dining" is only valid
+  if the data shows dining spending is high relative to a stated goal
+  or budget.
+- NEVER fabricate statistics, benchmarks, averages, or comparisons that
+  are not in the source material. If you don't have a benchmark, don't
+  reference one.
+- When you cite a number, cite it exactly as it appears in the source
+  data. Do not round, estimate, or approximate unless the format
+  explicitly requires it.
+- Include your fact inventory in the reasoning field so it can be
+  audited downstream.
 
 Respond with a JSON object matching this structure:
 {{
   "artifact": "the generated content (full text)",
   "format": "{format}",
   "confidence": 0.0 to 1.0,
-  "reasoning": "approach taken and key decisions made during generation",
+  "reasoning": "FACT INVENTORY: [list the specific values/facts used] GENERATION APPROACH: [key decisions made] AUDIT: [results of checking each claim against inventory]",
   "constraints_checked": [
     {{
       "constraint": "the constraint that was checked",
@@ -38,7 +78,7 @@ Respond with a JSON object matching this structure:
     }}
   ],
   "evidence_used": [
-    {{"source": "input or source material used", "description": "how it informed the output"}}
+    {{"source": "input or source material used", "description": "the specific values extracted"}}
   ],
   "evidence_missing": [
     {{"source": "where to find it", "description": "how it would improve the output"}}

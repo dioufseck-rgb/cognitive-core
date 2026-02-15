@@ -9,6 +9,7 @@ description: Assess member hardship and determine loan modification options.
 steps:
   - name: classify_hardship
     primitive: classify
+    temperature: 0.05
     params:
       categories: "${domain.classify_hardship.categories}"
       criteria: |
@@ -24,6 +25,7 @@ steps:
 
   - name: investigate_military
     primitive: investigate
+    # deep investigation of SCRA/VA — precision critical
     params:
       question: |
         What military-specific benefits and protections apply?
@@ -52,6 +54,7 @@ steps:
 
   - name: classify_assistance
     primitive: classify
+    temperature: 0.05
     params:
       categories: "${domain.classify_assistance.categories}"
       criteria: |
@@ -73,6 +76,8 @@ steps:
   - name: generate_guidance
     primitive: generate
     max_loops: 3
+    # member-facing letter — warmer tone, higher temp
+    temperature: 0.3
     params:
       requirements: |
         Member: ${input.member_name}
@@ -87,6 +92,9 @@ steps:
   - name: challenge_guidance
     primitive: challenge
     max_loops: 3
+    # regulatory review — Pro model for stronger reasoning, very low temp
+    model: gemini-2.5-pro
+    temperature: 0.05
     params:
       input: "${generate_guidance.artifact}"
       perspective: "${domain.challenge_guidance.perspective}"
@@ -100,6 +108,8 @@ steps:
 
   - name: escalate
     primitive: generate
+    # internal handoff brief — precise, not creative
+    temperature: 0.1
     params:
       requirements: |
         Member: ${input.member_name} (${input.member_profile.tenure_years}yr member)

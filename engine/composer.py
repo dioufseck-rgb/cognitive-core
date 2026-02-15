@@ -18,7 +18,8 @@ from langgraph.graph import StateGraph, END
 
 from registry.primitives import validate_use_case_step
 from engine.state import WorkflowState, get_step_output, get_loop_count
-from engine.nodes import create_node, create_agent_router, get_trace
+from engine.nodes import create_node, create_retrieve_node, create_agent_router, get_trace
+from engine.tools import ToolRegistry, create_case_registry
 
 
 # ---------------------------------------------------------------------------
@@ -78,17 +79,62 @@ def merge_workflow_domain(workflow: dict[str, Any], domain: dict[str, Any]) -> d
         f"{workflow.get('description', '')}\n"
         f"Domain: {domain.get('description', domain_name)}"
     )
-    for step in merged.get("steps", []):
-        step_name = step.get("name", "")
-        params = step.get("params", {})
-        resolved = {}
-        for k, v in params.items():
-            if isinstance(v, str):
-                resolved[k] = _resolve_domain_refs(v, domain, step_name)
-            else:
-                resolved[k] = v
-        step["params"] = resolved
+
+    if merged.get("mode") == "agentic":
+        # Agentic mode: resolve domain refs across the entire config
+        _deep_resolve_domain(merged, domain)
+    else:
+        # Sequential mode: resolve domain refs in step params
+        for step in merged.get("steps", []):
+            step_name = step.get("name", "")
+            params = step.get("params", {})
+            resolved = {}
+            for k, v in params.items():
+                if isinstance(v, str):
+                    resolved[k] = _resolve_domain_refs(v, domain, step_name)
+                else:
+                    resolved[k] = v
+            step["params"] = resolved
     return merged
+
+
+def _deep_resolve_domain(obj: Any, domain: dict[str, Any], parent_key: str = "") -> Any:
+    """
+    Recursively resolve ${domain.*} references throughout a nested structure.
+    For string values that are ENTIRELY a single ${domain.X} reference pointing
+    to a non-string (dict, list), inject the actual object instead of stringifying.
+    """
+    if isinstance(obj, dict):
+        for k, v in list(obj.items()):
+            obj[k] = _deep_resolve_domain(v, domain, k)
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            obj[i] = _deep_resolve_domain(v, domain, parent_key)
+    elif isinstance(obj, str):
+        # Check if the entire string is a single ${domain.X} reference
+        single_ref = re.fullmatch(r'\$\{domain\.([^}]+)\}', obj.strip())
+        if single_ref:
+            # Resolve to the actual object (could be dict, list, string, etc.)
+            resolved = _resolve_domain_ref_to_object(single_ref.group(1), domain)
+            if resolved is not None:
+                return copy.deepcopy(resolved)
+        # Otherwise do normal string interpolation
+        return _resolve_domain_refs(obj, domain, parent_key)
+    return obj
+
+
+def _resolve_domain_ref_to_object(ref: str, domain: dict[str, Any]) -> Any:
+    """Resolve a domain reference path to its actual value (preserving type)."""
+    parts = ref.split(".")
+    obj = domain
+    for p in parts:
+        if isinstance(obj, dict):
+            obj = obj.get(p)
+            if obj is None:
+                return None
+        else:
+            return None
+    return obj
 
 
 def _resolve_domain_refs(value: str, domain: dict[str, Any], step_name: str) -> str:
@@ -233,6 +279,7 @@ def compose_workflow(
     config: dict[str, Any],
     model: str = "gemini-2.0-flash",
     temperature: float = 0.1,
+    tool_registry: ToolRegistry | None = None,
 ) -> StateGraph:
 
     errors = validate_use_case(config)
@@ -244,13 +291,28 @@ def compose_workflow(
     step_names = [s["name"] for s in steps]
 
     for step in steps:
-        node = create_node(
-            step_name=step["name"],
-            primitive_name=step["primitive"],
-            params=step.get("params", {}),
-            model=step.get("model", model),
-            temperature=step.get("temperature", temperature),
-        )
+        if step["primitive"] == "retrieve":
+            if tool_registry is None:
+                raise ValueError(
+                    f"Step '{step['name']}' uses retrieve primitive but no "
+                    f"tool_registry was provided. Pass a ToolRegistry to "
+                    f"compose_workflow() or use create_case_registry()."
+                )
+            node = create_retrieve_node(
+                step_name=step["name"],
+                params=step.get("params", {}),
+                tool_registry=tool_registry,
+                model=step.get("model", model),
+                temperature=step.get("temperature", temperature),
+            )
+        else:
+            node = create_node(
+                step_name=step["name"],
+                primitive_name=step["primitive"],
+                params=step.get("params", {}),
+                model=step.get("model", model),
+                temperature=step.get("temperature", temperature),
+            )
         graph.add_node(step["name"], node)
 
     graph.set_entry_point(step_names[0])
@@ -313,12 +375,12 @@ def _add_transitions(graph, step_name, transitions, default_next, max_loops, loo
     graph.add_conditional_edges(step_name, composite_router)
 
 
-def compile_workflow(config, model="gemini-2.0-flash", temperature=0.1):
-    return compose_workflow(config, model, temperature).compile()
+def compile_workflow(config, model="gemini-2.0-flash", temperature=0.1, tool_registry=None):
+    return compose_workflow(config, model, temperature, tool_registry).compile()
 
 
-def run_workflow(config, workflow_input, model="gemini-2.0-flash", temperature=0.1):
-    compiled = compile_workflow(config, model, temperature)
+def run_workflow(config, workflow_input, model="gemini-2.0-flash", temperature=0.1, tool_registry=None):
+    compiled = compile_workflow(config, model, temperature, tool_registry)
     initial: WorkflowState = {
         "input": workflow_input,
         "steps": [],

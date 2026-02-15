@@ -17,6 +17,19 @@ description: >
 # Step-specific domain content
 # Each key matches a step name in the workflow
 
+gather_case_data:
+  strategy: deterministic
+  specification: |
+    Required data sources:
+      - dispute_intake: Member's dispute description, filed date, channel
+      - member_profile: Demographics, tenure, relationship, dispute history
+      - transaction_detail: Full transaction record (merchant, amount, auth method, geo)
+      - transaction_history: 90-day transaction patterns
+      - fraud_score: Real-time fraud risk score and contributing factors
+
+    Conditional (fetch if available):
+      - device_fingerprints: Known devices vs. transaction device
+
 classify_dispute_type:
   confidence_threshold: "0.8"
   categories: |

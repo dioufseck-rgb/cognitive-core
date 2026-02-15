@@ -1,0 +1,138 @@
+# Member Complaint Domain Configuration
+# For use with complaint_resolution workflow
+domain_name: member_complaint
+workflow: complaint_resolution
+description: >
+  Domain expertise for handling member service complaints —
+  inconsistent information, fees, service failures, process breakdowns.
+
+classify_complaint_type:
+  categories: |
+    - service_inconsistency: Member received conflicting information from
+      different agents or channels. Trust and competence concern.
+    - fee_dispute: Member disputes a fee or charge. May or may not be valid.
+    - process_failure: A process did not work as designed (hold not released,
+      payment not processed, card not activated, etc.)
+    - policy_disagreement: Member understands the policy but disagrees with it.
+    - staff_conduct: Complaint about how they were treated by staff.
+    - product_issue: Product not working as expected (mobile app, card, etc.)
+    - multi_issue: Complaint spans multiple categories.
+  criteria: |
+    Classify the ROOT problem, not the surface frustration.
+    If a member is upset about fees but the fees resulted from a process
+    failure, classify as process_failure (the fees are a symptom).
+    If inconsistent information AND fees AND process failure, use multi_issue.
+
+classify_severity:
+  categories: |
+    - critical_escalation: Regulatory risk (UDAAP, fair lending), legal
+      threat, social media escalation, or senior member with high attrition
+      risk mentioning account closure.
+    - high_priority: Financial harm occurred (fees, bounced payments),
+      multiple contact attempts, or member tenure > 5 years with
+      relationship value > $25K.
+    - standard: Normal complaint requiring resolution within SLA.
+    - low_priority: Minor inconvenience, first occurrence, easily resolved.
+  criteria: |
+    ESCALATION TRIGGERS (any one = critical):
+    - Member mentions lawsuit, attorney, CFPB, regulator, or media
+    - 3+ contacts on same issue without resolution
+    - Financial harm > $100 AND attrition risk > 0.5 AND tenure > 3 years
+    - Fair lending indicators
+
+    HIGH PRIORITY TRIGGERS:
+    - Financial harm occurred (fees, bounced payments, credit impact)
+    - Member mentions closing accounts
+    - Multiple failed resolution attempts
+    - Long-tenured member with significant relationship
+
+investigate_complaint:
+  effort_level: deep
+  scope: |
+    1. ROOT CAUSE: What actually happened? Trace the timeline from the
+       member's perspective. What went wrong at each touchpoint?
+    2. FINANCIAL IMPACT: Quantify all harm — fees, bounced payments,
+       late charges, credit impact. Be specific with dollar amounts.
+    3. SERVICE FAILURE: Were the agents wrong? Was the system wrong?
+       Was there a training gap or a system issue?
+    4. REMEDIATION: What should we do to make this right?
+       - Fee reversal: warranted? Amount?
+       - Apology: what level? (agent, supervisor, letter)
+       - Process fix: what needs to change to prevent recurrence?
+       - Goodwill gesture: warranted given relationship value and harm?
+    5. RETENTION RISK: Given the member's tenure, relationship value,
+       and stated frustration level, what's the retention calculus?
+       A 6-year member with $45K in products and direct deposit is
+       worth significantly more than $50 in fees.
+
+generate_response:
+  format: member_response_letter
+  requirements: |
+    Write a response to the member that:
+    1. Acknowledges their frustration specifically (not generically)
+    2. Takes responsibility — do not deflect or blame the member
+    3. Explains what happened (briefly, in plain language)
+    4. States exactly what remediation is being provided
+    5. Explains what we're doing to prevent this from happening again
+    6. Provides a direct contact for follow-up (name and phone number)
+    7. Reaffirms their value as a member
+
+    TONE: Sincere apology, not corporate script. Use their name. Be
+    specific about what went wrong. Don't over-apologize — be direct
+    and action-oriented.
+  constraints: |
+    - Never blame the member
+    - Never use "per our policy" or "as you know"
+    - Include specific dollar amounts for any fee reversals
+    - Include specific timeline for any process fixes
+    - 8th grade reading level
+    - Under 400 words
+    - UDAAP: no misleading statements about what happened
+    - If fees are reversed, state it definitively ("we have reversed")
+      not conditionally ("we may consider")
+
+challenge_response:
+  perspective: |
+    Review from three perspectives:
+    1. THE MEMBER (Michael Torres): Do I feel heard? Do I believe they
+       understand what went wrong? Am I satisfied with the remediation?
+       Will I keep my accounts open?
+    2. COMPLIANCE EXAMINER: Any UDAAP concerns? Is the explanation accurate?
+       Does the fee reversal set problematic precedent, or is it appropriate?
+    3. RETENTION ANALYST: Given a 6-year member with $45K relationship value,
+       direct deposit, and 0.6 attrition risk — is this response sufficient
+       to retain them?
+  threat_model: |
+    CRITICAL:
+    - Blaming the member for the issue
+    - Factual inaccuracies about what happened
+    - Missing the financial remediation entirely
+    - UDAAP violation (misleading about fees or process)
+
+    HIGH:
+    - Generic apology that doesn't address specific failures
+    - Missing fee reversal when fees resulted from our error
+    - No direct contact for follow-up
+    - Defensive or dismissive tone
+
+    MEDIUM:
+    - Response too long or corporate-sounding
+    - Missing acknowledgment of multiple failed contacts
+    - No mention of process improvement
+    - Fee reversal without explaining why
+
+escalate:
+  requirements: |
+    Member: ${input.member_name}
+    Complaint: ${input.complaint_text}
+    Financial harm: ${input.account_context.total_fees}
+    Create escalation brief for senior leadership with:
+    1. Member's situation in their words
+    2. Financial impact
+    3. Regulatory risk assessment
+    4. Recommended resolution with authority level needed
+    5. Retention analysis
+  constraints: |
+    - Flag any regulatory triggers explicitly
+    - Include member's stated intent (closing accounts, legal action, etc.)
+    - Recommend specific authority level for resolution

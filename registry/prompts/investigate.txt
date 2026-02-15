@@ -18,22 +18,64 @@ EFFORT BUDGET: {effort_level}
 This indicates how deep the investigation should go: light (surface-level review),
 moderate (follow key leads), deep (exhaustive analysis).
 
-INSTRUCTIONS:
-1. Review all available evidence carefully
-2. Form hypotheses that could explain the situation
-3. Evaluate each hypothesis against the evidence
-4. Identify which hypotheses are supported, rejected, or inconclusive
-5. State your primary finding clearly
-6. Note what evidence is missing that would strengthen your conclusion
-7. Recommend specific next steps
+INSTRUCTIONS — FOLLOW THIS EXACT SEQUENCE:
+
+STEP 1: EXTRACT KEY DATA POINTS
+Before forming any hypotheses or conclusions, extract the specific values,
+numbers, dates, and facts from the available evidence that are relevant
+to the question. List them explicitly in your reasoning. For numerical
+data, extract the actual values — do not summarize or characterize them
+yet. For example:
+  - CORRECT: "Feb spending: $304, Mar: $252, Jul: $411, Jan: $404"
+  - WRONG: "Spending has been decreasing over the period"
+You MUST show the raw data before interpreting it.
+
+STEP 2: FORM HYPOTHESES
+Based on the extracted data points (not your general impression), form
+testable hypotheses. Each hypothesis must be specific enough that the
+extracted data can confirm or reject it.
+
+STEP 3: TEST EACH HYPOTHESIS AGAINST THE EXTRACTED DATA
+For each hypothesis, cite the specific data points from Step 1 that
+support or contradict it. Do not use vague language like "the data
+suggests" — state which specific values support or contradict the
+hypothesis and why.
+
+STEP 4: STATE YOUR FINDING
+Your finding must follow directly from the hypothesis testing. If the
+data shows values going UP over time, your finding MUST say they went
+up — not down, regardless of what seems like a more helpful or positive
+framing. Accuracy is more important than tone.
+
+STEP 5: IDENTIFY MISSING EVIDENCE
+Note what additional data would strengthen your conclusions.
+
+GROUNDEDNESS REQUIREMENTS:
+- Every claim in your finding MUST be traceable to specific values
+  extracted in Step 1. If you cannot point to specific data, do not
+  make the claim.
+- Trend claims (increasing, decreasing, stable, improving, worsening)
+  MUST cite the start value, end value, and direction. For example:
+  "Increased from $252 in March to $404 in January."
+- Comparison claims MUST cite both values being compared.
+- NEVER characterize a trend without showing the numbers that
+  demonstrate it. "Spending decreased" is unacceptable without
+  "from $X to $Y."
+- If the data is ambiguous or shows mixed signals, say so. Do not
+  force a clean narrative onto noisy data.
+- Your confidence score MUST reflect the strength of evidence:
+    0.9+ = finding is directly and unambiguously supported by data
+    0.7-0.9 = finding is supported but some data points are mixed
+    0.5-0.7 = evidence is ambiguous, finding is the best interpretation
+    <0.5 = insufficient evidence, finding is speculative
 
 Respond with a JSON object matching this structure:
 {{
-  "finding": "your primary finding or conclusion",
+  "finding": "your primary finding, citing specific values",
   "confidence": 0.0 to 1.0,
-  "reasoning": "step-by-step reasoning that led to this finding",
+  "reasoning": "step-by-step reasoning showing: (1) extracted data points, (2) hypothesis formation, (3) hypothesis testing with specific citations, (4) conclusion",
   "evidence_used": [
-    {{"source": "where this evidence came from", "description": "what it shows"}}
+    {{"source": "where this evidence came from", "description": "the specific values or facts extracted"}}
   ],
   "evidence_missing": [
     {{"source": "where to find it", "description": "what it would clarify"}}
@@ -42,9 +84,9 @@ Respond with a JSON object matching this structure:
     {{
       "hypothesis": "the hypothesis statement",
       "status": "supported | rejected | inconclusive",
-      "evidence_for": ["supporting evidence"],
-      "evidence_against": ["contradicting evidence"],
-      "reasoning": "why this status was assigned"
+      "evidence_for": ["specific data points supporting this — cite actual values"],
+      "evidence_against": ["specific data points contradicting this — cite actual values"],
+      "reasoning": "why this status was assigned, with specific value citations"
     }}
   ],
   "recommended_actions": ["specific next steps"]

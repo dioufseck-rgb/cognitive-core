@@ -167,6 +167,57 @@ class ChallengeOutput(BaseOutput):
 
 
 # ---------------------------------------------------------------------------
+# Think
+# ---------------------------------------------------------------------------
+
+class ThinkOutput(BaseOutput):
+    """Output from a Think primitive. Freeform reasoning with structured takeaways."""
+    thought: str = Field(description="Freeform reasoning — the full chain of thought")
+    conclusions: list[str] = Field(
+        default_factory=list,
+        description="Key takeaways distilled from the reasoning"
+    )
+    decision: Optional[str] = Field(
+        default=None,
+        description="Recommended course of action, if one emerges from the reasoning"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Retrieve
+# ---------------------------------------------------------------------------
+
+class SourceResult(BaseModel):
+    """Result from a single data source retrieval."""
+    source: str = Field(description="Name of the data source")
+    status: str = Field(description="success | failed | skipped")
+    data: Optional[dict] = Field(default=None, description="Retrieved data if successful")
+    error: Optional[str] = Field(default=None, description="Error message if failed")
+    latency_ms: Optional[float] = Field(default=None, description="Retrieval latency in milliseconds")
+    freshness: Optional[str] = Field(default=None, description="Timestamp or staleness indicator")
+
+
+class RetrieveOutput(BaseOutput):
+    """Output from a Retrieve primitive."""
+    data: dict = Field(
+        default_factory=dict,
+        description="Assembled data keyed by source name"
+    )
+    sources_queried: list[SourceResult] = Field(
+        default_factory=list,
+        description="Status of each source that was queried"
+    )
+    sources_skipped: list[str] = Field(
+        default_factory=list,
+        description="Sources that were available but not needed"
+    )
+    retrieval_plan: str = Field(
+        default="",
+        description="The plan the agent used to decide what to retrieve (agentic mode only)"
+    )
+
+
+# ---------------------------------------------------------------------------
 # Schema registry — lookup by primitive name
 # ---------------------------------------------------------------------------
 
@@ -176,6 +227,8 @@ SCHEMA_REGISTRY: dict[str, type[BaseOutput]] = {
     "verify": VerifyOutput,
     "generate": GenerateOutput,
     "challenge": ChallengeOutput,
+    "retrieve": RetrieveOutput,
+    "think": ThinkOutput,
 }
 
 

@@ -1,0 +1,52 @@
+You are performing a reasoning task.
+
+CONTEXT:
+{context}
+
+INSTRUCTION:
+{instruction}
+
+FOCUS AREAS:
+{focus}
+
+{additional_instructions}
+
+INSTRUCTIONS:
+Think through the instruction carefully. You have access to all the
+context from prior steps in this workflow. Your job is to reason
+freely — connect dots, weigh tradeoffs, consider angles that
+structured analysis might miss.
+
+There is no required methodology. Reason however serves the
+instruction best: compare options, argue both sides, trace
+implications, identify what others might miss, or simply think
+out loud.
+
+REQUIREMENTS:
+- Ground your reasoning in the available evidence. You can speculate,
+  but label speculation clearly: "If X is true, then..."
+- End with clear conclusions — the downstream step needs to act on
+  your reasoning, so distill it into actionable takeaways.
+- If you have a recommendation, state it with your rationale.
+- Your confidence should reflect how well-supported your conclusions
+  are by the available evidence.
+
+Respond with a JSON object matching this structure:
+{{
+  "thought": "your full reasoning (freeform, as long as needed)",
+  "conclusions": [
+    "first key takeaway",
+    "second key takeaway"
+  ],
+  "decision": "your recommended course of action (or null if no clear recommendation)",
+  "confidence": 0.0 to 1.0,
+  "reasoning": "brief summary of your reasoning approach",
+  "evidence_used": [
+    {{"source": "what informed your thinking", "description": "how it contributed"}}
+  ],
+  "evidence_missing": [
+    {{"source": "where to find it", "description": "how it would change your reasoning"}}
+  ]
+}}
+
+Respond ONLY with the JSON object. No other text.

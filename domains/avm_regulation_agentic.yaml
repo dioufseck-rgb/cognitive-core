@@ -1,0 +1,165 @@
+# AVM Regulation — Agentic Domain Configuration
+domain_name: avm_regulation_agentic
+workflow: regulatory_impact_agentic
+description: >
+  Agentic regulatory impact assessment for the AVM quality control rule.
+  Orchestrator adapts investigation depth to severity classification.
+
+goal: |
+  Assess the impact of a proposed regulation on our institution and
+  produce an executive impact report with actionable recommendations.
+
+  Consider: affected business lines, compliance requirements, timeline,
+  resource needs, fair lending implications, and vendor impacts.
+
+  If the regulation is ambiguous or applicability unclear, produce an
+  escalation brief for legal/compliance instead.
+
+orchestrator_strategy: |
+  SEQUENCING GUIDANCE:
+  - Classify severity first. This determines investigation depth.
+  - If high_impact_immediate → deep investigation across all dimensions.
+  - If moderate → standard investigation, may escalate to deep if findings
+    warrant it.
+  - If clarification_needed → generate escalation brief, skip full analysis.
+  - Use THINK when regulation affects multiple business lines and the
+    interactions between impacts need synthesis.
+  - After investigation, classify business impact before generating report.
+  - Generate executive report with specific timelines and recommendations.
+  - Challenge for completeness, accuracy, and actionability.
+
+primitive_configs:
+
+  classify_severity:
+    primitive: classify
+    temperature: 0.05
+    params:
+      categories: |
+        - high_impact_immediate: Directly affects core business, significant
+          changes needed, near-term deadline.
+        - moderate_impact_planned: Affects operations but can be planned
+          within normal cycles.
+        - low_impact_monitor: Minimal direct impact, monitor for developments.
+        - clarification_needed: Ambiguous applicability, needs legal review.
+      criteria: |
+        Regulation: ${input.regulation}
+        Institution: ${input.institution_context}
+        Consider: products affected, business lines, timeline, magnitude.
+      confidence_threshold: "0.7"
+
+  investigate_deep:
+    primitive: investigate
+    params:
+      question: |
+        What are all specific impacts of this regulation on our institution?
+        Severity: ${_last_classify.category}
+      scope: |
+        1. PRODUCT: Which products affected? Underwriting, origination changes?
+        2. TECHNOLOGY: System changes? AVM vendor, model validation, testing?
+        3. COMPLIANCE: New policies, training, exam prep, monitoring?
+        4. FINANCIAL: Vendor costs, technology investment, staffing, revenue?
+        5. TIMELINE: Comment period vs effective date. Phased implementation?
+        6. FAIR LENDING: Nondiscrimination requirements. Disparate impact risk?
+        7. VENDOR: Contract changes needed?
+      available_evidence: |
+        Regulation: ${input.regulation}
+        Institution: ${input.institution_context}
+      effort_level: deep
+
+  investigate_standard:
+    primitive: investigate
+    params:
+      question: What are the primary impacts and required actions?
+      scope: |
+        1. Which products/processes directly affected?
+        2. Key compliance requirements?
+        3. Implementation timeline?
+        4. Cost implications?
+      available_evidence: |
+        Regulation: ${input.regulation}
+        Institution: ${input.institution_context}
+      effort_level: moderate
+
+  classify_business_impact:
+    primitive: classify
+    temperature: 0.05
+    params:
+      categories: |
+        - critical_multiple_lines: 3+ business lines significantly affected.
+        - significant_primary_line: Primary line heavily affected with ripples.
+        - contained_single_line: Impact contained to one line or function.
+      criteria: |
+        Investigation: ${_last_investigate.finding}
+        Affected areas: ${input.institution_context.affected_business_lines}
+      confidence_threshold: "0.7"
+
+  think_cross_impact:
+    primitive: think
+    temperature: 0.2
+    params:
+      instruction: |
+        Multiple business lines are affected. Consider how impacts interact:
+        - Investigation findings: ${_last_investigate.finding}
+        - Affected lines: ${input.institution_context.affected_business_lines}
+
+        Think through:
+        1. Dependencies between affected lines
+        2. Sequencing of implementation (what must come first?)
+        3. Resource conflicts (same teams needed for multiple workstreams?)
+        4. Fair lending implications across products
+        5. Comment period strategy — what positions to take?
+      focus: Actionable implementation strategy, not just impact description.
+
+  generate_report:
+    primitive: generate
+    temperature: 0.2
+    params:
+      requirements: |
+        Regulation: ${input.regulation.title} (${input.regulation.agency})
+        Effective: ${input.regulation.effective_date}
+        Comment period ends: ${input.regulation.comment_period_ends}
+        Investigation: ${_last_investigate.finding}
+
+        Executive impact assessment with:
+        1. Executive summary (2-3 paragraphs)
+        2. Impact classification and affected business lines
+        3. Key requirements with specific deadlines
+        4. Implementation roadmap with milestones
+        5. Resource estimate (people, budget, timeline)
+        6. Risk assessment
+        7. Recommendation and comment period strategy
+      format: executive_impact_report
+      constraints: |
+        - Actionable — leadership knows what to decide
+        - Distinguish certain from interpreted requirements
+        - Flag areas needing legal counsel
+        - Include specific dates and deadlines
+        - 1000-2000 words
+
+  generate_escalation:
+    primitive: generate
+    temperature: 0.1
+    params:
+      requirements: |
+        Regulation: ${input.regulation}
+        Ambiguity: why applicability is unclear.
+        Create a brief for legal/compliance with specific questions.
+      format: compliance_brief
+      constraints: |
+        - Concise request for analysis
+        - Flag comment period deadline
+        - Suggest priority level
+
+  challenge_report:
+    primitive: challenge
+    model: gemini-2.5-pro
+    temperature: 0.05
+    params:
+      input: "${_last_generate.artifact}"
+      perspective: Chief Compliance Officer and NCUA examiner.
+      threat_model: |
+        CRITICAL: Missing business lines, incorrect regulatory references,
+          unachievable timelines
+        HIGH: Missing fair lending analysis, no comment period strategy,
+          unclear resource requirements
+        MEDIUM: Missing vendor impact, no risk ranking, could be more specific

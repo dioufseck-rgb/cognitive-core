@@ -1,0 +1,41 @@
+# Agentic Loan Hardship Assessment — Workflow Layer
+#
+# The orchestrator decides the sequence based on what it discovers.
+# For military cases, it should investigate SCRA protections.
+# For clear cases, it can move directly to generate guidance.
+# For ambiguous cases, it can investigate deeper or escalate.
+#
+# Run:
+#   python -m engine.runner \
+#     -w workflows/loan_hardship_agentic.yaml \
+#     -d domains/military_hardship_agentic.yaml \
+#     -c cases/military_hardship_reeves.json
+
+name: loan_hardship_agentic
+mode: agentic
+
+goal: "${domain.goal}"
+
+available_primitives:
+  - classify
+  - investigate
+  - think
+  - verify
+  - generate
+  - challenge
+
+constraints:
+  max_steps: 10
+  max_repeat: 3
+  must_include:
+    - classify
+    - investigate
+    - generate
+    - challenge
+  must_end_with: challenge
+  challenge_must_pass: true
+
+orchestrator:
+  strategy: "${domain.orchestrator_strategy}"
+
+primitive_configs: "${domain.primitive_configs}"

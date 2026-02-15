@@ -17,6 +17,8 @@ from registry.schemas import (
     VerifyOutput,
     GenerateOutput,
     ChallengeOutput,
+    RetrieveOutput,
+    ThinkOutput,
 )
 
 PROMPTS_DIR = Path(__file__).parent / "prompts"
@@ -80,6 +82,30 @@ PRIMITIVE_CONFIGS: dict[str, dict[str, Any]] = {
         },
         "prompt_file": "challenge.txt",
         "schema": ChallengeOutput,
+    },
+    "retrieve": {
+        "required_params": ["specification"],
+        "optional_params": ["sources", "strategy", "additional_instructions"],
+        "defaults": {
+            "strategy": "deterministic",
+            "sources": "Will be populated from tool registry at runtime.",
+            "additional_instructions": "",
+            "context": "No additional context provided.",
+            "source_results": "No sources queried yet.",
+        },
+        "prompt_file": "retrieve.txt",
+        "schema": RetrieveOutput,
+    },
+    "think": {
+        "required_params": ["instruction"],
+        "optional_params": ["focus", "additional_instructions"],
+        "defaults": {
+            "focus": "Consider all available evidence and prior step outputs.",
+            "additional_instructions": "",
+            "context": "No additional context provided.",
+        },
+        "prompt_file": "think.txt",
+        "schema": ThinkOutput,
     },
 }
 

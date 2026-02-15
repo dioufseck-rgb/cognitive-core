@@ -1,0 +1,36 @@
+# Agentic Regulatory Impact Assessment
+# Orchestrator adapts investigation depth to regulation severity
+#
+# Run:
+#   python -m engine.runner \
+#     -w workflows/regulatory_impact_agentic.yaml \
+#     -d domains/avm_regulation_agentic.yaml \
+#     -c cases/avm_regulation.json
+
+name: regulatory_impact_agentic
+mode: agentic
+
+goal: "${domain.goal}"
+
+available_primitives:
+  - classify
+  - investigate
+  - think
+  - generate
+  - challenge
+
+constraints:
+  max_steps: 10
+  max_repeat: 3
+  must_include:
+    - classify
+    - investigate
+    - generate
+    - challenge
+  must_end_with: challenge
+  challenge_must_pass: true
+
+orchestrator:
+  strategy: "${domain.orchestrator_strategy}"
+
+primitive_configs: "${domain.primitive_configs}"
