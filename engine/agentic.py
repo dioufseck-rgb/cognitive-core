@@ -27,8 +27,8 @@ from pathlib import Path
 from typing import Any
 
 from langgraph.graph import StateGraph, END
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage
+from engine.llm import create_llm
 
 from registry.primitives import render_prompt, get_schema_class, PRIMITIVE_CONFIGS
 from engine.state import (
@@ -96,7 +96,7 @@ def validate_agentic_config(config: dict[str, Any]) -> list[str]:
 
 def compose_agentic_workflow(
     config: dict[str, Any],
-    model: str = "gemini-2.0-flash",
+    model: str = "default",
     temperature: float = 0.1,
     tool_registry: ToolRegistry | None = None,
 ) -> StateGraph:
@@ -131,7 +131,7 @@ def compose_agentic_workflow(
     trace = get_trace()
 
     # Build LLM for orchestrator
-    orch_llm = ChatGoogleGenerativeAI(
+    orch_llm = create_llm(
         model=orch_model_name,
         temperature=temperature,
     )
@@ -428,11 +428,11 @@ def compose_agentic_workflow(
 # Compile / run helpers
 # ---------------------------------------------------------------------------
 
-def compile_agentic_workflow(config, model="gemini-2.0-flash", temperature=0.1, tool_registry=None):
+def compile_agentic_workflow(config, model="default", temperature=0.1, tool_registry=None):
     return compose_agentic_workflow(config, model, temperature, tool_registry).compile()
 
 
-def run_agentic_workflow(config, workflow_input, model="gemini-2.0-flash", temperature=0.1, tool_registry=None):
+def run_agentic_workflow(config, workflow_input, model="default", temperature=0.1, tool_registry=None):
     compiled = compile_agentic_workflow(config, model, temperature, tool_registry)
     initial: WorkflowState = {
         "input": workflow_input,

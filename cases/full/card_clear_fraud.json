@@ -1,0 +1,61 @@
+{
+  "member_profile": {
+    "member_id": "MBR-2024-88291",
+    "member_name": "Sarah Chen",
+    "member_since": "2018-03-15",
+    "account_type": "Signature Visa",
+    "tenure_years": 8,
+    "credit_score": 781,
+    "total_relationship_value": 45000,
+    "prior_disputes": 0,
+    "prior_fraud_alerts": 0,
+    "products": ["checking", "savings", "visa", "auto_loan"]
+  },
+  "transaction_detail": {
+    "transaction_id": "TXN-2026-01-28-487332",
+    "merchant": "ELECTROMART ONLINE",
+    "amount": 487.32,
+    "date": "2026-01-28",
+    "category": "Electronics - Online",
+    "auth_method": "card_not_present",
+    "ip_geolocation": "Lagos, Nigeria",
+    "device_fingerprint": "unknown_device",
+    "avs_result": "mismatch",
+    "cvv_result": "not_provided"
+  },
+  "transaction_history": {
+    "last_90_days": {
+      "total_transactions": 87,
+      "avg_amount": 62.50,
+      "max_amount": 312.00,
+      "categories": ["grocery", "gas", "restaurants", "amazon", "streaming"],
+      "online_merchants": ["amazon.com", "netflix.com", "spotify.com"],
+      "geolocation_pattern": "Virginia Beach, VA metro area"
+    }
+  },
+  "fraud_score": {
+    "score": 892,
+    "risk_level": "high",
+    "factors": [
+      "unknown_device",
+      "geolocation_anomaly",
+      "merchant_category_anomaly",
+      "amount_exceeds_typical_online"
+    ],
+    "model_version": "fraud_v3.2",
+    "scored_at": "2026-01-28T14:32:00Z"
+  },
+  "device_fingerprints": {
+    "known_devices": [
+      {"device_id": "DEV-001", "type": "iPhone 15", "first_seen": "2024-06-12"},
+      {"device_id": "DEV-002", "type": "MacBook Pro", "first_seen": "2023-03-20"}
+    ],
+    "transaction_device": "unknown — not in member device registry"
+  },
+  "dispute_intake": {
+    "member_name": "Sarah Chen",
+    "dispute_description": "I noticed a charge of $487.32 from 'ELECTROMART ONLINE' on January 28th that I did not make. I have never shopped at this merchant. I had my card in my possession the entire time. I want this charge reversed immediately.",
+    "filed_date": "2026-02-01",
+    "channel": "online_portal"
+  }
+}

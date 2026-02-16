@@ -1,0 +1,129 @@
+# Complaint Resolution Workflow (with Act)
+# Retrieve → Classify → Classify severity → Investigate → Generate → Challenge → Act
+# The Act step sends the approved response to the member via email.
+
+name: complaint_resolution_act
+description: >
+  End-to-end complaint resolution that closes the loop — retrieves account
+  and transaction data, classifies the complaint, investigates, generates a
+  response, validates it through adversarial challenge, then SENDS the
+  response to the member via email.
+
+steps:
+  # Step 1: Pull account, deposit, and member history data
+  - name: retrieve_data
+    primitive: retrieve
+    params:
+      specification: |
+        Member ${input.member_id} filed a complaint about a check deposit hold.
+        Complaint: ${input.complaint.description}
+        Retrieve: member profile, account balances, pending deposits, NSF history,
+        check deposit detail, hold information, and member deposit history.
+        Tools needed: get_member, get_accounts, get_check_deposit, get_nsf_events
+      sources: "${domain.retrieve_data.sources}"
+
+  # Step 2: What type of complaint is this?
+  - name: classify_complaint
+    primitive: classify
+    params:
+      categories: "${domain.classify_complaint.categories}"
+      criteria: |
+        Complaint: ${input.complaint.description}
+        Subject: ${input.complaint.subject}
+        Member: ${retrieve_data.data.get_member.name}
+        ${domain.classify_complaint.criteria}
+      confidence_threshold: "0.7"
+
+  # Step 2: How severe / urgent is this?
+  - name: classify_severity
+    primitive: classify
+    params:
+      categories: "${domain.classify_severity.categories}"
+      criteria: |
+        Complaint type: ${classify_complaint.category}
+        Complaint text: ${input.complaint.description}
+        Member and financial context: ${retrieve_data.data}
+        ${domain.classify_severity.criteria}
+    transitions:
+      - when: "output.category == 'critical_escalation'"
+        goto: escalate_to_human
+      - default: investigate_complaint
+
+  # Step 3: What actually happened and what should we do?
+  - name: investigate_complaint
+    primitive: investigate
+    params:
+      question: |
+        Member ${retrieve_data.data.get_member.name} filed a ${classify_complaint.category}
+        complaint (severity: ${classify_severity.category}) about a check
+        deposit hold. What happened, is the hold justified, and what
+        remediation is appropriate?
+      scope: "${domain.investigate_complaint.scope}"
+      available_evidence: |
+        Complaint: ${input.complaint.description}
+        Retrieved data: ${retrieve_data.data}
+      effort_level: thorough
+
+  # Step 4: Generate the response
+  - name: generate_response
+    primitive: generate
+    max_loops: 3
+    params:
+      requirements: |
+        Write an email response to ${retrieve_data.data.get_member.name} addressing
+        their complaint about the check deposit hold.
+        Investigation finding: ${investigate_complaint.finding}
+        Remediation: ${investigate_complaint.recommended_actions}
+        ${domain.generate_response.requirements}
+      format: member_email
+      constraints: "${domain.generate_response.constraints}"
+    transitions:
+      - default: challenge_response
+
+  # Step 5: Challenge the response
+  - name: challenge_response
+    primitive: challenge
+    max_loops: 3
+    params:
+      input: "${generate_response.artifact}"
+      perspective: "${domain.challenge_response.perspective}"
+      threat_model: "${domain.challenge_response.threat_model}"
+    transitions:
+      - when: "output.survives == true"
+        goto: send_response
+      - when: "output.survives == false"
+        goto: generate_response
+      - default: send_response
+
+  # Step 6: ACT — Send the approved email to the member
+  - name: send_response
+    primitive: act
+    dry_run: false
+    params:
+      actions: "${domain.send_response.actions}"
+      authorization: "${domain.send_response.authorization}"
+      mode: execution
+      additional_instructions: |
+        The approved email to send is: ${generate_response.artifact}
+        Recipient email: ${retrieve_data.data.get_member.email}
+        Recipient name: ${retrieve_data.data.get_member.name}
+        Complaint ID: ${input.complaint.complaint_id}
+        Send this email NOW using the send_email action.
+        In your response, set the action to "send_email" and include
+        recipient, subject, and body in the response_data field.
+    transitions:
+      - default: __end__
+
+  # Escalation path (only reached via explicit routing from classify_severity)
+  - name: escalate_to_human
+    primitive: generate
+    params:
+      requirements: |
+        Member: ${retrieve_data.data.get_member.name}
+        Complaint: ${classify_complaint.category}
+        Severity: ${classify_severity.category}
+        ${domain.escalate_to_human.requirements}
+      format: escalation_summary
+      constraints: "${domain.escalate_to_human.constraints}"
+    transitions:
+      - default: __end__

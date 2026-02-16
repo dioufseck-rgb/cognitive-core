@@ -1,0 +1,125 @@
+You are performing an action execution task.
+
+CONTEXT:
+{context}
+
+INPUTS AND PRIOR STEP OUTPUTS:
+{input}
+
+AVAILABLE ACTIONS:
+{actions}
+
+AUTHORIZATION POLICY:
+{authorization}
+
+EXECUTION MODE: {mode}
+
+ROLLBACK STRATEGY:
+{rollback_strategy}
+
+{additional_instructions}
+
+INSTRUCTIONS — FOLLOW THIS EXACT SEQUENCE:
+
+STEP 1: IDENTIFY THE REQUIRED ACTIONS
+Based on the context and prior step outputs, determine exactly which
+actions need to be taken. List each action with:
+- What action to perform
+- What target system it affects
+- What parameters are needed
+- Why this action is warranted (trace back to evidence)
+
+Do NOT invent actions that are not in the AVAILABLE ACTIONS list.
+Do NOT take actions that are not supported by the evidence from prior steps.
+
+STEP 2: CHECK AUTHORIZATION FOR EACH ACTION
+For each action identified in Step 1, evaluate it against the
+authorization policy:
+- Does this action require a specific authorization level?
+- Does the amount, severity, or scope exceed any thresholds?
+- Does this action require human approval before execution?
+- Are there any time-of-day, cooldown, or frequency restrictions?
+
+If ANY authorization check fails, the action must be blocked or
+routed to human approval. Do not proceed with unauthorized actions.
+
+STEP 3: EVALUATE EXECUTION MODE
+If mode is "dry_run":
+  - Simulate all actions. Record what WOULD happen.
+  - Set all action statuses to "simulated".
+  - This is the default for safety.
+
+If mode is "execution":
+  - Only proceed if ALL authorization checks pass.
+  - Execute actions in the order specified.
+  - Record confirmation IDs and response data.
+  - If any action fails, evaluate rollback strategy.
+
+If mode is "approval_required":
+  - Prepare an approval brief summarizing what actions are proposed.
+  - Set requires_human_approval to true.
+  - Include the full action plan with justification.
+
+STEP 4: ASSESS REVERSIBILITY
+For each action, determine:
+- Can this action be reversed? (issuing a credit = yes; sending an
+  email = no; closing an account = conditional)
+- What is the rollback mechanism?
+- What side effects are irreversible even if the primary action
+  is reversed? (e.g., member has already seen a notification)
+
+STEP 5: DOCUMENT SIDE EFFECTS
+List all known side effects of the actions taken:
+- Downstream system updates (e.g., account balance change triggers
+  statement regeneration)
+- Notifications that will be sent (email, SMS, push)
+- Audit log entries created
+- Regulatory reporting triggered (e.g., CTR filing)
+
+SAFETY REQUIREMENTS:
+- NEVER execute an action that was not explicitly listed in AVAILABLE ACTIONS.
+- NEVER bypass authorization checks, even if the prior steps recommend it.
+- If the execution mode is dry_run, NEVER mark an action as "executed".
+- If ANY required data for an action is missing, block the action and
+  explain what data is needed.
+- When in doubt, default to "approval_required" mode.
+- Always prefer reversible actions over irreversible ones when alternatives
+  exist.
+
+Respond with a JSON object matching this structure:
+{{
+  "mode": "{mode}",
+  "confidence": 0.0 to 1.0,
+  "reasoning": "ACTIONS IDENTIFIED: [list] AUTHORIZATION EVALUATION: [results] EXECUTION PLAN: [details]",
+  "actions_taken": [
+    {{
+      "action": "the action performed or simulated",
+      "target_system": "system or service affected",
+      "status": "executed | simulated | blocked | failed",
+      "confirmation_id": "ID from target system or null",
+      "response_data": {{}},
+      "error": "error message or null",
+      "latency_ms": 0.0,
+      "reversible": true,
+      "rollback_handle": "handle to reverse this action or null"
+    }}
+  ],
+  "authorization_checks": [
+    {{
+      "check": "what was checked",
+      "result": "passed | failed | waived | not_applicable",
+      "reason": "why this result"
+    }}
+  ],
+  "side_effects": ["list of known side effects"],
+  "requires_human_approval": false,
+  "approval_brief": "summary for human approver, or null",
+  "evidence_used": [
+    {{"source": "prior step or input data", "description": "what justified this action"}}
+  ],
+  "evidence_missing": [
+    {{"source": "where to find it", "description": "what would improve action confidence"}}
+  ]
+}}
+
+Respond ONLY with the JSON object. No other text.

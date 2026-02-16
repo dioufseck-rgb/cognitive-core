@@ -1,0 +1,87 @@
+{
+  "_description": "Simulated API responses for dev/test. In production, these come from live service calls via the Retrieve primitive's tool registry.",
+
+  "member_profile": {
+    "member_id": "MBR-2026-10441",
+    "name": "Mamadou Diouf-Seck",
+    "email": "dioufseck@hotmail.com",
+    "phone": "703-555-0192",
+    "preferred_contact": "email",
+    "member_since": "2018-03-15",
+    "membership_tenure_years": 7.9,
+    "branch": "Fairfax Main",
+    "products": ["checking", "savings", "auto_loan", "credit_card"],
+    "relationship_value": 62400.00,
+    "segment": "prime",
+    "active_duty": false,
+    "veteran": false,
+    "military_affiliation": "none"
+  },
+
+  "account_detail": {
+    "account_id": "CHK-2026-10441-01",
+    "type": "checking",
+    "balance_current": 312.44,
+    "balance_available": 312.44,
+    "pending_deposits": [
+      {
+        "deposit_id": "DEP-2026-02100001",
+        "type": "mobile_check_deposit",
+        "amount": 4200.00,
+        "deposited_date": "2026-02-10",
+        "expected_available_date": "2026-02-18",
+        "status": "hold",
+        "hold_reason": "large_check_first_mobile",
+        "hold_type": "Reg CC exception hold",
+        "check_issuer": "Vertex Solutions LLC",
+        "check_number": "10284"
+      }
+    ],
+    "recent_nsf": [
+      {
+        "date": "2026-02-13",
+        "payee": "Dominion Energy",
+        "amount": 187.50,
+        "fee_charged": 29.00,
+        "fee_id": "FEE-2026-021300042"
+      }
+    ],
+    "monthly_average_balance": 3420.00,
+    "overdraft_protection": false
+  },
+
+  "check_deposit_detail": {
+    "deposit_id": "DEP-2026-02100001",
+    "check_amount": 4200.00,
+    "check_issuer": "Vertex Solutions LLC",
+    "check_issuer_bank": "Wells Fargo",
+    "check_number": "10284",
+    "deposited_via": "mobile_deposit",
+    "deposited_date": "2026-02-10",
+    "image_quality": "acceptable",
+    "endorsement_valid": true,
+    "duplicate_check": false,
+    "issuer_account_verified": true,
+    "hold_applied": true,
+    "hold_reason": "Reg CC Section 229.13(b) — large deposit exception. Check exceeds $5,525 next-day threshold for mobile deposits. First mobile deposit from this issuer.",
+    "hold_amount": 4200.00,
+    "first_200_available_date": "2026-02-11",
+    "remaining_available_date": "2026-02-18",
+    "reg_cc_maximum_hold_date": "2026-02-19",
+    "hold_notice_sent": true,
+    "hold_notice_date": "2026-02-10",
+    "hold_notice_method": "email"
+  },
+
+  "member_history": {
+    "total_deposits_12mo": 87,
+    "mobile_deposits_12mo": 12,
+    "checks_deposited_12mo": 8,
+    "returned_checks_12mo": 0,
+    "nsf_events_12mo": 1,
+    "complaints_12mo": 0,
+    "average_check_amount": 1850.00,
+    "largest_check_amount": 4200.00,
+    "deposit_relationship_risk": "low"
+  }
+}

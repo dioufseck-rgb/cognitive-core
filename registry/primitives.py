@@ -19,6 +19,7 @@ from registry.schemas import (
     ChallengeOutput,
     RetrieveOutput,
     ThinkOutput,
+    ActOutput,
 )
 
 PROMPTS_DIR = Path(__file__).parent / "prompts"
@@ -106,6 +107,18 @@ PRIMITIVE_CONFIGS: dict[str, dict[str, Any]] = {
         },
         "prompt_file": "think.txt",
         "schema": ThinkOutput,
+    },
+    "act": {
+        "required_params": ["actions", "authorization"],
+        "optional_params": ["mode", "rollback_strategy", "additional_instructions"],
+        "defaults": {
+            "mode": "dry_run",
+            "rollback_strategy": "Reverse all actions in LIFO order if any action fails.",
+            "additional_instructions": "",
+            "context": "No additional context provided.",
+        },
+        "prompt_file": "act.txt",
+        "schema": ActOutput,
     },
 }
 

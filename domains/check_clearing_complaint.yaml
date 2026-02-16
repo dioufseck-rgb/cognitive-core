@@ -1,0 +1,154 @@
+# Check Clearing Complaint Domain
+# Configures the complaint_resolution_act workflow for check hold complaints.
+# Includes Act configuration for email delivery.
+
+domain_name: check_clearing_complaint
+description: >
+  Member complaints about check deposit holds and funds availability.
+  Covers Reg CC compliance, hold justification, fee remediation, and
+  member communication. Act step sends the approved response via email.
+
+# ── Retrieve: Account & Transaction Data ──
+retrieve_data:
+  sources: |
+    - get_member: Full member demographics, tenure, products, segment,
+      military status.
+    - get_accounts: Current/available balances, pending deposits with
+      hold reasons, monthly averages, overdraft settings.
+    - get_check_deposit: Check amount, issuer, issuer bank, deposit
+      method, image quality, endorsement, duplicate check, hold reason
+      (Reg CC section), hold dates, first-$200 availability, hold notice
+      status.
+    - get_nsf_events: Recent NSF/overdraft events and fees charged.
+
+# ── Classify: Complaint Type ──
+classify_complaint:
+  categories: |
+    - funds_availability: Complaint about delayed access to deposited funds
+    - check_hold: Complaint specifically about a hold placed on a check deposit
+    - fee_complaint: Complaint about NSF/overdraft fees
+    - service_delay: General complaint about processing speed
+    - account_error: Complaint about an error on the account
+    - multi_issue: Complaint spans multiple categories
+  criteria: |
+    Look for references to: check deposits, holds, fund availability,
+    pending transactions, Reg CC, mobile deposits, clearing times.
+    If the member mentions both a hold AND fees resulting from the hold,
+    classify as multi_issue.
+
+# ── Classify: Severity ──
+classify_severity:
+  categories: |
+    - critical_escalation: Member in immediate financial distress, regulatory violation suspected, or media/legal threat
+    - high_priority: Long-tenure high-value member, threatening to leave, active financial impact
+    - standard: Normal complaint requiring timely resolution
+    - low: Inquiry or minor inconvenience, no financial impact
+  criteria: |
+    Consider: member tenure (>5 years = higher priority), relationship value
+    (>$25K = higher priority), financial impact (NSF fees, bounced payments),
+    retention risk (threatening to leave), complaint history (first complaint
+    from long-tenure member = higher priority), and regulatory sensitivity
+    (Reg CC holds have specific disclosure requirements).
+
+# ── Investigate ──
+investigate_complaint:
+  scope: |
+    1. HOLD JUSTIFICATION: Is the hold compliant with Reg CC?
+       - Check Section 229.13(b) exception hold rules
+       - Is the hold duration within regulatory limits?
+       - Was proper notice given?
+       - Does the member's history justify the hold length?
+
+    2. FEE ANALYSIS: Were any fees caused by the hold?
+       - Identify NSF/overdraft fees during the hold period
+       - Would the member have had sufficient funds without the hold?
+       - Is fee reversal warranted?
+
+    3. MEMBER RELATIONSHIP: What is the retention risk?
+       - Member tenure and product depth
+       - Complaint history
+       - Relationship value
+       - Likelihood of attrition
+
+    4. REMEDIATION OPTIONS: What should we offer?
+       - Can the hold be released early? (check has verified, issuer confirmed)
+       - Should NSF fees be reversed?
+       - Is a goodwill gesture appropriate?
+       - What is the cost-benefit of remediation vs. member loss?
+
+# ── Generate ──
+generate_response:
+  requirements: |
+    Write a professional, empathetic email that:
+    1. Acknowledges the frustration and apologizes for the inconvenience
+    2. Explains WHY the hold was placed (Reg CC, first mobile deposit from
+       this issuer, amount exceeds threshold) in plain language
+    3. States what specific actions are being taken (early release if
+       justified, fee reversal, etc.)
+    4. Provides a clear timeline for when funds will be available
+    5. Addresses the NSF fee directly
+    6. Thanks them for their long membership
+    7. Provides a direct contact for follow-up
+
+    Tone: empathetic, professional, action-oriented. Do NOT be defensive
+    about the hold. Acknowledge the impact.
+
+    Sign off as: Member Services Team, Navy Federal Credit Union
+
+  constraints: |
+    - Must acknowledge the member by name
+    - Must reference the specific check amount and deposit date
+    - Must explain the hold reason in plain language (no regulatory jargon)
+    - Must state specific remediation actions with dollar amounts
+    - Must include complaint reference number
+    - Must NOT make promises about future hold policies
+    - Must NOT blame the member for the hold
+    - Must NOT disclose internal risk scoring
+    - Length: 200-400 words
+    - Include subject line as first line: "Subject: ..."
+
+# ── Challenge ──
+challenge_response:
+  perspective: |
+    You are reviewing a member complaint response from three perspectives:
+    1. REGULATORY: Does the response accurately describe Reg CC hold rules?
+       Does it make any promises that violate hold policies?
+    2. MEMBER EXPERIENCE: Is the tone empathetic? Does it address every
+       concern the member raised? Would YOU feel satisfied with this response?
+    3. FINANCIAL: Are the remediation amounts correct? Is the fee reversal
+       properly stated? Are there any unauthorized commitments?
+  threat_model: |
+    - Inaccurate Reg CC description (critical)
+    - Promising to release hold before check clears (critical)
+    - Wrong dollar amounts for fees or credits (critical)
+    - Missing acknowledgment of member's frustration (high)
+    - Defensive or blame-shifting tone (high)
+    - Missing specific timeline (medium)
+    - Too long or too formal (low)
+
+# ── Act: Send Email ──
+send_response:
+  actions: |
+    Available action:
+    - send_email: Send the approved complaint response to the member's
+      email address. Uses Gmail SMTP. The email body should be the
+      approved artifact from the generate step. Set recipient to the
+      member's email from the case data. Set subject from the first
+      line of the generated artifact.
+  authorization: |
+    Current authorization level: system
+    send_email is authorized at system level for complaint responses.
+    No approval required for member notification emails.
+
+# ── Escalation ──
+escalate_to_human:
+  requirements: |
+    Prepare an escalation brief for a supervisor including:
+    - Member name, tenure, and relationship value
+    - Complaint summary and severity assessment
+    - Recommended actions
+    - Why this needs human review
+  constraints: |
+    - Must include all relevant case IDs
+    - Must state the specific regulatory concern if applicable
+    - Keep under 300 words

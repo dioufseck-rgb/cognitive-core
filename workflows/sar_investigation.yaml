@@ -7,6 +7,15 @@ name: sar_investigation
 description: Investigate suspicious activity alerts and produce SAR narratives.
 
 steps:
+  # Step 0: Pull alert details, member info, and transaction history
+  - name: retrieve_data
+    primitive: retrieve
+    params:
+      specification: |
+        Retrieve AML alert details, member profile, and transaction history.
+        Tools needed: get_aml_alert, get_member, get_transactions
+      strategy: parallel
+
   - name: classify_alert
     primitive: classify
     params:
@@ -21,6 +30,7 @@ steps:
   - name: investigate_activity
     primitive: investigate
     max_loops: 2
+    loop_fallback: classify_filing_decision
     params:
       question: |
         Alert classification: ${classify_alert.category}
@@ -28,9 +38,9 @@ steps:
         indicate potential illicit activity warranting a SAR filing?
       scope: "${domain.investigate_activity.scope}"
       available_evidence: |
-        Transactions: ${input.triggering_activity}
-        Account history: ${input.account_history}
-        Subject: ${input.subject}
+        AML alert: ${retrieve_data.data.get_aml_alert}
+        Member: ${retrieve_data.data.get_member}
+        Transactions: ${retrieve_data.data.get_transactions}
       effort_level: deep
     transitions:
       - agent_decide:
@@ -66,8 +76,8 @@ steps:
     max_loops: 3
     params:
       requirements: |
-        Subject: ${input.subject}
-        Activity: ${input.triggering_activity}
+        Alert: ${retrieve_data.data.get_aml_alert}
+        Transactions: ${retrieve_data.data.get_transactions}
         Finding: ${investigate_activity.finding}
         Filing rationale: ${classify_filing_decision.reasoning}
         ${domain.generate_narrative.requirements}
@@ -105,7 +115,7 @@ steps:
     params:
       requirements: |
         Alert: ${input.alert_id} (${input.alert_type})
-        Subject: ${input.subject.name}
+        Subject: ${retrieve_data.data.get_aml_alert.subject_name}
         Finding: ${investigate_activity.finding}
         Decision: ${classify_filing_decision.reasoning}
         ${domain.generate_closure.requirements}
@@ -119,7 +129,7 @@ steps:
     params:
       requirements: |
         Alert: ${input.alert_id}
-        Subject: ${input.subject.name}
+        Subject: ${retrieve_data.data.get_aml_alert.subject_name}
         ${domain.escalate.requirements}
       format: escalation_package
       constraints: "${domain.escalate.constraints}"

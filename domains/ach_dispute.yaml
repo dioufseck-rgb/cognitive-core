@@ -11,6 +11,16 @@ description: >
   unauthorized debits, incorrect amounts, duplicate transactions,
   and revoked authorizations.
 
+gather_case_data:
+  strategy: deterministic
+  specification: |
+    Required data sources:
+      - get_member: Member demographics, tenure, dispute history
+      - get_transactions: ACH transaction history for this member
+      - get_dispute: Dispute record with originator and authorization details
+    Context: ACH dispute investigation — need member profile, transaction
+    history with the originator, and dispute filing details.
+
 classify_dispute_type:
   confidence_threshold: "0.8"
   categories: |

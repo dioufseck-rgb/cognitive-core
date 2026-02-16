@@ -82,9 +82,9 @@ primitive_configs:
         Is the member being proactive (reaching out before missing payments)?
 
         Member statement: ${input.member_statement}
-        Military status: ${input.member_profile.military_status}
-        Payment history: ${input.member_profile.payment_history}
-        Loan details: ${input.loan_details}
+        Military status: ${_last_retrieve.data.get_member.military_status}
+        Payment history: ${_last_retrieve.data.get_member.payment_history}
+        Loan details: ${_last_retrieve.data.get_loans}
       confidence_threshold: "0.7"
 
   investigate_military:
@@ -102,13 +102,13 @@ primitive_configs:
            this institution?
         4. TIMELINE: Medical retirement transitions typically take 3-6 months.
            Is temporary relief sufficient or does this need restructuring?
-        5. COMBINED OBLIGATIONS: Both the mortgage ($${input.loan_details.mortgage.monthly_payment}/mo)
-           and auto loan ($${input.loan_details.auto_loan.monthly_payment}/mo) together vs.
+        5. COMBINED OBLIGATIONS: Both the mortgage ($${_last_retrieve.data.get_loans.loans[0].monthly_payment}/mo)
+           and auto loan ($${_last_retrieve.data.get_loans.loans[1].monthly_payment}/mo) together vs.
            likely new income level.
       available_evidence: |
         Member statement: ${input.member_statement}
-        Loan details: ${input.loan_details}
-        Member profile: ${input.member_profile}
+        Loan details: ${_last_retrieve.data.get_loans}
+        Member profile: ${_last_retrieve.data.get_member}
       effort_level: deep
 
   investigate_financial:
@@ -120,13 +120,13 @@ primitive_configs:
       scope: |
         1. DEBT-TO-INCOME: Current total obligations vs income change
         2. PAYMENT CAPACITY: Can they make reduced payments during hardship?
-        3. ASSET POSITION: Mortgage LTV is ${input.loan_details.mortgage.ltv}%. Equity available?
+        3. ASSET POSITION: Mortgage LTV is ${_last_retrieve.data.get_loans.loans[0].ltv}%. Equity available?
         4. TIMELINE: How long will the hardship last?
         5. RISK: Default risk without help vs cost of providing assistance
       available_evidence: |
         Member statement: ${input.member_statement}
-        Loan details: ${input.loan_details}
-        Member profile: ${input.member_profile}
+        Loan details: ${_last_retrieve.data.get_loans}
+        Member profile: ${_last_retrieve.data.get_member}
       effort_level: moderate
 
   classify_assistance:
@@ -145,8 +145,8 @@ primitive_configs:
       criteria: |
         Hardship type: ${_last_classify.category}
         Investigation finding: ${_last_investigate.finding}
-        Payment history: ${input.member_profile.payment_history}
-        Credit score: ${input.member_profile.credit_score}
+        Payment history: ${_last_retrieve.data.get_member.payment_history}
+        Credit score: ${_last_retrieve.data.get_member.credit_score}
 
         PRINCIPLES:
         - Perfect payment history = strong forbearance candidate
@@ -163,7 +163,7 @@ primitive_configs:
     temperature: 0.0
     params:
       input: |
-        Member military status: ${input.member_profile.military_status}
+        Member military status: ${_last_retrieve.data.get_member.military_status}
         Investigation findings: ${_last_investigate.finding}
         Proposed assistance: ${_last_classify.category}
       rules: |
@@ -187,9 +187,9 @@ primitive_configs:
         - Hardship classification: ${_last_classify.category}
         - Investigation findings: ${_last_investigate.finding}
         - Member statement: ${input.member_statement}
-        - Payment history: ${input.member_profile.payment_history}
-        - Loan obligations: mortgage at $${input.loan_details.mortgage.monthly_payment}/mo
-          and auto at $${input.loan_details.auto_loan.monthly_payment}/mo
+        - Payment history: ${_last_retrieve.data.get_member.payment_history}
+        - Loan obligations: mortgage at $${_last_retrieve.data.get_loans.loans[0].monthly_payment}/mo
+          and auto at $${_last_retrieve.data.get_loans.loans[1].monthly_payment}/mo
 
         Think through how these factors interact. Consider:
         1. What does the COMBINATION of military transition + perfect payment
@@ -211,8 +211,8 @@ primitive_configs:
     temperature: 0.3
     params:
       requirements: |
-        Member: ${input.member_name}
-        Tenure: ${input.member_profile.tenure_years} years
+        Member: ${_last_retrieve.data.get_member.name}
+        Tenure: ${_last_retrieve.data.get_member.tenure_years} years
         Hardship: ${_last_classify.category}
         Investigation: ${_last_investigate.finding}
 
@@ -244,7 +244,7 @@ primitive_configs:
     temperature: 0.1
     params:
       requirements: |
-        Member: ${input.member_name} (${input.member_profile.tenure_years}yr member)
+        Member: ${_last_retrieve.data.get_member.name} (${_last_retrieve.data.get_member.tenure_years}yr member)
         Hardship: ${_last_classify.category}
         Investigation: ${_last_investigate.finding}
 
@@ -266,7 +266,7 @@ primitive_configs:
 
   challenge_guidance:
     primitive: challenge
-    model: gemini-2.5-pro
+    model: strong
     temperature: 0.05
     params:
       input: "${_last_generate.artifact}"

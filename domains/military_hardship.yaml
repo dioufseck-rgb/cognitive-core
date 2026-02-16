@@ -13,7 +13,7 @@ classify_hardship:
   criteria: |
     Root cause, not symptoms. Is this military transition? Temporary or
     permanent? Is the member proactive?
-    Military status: ${input.member_profile.military_status}
+    Military status: ${retrieve_data.data.get_member.military_status}
 
 investigate_military:
   scope: |

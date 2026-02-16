@@ -161,29 +161,29 @@ class ToolRegistry:
 # Case-passthrough registry — for dev/test
 # ---------------------------------------------------------------------------
 
-def create_case_registry(case_data: dict[str, Any]) -> ToolRegistry:
+def create_case_registry(case_data: dict[str, Any], fixtures_path: str | None = None) -> ToolRegistry:
     """
     Create a ToolRegistry that serves data from a case JSON.
 
     In dev/test, the case file IS the data source. Each top-level key
     in the case JSON becomes a tool that returns that key's value.
 
-    This means existing case files work unchanged — the Retrieve step
-    just formalizes what was previously implicit (everything loaded upfront).
+    If a fixtures file exists (cases/fixtures/<case_name>.json), those
+    entries are ALSO registered as tools. Fixtures simulate the API
+    responses that the Retrieve primitive would get in production.
 
-    Example case JSON:
-        {
-            "member_profile": {...},
-            "transaction_detail": {...},
-            "fraud_score": {...}
-        }
+    The case JSON holds intake data (identity, complaint, account refs).
+    The fixtures file holds what APIs would return (balances, transactions,
+    check details, member history).
 
-    Produces tools: member_profile, transaction_detail, fraud_score
+    Example:
+        cases/check_clearing_complaint_diouf.json       ← intake
+        cases/fixtures/check_clearing_complaint_diouf.json ← simulated APIs
     """
     registry = ToolRegistry()
 
+    # Register case data as tools
     for key, value in case_data.items():
-        # Capture key/value in closure
         _key = key
         _value = value
 
@@ -199,6 +199,35 @@ def create_case_registry(case_data: dict[str, Any]) -> ToolRegistry:
             fn=make_fn(_key, _value),
             description=f"Case data: {_key}",
         )
+
+    # Load fixtures if available
+    if fixtures_path:
+        import json
+        from pathlib import Path
+        fp = Path(fixtures_path)
+        if fp.exists():
+            with open(fp) as f:
+                fixtures = json.load(f)
+            for key, value in fixtures.items():
+                if key.startswith("_"):
+                    continue  # skip metadata keys like _description
+                if key in case_data:
+                    continue  # case data takes precedence
+                _key = key
+                _value = value
+
+                def make_fixture_fn(k, v):
+                    def tool_fn(context: dict[str, Any]) -> dict[str, Any]:
+                        if isinstance(v, dict):
+                            return v
+                        return {"value": v}
+                    return tool_fn
+
+                registry.register(
+                    name=_key,
+                    fn=make_fixture_fn(_key, _value),
+                    description=f"Fixture data: {_key}",
+                )
 
     return registry
 

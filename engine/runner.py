@@ -8,7 +8,8 @@ Single-file mode (backward compat):
     python -m engine.runner use_cases/X.yaml
 
 Flags:
-    --model / -m       Gemini model (default: gemini-2.0-flash)
+    --model / -m       Model alias or provider-specific name (default: "default")
+    --provider / -p    LLM provider: azure_foundry, azure, openai, google, bedrock (auto-detected)
     --verbose / -v     Show detailed output after completion
     --output / -o      Save full state JSON
     --no-trace         Disable live tracing
@@ -16,6 +17,7 @@ Flags:
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -25,6 +27,7 @@ from engine.composer import load_use_case, load_three_layer, validate_use_case, 
 from engine.agentic import validate_agentic_config, run_agentic_workflow
 from engine.nodes import set_trace
 from engine.tools import create_case_registry
+from engine.actions import ActionRegistry, create_simulation_registry
 
 
 # ---------------------------------------------------------------------------
@@ -40,6 +43,9 @@ class ConsoleTrace:
         "verify": "✅",
         "generate": "📝",
         "challenge": "⚔️ ",
+        "retrieve": "📡",
+        "think": "💭",
+        "act": "⚡",
     }
 
     def __init__(self):
@@ -95,6 +101,26 @@ class ConsoleTrace:
             n_ok = sum(1 for s in output.get("sources_queried", []) if s.get("status") == "success")
             conf = output.get("confidence", 0)
             self._log(f"    → {n_ok}/{n_sources} sources retrieved, {len(data)} data keys ({conf:.2f})")
+        elif primitive == "act":
+            mode = output.get("mode", "?")
+            actions = output.get("actions_taken", [])
+            n_exec = sum(1 for a in actions if a.get("status") == "executed")
+            n_sim = sum(1 for a in actions if a.get("status") == "simulated")
+            n_blocked = sum(1 for a in actions if a.get("status") == "blocked")
+            needs_approval = output.get("requires_human_approval", False)
+            if needs_approval:
+                self._log(f"    → ⏸ APPROVAL REQUIRED ({len(actions)} actions pending)")
+            elif n_exec > 0:
+                conf_ids = [a.get("confirmation_id", "?") for a in actions if a.get("status") == "executed"]
+                self._log(f"    → ✓ {n_exec} action(s) EXECUTED: {', '.join(conf_ids)}")
+            elif n_sim > 0:
+                self._log(f"    → {n_sim} action(s) simulated (dry run)")
+            if n_blocked > 0:
+                self._log(f"    → ✗ {n_blocked} action(s) BLOCKED (authorization)")
+        elif primitive == "think":
+            decision = output.get("decision", "")
+            n_conclusions = len(output.get("conclusions", []))
+            self._log(f"    → {n_conclusions} conclusions{': ' + decision[:60] if decision else ''}")
 
     def on_parse_error(self, step_name: str, error: str):
         self._log(f"    ⚠ PARSE ERROR: {error[:100]}")
@@ -191,6 +217,38 @@ def print_step_result(step: dict, verbose: bool = False):
                 for line in preview.split("\n"):
                     print(f"    {line}")
 
+    elif primitive == "act":
+        mode = output.get("mode", "?")
+        print(f"\n  → Mode: {mode}")
+        for a in output.get("actions_taken", []):
+            status = a.get("status", "?")
+            icon = {"executed": "✓", "simulated": "~", "blocked": "✗", "failed": "⚠"}.get(status, "?")
+            print(f"    {icon} {a.get('action', '?')} → {a.get('target_system', '?')}: {status}")
+            if a.get("confirmation_id"):
+                print(f"      Confirmation: {a['confirmation_id']}")
+            if a.get("error"):
+                print(f"      Error: {a['error']}")
+            if a.get("reversible") is not None:
+                print(f"      Reversible: {a['reversible']}")
+        for ac in output.get("authorization_checks", []):
+            icon = "✓" if ac.get("result") == "passed" else "✗"
+            print(f"    auth {icon} {ac.get('check', '?')}: {ac.get('result', '?')} — {ac.get('reason', '')}")
+        if output.get("side_effects"):
+            print(f"  Side effects:")
+            for se in output["side_effects"]:
+                print(f"    • {se}")
+        if output.get("requires_human_approval"):
+            print(f"\n  ⏸ HUMAN APPROVAL REQUIRED")
+            if output.get("approval_brief"):
+                print(f"    {output['approval_brief']}")
+
+    elif primitive == "think":
+        print(f"\n  → Thought: {output.get('thought', 'N/A')[:200]}...")
+        if output.get("decision"):
+            print(f"  Decision: {output['decision']}")
+        for c in output.get("conclusions", []):
+            print(f"    • {c}")
+
     missing = output.get("evidence_missing", [])
     if missing:
         print(f"\n  Missing evidence:")
@@ -220,6 +278,93 @@ def print_summary(state: dict, elapsed: float):
 
 
 # ---------------------------------------------------------------------------
+# Action registry builder — reads SMTP config from case data
+# ---------------------------------------------------------------------------
+
+def _build_action_registry(case_data: dict) -> ActionRegistry:
+    """
+    Build an ActionRegistry with real or simulated actions.
+
+    SMTP credentials come from environment variables (same pattern as
+    LLM provider API keys):
+        SMTP_SENDER       — sender email address
+        SMTP_APP_PASSWORD  — Gmail app password
+        SMTP_HOST          — SMTP host (default: smtp.gmail.com)
+        SMTP_PORT          — SMTP port (default: 587)
+
+    If SMTP_SENDER and SMTP_APP_PASSWORD are set, send_email is REAL.
+    Otherwise it falls back to simulation.
+    """
+    import os
+    import smtplib
+    import uuid
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+
+    registry = create_simulation_registry()
+
+    # Wire real SMTP if env vars are set
+    smtp_sender = os.environ.get("SMTP_SENDER", "")
+    smtp_password = os.environ.get("SMTP_APP_PASSWORD", "")
+    smtp_host = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+    smtp_port = int(os.environ.get("SMTP_PORT", "587"))
+
+    if smtp_sender and smtp_password:
+        def real_send_email(params: dict) -> dict:
+            recipient = params.get("recipient", "")
+            subject = params.get("subject", "Cognitive Core Notification")
+            body = params.get("body", "")
+            body_format = params.get("body_format", "plain")
+
+            if not recipient:
+                raise ValueError("No recipient email provided")
+
+            msg = MIMEMultipart("alternative")
+            msg["From"] = f"Cognitive Core <{smtp_sender}>"
+            msg["To"] = recipient
+            msg["Subject"] = subject
+            msg["X-Cognitive-Core"] = "act-primitive"
+
+            execution_id = uuid.uuid4().hex[:12].upper()
+            msg["X-Execution-ID"] = execution_id
+
+            mime_type = "html" if body_format == "html" else "plain"
+            msg.attach(MIMEText(body, mime_type))
+
+            with smtplib.SMTP(smtp_host, smtp_port) as server:
+                server.ehlo()
+                server.starttls()
+                server.ehlo()
+                server.login(smtp_sender, smtp_password)
+                server.sendmail(smtp_sender, [recipient], msg.as_string())
+
+            return {
+                "confirmation_id": f"EMAIL-{execution_id}",
+                "recipient": recipient,
+                "subject": subject,
+                "body_length": len(body),
+            }
+
+        registry.register(
+            name="send_email",
+            fn=real_send_email,
+            description=f"Send email via {smtp_host} (REAL — credentials from env)",
+            target_system="smtp",
+            authorization_level="system",
+            reversible=False,
+            side_effects=[
+                "Email delivered to recipient inbox",
+                "Copy stored in sender's Sent folder",
+            ],
+        )
+        print(f"  smtp: {smtp_sender} via {smtp_host}:{smtp_port} (LIVE)", file=sys.stderr)
+    else:
+        print(f"  smtp: simulated (set SMTP_SENDER + SMTP_APP_PASSWORD for live)", file=sys.stderr)
+
+    return registry
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -242,7 +387,10 @@ Single-file (legacy):
     parser.add_argument("--domain", "-d", help="Domain YAML")
     parser.add_argument("--case", "-c", help="Case JSON/YAML")
     parser.add_argument("--input", "-i", help="JSON string input (overrides --case)")
-    parser.add_argument("--model", "-m", default="gemini-2.0-flash")
+    parser.add_argument("--model", "-m", default="default",
+                        help="Model name: alias (default/fast/standard/strong) or provider-specific (gpt-4o, gemini-2.0-flash)")
+    parser.add_argument("--provider", "-p", default=None,
+                        help="LLM provider: azure_foundry, azure, openai, google, bedrock (auto-detected if not set)")
     parser.add_argument("--temperature", "-t", type=float, default=0.1)
     parser.add_argument("--verbose", "-v", action="store_true")
     parser.add_argument("--validate-only", action="store_true")
@@ -250,6 +398,10 @@ Single-file (legacy):
     parser.add_argument("--no-trace", action="store_true", help="Disable live tracing")
 
     args = parser.parse_args()
+
+    # Wire provider to environment so all create_llm calls pick it up
+    if args.provider:
+        os.environ["LLM_PROVIDER"] = args.provider
 
     three_layer = args.workflow and args.domain
     if not args.config and not three_layer:
@@ -315,10 +467,18 @@ Single-file (legacy):
         set_trace(trace)
 
     # Header
+    from engine.llm import get_provider_info, resolve_model, validate_config
+    config_issues = validate_config()
+    if config_issues:
+        print("⚠ LLM config warnings:", file=sys.stderr)
+        for issue in config_issues:
+            print(f"  - {issue}", file=sys.stderr)
+    pinfo = get_provider_info()
+    resolved_model = resolve_model(args.model, pinfo["provider"])
     mode = "agentic" if is_agentic else ("three-layer" if three_layer else "single-file")
     print(f"\n{'─'*70}", file=sys.stderr)
     print(f"  {config['name']}  ({mode})", file=sys.stderr)
-    print(f"  model: {args.model}", file=sys.stderr)
+    print(f"  provider: {pinfo['provider']}  model: {resolved_model}", file=sys.stderr)
     if is_agentic:
         prims = ", ".join(config.get("available_primitives", []))
         max_s = config.get("constraints", {}).get("max_steps", "?")
@@ -338,9 +498,74 @@ Single-file (legacy):
 
     tool_registry = None
     if has_retrieve:
-        tool_registry = create_case_registry(workflow_input)
+        # Data sourcing priority:
+        #   1. MCP data_services server (if DATA_MCP_URL or DATA_MCP_CMD is set)
+        #   2. Fixture database (if cognitive_core.db exists)
+        #   3. Case passthrough (legacy fallback)
+        data_mcp_url = os.environ.get("DATA_MCP_URL", "")
+        data_mcp_cmd = os.environ.get("DATA_MCP_CMD", "")
+
+        if data_mcp_url or data_mcp_cmd:
+            # ── MCP-backed retrieval ──
+            import asyncio
+            from engine.providers import MCPProvider
+            from engine.tools import ToolRegistry as _TR
+
+            tool_registry = _TR()
+            if data_mcp_url:
+                provider = MCPProvider(transport="http", url=data_mcp_url)
+            else:
+                parts = data_mcp_cmd.split()
+                provider = MCPProvider(
+                    transport="stdio", command=parts[0], args=parts[1:],
+                )
+
+            async def _connect_mcp():
+                await provider.connect()
+                provider.register_all(tool_registry)
+
+            asyncio.get_event_loop().run_until_complete(_connect_mcp())
+            if not args.no_trace:
+                src = data_mcp_url or data_mcp_cmd
+                print(f"  data: MCP ({src})", file=sys.stderr)
+        else:
+            try:
+                from fixtures.api import create_service_registry
+                from fixtures.db import DB_PATH
+                if DB_PATH.exists():
+                    # ── Fixture DB (in-process, no MCP overhead) ──
+                    tool_registry = create_service_registry()
+                    if not args.no_trace:
+                        print(f"  data: fixture DB ({DB_PATH.name})", file=sys.stderr)
+                else:
+                    raise FileNotFoundError
+            except (ImportError, FileNotFoundError):
+                # ── Legacy case passthrough ──
+                fixtures_path = None
+                if args.case:
+                    from pathlib import Path
+                    case_p = Path(args.case)
+                    fixtures_candidate = case_p.parent / "fixtures" / case_p.name
+                    if fixtures_candidate.exists():
+                        fixtures_path = str(fixtures_candidate)
+                tool_registry = create_case_registry(workflow_input, fixtures_path=fixtures_path)
+                if not args.no_trace:
+                    print(f"  data: case passthrough", file=sys.stderr)
         if not args.no_trace:
             print(f"  tools: {', '.join(tool_registry.list_tools())}", file=sys.stderr)
+
+    # Build action registry (auto-detect act steps)
+    has_act = False
+    if is_agentic:
+        has_act = "act" in config.get("available_primitives", [])
+    else:
+        has_act = any(s["primitive"] == "act" for s in config.get("steps", []))
+
+    action_registry = None
+    if has_act:
+        action_registry = _build_action_registry(workflow_input)
+        if not args.no_trace:
+            print(f"  actions: {', '.join(action_registry.list_actions())}", file=sys.stderr)
 
     # Run
     start = time.time()
@@ -354,6 +579,7 @@ Single-file (legacy):
             final_state = run_workflow(
                 config, workflow_input, args.model, args.temperature,
                 tool_registry=tool_registry,
+                action_registry=action_registry,
             )
     except Exception as e:
         print(f"\n  ⚠ FAILED: {e}", file=sys.stderr)

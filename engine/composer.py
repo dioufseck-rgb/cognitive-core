@@ -18,8 +18,9 @@ from langgraph.graph import StateGraph, END
 
 from registry.primitives import validate_use_case_step
 from engine.state import WorkflowState, get_step_output, get_loop_count
-from engine.nodes import create_node, create_retrieve_node, create_agent_router, get_trace
+from engine.nodes import create_node, create_retrieve_node, create_act_node, create_agent_router, get_trace
 from engine.tools import ToolRegistry, create_case_registry
+from engine.actions import ActionRegistry
 
 
 # ---------------------------------------------------------------------------
@@ -277,9 +278,10 @@ def _compare(actual, op, expected) -> bool:
 
 def compose_workflow(
     config: dict[str, Any],
-    model: str = "gemini-2.0-flash",
+    model: str = "default",
     temperature: float = 0.1,
     tool_registry: ToolRegistry | None = None,
+    action_registry: ActionRegistry | None = None,
 ) -> StateGraph:
 
     errors = validate_use_case(config)
@@ -305,6 +307,21 @@ def compose_workflow(
                 model=step.get("model", model),
                 temperature=step.get("temperature", temperature),
             )
+        elif step["primitive"] == "act":
+            if action_registry is None:
+                raise ValueError(
+                    f"Step '{step['name']}' uses act primitive but no "
+                    f"action_registry was provided. Pass an ActionRegistry to "
+                    f"compose_workflow() or use create_simulation_registry()."
+                )
+            node = create_act_node(
+                step_name=step["name"],
+                params=step.get("params", {}),
+                action_registry=action_registry,
+                model=step.get("model", model),
+                temperature=step.get("temperature", temperature),
+                dry_run=step.get("dry_run", True),
+            )
         else:
             node = create_node(
                 step_name=step["name"],
@@ -324,8 +341,19 @@ def compose_workflow(
         if not transitions:
             graph.add_edge(step["name"], END if default_next == "__end__" else default_next)
         else:
-            _add_transitions(graph, step["name"], transitions, default_next,
-                             step.get("max_loops"), step.get("loop_fallback", "__end__"), model)
+            # If transitions is just [{"default": X}] with nothing else,
+            # treat it as a simple edge — no conditional routing needed
+            has_conditions = any("when" in t or "agent_decide" in t for t in transitions)
+            if not has_conditions:
+                explicit_default = None
+                for t in transitions:
+                    if "default" in t:
+                        explicit_default = t["default"]
+                target = explicit_default or default_next
+                graph.add_edge(step["name"], END if target == "__end__" else target)
+            else:
+                _add_transitions(graph, step["name"], transitions, default_next,
+                                 step.get("max_loops"), step.get("loop_fallback", "__end__"), model)
 
     return graph
 
@@ -375,12 +403,12 @@ def _add_transitions(graph, step_name, transitions, default_next, max_loops, loo
     graph.add_conditional_edges(step_name, composite_router)
 
 
-def compile_workflow(config, model="gemini-2.0-flash", temperature=0.1, tool_registry=None):
-    return compose_workflow(config, model, temperature, tool_registry).compile()
+def compile_workflow(config, model="default", temperature=0.1, tool_registry=None, action_registry=None):
+    return compose_workflow(config, model, temperature, tool_registry, action_registry).compile()
 
 
-def run_workflow(config, workflow_input, model="gemini-2.0-flash", temperature=0.1, tool_registry=None):
-    compiled = compile_workflow(config, model, temperature, tool_registry)
+def run_workflow(config, workflow_input, model="default", temperature=0.1, tool_registry=None, action_registry=None):
+    compiled = compile_workflow(config, model, temperature, tool_registry, action_registry)
     initial: WorkflowState = {
         "input": workflow_input,
         "steps": [],

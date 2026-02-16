@@ -12,8 +12,8 @@ import sys
 import time
 from typing import Any, Callable, Protocol
 
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage
+from engine.llm import create_llm
 
 from registry.primitives import render_prompt, get_schema_class
 from engine.state import (
@@ -66,11 +66,8 @@ def get_trace() -> TraceCallback:
 
 
 # ---------------------------------------------------------------------------
-# LLM and JSON extraction
+# JSON extraction
 # ---------------------------------------------------------------------------
-
-def create_llm(model: str = "gemini-2.0-flash", temperature: float = 0.1) -> ChatGoogleGenerativeAI:
-    return ChatGoogleGenerativeAI(model=model, temperature=temperature)
 
 
 def extract_json(text: str) -> dict:
@@ -192,7 +189,7 @@ def create_node(
     step_name: str,
     primitive_name: str,
     params: dict[str, str],
-    model: str = "gemini-2.0-flash",
+    model: str = "default",
     temperature: float = 0.1,
     auto_context: bool = True,
 ) -> Callable[[WorkflowState], dict]:
@@ -287,7 +284,7 @@ def create_node(
 def create_agent_router(
     from_step: str,
     agent_config: dict[str, Any],
-    model: str = "gemini-2.0-flash",
+    model: str = "default",
 ) -> Callable[[WorkflowState], str]:
 
     llm = create_llm(model=model, temperature=0.1)
@@ -349,7 +346,7 @@ def create_retrieve_node(
     step_name: str,
     params: dict[str, str],
     tool_registry: Any,  # engine.tools.ToolRegistry
-    model: str = "gemini-2.0-flash",
+    model: str = "default",
     temperature: float = 0.1,
 ) -> Callable[[WorkflowState], dict]:
     """
@@ -549,6 +546,201 @@ def create_retrieve_node(
         step_result: StepResult = {
             "step_name": step_name,
             "primitive": "retrieve",
+            "output": output,
+            "raw_response": raw_response,
+            "prompt_used": rendered_prompt,
+        }
+
+        return {
+            "steps": [step_result],
+            "current_step": step_name,
+            "loop_counts": current_counts,
+        }
+
+    node_fn.__name__ = f"node_{step_name}"
+    return node_fn
+
+
+# ---------------------------------------------------------------------------
+# Act node — calls action registry, then LLM documents what happened
+# ---------------------------------------------------------------------------
+
+def create_act_node(
+    step_name: str,
+    params: dict[str, str],
+    action_registry: Any,  # engine.actions.ActionRegistry
+    model: str = "default",
+    temperature: float = 0.1,
+    dry_run: bool = True,
+) -> Callable[[WorkflowState], dict]:
+    """
+    Create an Act primitive node.
+
+    Like Retrieve, Act has two phases:
+    1. ACTION PHASE: Execute (or simulate) actions via the action registry
+    2. LLM PHASE: Document what was done, check authorization, assess side effects
+
+    The LLM decides which actions to take based on workflow state and
+    available actions. The action registry enforces authorization and
+    handles execution/simulation.
+    """
+    from engine.actions import ActionRegistry, ActionResult
+    from registry.primitives import render_prompt, get_schema_class
+
+    llm = create_llm(model=model, temperature=temperature)
+    schema_cls = get_schema_class("act")
+
+    def node_fn(state: WorkflowState) -> dict:
+        current_counts = dict(state.get("loop_counts", {}))
+        iteration = current_counts.get(step_name, 0) + 1
+        current_counts[step_name] = iteration
+
+        _trace.on_step_start(step_name, "act", iteration)
+
+        # Resolve params
+        resolved = {}
+        for key, value in params.items():
+            if isinstance(value, str):
+                resolved[key] = resolve_param(value, state)
+            else:
+                resolved[key] = str(value)
+
+        # Inject available actions from registry
+        if "actions" not in resolved or resolved["actions"] == "":
+            resolved["actions"] = action_registry.describe()
+
+        # Build context
+        if "context" not in resolved:
+            input_ctx = json.dumps(state["input"], indent=2) if state["input"] else ""
+            prior_ctx = build_context_from_state(state)
+            resolved["context"] = f"Workflow Input:\n{input_ctx}\n\n{prior_ctx}"
+
+        if "input" not in resolved:
+            resolved["input"] = json.dumps(state["input"], indent=2)
+
+        # Set execution mode
+        mode = resolved.get("mode", "dry_run" if dry_run else "execution")
+        resolved["mode"] = mode
+
+        # LLM call: decide what actions to take and document them
+        rendered_prompt = render_prompt("act", resolved)
+        _trace.on_llm_start(step_name, len(rendered_prompt))
+        t0 = time.time()
+        response = llm.invoke([HumanMessage(content=rendered_prompt)])
+        raw_response = response.content
+        elapsed = time.time() - t0
+        _trace.on_llm_end(step_name, len(raw_response), elapsed)
+
+        # Parse LLM response
+        try:
+            parsed = extract_json(raw_response)
+
+            # Phase 2: Actually execute/simulate actions through registry
+            actions_taken = parsed.get("actions_taken", [])
+            executed_actions = []
+
+            for action_spec in actions_taken:
+                action_name = action_spec.get("action", "")
+                action_params = action_spec.get("response_data", {}) or {}
+
+                # Build exec_params: start with what the LLM provided
+                exec_params = {**action_params}
+
+                # Deterministically wire params from workflow state.
+                # The LLM decides WHICH action; the framework wires HOW.
+                # Framework-sourced params OVERRIDE LLM-provided params
+                # to ensure correctness.
+                case_input = state.get("input", {})
+
+                if action_name == "send_email":
+                    # Recipient: ALWAYS from case member_profile.email
+                    member = case_input.get("member_profile", {})
+                    recipient = member.get("email", "")
+                    if recipient:
+                        exec_params["recipient"] = recipient
+
+                    # Body: ALWAYS from the most recent generate step's artifact
+                    for step in reversed(state.get("steps", [])):
+                        if step["primitive"] == "generate" and step["output"].get("artifact"):
+                            exec_params["body"] = step["output"]["artifact"]
+                            break
+
+                    # Subject: extract from artifact first line if "Subject:" prefix,
+                    # otherwise build from case data
+                    body = exec_params.get("body", "")
+                    if body.startswith("Subject:"):
+                        first_line, _, rest = body.partition("\n")
+                        exec_params["subject"] = first_line.replace("Subject:", "").strip()
+                        exec_params["body"] = rest.strip()
+                    elif not exec_params.get("subject"):
+                        complaint = case_input.get("complaint", {})
+                        exec_params["subject"] = (
+                            f"Re: {complaint.get('subject', 'Your recent inquiry')}"
+                            f" — {complaint.get('complaint_id', '')}"
+                        )
+                else:
+                    # For non-email actions, pull flat member data
+                    for k, v in case_input.items():
+                        if isinstance(v, (str, int, float, bool)):
+                            exec_params.setdefault(k, v)
+                        elif isinstance(v, dict):
+                            for sk, sv in v.items():
+                                if isinstance(sv, (str, int, float, bool)):
+                                    exec_params.setdefault(sk, sv)
+
+                # Check authorization
+                auth_level = resolved.get("authorization_level", "agent")
+                amount = exec_params.get("amount")
+                authorized, auth_reason = action_registry.check_authorization(
+                    action_name, auth_level, amount
+                )
+
+                if not authorized:
+                    action_spec["status"] = "blocked"
+                    action_spec["error"] = auth_reason
+                elif mode == "dry_run":
+                    result = action_registry.execute(action_name, exec_params, dry_run=True)
+                    action_spec["status"] = "simulated"
+                    action_spec["confirmation_id"] = result.confirmation_id
+                    action_spec["response_data"] = result.response_data
+                else:
+                    result = action_registry.execute(action_name, exec_params, dry_run=False)
+                    action_spec["status"] = result.status
+                    action_spec["confirmation_id"] = result.confirmation_id
+                    action_spec["response_data"] = result.response_data
+                    action_spec["error"] = result.error
+                    action_spec["latency_ms"] = result.latency_ms
+                    action_spec["rollback_handle"] = result.rollback_handle
+
+                executed_actions.append(action_spec)
+
+            parsed["actions_taken"] = executed_actions
+            parsed["mode"] = mode
+
+            validated = schema_cls.model_validate(parsed)
+            output = validated.model_dump()
+            _trace.on_parse_result(step_name, "act", output)
+
+        except Exception as e:
+            output = {
+                "mode": mode,
+                "error": str(e),
+                "raw_response": raw_response[:500] if raw_response else "",
+                "confidence": 0.0,
+                "reasoning": f"Failed to parse or execute actions: {e}",
+                "actions_taken": [],
+                "authorization_checks": [],
+                "side_effects": [],
+                "requires_human_approval": True,
+                "approval_brief": f"Act failed — manual review needed: {e}",
+                "evidence_used": [],
+                "evidence_missing": [],
+            }
+            _trace.on_parse_error(step_name, str(e))
+
+        step_result: StepResult = {
+            "step_name": step_name,
+            "primitive": "act",
             "output": output,
             "raw_response": raw_response,
             "prompt_used": rendered_prompt,

@@ -1,29 +1,7 @@
 {
   "member_id": "MBR-2021-67440",
-  "member_name": "Thomas Wright",
-  "member_since": "2021-02-14",
-  "account_type": "Checking",
   "dispute_description": "There's an ACH debit of $189.99 from 'PREMIER FITNESS LLC' that came out of my checking account on February 3rd. I cancelled my gym membership back in December and they confirmed the cancellation by email. They should not be debiting my account anymore. This is the second month they've charged me after I cancelled.",
-  "transaction_details": {
-    "originator": "PREMIER FITNESS LLC",
-    "amount": 189.99,
-    "date": "2026-02-03",
-    "type": "recurring_ach_debit",
-    "trace_number": "021000089742156",
-    "odfi": "021000089",
-    "sec_code": "WEB",
-    "prior_debits_from_originator": [
-      {"date": "2025-11-03", "amount": 189.99},
-      {"date": "2025-12-03", "amount": 189.99},
-      {"date": "2026-01-03", "amount": 189.99},
-      {"date": "2026-02-03", "amount": 189.99}
-    ]
-  },
-  "member_history": {
-    "tenure_years": 5,
-    "prior_disputes": 0,
-    "avg_monthly_spend": 3400.00,
-    "typical_merchants": "payroll_deposit, utilities, subscriptions",
-    "fraud_alerts_prior": 0
-  }
+  "originator": "PREMIER FITNESS LLC",
+  "disputed_amount": 189.99,
+  "disputed_date": "2026-02-03"
 }

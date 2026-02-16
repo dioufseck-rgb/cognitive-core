@@ -47,6 +47,27 @@ orchestrator_strategy: |
   - If the challenge fails, regenerate with the vulnerabilities as feedback.
     Do not re-challenge the same content.
 
+  DATA ARCHITECTURE — CRITICAL:
+  The member's transaction data is in a database with these fields:
+    date, merchant, amount, category, type, account_id
+  Categories include: dining_out, coffee_shop, grocery, gas, entertainment,
+    shopping, subscription, transportation, utilities, health, transfer, etc.
+  Merchants include: STARBUCKS, CHIPOTLE, FIVE GUYS, OLIVE GARDEN, etc.
+
+  The monthly_summaries table has pre-aggregated totals per category per month.
+  The financial_goals table has target, current amount, and monthly contribution.
+
+  The RETRIEVE step returns this data. The INVESTIGATE step receives ALL
+  retrieved data including full transaction lists and monthly summaries.
+  When investigating, look for the category and merchant fields in the
+  transaction data — they are there. Do NOT claim the data is missing
+  if you can see transactions with category/merchant fields.
+
+  If investigating a specific category (e.g., dining_out, coffee_shop):
+  - Filter and sum by category from the transactions
+  - Cross-reference with monthly_summaries for that category
+  - Calculate averages, trends, top merchants
+
   WHEN TO USE THINK:
   - Member asks about goal progress and investigation shows conflicting signals
     (spending up but savings steady, or vice versa)
@@ -71,11 +92,12 @@ primitive_configs:
     params:
       specification: |
         Required data sources:
-          - member_profile: Name, age, tenure, income band, balances
+          - get_member: Name, age, tenure, income band, products
+          - get_accounts: Account balances (checking, savings)
           - member_question: The member's question or request
-          - financial_goals: Stated savings and spending goals
-          - monthly_summaries: Pre-aggregated monthly spending by category
-          - transactions: Raw transaction history for detailed analysis
+          - get_financial_goals: Stated savings and spending goals
+          - get_spending_summary: Pre-aggregated monthly spending by category
+          - get_transactions: Raw transaction history for detailed analysis
         Conditional (include if available):
           - prior_conversation: Previous conversation turns
       strategy: deterministic
@@ -109,13 +131,25 @@ primitive_configs:
       scope: |
         Analyze the member's debit card transaction data.
         Use specific numbers — extract monthly totals before characterizing trends.
-        For spending inquiries: monthly totals, trends (with start/end values), top merchants.
-        For goal progress: current vs target, projected completion, shortfall if any.
-        For patterns: day-of-month distribution, seasonal variation, peaks with causes.
+
+        THE DATA IS IN FRONT OF YOU. Each transaction has: date, merchant,
+        amount, category, type. Categories include dining_out, coffee_shop,
+        grocery, gas, entertainment, shopping, subscription, etc.
+        Monthly summaries have pre-aggregated totals by category and month.
+
+        For spending inquiries: filter transactions by category, sum amounts,
+        calculate monthly averages, identify top merchants by spend.
+        For goal progress: current vs target, projected completion, shortfall.
+        For patterns: month-over-month trends with start/end values.
+
+        DO NOT say data is missing if you can see transaction records with
+        category and merchant fields. Filter and calculate from what you have.
       available_evidence: |
-        Monthly summaries: ${_last_retrieve.data.monthly_summaries}
-        Financial goals: ${_last_retrieve.data.financial_goals}
-        Member profile: ${_last_retrieve.data.member_profile}
+        Transactions (full history with category/merchant): ${_last_retrieve.data.get_transactions}
+        Monthly summaries (by category): ${_last_retrieve.data.get_spending_summary}
+        Financial goals: ${_last_retrieve.data.get_financial_goals}
+        Member profile: ${_last_retrieve.data.get_member}
+        Accounts: ${_last_retrieve.data.get_accounts}
       effort_level: deep
 
   investigate_deeper:
@@ -128,10 +162,14 @@ primitive_configs:
       scope: |
         Focus on the specific gap identified in the prior investigation.
         Extract specific values. Show your work.
+
+        Remember: transactions have category and merchant fields.
+        Filter by category (dining_out, coffee_shop, etc.) and sum.
+        Cross-reference with monthly_summaries for validation.
       available_evidence: |
-        Monthly summaries: ${_last_retrieve.data.monthly_summaries}
-        Transactions: ${_last_retrieve.data.transactions}
-        Financial goals: ${_last_retrieve.data.financial_goals}
+        Transactions (full history): ${_last_retrieve.data.get_transactions}
+        Monthly summaries: ${_last_retrieve.data.get_spending_summary}
+        Financial goals: ${_last_retrieve.data.get_financial_goals}
       effort_level: deep
 
   synthesize_for_advice:
@@ -143,7 +181,7 @@ primitive_configs:
 
         Investigation found: ${_last_investigate.finding}
 
-        Their financial goals: ${_last_retrieve.data.financial_goals}
+        Their financial goals: ${_last_retrieve.data.get_financial_goals}
 
         Think through what this means for the member personally:
         1. How do the spending patterns connect to their goals? Are they
@@ -166,10 +204,10 @@ primitive_configs:
     temperature: 0.3
     params:
       requirements: |
-        Member name: ${_last_retrieve.data.member_profile.name}
+        Member name: ${_last_retrieve.data.get_member.name}
         Their question: "${_last_retrieve.data.member_question}"
         Analysis finding: ${_last_investigate.finding}
-        Goals: ${_last_retrieve.data.financial_goals}
+        Goals: ${_last_retrieve.data.get_financial_goals}
 
         Write a response as a personal financial advisor in a mobile chat.
         TONE: Warm, direct, encouraging. Use their first name. Be specific.
@@ -186,7 +224,7 @@ primitive_configs:
 
   challenge_advice:
     primitive: challenge
-    model: gemini-2.5-pro
+    model: strong
     temperature: 0.05
     params:
       input: "${_last_generate.artifact}"

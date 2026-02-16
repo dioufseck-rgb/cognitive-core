@@ -139,8 +139,55 @@ class GenerateOutput(BaseOutput):
 
 
 # ---------------------------------------------------------------------------
-# Challenge
+# Act
 # ---------------------------------------------------------------------------
+
+class ActionExecution(BaseModel):
+    """Record of a single action executed or simulated."""
+    action: str = Field(description="The action that was attempted")
+    target_system: str = Field(description="The system or service the action targets")
+    status: str = Field(description="executed | simulated | blocked | failed")
+    confirmation_id: Optional[str] = Field(default=None, description="Confirmation or transaction ID from the target system")
+    response_data: Optional[dict] = Field(default=None, description="Response payload from the target system")
+    error: Optional[str] = Field(default=None, description="Error message if the action failed")
+    latency_ms: Optional[float] = Field(default=None, description="Execution latency in milliseconds")
+    reversible: bool = Field(default=True, description="Whether this action can be rolled back")
+    rollback_handle: Optional[str] = Field(default=None, description="Identifier to reverse this action if needed")
+
+
+class AuthorizationCheck(BaseModel):
+    """Record of an authorization check performed before action execution."""
+    check: str = Field(description="What was checked (e.g., 'supervisor_approval', 'amount_threshold')")
+    result: str = Field(description="passed | failed | waived | not_applicable")
+    reason: str = Field(default="", description="Why this check passed or failed")
+
+
+class ActOutput(BaseOutput):
+    """Output from an Act primitive. Records what was done (or what would be done)."""
+    mode: str = Field(description="execution | dry_run | approval_required")
+    actions_taken: list[ActionExecution] = Field(
+        default_factory=list,
+        description="Actions that were executed, simulated, or blocked"
+    )
+    authorization_checks: list[AuthorizationCheck] = Field(
+        default_factory=list,
+        description="Authorization checks performed before execution"
+    )
+    side_effects: list[str] = Field(
+        default_factory=list,
+        description="Known side effects of the actions taken"
+    )
+    requires_human_approval: bool = Field(
+        default=False,
+        description="Whether any action requires human approval before proceeding"
+    )
+    approval_brief: Optional[str] = Field(
+        default=None,
+        description="Summary for the human approver if approval is required"
+    )
+
+
+
 
 class Vulnerability(BaseModel):
     """A vulnerability or weakness found during adversarial challenge."""
@@ -229,6 +276,7 @@ SCHEMA_REGISTRY: dict[str, type[BaseOutput]] = {
     "challenge": ChallengeOutput,
     "retrieve": RetrieveOutput,
     "think": ThinkOutput,
+    "act": ActOutput,
 }
 
 

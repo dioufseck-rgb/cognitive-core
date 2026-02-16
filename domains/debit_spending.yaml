@@ -15,11 +15,12 @@ gather_member_data:
   strategy: deterministic
   specification: |
     Required data sources:
-      - member_profile: Name, age, tenure, income band, balances
+      - get_member: Name, age, tenure, income band, products
+      - get_accounts: Account balances (checking, savings)
       - member_question: The member's question or request
-      - financial_goals: Stated savings and spending goals
-      - monthly_summaries: Pre-aggregated monthly spending by category
-      - transactions: Raw transaction history for detailed analysis
+      - get_financial_goals: Stated savings and spending goals
+      - get_spending_summary: Pre-aggregated monthly spending by category
+      - get_transactions: Raw transaction history for detailed analysis
 
     Conditional (include if available):
       - prior_conversation: Previous turns in this conversation, including
