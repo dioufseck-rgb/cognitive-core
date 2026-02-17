@@ -1,0 +1,60 @@
+# Electronics Return Domain Configuration
+# Applied to product_return workflow for electronics/computer returns.
+
+domain_name: electronics_return
+governance: auto
+workflow: product_return
+description: >
+  Domain configuration for electronics product returns.
+  Covers laptops, tablets, monitors, peripherals, and accessories.
+  Higher fraud scrutiny due to high item values and resale potential.
+
+classify_return_type:
+  categories: |
+    - defective_product: The item has a hardware defect, software issue, or
+      does not function as described. Customer reports malfunction.
+    - buyers_remorse: Customer changed their mind, found a better price,
+      or no longer wants the item. No defect claimed.
+    - not_as_described: Item specifications, appearance, or features differ
+      from what was advertised or expected.
+    - damaged_on_arrival: Item arrived with physical damage from shipping.
+      Packaging may also be damaged.
+    - wrong_item_received: A different product was shipped than what was ordered.
+  criteria: |
+    Analyze the return request description. Consider:
+    - Does the customer describe a specific defect or malfunction?
+    - Is the return within the standard return window (30 days for electronics)?
+    - Does the customer mention the item not matching the listing?
+    - Are there signs of shipping damage vs. use damage?
+    - Is the stated reason consistent with the product type?
+
+investigate_claim:
+  scope: |
+    - Return history: How many returns has this customer made in the last 12 months?
+      What percentage of purchases are returned? Is the rate above 15%?
+    - Value pattern: Are returns concentrated in high-value electronics (>$500)?
+    - Timing: Is this return near the end of the return window (days 25-30)?
+    - Serial returner flags: Has the customer returned the same product category
+      multiple times? Multiple "defective" claims?
+    - Wardrobing risk: For electronics, check if item shows signs of extended use
+      (screen time, setup completion, software installed)
+    - Account age: Is this a new account making high-value purchases and returns?
+
+generate_response:
+  requirements: |
+    Write a customer email communicating the return decision:
+    1. Address customer by name
+    2. Reference the specific order and item
+    3. Clearly state the decision: ${decide_resolution.decision}
+    4. Reasoning: ${decide_resolution.thought}
+    5. If approved: explain return shipping process, expected refund timeline
+    6. If denied: explain why, offer alternatives (exchange, store credit)
+    7. Provide customer service contact for questions
+  constraints: |
+    - Professional, empathetic, but clear tone
+    - Do not reveal internal fraud analysis or risk scores
+    - Do not mention the investigation process
+    - Include specific next steps with timelines
+    - Reading level: 8th grade or below
+    - Must not promise outcomes that haven't been decided
+    - If partial refund, clearly explain what is and isn't covered

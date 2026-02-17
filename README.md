@@ -1,7 +1,7 @@
 # Cognitive Core
 
 Composable AI workflows from eight cognitive primitives.
-Three-layer architecture: **Workflow** × **Domain** × **Case**.
+Four-layer architecture: **Workflow** × **Domain** × **Case** × **Coordinator**.
 Platform-agnostic — runs on Google, Azure, OpenAI, or Bedrock.
 
 ## Quick Start
@@ -24,60 +24,42 @@ export OPENAI_API_KEY=your_key                          # OpenAI
 # — or —
 export AWS_DEFAULT_REGION=us-east-1                     # Bedrock
 
-# Card dispute (fraud)
+# Run through the engine (single workflow)
 python -m engine.runner \
   -w workflows/dispute_resolution.yaml \
   -d domains/card_dispute.yaml \
   -c cases/card_clear_fraud.json
 
-# SAR investigation (structuring)
-python -m engine.runner \
-  -w workflows/sar_investigation.yaml \
-  -d domains/structuring_sar.yaml \
-  -c cases/sar_structuring.json
-
-# Loan hardship (military transition)
-python -m engine.runner \
-  -w workflows/loan_hardship.yaml \
-  -d domains/military_hardship.yaml \
-  -c cases/military_hardship_reeves.json
-
-# Check clearing complaint with Act primitive
-python -m engine.runner \
-  -w workflows/complaint_resolution_act.yaml \
-  -d domains/check_clearing_complaint.yaml \
-  -c cases/check_clearing_complaint_diouf.json
-
-# For live email delivery via Act primitive (optional):
-export SMTP_SENDER=your-email@gmail.com
-export SMTP_APP_PASSWORD=your-app-password
-# SMTP_HOST and SMTP_PORT default to smtp.gmail.com:587
+# Run through the coordinator (governance + delegation)
+python -m coordinator.cli run \
+  -w dispute_resolution \
+  -d card_dispute \
+  -c cases/card_clear_fraud.json
 ```
 
-## Three-Layer Architecture
+## Four-Layer Architecture
 
 ```
 workflows/               domains/                 cases/
-  dispute_resolution ──→   card_dispute        ──→  card_clear_fraud.json
-                     ──→   ach_dispute          ──→  ach_revoked_authorization.json
-  sar_investigation  ──→   structuring_sar      ──→  sar_structuring.json
-  regulatory_impact  ──→   avm_regulation       ──→  avm_regulation.json
-  loan_hardship      ──→   military_hardship    ──→  military_hardship_reeves.json
-  nurse_triage       ──→   cardiac_triage       ──→  cardiac_chest_pain.json
-  spending_advisor   ──→   debit_spending       ──→  spending_advisor_williams.json
-  complaint_res_act  ──→   check_clearing       ──→  check_clearing_complaint_diouf.json
+  dispute_resolution ──→   card_dispute    [spot] ──→  card_clear_fraud.json
+                     ──→   ach_dispute     [spot] ──→  ach_revoked_authorization.json
+  sar_investigation  ──→   structuring_sar [hold] ──→  sar_structuring.json
+  regulatory_impact  ──→   avm_regulation  [gate] ──→  avm_regulation.json
+  loan_hardship      ──→   military_hardship[gate]──→  military_hardship_reeves.json
+  nurse_triage       ──→   cardiac_triage  [gate] ──→  cardiac_chest_pain.json
+  spending_advisor   ──→   debit_spending  [auto] ──→  spending_advisor_williams.json
+  complaint_res_act  ──→   check_clearing  [spot] ──→  check_clearing_complaint_diouf.json
+
+coordinator/
+  config.yaml        ──→  governance tiers, delegation policies, contracts, capabilities
 ```
 
-**Workflow** — the cognitive pattern. Which primitives, in what order,
-with what transitions. Reusable across domains. Owned by AI engineers.
-
-**Domain** — the subject matter expertise. Categories, rules, constraints.
-Domain-specific but case-independent. Owned by SMEs.
-
-**Case** — runtime data. The specific member, transaction, patient.
-Comes from production systems. Never hand-edited in prod.
-
-Multiplication: workflows × domains × unlimited cases.
+| Layer | Purpose | Owner | Changes |
+|-------|---------|-------|---------|
+| **Workflow** | Primitive sequence, transitions, routing | AI Engineers | Rarely |
+| **Domain** | Categories, rules, risk tier, need vocabulary | SMEs + Engineers | Per use case |
+| **Case** | Intake trigger (slim: member ID, complaint, alert) | Production APIs | Every execution |
+| **Coordinator** | Governance tiers, A2A delegation, HITL, SLA | Risk / Compliance / Ops | Per policy change |
 
 ## Primitives
 
@@ -92,17 +74,67 @@ Multiplication: workflows × domains × unlimited cases.
 | 7 | **Challenge**   | Can this survive?      | survives, vulnerabilities, strengths| Read     |
 | 8 | **Act**         | Execute this action    | actions_taken, authorization_checks | **Write**|
 
-Primitives 1–7 are read-only. Only Act (8) crosses the read-write boundary,
-with authorization enforcement, dry-run by default, and reversibility declarations.
+Primitives 1–7 are read-only (cognitive phases). Act (8) crosses the read-write
+boundary with authorization enforcement, dry-run by default, and reversibility
+declarations. The engine structurally prevents Act from executing with pending
+delegations or unresolved work orders.
+
+## Data Architecture
+
+Case data is separated into **slim intake triggers** (what arrives) and a
+**service registry** of 16 API-shaped tools (what gets looked up).
+
+Three-tier sourcing — the engine auto-selects the best available:
+
+| Tier | Source | When |
+|------|--------|------|
+| 1 | MCP Server (production APIs) | `DATA_MCP_URL` set |
+| 2 | Fixture DB (16 SQLite tables) | `cognitive_core.db` exists |
+| 3 | Case passthrough (legacy) | Neither above |
+
+The Retrieve primitive calls `get_member`, `get_transactions`, `get_fraud_score`
+etc. regardless of which tier is active. Zero changes to switch.
+
+## Runtime Coordinator
+
+The coordinator is the fourth layer — manages multi-workflow execution,
+governance, and cross-workflow delegation through brokered asynchronous
+communication (A2A).
+
+**No persistent agents.** Workflow instances are short-lived: born, execute,
+produce output, die. What persists is state — case files, action ledger,
+instance registry.
+
+### Governance Tiers
+
+Every domain declares a tier. The coordinator applies the posture:
+
+| Tier | HITL | Example |
+|------|------|---------|
+| `auto` | None | Spending advisor |
+| `spot_check` | 10% sampled post-completion | Card disputes |
+| `gate` | Mandatory pre-action review | Complaint resolution |
+| `hold` | Mandatory expert sign-off | SAR investigation |
+
+### Delegation (A2A)
+
+Workflows don't know each other exist. The coordinator evaluates output
+against delegation policies and spawns new instances when conditions match.
+Typed contracts define the interface. Correlation chains link everything
+for audit.
+
+### CLI
+
+```
+python -m coordinator.cli run -w WORKFLOW -d DOMAIN -c CASE [options]
+python -m coordinator.cli stats
+python -m coordinator.cli chain INSTANCE_ID
+python -m coordinator.cli ledger [--instance ID] [--correlation ID]
+```
 
 ## LLM Provider Configuration
 
-The framework auto-detects your provider from environment variables.
-No code changes needed to switch providers.
-
-### Model Aliases
-
-YAML configs and CLI use logical aliases that resolve per-provider:
+Auto-detects provider from environment variables. No code changes to switch.
 
 | Alias      | Google            | Azure / OpenAI | Bedrock                |
 |------------|-------------------|----------------|------------------------|
@@ -111,59 +143,59 @@ YAML configs and CLI use logical aliases that resolve per-provider:
 | `standard` | gemini-2.5-pro    | gpt-4o         | claude-3.5-sonnet      |
 | `strong`   | gemini-2.5-pro    | gpt-4o         | claude-3.5-sonnet      |
 
-Provider-specific model names also work as pass-through:
 ```bash
-python -m engine.runner -m gpt-4o ...       # auto-detects OpenAI/Azure
-python -m engine.runner -m gemini-2.5-pro ...  # auto-detects Google
+LLM_PROVIDER=azure          # Force provider
+LLM_DEFAULT_MODEL=gpt-4.1   # Override "default" alias
 ```
 
-### Environment Overrides
+## Execution Modes
 
-```bash
-LLM_PROVIDER=azure          # Force provider (skip auto-detection)
-LLM_DEFAULT_MODEL=gpt-4.1   # Override what "default" resolves to
-```
+- **Sequential** (production): Predetermined step order with deterministic
+  or LLM-assisted routing, fast-paths, investigation loops, escalation
+- **Agentic** (discovery): LLM orchestrator chooses step sequence at runtime.
+  Prototype in agentic, crystallize to sequential for production.
 
-## Agentic Capabilities
-
-Two execution modes:
-
-- **Sequential** (production): Steps in predetermined order with
-  deterministic or LLM-assisted routing
-- **Agentic** (discovery): LLM orchestrator chooses step sequence
-  at runtime using hub-and-spoke graph
-
-Sequential workflows support three transition modes per step:
-
-- **Deterministic** (`when`/`goto`) — evaluated first, no LLM call
-- **Agent** (`agent_decide`) — LLM chooses among options
-- **Default** — fallback if nothing else matches
-
-Plus: loops with `max_loops`, early termination with `__end__`,
-escalation paths to human specialists.
-
-## Live Tracing
-
-Every run shows real-time progress:
+## Project Structure
 
 ```
-──────────────────────────────────────────────────────────────────────
-  dispute_resolution_card_dispute  (three-layer)
-  provider: azure  model: gpt-4o-mini
-  steps: classify_dispute_type → verify_against_records → ...
-──────────────────────────────────────────────────────────────────────
-  [  0.0s] 🏷️  classify_dispute_type
-  [  0.1s]     ↳ calling LLM (2,341 chars)...
-  [  3.2s]     ↳ response received (847 chars, 3.1s)
-  [  3.2s]     → unauthorized_transaction (confidence: 0.95)
-  [  3.2s]     ⚡ route → classify_resolution_fast (deterministic)
-  [  3.2s] 🏷️  classify_resolution_fast
-  ...
+cognitive-core/
+├── engine/                    # Core execution engine
+│   ├── llm.py                 # Provider factory (Google/Azure/OpenAI/Bedrock/Ollama)
+│   ├── composer.py            # Three-layer merge + LangGraph compilation
+│   ├── nodes.py               # Primitive execution + tracing
+│   ├── agentic.py             # Hub-and-spoke orchestrator for agentic mode
+│   ├── runner.py              # Engine CLI with live trace
+│   ├── state.py               # Workflow state + parameter resolution
+│   ├── actions.py             # Action registry with authorization enforcement
+│   ├── tools.py               # Tool registry for Retrieve primitive
+│   └── providers.py           # API, Vector, and MCP tool providers
+├── coordinator/               # Fourth layer: governance + A2A
+│   ├── runtime.py             # Coordinator: start/resume/checkpoint/terminate
+│   ├── policy.py              # Policy engine: tiers, delegation, needs, contracts
+│   ├── store.py               # SQLite persistence for instances + work orders
+│   ├── types.py               # Data structures for all coordinator concepts
+│   ├── cli.py                 # Coordinator CLI
+│   └── config.yaml            # Governance tiers, delegation policies, contracts
+├── registry/
+│   ├── primitives.py          # Primitive registry + prompt rendering
+│   ├── schemas.py             # Pydantic output contracts
+│   └── prompts/               # Base prompt templates (9 files)
+├── fixtures/
+│   ├── api.py                 # Service registry (16 tools)
+│   ├── db.py                  # Fixture database builder
+│   └── cognitive_core.db      # SQLite with member data for all domains
+├── mcp_servers/
+│   ├── data_services.py       # MCP server exposing 16 data tools
+│   ├── compliance_server.py   # Regulation search MCP server
+│   └── actions_server.py      # Write-side MCP server (email, credits)
+├── workflows/                 # Layer 1: cognitive patterns (7 sequential + 2 agentic)
+├── domains/                   # Layer 2: expertise + governance tier (10 configs)
+├── cases/                     # Layer 3: slim intake triggers (9 case files)
+├── demo.sh                    # 10 progressive demo use cases
+└── requirements.txt
 ```
 
-Disable with `--no-trace`.
-
-## CLI Reference
+## Engine CLI Reference
 
 ```
 python -m engine.runner -w WORKFLOW -d DOMAIN -c CASE [options]
@@ -172,38 +204,10 @@ Options:
   -w, --workflow    Workflow YAML
   -d, --domain      Domain YAML
   -c, --case        Case JSON/YAML
-  -m, --model       Model alias (default/fast/standard/strong) or
-                    provider-specific name (gpt-4o, gemini-2.0-flash)
+  -m, --model       Model alias or provider-specific name
   -p, --provider    Force provider: google, azure, openai, bedrock
   -v, --verbose     Detailed output
   -o, --output      Save full state to JSON
   --no-trace        Disable live progress
   --validate-only   Check config without running
-```
-
-## Project Structure
-
-```
-cognitive-core/
-├── engine/
-│   ├── llm.py          # Provider factory — single point of LLM construction
-│   ├── composer.py      # Three-layer merge + LangGraph compilation
-│   ├── nodes.py         # Primitive execution + tracing
-│   ├── agentic.py       # Hub-and-spoke orchestrator for agentic mode
-│   ├── runner.py        # CLI with live trace
-│   ├── state.py         # Shared workflow state + parameter resolution
-│   ├── actions.py       # Action registry with authorization enforcement
-│   ├── tools.py         # Tool registry for Retrieve primitive
-│   └── providers.py     # API, Vector, and MCP tool providers
-├── registry/
-│   ├── primitives.py    # Primitive registry + prompt rendering
-│   ├── schemas.py       # Pydantic output contracts
-│   └── prompts/         # Base prompt templates (9 files)
-├── mcp_servers/
-│   ├── compliance_server.py  # Read-side MCP server
-│   └── actions_server.py     # Write-side MCP server
-├── workflows/           # Layer 1: cognitive patterns (7 sequential + 2 agentic)
-├── domains/             # Layer 2: subject matter expertise (10 configs)
-├── cases/               # Layer 3: runtime data (9 case files)
-└── requirements.txt
 ```

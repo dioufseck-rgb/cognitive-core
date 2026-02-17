@@ -1,0 +1,315 @@
+# ═══════════════════════════════════════════════════════════════════
+# Cognitive Core — Runtime Coordinator Configuration
+#
+# Fourth architectural layer. Manages governance, delegation,
+# HITL policies, and cross-workflow contracts (A2A).
+#
+# This file is owned by Risk / Compliance / Ops — not by AI Engineers
+# or domain SMEs. Changes here affect operational governance without
+# touching workflows or domains.
+# ═══════════════════════════════════════════════════════════════════
+
+# ─── File Resolution ─────────────────────────────────────────────
+workflow_dir: workflows
+domain_dir: domains
+case_dir: cases
+
+# ─── Governance Tiers ────────────────────────────────────────────
+# Every domain declares a tier via `governance: <tier>` in its YAML.
+# The coordinator applies the posture defined here.
+
+governance_tiers:
+  auto:
+    hitl: none
+    sample_rate: 0.0
+
+  spot_check:
+    hitl: post_completion
+    sample_rate: 0.10
+    queue: qa_review
+    sla: 7200   # 2 hours
+
+  gate:
+    hitl: before_act
+    queue: specialist_review
+    sla: 14400  # 4 hours
+
+  hold:
+    hitl: before_finalize
+    queue: compliance_review
+    sla: 172800  # 48 hours
+
+# ─── Environment Overrides ───────────────────────────────────────
+# Override domain tiers per environment. Use coordinator/overrides.*.yaml
+# for env-specific settings, or inline here for defaults.
+
+overrides: {}
+  # Examples:
+  # "*": gate           # everything gated in first month of prod
+  # debit_spending: auto # except validated spending advisor
+
+# ─── Delegation Policies ─────────────────────────────────────────
+# Rules that trigger cross-workflow delegation. The coordinator
+# evaluates these against completed workflow output.
+# Workflows never see these policies.
+
+delegations:
+
+  # Card fraud patterns → AML investigation (fire and forget)
+  # Source dispute completes immediately. SAR runs independently.
+  # Results linked via correlation chain for audit.
+  - name: fraud_pattern_triggers_aml
+    mode: fire_and_forget  # default: source doesn't wait
+    conditions:
+      - domain: card_dispute
+        selector: any_retrieve
+        field: data.get_fraud_score.factors
+        operator: contains_any
+        value:
+          - unknown_device
+          - geolocation_anomaly
+          - foreign_ip
+          - multi_transaction_pattern
+          - account_takeover
+    target_workflow: sar_investigation
+    target_domain: structuring_sar
+    contract: aml_referral_v1
+    sla: 86400  # 24 hours
+    inputs:
+      member_id: "${source.last_retrieve.data.get_member.member_id}"
+      referral_reason: "Fraud dispute with high-risk indicators in fraud scoring"
+      triggering_evidence: "${source.last_retrieve.data.get_fraud_score}"
+
+  # Same trigger from investigation evidence flags (when investigation runs)
+  - name: fraud_evidence_flags_trigger_aml
+    mode: fire_and_forget
+    conditions:
+      - domain: card_dispute
+        selector: any_investigate
+        field: evidence_flags
+        operator: contains_any
+        value:
+          - foreign_ip
+          - unknown_device
+          - multi_transaction_pattern
+          - account_takeover
+          - geographic_anomaly
+    target_workflow: sar_investigation
+    target_domain: structuring_sar
+    contract: aml_referral_v1
+    sla: 86400
+    inputs:
+      member_id: "${source.last_retrieve.data.get_member.member_id}"
+      referral_reason: "${source.last_investigate.finding}"
+      triggering_evidence: "${source.last_investigate.evidence_flags}"
+
+  # SAR filed affecting multiple members → dispute reviews (blocking)
+  # SAR suspends until all member disputes are reviewed, then
+  # resumes at investigate_activity with enriched evidence.
+  - name: sar_multi_member_disputes
+    mode: wait_for_result  # SAR waits for dispute review to complete
+    resume_at_step: investigate_activity  # resume investigation with new data
+    conditions:
+      - domain: structuring_sar
+        selector: last_investigate
+        field: affected_member_count
+        operator: gte
+        value: 2
+    target_workflow: dispute_resolution
+    target_domain: card_dispute
+    contract: dispute_review_v1
+    sla: 28800  # 8 hours
+    inputs:
+      member_id: "${source.last_investigate.affected_members}"
+      referral_source: "${source.input.instance_id}"
+      reason: cross_member_pattern
+
+  # ─── Product Return Delegations ───────────────────────────────
+
+  # Suspicious return patterns → fraud review (blocking)
+  # Return workflow suspends until fraud assessment completes.
+  # Fraud result informs the resolution decision.
+  - name: return_fraud_indicators_trigger_review
+    mode: wait_for_result
+    resume_at_step: decide_resolution
+    conditions:
+      - domain: electronics_return
+        selector: any_investigate
+        field: evidence_flags
+        operator: contains_any
+        value:
+          - serial_electronics_returner
+          - high_return_rate
+          - wardrobing_suspected
+          - repeat_product_line_returns
+          - consistent_defect_claims
+    target_workflow: fraud_review
+    target_domain: return_fraud
+    contract: fraud_review_v1
+    sla: 3600  # 1 hour
+    inputs:
+      customer_id: "${source.input.customer_id}"
+      referral_reason: "${source.last_investigate.finding}"
+      triggering_evidence: "${source.last_investigate.evidence_flags}"
+
+  # High-value electronics returns → vendor notification (fire-and-forget)
+  # Return completes immediately. Vendor is notified independently.
+  - name: high_value_return_vendor_notify
+    mode: fire_and_forget
+    conditions:
+      - domain: electronics_return
+        selector: any_retrieve
+        field: data.get_order.item_price
+        operator: gte
+        value: 500
+    target_workflow: vendor_notification
+    target_domain: vendor_ops
+    contract: vendor_return_v1
+    sla: 86400  # 24 hours
+    inputs:
+      order_id: "${source.input.order_id}"
+      customer_name: "${source.last_retrieve.data.get_customer.name}"
+      return_reason: "${source.input.return_reason}"
+      item_condition: "${source.input.item_condition}"
+
+# ─── Contracts ───────────────────────────────────────────────────
+# Versioned interface schemas for cross-workflow delegation.
+# Neither sender nor receiver knows the other's identity.
+
+contracts:
+
+  aml_referral_v1:
+    version: 1
+    request:
+      - name: member_id
+        type: string
+        required: true
+      - name: referral_reason
+        type: string
+        required: true
+      - name: triggering_evidence
+        type: object
+        required: false
+    response:
+      - name: filing_decision
+        type: enum
+        required: true
+        enum_values:
+          - file_sar
+          - close_no_action
+          - request_more_info
+      - name: risk_assessment
+        type: enum
+        required: true
+        enum_values:
+          - low
+          - moderate
+          - elevated
+          - high
+      - name: sar_reference
+        type: string
+        required: false
+      - name: recommended_actions
+        type: list
+        required: false
+
+  dispute_review_v1:
+    version: 1
+    request:
+      - name: member_id
+        type: string
+        required: true
+      - name: referral_source
+        type: string
+        required: false
+      - name: reason
+        type: string
+        required: true
+    response:
+      - name: resolution
+        type: string
+        required: true
+      - name: credit_applied
+        type: string
+        required: false
+
+  fraud_review_v1:
+    version: 1
+    request:
+      - name: customer_id
+        type: string
+        required: true
+      - name: referral_reason
+        type: string
+        required: true
+      - name: triggering_evidence
+        type: object
+        required: false
+    response:
+      - name: risk_level
+        type: string
+        required: true
+      - name: recommendation
+        type: string
+        required: true
+      - name: account_action
+        type: string
+        required: false
+
+  vendor_return_v1:
+    version: 1
+    request:
+      - name: order_id
+        type: string
+        required: true
+      - name: customer_name
+        type: string
+        required: true
+      - name: return_reason
+        type: string
+        required: true
+      - name: item_condition
+        type: string
+        required: false
+    response:
+      - name: notification_sent
+        type: string
+        required: true
+      - name: rma_number
+        type: string
+        required: false
+
+# ─── Capability Catalog ──────────────────────────────────────────
+# Maps need types to providers. Workflows report needs;
+# the coordinator matches them here.
+
+capabilities:
+
+  - need: industry_benchmarks
+    type: workflow
+    workflow: data_enrichment
+    domain: industry_analysis
+    contract: benchmarks_v1
+
+  - need: member_communication
+    type: human_task
+    queue: member_outreach
+    contract: member_inquiry_v1
+
+  - need: prior_case_lookup
+    type: workflow
+    workflow: case_lookup
+    domain: bsa_case_history
+    contract: case_query_v1
+
+  - need: enhanced_due_diligence
+    type: workflow
+    workflow: edd_investigation
+    domain: enhanced_dd
+    contract: edd_request_v1
+
+  - need: property_valuation
+    type: workflow
+    workflow: property_valuation
+    domain: avm_valuation
+    contract: valuation_request_v1

@@ -6,6 +6,7 @@
 # This file defines what they do and how they're parameterized.
 
 domain_name: debit_spending_agentic
+governance: auto
 workflow: spending_advisor_agentic
 description: >
   Agentic domain configuration for debit card spending analysis.

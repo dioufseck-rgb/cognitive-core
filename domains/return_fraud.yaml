@@ -1,0 +1,10 @@
+# Return Fraud Domain Configuration
+# Applied to fraud_review workflow for return abuse investigations.
+
+domain_name: return_fraud
+governance: auto
+workflow: fraud_review
+description: >
+  Domain configuration for return fraud and abuse investigation.
+  Evaluates whether return patterns indicate organized fraud,
+  serial abuse, or wardrobing behavior.

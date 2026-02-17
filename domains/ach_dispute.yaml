@@ -5,6 +5,7 @@
 # Demonstrates same workflow, completely different domain knowledge.
 
 domain_name: ach_dispute
+governance: spot_check
 workflow: dispute_resolution
 description: >
   Domain configuration for ACH transaction disputes including

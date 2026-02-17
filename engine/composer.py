@@ -418,3 +418,116 @@ def run_workflow(config, workflow_input, model="default", temperature=0.1, tool_
         "routing_log": [],
     }
     return compiled.invoke(initial)
+
+
+def run_workflow_from_step(
+    config: dict[str, Any],
+    state_snapshot: dict[str, Any],
+    resume_step: str,
+    model: str = "default",
+    temperature: float = 0.1,
+    tool_registry: ToolRegistry | None = None,
+    action_registry: ActionRegistry | None = None,
+) -> dict[str, Any]:
+    """
+    Resume a workflow from a specific step with pre-populated state.
+
+    Builds a subgraph containing only the steps from resume_step forward,
+    then executes it with the provided state snapshot. Prior step outputs
+    are already in the state, so parameter resolution (${step_name.field})
+    works naturally.
+
+    The state_snapshot should be a valid WorkflowState dict with the
+    'steps' list containing outputs from all steps that have already
+    executed. Any 'delegation_results' in the state are available
+    via ${_delegations.work_order_id.field} parameter resolution.
+    """
+    all_steps = config["steps"]
+    step_names = [s["name"] for s in all_steps]
+
+    if resume_step not in step_names:
+        raise ValueError(
+            f"Resume step '{resume_step}' not found. "
+            f"Available: {step_names}"
+        )
+
+    resume_idx = step_names.index(resume_step)
+
+    # Build a subconfig containing only steps from resume_step onward,
+    # plus any steps that are reachable via transitions (back-jumps for loops)
+    reachable = _find_reachable_steps(all_steps, resume_idx)
+    sub_steps = [s for s in all_steps if s["name"] in reachable]
+
+    sub_config = {**config, "steps": sub_steps}
+
+    # Compile the subgraph — compose_workflow will set the first step
+    # in sub_steps as entry point, which is our resume step
+    compiled = compile_workflow(
+        sub_config, model, temperature,
+        tool_registry, action_registry,
+    )
+
+    # Restore the state — keep prior step outputs intact
+    resume_state: WorkflowState = {
+        "input": state_snapshot.get("input", {}),
+        "steps": state_snapshot.get("steps", []),
+        "current_step": resume_step,
+        "metadata": state_snapshot.get("metadata", {}),
+        "loop_counts": state_snapshot.get("loop_counts", {}),
+        "routing_log": state_snapshot.get("routing_log", []),
+    }
+
+    return compiled.invoke(resume_state)
+
+
+def _find_reachable_steps(
+    all_steps: list[dict[str, Any]],
+    start_idx: int,
+) -> set[str]:
+    """
+    Find all step names reachable from start_idx, including back-jumps.
+    Needed so that loops (e.g., generate → challenge → generate) work
+    when resuming from a mid-workflow step.
+    """
+    step_names = [s["name"] for s in all_steps]
+    reachable: set[str] = set()
+    to_visit = [step_names[start_idx]]
+
+    while to_visit:
+        current = to_visit.pop()
+        if current in reachable or current == "__end__":
+            continue
+        reachable.add(current)
+
+        # Find this step's config
+        step_config = None
+        step_idx = None
+        for i, s in enumerate(all_steps):
+            if s["name"] == current:
+                step_config = s
+                step_idx = i
+                break
+        if not step_config:
+            continue
+
+        # Add transition targets
+        transitions = step_config.get("transitions", [])
+        if not transitions:
+            # Default: next step
+            if step_idx + 1 < len(all_steps):
+                to_visit.append(step_names[step_idx + 1])
+        else:
+            for t in transitions:
+                if "goto" in t:
+                    to_visit.append(t["goto"])
+                if "default" in t:
+                    to_visit.append(t["default"])
+                if "agent_decide" in t:
+                    for opt in t["agent_decide"].get("options", []):
+                        if "step" in opt:
+                            to_visit.append(opt["step"])
+            # Also add the implicit default (next sequential step)
+            if step_idx + 1 < len(all_steps):
+                to_visit.append(step_names[step_idx + 1])
+
+    return reachable

@@ -1,0 +1,10 @@
+# Vendor Operations Domain Configuration
+# Applied to vendor_notification workflow.
+
+domain_name: vendor_ops
+governance: hold
+workflow: vendor_notification
+description: >
+  Domain configuration for vendor return notifications.
+  Governance tier 'hold' ensures operations team reviews
+  vendor communications before dispatch.

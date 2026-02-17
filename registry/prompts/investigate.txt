@@ -89,7 +89,9 @@ Respond with a JSON object matching this structure:
       "reasoning": "why this status was assigned, with specific value citations"
     }}
   ],
-  "recommended_actions": ["specific next steps"]
+  "recommended_actions": ["specific next steps"],
+  "evidence_flags": ["named risk indicators found during investigation — use standard names when applicable: foreign_ip, unknown_device, multi_transaction_pattern, structuring, velocity_spike, high_risk_merchant, geographic_anomaly, account_takeover, identity_mismatch, unusual_amount, dormant_account_activity, smurfing, round_dollar_amounts, rapid_movement. Include any that are supported by the evidence. Empty list if none apply."],
+  "missing_evidence": ["evidence types that would improve confidence but are not available"]
 }}
 
 Respond ONLY with the JSON object. No other text.

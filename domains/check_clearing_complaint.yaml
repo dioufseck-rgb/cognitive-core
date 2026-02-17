@@ -3,6 +3,7 @@
 # Includes Act configuration for email delivery.
 
 domain_name: check_clearing_complaint
+governance: spot_check
 description: >
   Member complaints about check deposit holds and funds availability.
   Covers Reg CC compliance, hold justification, fee remediation, and

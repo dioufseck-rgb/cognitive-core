@@ -90,6 +90,14 @@ class InvestigateOutput(BaseOutput):
         default_factory=list,
         description="Suggested next steps based on findings"
     )
+    evidence_flags: list[str] = Field(
+        default_factory=list,
+        description="Named risk indicators found during investigation (e.g., foreign_ip, unknown_device, multi_transaction_pattern, structuring, high_risk_merchant, velocity_spike)"
+    )
+    missing_evidence: list[str] = Field(
+        default_factory=list,
+        description="Evidence types that would improve the investigation but are not available"
+    )
 
 
 # ---------------------------------------------------------------------------
