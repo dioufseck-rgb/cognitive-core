@@ -1,0 +1,54 @@
+{
+  "member_id": "MBR-EVAL-001",
+  "transaction_id": "TXN-EVAL-001",
+  "dispute_intake": {
+    "member_name": "Michael Lee",
+    "dispute_description": "I don't recognize SQRPAY*JOESCOFFEE. I've never been to any business with that name. What is this charge?",
+    "filed_date": "2026-02-01",
+    "channel": "online_portal"
+  },
+  "get_member": {
+    "member_id": "MBR-EVAL-001",
+    "first_name": "Michael",
+    "last_name": "Lee",
+    "membership_date": "2020-03-15",
+    "tenure_years": 5.9,
+    "relationship_value": "standard",
+    "prior_disputes": 0,
+    "account_standing": "good",
+    "products": [
+      "checking",
+      "visa_credit"
+    ]
+  },
+  "get_transactions": {
+    "transaction_id": "TXN-EVAL-001",
+    "post_date": "2026-01-28",
+    "merchant": "MERCHANT-001",
+    "merchant_name": "SQRPAY*JOESCOFFEE",
+    "mcc": "5411",
+    "mcc_description": "Grocery Stores",
+    "amount": 8.75,
+    "currency": "USD",
+    "auth_method": "chip",
+    "card_present": true,
+    "ip_address": null,
+    "device_id": null,
+    "location": "Springfield, IL"
+  },
+  "get_fraud_score": {
+    "score": 25,
+    "level": "low",
+    "factors": [],
+    "velocity_flags": [],
+    "notes": "SQRPAY* is the Square payment processor DBA prefix. Joe's Coffee is a known local business at 456 Main St, Springfield IL \u2014 0.3 miles from member's home address."
+  },
+  "get_devices": {
+    "known_devices": [
+      "device_home_pc",
+      "device_iphone_14"
+    ],
+    "transaction_device": "device_home_pc",
+    "match": true
+  }
+}

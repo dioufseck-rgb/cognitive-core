@@ -1,0 +1,53 @@
+{
+  "member_id": "MBR-EVAL-001",
+  "transaction_id": "TXN-EVAL-001",
+  "dispute_intake": {
+    "member_name": "Kevin Wilson",
+    "dispute_description": "A $500 hold was placed on my card when I checked into a hotel on Jan 18. I checked out on Jan 20 and my bill was only $250. The extra $250 hold still hasn't been released after 10 days.",
+    "filed_date": "2026-02-01",
+    "channel": "online_portal"
+  },
+  "get_member": {
+    "member_id": "MBR-EVAL-001",
+    "first_name": "Kevin",
+    "last_name": "Wilson",
+    "membership_date": "2020-03-15",
+    "tenure_years": 5.9,
+    "relationship_value": "standard",
+    "prior_disputes": 0,
+    "account_standing": "good",
+    "products": [
+      "checking",
+      "visa_credit"
+    ]
+  },
+  "get_transactions": {
+    "transaction_id": "TXN-EVAL-001",
+    "post_date": "2026-01-28",
+    "merchant": "MERCHANT-001",
+    "merchant_name": "HILTON HOTELS",
+    "mcc": "5411",
+    "mcc_description": "Grocery Stores",
+    "amount": 500.0,
+    "currency": "USD",
+    "auth_method": "chip",
+    "card_present": true,
+    "ip_address": null,
+    "device_id": null,
+    "location": "Springfield, IL"
+  },
+  "get_fraud_score": {
+    "score": 25,
+    "level": "low",
+    "factors": [],
+    "velocity_flags": []
+  },
+  "get_devices": {
+    "known_devices": [
+      "device_home_pc",
+      "device_iphone_14"
+    ],
+    "transaction_device": "device_home_pc",
+    "match": true
+  }
+}

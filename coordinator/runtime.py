@@ -35,6 +35,18 @@ from coordinator.tasks import (
 )
 
 
+# ─── Reliability Exceptions ──────────────────────────────────────────
+
+class DelegationDepthExceeded(Exception):
+    """Raised when delegation chain exceeds MAX_DELEGATION_DEPTH."""
+    pass
+
+
+class StuckInstanceError(Exception):
+    """Raised when an instance is detected as stuck."""
+    pass
+
+
 class Coordinator:
     """
     Runtime Coordinator — the fourth architectural layer.
@@ -99,6 +111,10 @@ class Coordinator:
 
     # ─── Four Operations ─────────────────────────────────────────────
 
+    # Maximum delegation chain depth. Each delegation adds to lineage.
+    # At depth 20, something is wrong — likely a policy loop.
+    MAX_DELEGATION_DEPTH = 20
+
     def start(
         self,
         workflow_type: str,
@@ -113,6 +129,17 @@ class Coordinator:
         Create and execute a new workflow instance.
         Returns the instance_id.
         """
+        # ── C1: Delegation depth guard ──
+        effective_lineage = lineage or []
+        if len(effective_lineage) >= self.MAX_DELEGATION_DEPTH:
+            chain_tail = " → ".join(effective_lineage[-5:])
+            raise DelegationDepthExceeded(
+                f"Delegation chain depth {len(effective_lineage)} exceeds "
+                f"limit {self.MAX_DELEGATION_DEPTH}. "
+                f"Last 5: {chain_tail}. "
+                f"Check delegation policies for circular triggers."
+            )
+
         # Resolve governance tier from domain config
         tier = self._resolve_governance_tier(domain)
 
@@ -139,7 +166,7 @@ class Coordinator:
                 "governance_tier": tier,
                 "lineage": instance.lineage,
             },
-            idempotency_key=f"start:{instance.instance_id}",
+            idempotency_key=f"start:{instance.instance_id}:{instance.created_at}",
         )
 
         self._log(f"▶ START {instance.instance_id} "
@@ -220,7 +247,7 @@ class Coordinator:
                 resume_step=suspension.suspended_at_step,
                 model=model, temperature=temperature,
             )
-            self._on_completed(instance, final_state)
+            self._on_completed(instance, final_state, is_resume=True)
         except Exception as e:
             self._on_failed(instance, str(e))
             raise
@@ -367,11 +394,13 @@ class Coordinator:
 
     def list_pending_approvals(self) -> list[dict[str, Any]]:
         """List all tasks awaiting governance approval."""
+        from coordinator.contracts import assert_contract, PendingApproval
+
         tasks = self.tasks.list_tasks(status=TaskStatus.PENDING)
         approvals = []
         for task in tasks:
             if task.task_type == TaskType.GOVERNANCE_APPROVAL:
-                approvals.append({
+                entry = {
                     "task_id": task.task_id,
                     "instance_id": task.instance_id,
                     "workflow_type": task.workflow_type,
@@ -385,7 +414,9 @@ class Coordinator:
                     "priority": task.priority,
                     "callback_method": task.callback.method,
                     "resume_nonce": task.callback.resume_nonce,
-                })
+                }
+                assert_contract(entry, PendingApproval, "list_pending_approvals")
+                approvals.append(entry)
         return approvals
 
     def list_queue_tasks(
@@ -523,8 +554,16 @@ class Coordinator:
 
     # ─── Event Handlers ──────────────────────────────────────────────
 
-    def _on_completed(self, instance: InstanceState, final_state: dict[str, Any]):
-        """Handle workflow completion. Evaluate governance and delegations."""
+    def _on_completed(self, instance: InstanceState, final_state: dict[str, Any],
+                       is_resume: bool = False):
+        """Handle workflow completion. Evaluate governance and delegations.
+
+        Args:
+            is_resume: If True, skip governance re-evaluation. Governance was
+                       already evaluated before the suspension that led to this
+                       resume. Re-evaluating risks a different decision if
+                       policy config changed between suspension and resume.
+        """
         instance.result = self._extract_result_summary(final_state)
         instance.step_count = len(final_state.get("steps", []))
 
@@ -541,61 +580,84 @@ class Coordinator:
         self._log(f"✓ EXECUTION FINISHED {instance.instance_id} "
                    f"({instance.step_count} steps)")
 
+        # ── Step 0: Quality Gate — Fail Closed ──
+        # Check all step confidences against thresholds. If any step
+        # is below the floor, escalate to HITL regardless of domain tier.
+        if not is_resume:
+            qg = self._evaluate_quality_gate(instance, final_state)
+            if qg:
+                self._log(f"  ⚠ QUALITY GATE FIRED: {qg['reason']}")
+                self.store.log_action(
+                    instance_id=instance.instance_id,
+                    correlation_id=instance.correlation_id,
+                    action_type="quality_gate_fired",
+                    details=qg,
+                )
+                # Override governance tier to force HITL review
+                instance.governance_tier = qg["escalation_tier"]
+
         # ── Step 1: Evaluate governance tier ──
-        gov_decision = self.policy.evaluate_governance(
-            domain=instance.domain,
-            governance_tier=instance.governance_tier,
-            workflow_result=final_state,
-        )
-        self._log(f"  governance: {gov_decision.tier} → {gov_decision.action} "
-                   f"({gov_decision.reason})")
-
-        self.store.log_action(
-            instance_id=instance.instance_id,
-            correlation_id=instance.correlation_id,
-            action_type="governance_evaluation",
-            details={
-                "tier": gov_decision.tier,
-                "action": gov_decision.action,
-                "queue": gov_decision.queue,
-                "reason": gov_decision.reason,
-                "sampled": gov_decision.sampled,
-            },
-        )
-
-        if gov_decision.action == "suspend_for_approval":
-            # TRUE SUSPENSION: save state and stop. Resume when approved.
-            self._suspend_for_governance(
-                instance, final_state, gov_decision
+        # Skip on resume: governance was already evaluated before suspension.
+        if not is_resume:
+            gov_decision = self.policy.evaluate_governance(
+                domain=instance.domain,
+                governance_tier=instance.governance_tier,
+                workflow_result=final_state,
             )
-            # Do NOT proceed to delegations — they happen after approval
-            return
+            self._log(f"  governance: {gov_decision.tier} → {gov_decision.action} "
+                       f"({gov_decision.reason})")
 
-        if gov_decision.action == "queue_review":
-            self._log(f"  → queued for post-completion review: {gov_decision.queue}")
-            # Publish review task (non-blocking — instance completes)
-            task = Task.create(
-                task_type=TaskType.SPOT_CHECK_REVIEW,
-                queue=gov_decision.queue,
+            self.store.log_action(
                 instance_id=instance.instance_id,
                 correlation_id=instance.correlation_id,
-                workflow_type=instance.workflow_type,
-                domain=instance.domain,
-                payload={
-                    "governance_tier": gov_decision.tier,
+                action_type="governance_evaluation",
+                details={
+                    "tier": gov_decision.tier,
+                    "action": gov_decision.action,
+                    "queue": gov_decision.queue,
                     "reason": gov_decision.reason,
                     "sampled": gov_decision.sampled,
-                    "step_count": instance.step_count,
-                    "result_summary": instance.result,
                 },
-                callback=TaskCallback(
-                    method="complete",
-                    instance_id=instance.instance_id,
-                ),
-                priority=0,
-                sla_seconds=self._get_tier_sla(gov_decision.tier),
             )
-            self.tasks.publish(task)
+
+            if gov_decision.action == "suspend_for_approval":
+                self._suspend_for_governance(
+                    instance, final_state, gov_decision
+                )
+                return
+
+            if gov_decision.action == "queue_review":
+                self._log(f"  → queued for post-completion review: {gov_decision.queue}")
+                task = Task.create(
+                    task_type=TaskType.SPOT_CHECK_REVIEW,
+                    queue=gov_decision.queue,
+                    instance_id=instance.instance_id,
+                    correlation_id=instance.correlation_id,
+                    workflow_type=instance.workflow_type,
+                    domain=instance.domain,
+                    payload={
+                        "governance_tier": gov_decision.tier,
+                        "reason": gov_decision.reason,
+                        "sampled": gov_decision.sampled,
+                        "step_count": instance.step_count,
+                        "result_summary": instance.result,
+                    },
+                    callback=TaskCallback(
+                        method="complete",
+                        instance_id=instance.instance_id,
+                    ),
+                    priority=0,
+                    sla_seconds=self._get_tier_sla(gov_decision.tier),
+                )
+                self.tasks.publish(task)
+        else:
+            self._log(f"  governance: skipped (resume — already evaluated before suspension)")
+            self.store.log_action(
+                instance_id=instance.instance_id,
+                correlation_id=instance.correlation_id,
+                action_type="governance_evaluation",
+                details={"skipped": True, "reason": "resume after delegation/approval"},
+            )
 
         # Mark completed (only reached if governance allows)
         instance.status = InstanceStatus.COMPLETED
@@ -632,7 +694,7 @@ class Coordinator:
         suspension = Suspension.create(
             instance_id=instance.instance_id,
             suspended_at_step="__governance_gate__",
-            state_snapshot=final_state,
+            state_snapshot=self._compact_state_for_suspension(final_state),
         )
         self.store.save_suspension(suspension)
 
@@ -680,6 +742,54 @@ class Coordinator:
 
         self._log(f"  ⏸ SUSPENDED {instance.instance_id} "
                    f"→ task {task_id} published to '{gov_decision.queue}'")
+
+    # ─── Quality Gate ────────────────────────────────────────────
+
+    def _evaluate_quality_gate(
+        self, instance: InstanceState, final_state: dict[str, Any]
+    ) -> dict[str, Any] | None:
+        """
+        Check workflow output against quality gate thresholds.
+
+        Returns None if all gates pass, or a dict with details
+        about the gate that fired. When a gate fires, the coordinator
+        should escalate to HITL regardless of the domain's declared tier.
+        """
+        qg_config = self.policy.raw_config.get("quality_gates", {})
+        if not qg_config:
+            return None
+
+        exempt = qg_config.get("exempt_domains", [])
+        if instance.domain in exempt:
+            return None
+
+        global_min = qg_config.get("min_confidence", 0.5)
+        primitive_floors = qg_config.get("primitive_floors", {})
+        escalation_tier = qg_config.get("escalation_tier", "gate")
+
+        steps = final_state.get("steps", [])
+        for step in steps:
+            output = step.get("output", {})
+            confidence = output.get("confidence")
+            if confidence is None:
+                continue
+
+            primitive = step.get("primitive", "")
+            step_name = step.get("step_name", "")
+            floor = primitive_floors.get(primitive, global_min)
+
+            if confidence < floor:
+                return {
+                    "reason": f"Step '{step_name}' ({primitive}) confidence {confidence} < floor {floor}",
+                    "step_name": step_name,
+                    "primitive": primitive,
+                    "confidence": confidence,
+                    "floor": floor,
+                    "escalation_tier": escalation_tier,
+                    "escalation_queue": qg_config.get("escalation_queue", "quality_review"),
+                }
+
+        return None
 
     def _get_tier_sla(self, tier: str) -> float | None:
         """Get SLA seconds for a governance tier from config."""
@@ -745,7 +855,34 @@ class Coordinator:
             },
         )
 
-        for deleg in new_delegations:
+        # Execute fire-and-forget first (source stays completed),
+        # then blocking (source suspends). This ensures F&F delegations
+        # dispatch before the source is suspended by a blocking delegation.
+        #
+        # MULTIPLE BLOCKING DELEGATIONS execute serially, not in parallel:
+        #   1. First blocking delegation suspends source, runs handler
+        #   2. When handler completes → source resumes → _on_completed
+        #   3. Dedup guard skips first delegation (already fired)
+        #   4. Second blocking delegation fires, suspends source again
+        #   5. Repeat until all blocking delegations have executed
+        #
+        # This is BY DESIGN: each blocking delegation gets the enriched
+        # state from the previous one. If you need parallel execution,
+        # use fire_and_forget mode with a final gather step.
+        #
+        # If any handler gets governance-held (doesn't complete immediately),
+        # remaining blocking delegations are deferred until the source
+        # resumes after that handler completes.
+        ff_delegations = [d for d in new_delegations if d.mode != "wait_for_result"]
+        blocking_delegations = [d for d in new_delegations if d.mode == "wait_for_result"]
+
+        if len(blocking_delegations) > 1:
+            self._log(f"  ⚠ {len(blocking_delegations)} blocking delegations — "
+                       f"will execute serially via suspend/resume chain")
+
+        for deleg in ff_delegations:
+            self._execute_delegation(instance, deleg, final_state)
+        for deleg in blocking_delegations:
             self._execute_delegation(instance, deleg, final_state)
 
     def _on_failed(self, instance: InstanceState, error: str):
@@ -820,6 +957,17 @@ class Coordinator:
         self._log(f"    target: {decision.target_workflow}/{decision.target_domain}")
         self._log(f"    contract: {decision.contract_name} v{decision.contract_version}")
 
+        # ── Delegation input diagnostics ──
+        tool_keys = [k for k, v in decision.inputs.items()
+                     if isinstance(v, (dict, list)) and k.startswith("get_")]
+        scalar_keys = [k for k in decision.inputs.keys() if k not in tool_keys]
+        self._log(f"    inputs: {scalar_keys}")
+        if tool_keys:
+            self._log(f"    tool data: [{', '.join(tool_keys)}]")
+        else:
+            self._log(f"    ⚠ NO tool data in inputs — handler retrieve may fail")
+            self._log(f"      hint: add get_* entries to delegation inputs in config.yaml")
+
         self.store.log_action(
             instance_id=source.instance_id,
             correlation_id=source.correlation_id,
@@ -889,6 +1037,18 @@ class Coordinator:
                 completed_at=time.time(),
             )
             self.store.save_work_order(wo)
+            self.store.log_action(
+                instance_id=source.instance_id,
+                correlation_id=source.correlation_id,
+                action_type="delegation_handler_failed",
+                details={
+                    "policy": decision.policy_name,
+                    "target": f"{decision.target_workflow}/{decision.target_domain}",
+                    "mode": "fire_and_forget",
+                    "error": str(e)[:500],
+                    "work_order_id": wo.work_order_id,
+                },
+            )
             self._log(f"    handler FAILED: {e}")
 
     def _execute_blocking_delegation(
@@ -920,7 +1080,7 @@ class Coordinator:
         suspension = Suspension.create(
             instance_id=source.instance_id,
             suspended_at_step=resume_step,
-            state_snapshot=source_state,
+            state_snapshot=self._compact_state_for_suspension(source_state),
             work_order_ids=[wo.work_order_id],
         )
         self.store.save_suspension(suspension)
@@ -1007,6 +1167,18 @@ class Coordinator:
                 completed_at=time.time(),
             )
             self.store.save_work_order(wo)
+            self.store.log_action(
+                instance_id=source.instance_id,
+                correlation_id=source.correlation_id,
+                action_type="delegation_handler_failed",
+                details={
+                    "policy": decision.policy_name,
+                    "target": f"{decision.target_workflow}/{decision.target_domain}",
+                    "mode": "wait_for_result",
+                    "error": str(e)[:500],
+                    "work_order_id": wo.work_order_id,
+                },
+            )
             self._log(f"    handler FAILED: {e}, resuming source without result")
             self._resume_after_delegation(source, wo, suspension)
 
@@ -1093,6 +1265,7 @@ class Coordinator:
         """Execute a workflow using the existing engine."""
         from engine.composer import load_three_layer, run_workflow
         from engine.agentic import run_agentic_workflow
+        from engine.nodes import set_trace
 
         # Resolve workflow and domain file paths
         workflow_path = self._find_workflow(instance.workflow_type)
@@ -1104,6 +1277,31 @@ class Coordinator:
 
         # Build tool registry
         tool_registry = self._build_tool_registry(case_input)
+
+        # ── Diagnostics: log available tools and input keys ──
+        available_tools = tool_registry.list_tools() if tool_registry else []
+        input_keys = [k for k in case_input.keys() if isinstance(case_input[k], (dict, list))]
+        self._log(f"  tools: [{', '.join(available_tools)}]")
+        if not available_tools:
+            self._log(f"  ⚠ NO TOOLS AVAILABLE — retrieve steps will find nothing")
+            self._log(f"    input keys: {list(case_input.keys())}")
+            self._log(f"    hint: case_input needs get_* keys with dict values for case registry")
+
+        # Check for tool/workflow mismatch: workflow specifies tools not in registry
+        step_specs = config.get("steps", [])
+        for step in step_specs:
+            if step.get("primitive") == "retrieve":
+                spec_text = step.get("params", {}).get("specification", "")
+                # Quick parse: look for get_* or tool-like references
+                import re
+                referenced_tools = set(re.findall(r'\b(get_\w+)\b', spec_text))
+                missing = referenced_tools - set(available_tools)
+                if missing:
+                    self._log(f"  ⚠ {step['name']}: references tools not in registry: {missing}")
+
+        # ── Wire engine tracing into coordinator output ──
+        if self.verbose:
+            set_trace(_CoordinatorTrace(self, instance.instance_id))
 
         # Build action registry if needed
         action_registry = None
@@ -1210,6 +1408,68 @@ class Coordinator:
 
         return summary
 
+    # ─── C3: State Compaction ────────────────────────────────────────
+
+    MAX_SNAPSHOT_BYTES = 512 * 1024  # 512KB warn threshold
+
+    def _compact_state_for_suspension(
+        self, state: dict[str, Any]
+    ) -> dict[str, Any]:
+        """
+        Strip bulky debug data before persisting a state snapshot.
+
+        The state snapshot must contain everything needed to resume the
+        workflow at a given step. What IS needed:
+          - input: the original case input (tool data for registry rebuild)
+          - steps[].output: parsed LLM output (used by build_context_from_state)
+          - steps[].step_name, steps[].primitive: routing context
+          - current_step, metadata, loop_counts, routing_log
+
+        What is NOT needed (and regenerated on resume):
+          - steps[].raw_response: full LLM text (5-15KB per step)
+          - steps[].prompt_used: full rendered prompt (2-10KB per step)
+          - Large retrieve data payloads (available via tool registry)
+
+        At 5 steps, this typically reduces snapshot from ~80KB to ~15KB.
+        At 20 delegation levels, the difference is 1.6MB vs 300KB.
+        """
+        import copy
+        compact = copy.deepcopy(state)
+
+        for step in compact.get("steps", []):
+            # Strip raw LLM response — only used for debugging, never for resume
+            step.pop("raw_response", None)
+
+            # Strip rendered prompt — rebuilt from workflow config on resume
+            step.pop("prompt_used", None)
+
+            # For retrieve steps: truncate large data payloads
+            # The tool registry reconstructs this data from case_input
+            output = step.get("output", {})
+            if step.get("primitive") == "retrieve" and "data" in output:
+                data = output["data"]
+                for key, val in list(data.items()):
+                    serialized = json.dumps(val, default=str)
+                    if len(serialized) > 2000:
+                        data[key] = {"_truncated": True, "_keys": list(val.keys()) if isinstance(val, dict) else None, "_size": len(serialized)}
+
+            # For generate steps: truncate very large artifacts
+            if step.get("primitive") == "generate" and "artifact" in output:
+                artifact = str(output["artifact"])
+                if len(artifact) > 5000:
+                    output["artifact"] = artifact[:5000] + "\n... [truncated for suspension]"
+
+        # Log compaction stats
+        raw_size = len(json.dumps(state, default=str))
+        compact_size = len(json.dumps(compact, default=str))
+        if raw_size > 0:
+            ratio = (1 - compact_size / raw_size) * 100
+            self._log(f"    snapshot compacted: {raw_size:,}B → {compact_size:,}B ({ratio:.0f}% reduction)")
+        if compact_size > self.MAX_SNAPSHOT_BYTES:
+            self._log(f"    ⚠ snapshot still large: {compact_size:,}B > {self.MAX_SNAPSHOT_BYTES:,}B threshold")
+
+        return compact
+
     def _extract_unresolved_needs(
         self, final_state: dict[str, Any]
     ) -> list[dict[str, Any]]:
@@ -1264,7 +1524,16 @@ class Coordinator:
         return tier
 
     def _build_tool_registry(self, case_input: dict[str, Any]):
-        """Build tool registry using the same priority as the runner."""
+        """
+        Build tool registry with correct priority:
+          1. MCP server (production)
+          2. Case JSON tools (specific to this run — always take priority)
+          3. Fixtures DB (fills in gaps for tools not in case JSON)
+
+        Case JSON keys that look like tool data (dicts/lists) become tools.
+        If a case JSON provides tools, it's the primary source — the LLM
+        should call the tools the workflow specifies, not everything available.
+        """
         data_mcp_url = os.environ.get("DATA_MCP_URL", "")
         data_mcp_cmd = os.environ.get("DATA_MCP_CMD", "")
 
@@ -1286,6 +1555,18 @@ class Coordinator:
             asyncio.get_event_loop().run_until_complete(_connect())
             return registry
 
+        # Check if case_input has tool-shaped data (dict values with tool-like keys)
+        has_case_tools = any(
+            isinstance(v, (dict, list)) and k.startswith("get_")
+            for k, v in case_input.items()
+        )
+
+        if has_case_tools:
+            # Case JSON is the primary source for this run
+            from engine.tools import create_case_registry
+            return create_case_registry(case_input)
+
+        # Fallback: try fixtures DB, then case registry
         try:
             from fixtures.api import create_service_registry
             from fixtures.db import DB_PATH
@@ -1328,3 +1609,87 @@ class Coordinator:
     def _log(self, msg: str):
         if self.verbose:
             print(f"  [coord] {msg}", file=sys.stderr, flush=True)
+
+
+class _CoordinatorTrace:
+    """
+    Bridges engine trace events into coordinator [coord] logging.
+    Provides step-level visibility when running workflows through
+    the coordinator, matching the ConsoleTrace format from runner.py.
+    """
+
+    PRIM_ICONS = {
+        "classify": "🏷️ ",
+        "investigate": "🔍",
+        "verify": "✅",
+        "generate": "📝",
+        "challenge": "⚔️ ",
+        "retrieve": "📡",
+        "think": "💭",
+        "act": "⚡",
+    }
+
+    def __init__(self, coord, instance_id: str):
+        self.coord = coord
+        self.instance_id = instance_id
+        self.step_start = None
+
+    def _log(self, msg: str):
+        self.coord._log(msg)
+
+    def on_step_start(self, step_name, primitive, loop_iteration):
+        self.step_start = time.time()
+        icon = self.PRIM_ICONS.get(primitive, "  ")
+        iter_label = f" (iter {loop_iteration})" if loop_iteration > 1 else ""
+        self._log(f"  {icon} {step_name}{iter_label}")
+
+    def on_llm_start(self, step_name, prompt_chars):
+        self._log(f"    ↳ LLM call ({prompt_chars:,} chars)...")
+
+    def on_llm_end(self, step_name, response_chars, elapsed):
+        self._log(f"    ↳ LLM response ({response_chars:,} chars, {elapsed:.1f}s)")
+
+    def on_parse_result(self, step_name, primitive, output):
+        if primitive == "classify":
+            self._log(f"    → {output.get('category', '?')} "
+                       f"({output.get('confidence', 0):.2f})")
+        elif primitive == "investigate":
+            finding = output.get("finding", "?")[:70]
+            flags = output.get("evidence_flags", [])
+            self._log(f"    → {finding}...")
+            if flags:
+                self._log(f"    → flags: {flags}")
+        elif primitive == "retrieve":
+            data = output.get("data", {})
+            sources = output.get("sources_queried", [])
+            n_ok = sum(1 for s in sources if s.get("status") == "success")
+            n_empty = sum(1 for s in sources
+                         if s.get("status") == "success"
+                         and not s.get("record_count"))
+            self._log(f"    → {n_ok}/{len(sources)} sources, "
+                       f"{len(data)} data keys"
+                       f"{f', {n_empty} EMPTY' if n_empty else ''}")
+        elif primitive == "generate":
+            self._log(f"    → generated {len(output.get('artifact', '')):,} chars")
+        elif primitive == "think":
+            decision = output.get("decision", "")[:70]
+            self._log(f"    → {decision}")
+        elif primitive == "verify":
+            conforms = output.get("conforms", "?")
+            n_viol = len(output.get("violations", []))
+            self._log(f"    → conforms: {conforms}"
+                       f"{f' ({n_viol} violations)' if n_viol else ''}")
+
+    def on_parse_error(self, step_name, error):
+        self._log(f"    ⚠ PARSE ERROR: {error[:120]}")
+
+    def on_route_decision(self, from_step, to_step, decision_type, reason):
+        target = "END" if to_step == "__end__" else to_step
+        self._log(f"    → route → {target} ({decision_type})")
+
+    def on_retrieve_start(self, step_name, source_name):
+        self._log(f"    📡 {source_name}...")
+
+    def on_retrieve_end(self, step_name, source_name, status, latency_ms):
+        icon = "✓" if status == "success" else "✗"
+        self._log(f"    📡 {source_name}: {icon} ({latency_ms:.0f}ms)")

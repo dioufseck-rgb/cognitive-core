@@ -1,0 +1,57 @@
+{
+  "member_id": "MBR-EVAL-001",
+  "transaction_id": "TXN-EVAL-001",
+  "dispute_intake": {
+    "member_name": "Sam Roberts",
+    "dispute_description": "I did not authorize a charge of $999.99 from Quick Cash Services. This is fraudulent.",
+    "filed_date": "2026-02-01",
+    "channel": "online_portal"
+  },
+  "get_member": {
+    "member_id": "MBR-EVAL-001",
+    "first_name": "Sam",
+    "last_name": "Roberts",
+    "membership_date": "2020-03-15",
+    "tenure_years": 5.9,
+    "relationship_value": "standard",
+    "prior_disputes": 0,
+    "account_standing": "good",
+    "products": [
+      "checking",
+      "visa_credit"
+    ]
+  },
+  "get_transactions": {
+    "transaction_id": "TXN-EVAL-001",
+    "post_date": "2026-01-28",
+    "merchant": "MERCHANT-001",
+    "merchant_name": "QUICK CASH SERVICES",
+    "mcc": "5411",
+    "mcc_description": "Grocery Stores",
+    "amount": 999.99,
+    "currency": "USD",
+    "auth_method": "online_no_3ds",
+    "card_present": true,
+    "ip_address": null,
+    "device_id": null,
+    "location": "Springfield, IL"
+  },
+  "get_fraud_score": {
+    "score": 75,
+    "level": "elevated",
+    "factors": [
+      "coordinated_pattern",
+      "multi_member_same_merchant"
+    ],
+    "velocity_flags": [],
+    "notes": "5 different members filed identical disputes against Quick Cash Services on the same day, all for $999.99, all using the same dispute template text. Pattern suggests coordinated first-party fraud or organized bust-out."
+  },
+  "get_devices": {
+    "known_devices": [
+      "device_home_pc",
+      "device_iphone_14"
+    ],
+    "transaction_device": "device_home_pc",
+    "match": true
+  }
+}

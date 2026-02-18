@@ -18,6 +18,9 @@ steps:
           - get_customer: Customer profile, purchase history, return history
           - get_order: Original order details, item specs, price paid
           - get_return_policy: Applicable return policy for this product category
+          - get_fraud_signals: Fraud risk score, signals, and account flags
+          - get_product: Product details, warranty status, known defect bulletins
+          - get_vendor: Vendor return procedures and SLA
         Pull all available sources.
       strategy: deterministic
 
@@ -47,26 +50,36 @@ steps:
         Order details: ${gather_return_data.data.get_order}
         Return request: ${gather_return_data.data.return_request}
         Return policy: ${gather_return_data.data.get_return_policy}
+        Fraud signals: ${gather_return_data.data.get_fraud_signals}
+        Product details: ${gather_return_data.data.get_product}
       effort_level: moderate
     transitions:
+      - when: "'ESCALATION REQUIRED' in str(output.get('finding', ''))"
+        goto: escalate_to_manager
       - agent_decide:
           prompt: |
             Finding: ${investigate_claim.finding}
             Confidence: ${investigate_claim.confidence}
             Evidence flags: ${investigate_claim.evidence_flags}
+
+            If the finding mentions fraud, serial number mismatch, identity
+            issues, manipulation, or any safety concern, route to escalation.
           options:
             - step: decide_resolution
-              description: Sufficient evidence to make a resolution decision.
+              description: Sufficient evidence to make a resolution decision. No fraud or safety concerns.
             - step: investigate_claim
               description: Need to investigate further — key evidence gaps remain.
             - step: escalate_to_manager
-              description: Requires human manager judgment.
+              description: Fraud indicators, safety concerns, or ambiguous case requiring human judgment.
 
   - name: decide_resolution
     primitive: think
     params:
       instruction: |
-        Based on all evidence gathered, decide how to resolve this return:
+        Based on all evidence gathered, decide how to resolve this return.
+
+        MANDATORY ESCALATION CHECK — evaluate FIRST before any other decision:
+        ${domain.decide_resolution.escalation_rules}
 
         Return type: ${classify_return_type.category} (confidence: ${classify_return_type.confidence})
         Investigation finding: ${investigate_claim.finding} (confidence: ${investigate_claim.confidence})
@@ -74,8 +87,10 @@ steps:
         Customer: ${gather_return_data.data.get_customer}
         Order: ${gather_return_data.data.get_order}
         Policy: ${gather_return_data.data.get_return_policy}
+        Fraud signals: ${gather_return_data.data.get_fraud_signals}
+        Product: ${gather_return_data.data.get_product}
 
-        Choose one resolution:
+        If no escalation rule is triggered, choose one resolution:
         1. approve_full_refund — Issue full refund, customer returns the item
         2. approve_partial_refund — Partial refund with restocking fee
         3. approve_exchange — Replace with same or equivalent item
@@ -83,6 +98,7 @@ steps:
         5. escalate — Too complex or risky for automated decision
 
         State your decision clearly and explain the reasoning.
+        If escalating, cite which specific rule triggered the escalation.
       focus: |
         Weigh: return policy compliance, customer lifetime value,
         fraud risk indicators, item condition, time since purchase.
@@ -106,6 +122,8 @@ steps:
         - Customer: ${gather_return_data.data.get_customer}
         - Order: ${gather_return_data.data.get_order}
         - Return request: ${gather_return_data.data.return_request}
+        - Fraud signals: ${gather_return_data.data.get_fraud_signals}
+        - Product: ${gather_return_data.data.get_product}
         - Why automated resolution was not appropriate
         - Recommended action and confidence level
       format: escalation_brief

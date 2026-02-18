@@ -221,6 +221,12 @@ def validate_use_case(config: dict[str, Any]) -> list[str]:
 
 def _evaluate_condition(condition: str, state: WorkflowState, step_name: str) -> bool:
     condition = condition.strip()
+
+    # Built-in: _parse_failed — true if last step's output has a parse error
+    if condition == "_parse_failed":
+        output = get_step_output(state, step_name)
+        return bool(output and output.get("_parse_failed"))
+
     if condition.startswith("_loop_count"):
         m = re.match(r'_loop_count\s*(>=|<=|>|<|==|!=)\s*(\d+)', condition)
         if m:
@@ -378,7 +384,28 @@ def _add_transitions(graph, step_name, transitions, default_next, max_loops, loo
 
     trace = get_trace()
 
+    # H6: Max retries for parse failures before aborting
+    MAX_PARSE_RETRIES = 2
+
     def composite_router(state: WorkflowState) -> str:
+        # H6: Circuit breaker — if last step had a parse failure,
+        # check if any route handles it. If not, and we're past max retries, abort.
+        last_output = get_step_output(state, step_name)
+        if last_output and last_output.get("_parse_failed"):
+            # Check if any deterministic route handles _parse_failed
+            has_parse_route = any(c == "_parse_failed" for c, _ in det_routes)
+            if not has_parse_route and max_loops is not None:
+                count = get_loop_count(state, step_name)
+                if count >= max_loops:
+                    trace.on_route_decision(step_name, "__end__", "circuit_breaker",
+                                            f"Parse failed after {count} retries — aborting")
+                    return END
+                # Let it retry via normal loop logic below
+            elif not has_parse_route and max_loops is None:
+                # No retry mechanism at all — log and continue to default
+                trace.on_route_decision(step_name, final_default, "parse_failed_no_handler",
+                                        "Parse failed but no _parse_failed route or max_loops configured")
+
         if max_loops is not None:
             count = get_loop_count(state, step_name)
             if count >= max_loops:
@@ -386,6 +413,24 @@ def _add_transitions(graph, step_name, transitions, default_next, max_loops, loo
                 trace.on_route_decision(step_name, target, "loop_limit",
                                         f"Count {count} >= max {max_loops}")
                 return END if target == "__end__" else target
+
+        # H6: Circuit breaker — if the last execution of this step
+        # failed to parse, retry it (up to MAX_PARSE_RETRIES).
+        # After that, abort rather than cascade garbage downstream.
+        last_output = get_step_output(state, step_name)
+        if last_output and last_output.get("_parse_failed"):
+            parse_fail_count = sum(
+                1 for s in state.get("steps", [])
+                if s["step_name"] == step_name and s.get("output", {}).get("_parse_failed")
+            )
+            if parse_fail_count <= MAX_PARSE_RETRIES:
+                trace.on_route_decision(step_name, step_name, "parse_retry",
+                                        f"Parse failed, retry {parse_fail_count}/{MAX_PARSE_RETRIES}")
+                return step_name
+            else:
+                trace.on_route_decision(step_name, "__end__", "parse_abort",
+                                        f"Parse failed {parse_fail_count} times, aborting")
+                return END
 
         for condition, target in det_routes:
             if _evaluate_condition(condition, state, step_name):

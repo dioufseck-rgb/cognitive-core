@@ -48,6 +48,35 @@ overrides: {}
   # "*": gate           # everything gated in first month of prod
   # debit_spending: auto # except validated spending advisor
 
+# ─── Quality Gates (Fail-Closed Rules) ──────────────────────────
+# When workflow output confidence is below threshold, the coordinator
+# upgrades governance to require human review regardless of the
+# domain's declared tier. This prevents low-confidence AI decisions
+# from reaching production without HITL.
+#
+# These are evaluated AFTER workflow completion but BEFORE the
+# governance tier check in _on_completed.
+
+quality_gates:
+  # Global minimum confidence: any workflow step with confidence
+  # below this triggers escalation to the gate queue.
+  min_confidence: 0.5
+
+  # Per-primitive confidence floors. These override the global
+  # minimum for specific primitive types.
+  primitive_floors:
+    classify: 0.6
+    investigate: 0.5
+    verify: 0.5
+
+  # When a quality gate fires, escalate to this tier
+  escalation_tier: gate
+  escalation_queue: quality_review
+
+  # Skip quality gate checks for these domains
+  # (e.g., domains already at hold tier don't need further escalation)
+  exempt_domains: []
+
 # ─── Delegation Policies ─────────────────────────────────────────
 # Rules that trigger cross-workflow delegation. The coordinator
 # evaluates these against completed workflow output.
@@ -79,6 +108,10 @@ delegations:
       member_id: "${source.last_retrieve.data.get_member.member_id}"
       referral_reason: "Fraud dispute with high-risk indicators in fraud scoring"
       triggering_evidence: "${source.last_retrieve.data.get_fraud_score}"
+      get_member: "${source.last_retrieve.data.get_member}"
+      get_transactions: "${source.last_retrieve.data.get_transactions}"
+      get_fraud_score: "${source.last_retrieve.data.get_fraud_score}"
+      get_aml_alert: "${source.last_retrieve.data.get_fraud_score}"
 
   # Same trigger from investigation evidence flags (when investigation runs)
   - name: fraud_evidence_flags_trigger_aml
@@ -102,6 +135,10 @@ delegations:
       member_id: "${source.last_retrieve.data.get_member.member_id}"
       referral_reason: "${source.last_investigate.finding}"
       triggering_evidence: "${source.last_investigate.evidence_flags}"
+      get_member: "${source.last_retrieve.data.get_member}"
+      get_transactions: "${source.last_retrieve.data.get_transactions}"
+      get_fraud_score: "${source.last_retrieve.data.get_fraud_score}"
+      get_aml_alert: "${source.last_retrieve.data.get_fraud_score}"
 
   # SAR filed affecting multiple members → dispute reviews (blocking)
   # SAR suspends until all member disputes are reviewed, then
@@ -123,6 +160,9 @@ delegations:
       member_id: "${source.last_investigate.affected_members}"
       referral_source: "${source.input.instance_id}"
       reason: cross_member_pattern
+      get_member: "${source.last_retrieve.data.get_member}"
+      get_transactions: "${source.last_retrieve.data.get_transactions}"
+      get_aml_alert: "${source.last_retrieve.data.get_aml_alert}"
 
   # ─── Product Return Delegations ───────────────────────────────
 
@@ -151,6 +191,10 @@ delegations:
       customer_id: "${source.input.customer_id}"
       referral_reason: "${source.last_investigate.finding}"
       triggering_evidence: "${source.last_investigate.evidence_flags}"
+      # Pass tool data so handler's retrieve step can access them
+      get_customer: "${source.input.get_customer}"
+      get_return_history: "${source.input.get_return_history}"
+      get_fraud_signals: "${source.input.get_fraud_signals}"
 
   # High-value electronics returns → vendor notification (fire-and-forget)
   # Return completes immediately. Vendor is notified independently.
@@ -171,6 +215,10 @@ delegations:
       customer_name: "${source.last_retrieve.data.get_customer.name}"
       return_reason: "${source.input.return_reason}"
       item_condition: "${source.input.item_condition}"
+      # Pass tool data so handler's retrieve step can access them
+      get_vendor: "${source.input.get_vendor}"
+      get_product: "${source.input.get_product}"
+      get_order: "${source.input.get_order}"
 
 # ─── Contracts ───────────────────────────────────────────────────
 # Versioned interface schemas for cross-workflow delegation.

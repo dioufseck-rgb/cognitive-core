@@ -30,7 +30,7 @@ pause_run() { echo ""; echo -e "     ${B}${YLW}▶  Press Enter to run${R}${DIM}
 
 run_case() {
     echo ""; echo -e "  ${B}${BG_DK}${WHT} ▎ EXECUTING ${R}"; echo ""
-    echo -e "     ${DIM}python -m engine.runner -w workflows/${1}.yaml -d domains/${2}.yaml -c cases/${3}.json${R}"
+    echo -e "     ${DIM}LLM_PROVIDER=${LLM_PROVIDER:-google} python -m engine.runner -w workflows/${1}.yaml -d domains/${2}.yaml -c cases/${3}.json${R}"
     echo ""; sep; echo ""
     python -m engine.runner -w "workflows/${1}.yaml" -d "domains/${2}.yaml" -c "cases/${3}.json" 2>&1 || true
     echo ""; sep
@@ -62,6 +62,7 @@ echo -e "${B}${BG_BLU}${WHT}$(printf '%*s' 62 '')${R}"
 echo -e "${B}${BG_BLU}${WHT}          COGNITIVE CORE  —  Demo Walkthrough                  ${R}"
 echo -e "${B}${BG_BLU}${WHT}$(printf '%*s' 62 '')${R}"
 echo ""
+echo -e "     ${BB}LLM_PROVIDER${R}${WHT}=${R}${CYN}${LLM_PROVIDER:-not set (defaults to azure)}${R}"
 echo -e "     ${BB}10 use cases${R}${WHT}, increasing complexity${R}"
 echo -e "     ${BB}8 primitives${R}${WHT}: Retrieve  Classify  Investigate  Think  Verify  Generate  Challenge  Act${R}"
 echo -e "     ${BB}3 data modes${R}${WHT}: MCP → Fixture DB → Case passthrough${R}"

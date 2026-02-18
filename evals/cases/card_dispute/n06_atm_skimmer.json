@@ -1,0 +1,57 @@
+{
+  "member_id": "MBR-EVAL-001",
+  "transaction_id": "TXN-EVAL-001",
+  "dispute_intake": {
+    "member_name": "Robert Kim",
+    "dispute_description": "I see three ATM withdrawals of $200 each from an ATM in Newark NJ. I have never been to Newark. My card was in my wallet in Virginia the whole time.",
+    "filed_date": "2026-02-01",
+    "channel": "online_portal"
+  },
+  "get_member": {
+    "member_id": "MBR-EVAL-001",
+    "first_name": "Robert",
+    "last_name": "Kim",
+    "membership_date": "2020-03-15",
+    "tenure_years": 5.9,
+    "relationship_value": "standard",
+    "prior_disputes": 0,
+    "account_standing": "good",
+    "products": [
+      "checking",
+      "visa_credit"
+    ]
+  },
+  "get_transactions": {
+    "transaction_id": "TXN-EVAL-001",
+    "post_date": "2026-01-28",
+    "merchant": "MERCHANT-001",
+    "merchant_name": "ATM-CITYBANK-44821",
+    "mcc": "5411",
+    "mcc_description": "Grocery Stores",
+    "amount": 200.0,
+    "currency": "USD",
+    "auth_method": "magnetic_stripe",
+    "card_present": true,
+    "ip_address": null,
+    "device_id": null,
+    "location": "Newark, NJ"
+  },
+  "get_fraud_score": {
+    "score": 88,
+    "level": "high",
+    "factors": [
+      "geolocation_anomaly",
+      "magnetic_stripe_fallback",
+      "multi_transaction_pattern"
+    ],
+    "velocity_flags": []
+  },
+  "get_devices": {
+    "known_devices": [
+      "device_home_pc",
+      "device_iphone_14"
+    ],
+    "transaction_device": "device_home_pc",
+    "match": true
+  }
+}

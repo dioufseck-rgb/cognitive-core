@@ -13,7 +13,7 @@ import time
 from typing import Any, Callable, Protocol
 
 from langchain_core.messages import HumanMessage
-from engine.llm import create_llm
+from engine.llm import create_llm, create_fallback_llm
 
 from registry.primitives import render_prompt, get_schema_class
 from engine.state import (
@@ -23,6 +23,20 @@ from engine.state import (
     resolve_param,
     build_context_from_state,
 )
+
+# Retry support — import conditionally so tests without langgraph still work
+try:
+    from engine.retry import invoke_with_retry, get_retry_policy, RetryPolicy
+    _HAS_RETRY = True
+except ImportError:
+    _HAS_RETRY = False
+
+# PII redaction support
+try:
+    from engine.pii import PiiRedactor
+    _HAS_PII = True
+except ImportError:
+    _HAS_PII = False
 
 
 # ---------------------------------------------------------------------------
@@ -197,6 +211,26 @@ def create_node(
     llm = create_llm(model=model, temperature=temperature)
     schema_cls = get_schema_class(primitive_name)
 
+    # Retry setup — create fallback LLM and policy once at node creation
+    _retry_policy = None
+    _fallback_llm = None
+    _provider = "unknown"
+    _model_name = model
+    if _HAS_RETRY:
+        try:
+            from engine.llm import detect_provider
+            _provider = detect_provider()
+        except Exception:
+            _provider = "unknown"
+        _retry_policy = get_retry_policy(_provider)
+        _fallback_llm = create_fallback_llm(_provider, temperature)
+        # Resolve display model name
+        try:
+            from engine.llm import resolve_model
+            _model_name = resolve_model(model, _provider)
+        except Exception:
+            _model_name = model
+
     def node_fn(state: WorkflowState) -> dict:
         # Compute loop iteration
         current_counts = dict(state.get("loop_counts", {}))
@@ -231,13 +265,43 @@ def create_node(
 
         rendered_prompt = render_prompt(primitive_name, resolved_params)
 
-        # LLM call with tracing
+        # PII redaction — create redactor on first call, register case entities
+        _redactor = None
+        if _HAS_PII:
+            _redactor = PiiRedactor()
+            case_input = state.get("input")
+            if case_input and isinstance(case_input, dict):
+                _redactor.register_entities_from_case(case_input)
+            rendered_prompt = _redactor.redact(rendered_prompt)
+
+        # LLM call with retry and tracing
         _trace.on_llm_start(step_name, len(rendered_prompt))
         t0 = time.time()
 
         messages = [HumanMessage(content=rendered_prompt)]
-        response = llm.invoke(messages)
-        raw_response = response.content
+
+        if _HAS_RETRY and _retry_policy is not None:
+            def _parse_check(raw: str):
+                parsed = extract_json(raw)
+                schema_cls.model_validate(parsed)
+
+            retry_result = invoke_with_retry(
+                llm, messages,
+                policy=_retry_policy,
+                step_name=step_name,
+                provider=_provider,
+                model_name=_model_name,
+                parse_fn=_parse_check,
+                fallback_llm=_fallback_llm,
+            )
+            raw_response = retry_result.content
+        else:
+            response = llm.invoke(messages)
+            raw_response = response.content
+
+        # PII de-redaction — restore PII in LLM response
+        if _redactor is not None:
+            raw_response = _redactor.deredact(raw_response)
 
         elapsed = time.time() - t0
         _trace.on_llm_end(step_name, len(raw_response), elapsed)
@@ -256,6 +320,7 @@ def create_node(
                 "reasoning": f"Failed to parse LLM response: {e}",
                 "evidence_used": [],
                 "evidence_missing": [],
+                "_parse_failed": True,
             }
             _trace.on_parse_error(step_name, str(e))
 
@@ -315,13 +380,28 @@ Respond ONLY with JSON."""
         t0 = time.time()
 
         messages = [HumanMessage(content=prompt)]
-        response = llm.invoke(messages)
+        if _HAS_RETRY:
+            try:
+                from engine.llm import detect_provider
+                _prov = detect_provider()
+            except Exception:
+                _prov = "unknown"
+            _rpol = get_retry_policy(_prov)
+            retry_result = invoke_with_retry(
+                llm, messages, policy=_rpol,
+                step_name=f"agent_router({from_step})",
+                provider=_prov, model_name="router",
+            )
+            raw_content = retry_result.content
+        else:
+            response = llm.invoke(messages)
+            raw_content = response.content
 
         elapsed = time.time() - t0
-        _trace.on_llm_end(f"agent_router({from_step})", len(response.content), elapsed)
+        _trace.on_llm_end(f"agent_router({from_step})", len(raw_content), elapsed)
 
         try:
-            parsed = extract_json(response.content)
+            parsed = extract_json(raw_content)
             chosen = parsed.get("chosen_step", "")
             reasoning = parsed.get("reasoning", "")
             if chosen not in valid_steps:
@@ -484,10 +564,41 @@ def create_retrieve_node(
 
         rendered_prompt = render_prompt("retrieve", resolved)
 
+        # PII redaction
+        _redactor = None
+        if _HAS_PII:
+            _redactor = PiiRedactor()
+            case_input = state.get("input")
+            if case_input and isinstance(case_input, dict):
+                _redactor.register_entities_from_case(case_input)
+            rendered_prompt = _redactor.redact(rendered_prompt)
+
         _trace.on_llm_start(step_name, len(rendered_prompt))
         t0 = time.time()
-        response = llm.invoke([HumanMessage(content=rendered_prompt)])
-        raw_response = response.content
+
+        messages = [HumanMessage(content=rendered_prompt)]
+        if _HAS_RETRY:
+            try:
+                from engine.llm import detect_provider
+                _prov = detect_provider()
+            except Exception:
+                _prov = "unknown"
+            _rpol = get_retry_policy(_prov)
+            retry_result = invoke_with_retry(
+                llm, messages, policy=_rpol,
+                step_name=step_name, provider=_prov,
+                model_name=model,
+                fallback_llm=create_fallback_llm(_prov, temperature) if _HAS_RETRY else None,
+            )
+            raw_response = retry_result.content
+        else:
+            response = llm.invoke(messages)
+            raw_response = response.content
+
+        # PII de-redaction
+        if _redactor is not None:
+            raw_response = _redactor.deredact(raw_response)
+
         elapsed = time.time() - t0
         _trace.on_llm_end(step_name, len(raw_response), elapsed)
 
@@ -813,12 +924,30 @@ Respond ONLY with JSON."""
 
     _trace.on_llm_start(f"retrieval_planner({step_name})", len(prompt))
     t0 = time.time()
-    response = llm.invoke([HumanMessage(content=prompt)])
+
+    messages = [HumanMessage(content=prompt)]
+    if _HAS_RETRY:
+        try:
+            from engine.llm import detect_provider
+            _prov = detect_provider()
+        except Exception:
+            _prov = "unknown"
+        _rpol = get_retry_policy(_prov)
+        retry_result = invoke_with_retry(
+            llm, messages, policy=_rpol,
+            step_name=f"retrieval_planner({step_name})",
+            provider=_prov, model_name="planner",
+        )
+        raw_content = retry_result.content
+    else:
+        response = llm.invoke(messages)
+        raw_content = response.content
+
     elapsed = time.time() - t0
-    _trace.on_llm_end(f"retrieval_planner({step_name})", len(response.content), elapsed)
+    _trace.on_llm_end(f"retrieval_planner({step_name})", len(raw_content), elapsed)
 
     try:
-        parsed = extract_json(response.content)
+        parsed = extract_json(raw_content)
         sources = parsed.get("sources", [])
         valid = [s for s in sources if s in available_tools]
         return valid if valid else available_tools

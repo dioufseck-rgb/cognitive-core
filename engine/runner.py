@@ -532,7 +532,16 @@ Single-file (legacy):
             try:
                 from fixtures.api import create_service_registry
                 from fixtures.db import DB_PATH
-                if DB_PATH.exists():
+                # Case JSON with get_* tool data takes priority over fixtures DB
+                has_case_tools = any(
+                    isinstance(v, (dict, list)) and k.startswith("get_")
+                    for k, v in workflow_input.items()
+                )
+                if has_case_tools:
+                    tool_registry = create_case_registry(workflow_input)
+                    if not args.no_trace:
+                        print(f"  data: case tools", file=sys.stderr)
+                elif DB_PATH.exists():
                     # ── Fixture DB (in-process, no MCP overhead) ──
                     tool_registry = create_service_registry()
                     if not args.no_trace:

@@ -19,11 +19,12 @@
 #      then `python -m coordinator.cli approve <instance_id>` to release
 #
 # Prerequisites:
-#   - ANTHROPIC_API_KEY set (or OPENAI_API_KEY / AZURE_OPENAI_API_KEY)
-#   - pip install langchain-anthropic langgraph pydantic pyyaml
+#   - LLM_PROVIDER set (google, azure, openai, or bedrock)
+#   - Provider credentials set (GOOGLE_API_KEY, AZURE_OPENAI_API_KEY, etc.)
+#   - pip install langchain-google-genai langgraph pydantic pyyaml  (or your provider's package)
 #
 # Usage:
-#   ./run_return_pipeline.sh [--model claude-sonnet] [--verbose]
+#   LLM_PROVIDER=google ./run_return_pipeline.sh [--model default] [--verbose]
 #
 # ═══════════════════════════════════════════════════════════════════
 
@@ -40,6 +41,7 @@ echo "════════════════════════�
 echo "  PRODUCT RETURN PIPELINE — 3-Workflow Coordination Demo"
 echo "═══════════════════════════════════════════════════════════════════"
 echo ""
+echo "  Provider: LLM_PROVIDER=${LLM_PROVIDER:-not set (defaults to azure)}"
 echo "  Case:     Suspicious laptop return (Marcus Webb, \$1,249.99)"
 echo "  Root:     product_return / electronics_return"
 echo "  Blocking: fraud_review / return_fraud (if fraud flags found)"
@@ -81,8 +83,8 @@ echo "════════════════════════�
 echo ""
 echo "  If vendor_notification is pending approval, run:"
 echo ""
-echo "    python -m coordinator.cli --db $DB pending"
-echo "    python -m coordinator.cli --db $DB approve <instance_id> --approver 'Ops Manager'"
+echo "    LLM_PROVIDER=google python -m coordinator.cli --db $DB pending"
+echo "    LLM_PROVIDER=google python -m coordinator.cli --db $DB approve <instance_id> --approver 'Ops Manager'"
 echo ""
 echo "  To see the full correlation chain:"
 echo ""

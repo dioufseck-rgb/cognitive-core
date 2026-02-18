@@ -37,10 +37,12 @@ from coordinator.tasks import (
     TaskCallback,
     TaskResolution,
 )
-from coordinator.runtime import Coordinator
+from coordinator.runtime import Coordinator, DelegationDepthExceeded, StuckInstanceError
 
 __all__ = [
     "Coordinator",
+    "DelegationDepthExceeded",
+    "StuckInstanceError",
     "InstanceState",
     "InstanceStatus",
     "WorkOrder",

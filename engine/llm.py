@@ -383,6 +383,20 @@ def create_llm(
     # Resolve model alias
     resolved = resolve_model(model, provider)
 
+    # Apply timeout from config or env var (seconds)
+    # Prevents hangs when LLM loops or connection stalls
+    timeout = kwargs.pop("timeout", None)
+    if timeout is None:
+        env_timeout = os.environ.get("LLM_TIMEOUT_SECONDS", "").strip()
+        if env_timeout:
+            timeout = int(env_timeout)
+        else:
+            cfg_timeout = _load_config().get("timeout_seconds")
+            if cfg_timeout:
+                timeout = int(cfg_timeout)
+    if timeout and "timeout" not in kwargs:
+        kwargs["timeout"] = timeout
+
     # Create LLM
     factory = _FACTORIES[provider]
     return factory(resolved, temperature, **kwargs)
@@ -450,3 +464,38 @@ def reload_config() -> None:
     """Force reload of the config file. Useful for testing."""
     global _config_cache
     _config_cache = None
+
+
+# ═══════════════════════════════════════════════════════════════════
+# Retry-Aware LLM Invocation
+# ═══════════════════════════════════════════════════════════════════
+
+def create_fallback_llm(
+    provider: str,
+    temperature: float = 0.1,
+    **kwargs,
+) -> "BaseChatModel | None":
+    """
+    Create a fallback LLM for the given provider, if configured.
+
+    Reads the `retry.<provider>.fallback_model` from llm_config.yaml.
+    Returns None if no fallback is configured.
+    """
+    try:
+        from engine.retry import get_retry_policy
+    except ImportError:
+        return None
+
+    policy = get_retry_policy(provider)
+    if not policy.fallback_model:
+        return None
+
+    try:
+        return create_llm(
+            model=policy.fallback_model,
+            temperature=temperature,
+            provider=provider,
+            **kwargs,
+        )
+    except Exception:
+        return None

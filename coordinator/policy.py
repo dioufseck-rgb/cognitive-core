@@ -104,12 +104,14 @@ class PolicyEngine:
         capabilities: list[Capability] | None = None,
         contracts: dict[str, Contract] | None = None,
         overrides: dict[str, str] | None = None,
+        raw_config: dict[str, Any] | None = None,
     ):
         self.governance_tiers = governance_tiers or dict(DEFAULT_TIERS)
         self.delegation_policies = delegation_policies or []
         self.capabilities = capabilities or []
         self.contracts = contracts or {}
         self.overrides = overrides or {}  # domain → tier override
+        self.raw_config = raw_config or {}
 
     # ─── Governance Tier Evaluation ──────────────────────────────────
 
@@ -596,4 +598,5 @@ def load_policy_engine(config: dict[str, Any]) -> PolicyEngine:
         capabilities=capabilities,
         contracts=contracts,
         overrides=overrides,
+        raw_config=config,
     )

@@ -1,0 +1,57 @@
+{
+  "member_id": "MBR-EVAL-001",
+  "transaction_id": "TXN-EVAL-001",
+  "dispute_intake": {
+    "member_name": "Maria Santos",
+    "dispute_description": "A charge of $1,299 from LUXSHOP.BIZ appeared on my card. I have never heard of this merchant and did not make this purchase. The shipping address is not mine.",
+    "filed_date": "2026-02-01",
+    "channel": "online_portal"
+  },
+  "get_member": {
+    "member_id": "MBR-EVAL-001",
+    "first_name": "Maria",
+    "last_name": "Santos",
+    "membership_date": "2020-03-15",
+    "tenure_years": 5.9,
+    "relationship_value": "standard",
+    "prior_disputes": 0,
+    "account_standing": "good",
+    "products": [
+      "checking",
+      "visa_credit"
+    ]
+  },
+  "get_transactions": {
+    "transaction_id": "TXN-EVAL-001",
+    "post_date": "2026-01-28",
+    "merchant": "MERCHANT-001",
+    "merchant_name": "LUXSHOP.BIZ",
+    "mcc": "5411",
+    "mcc_description": "Grocery Stores",
+    "amount": 1299.0,
+    "currency": "USD",
+    "auth_method": "online_no_3ds",
+    "card_present": false,
+    "ip_address": "91.108.22.45",
+    "device_id": null,
+    "location": "Springfield, IL"
+  },
+  "get_fraud_score": {
+    "score": 82,
+    "level": "high",
+    "factors": [
+      "unknown_merchant",
+      "foreign_ip",
+      "no_3ds"
+    ],
+    "velocity_flags": []
+  },
+  "get_devices": {
+    "known_devices": [
+      "device_home_pc",
+      "device_iphone_14"
+    ],
+    "transaction_device": "device_home_pc",
+    "match": true
+  }
+}

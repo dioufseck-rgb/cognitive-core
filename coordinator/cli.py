@@ -177,13 +177,15 @@ def cmd_pending(args, coord: Coordinator):
     print(f"\nPending Approvals ({len(approvals)})")
     print(f"{'─' * 70}")
     for a in approvals:
-        ts = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(a["suspended_at"]))
+        ts = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(a.get("created_at", 0)))
         print(f"  {a['instance_id']}")
         print(f"    type:        {a['workflow_type']}/{a['domain']}")
         print(f"    governance:  {a['governance_tier']}")
         print(f"    correlation: {a['correlation_id']}")
-        print(f"    suspended:   {ts}")
-        print(f"    steps:       {a['step_count']}")
+        print(f"    queue:       {a.get('queue', '—')}")
+        print(f"    created:     {ts}")
+        if a.get("sla_seconds"):
+            print(f"    sla:         {a['sla_seconds']}s")
         print()
     print(f"Approve:  python -m coordinator.cli approve <instance_id> --approver 'Name'")
     print(f"Reject:   python -m coordinator.cli reject <instance_id> --reason 'Why'")

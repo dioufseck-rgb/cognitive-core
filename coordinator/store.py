@@ -26,6 +26,31 @@ from coordinator.types import (
 )
 
 
+class _Transaction:
+    """
+    SQLite transaction context manager.
+
+    While active, individual save_*/commit() calls become no-ops.
+    The real COMMIT happens when the context manager exits cleanly.
+    """
+    def __init__(self, conn, store):
+        self.conn = conn
+        self.store = store
+
+    def __enter__(self):
+        self.conn.execute("BEGIN IMMEDIATE")
+        self.store._in_transaction = True
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.store._in_transaction = False
+        if exc_type is None:
+            self.conn.commit()
+        else:
+            self.conn.rollback()
+        return False
+
+
 class CoordinatorStore:
     """SQLite-backed store for coordinator state."""
 
@@ -34,7 +59,29 @@ class CoordinatorStore:
         self.conn = sqlite3.connect(self.db_path)
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA journal_mode=WAL")
+        self.conn.execute("PRAGMA busy_timeout=5000")
+        self._in_transaction = False
         self._create_tables()
+
+    def _commit(self):
+        """Commit unless inside an explicit transaction block."""
+        if not self._in_transaction:
+            self.conn.commit()
+
+    def transaction(self):
+        """
+        Context manager for explicit transaction boundaries.
+
+        Usage:
+            with store.transaction():
+                store.save_instance(inst)
+                store.save_suspension(sus)
+                # Both committed atomically, or both rolled back
+
+        Without this, each save_instance/save_work_order commits
+        independently. A crash between two saves leaves corrupt state.
+        """
+        return _Transaction(self.conn, self)
 
     def _create_tables(self):
         self.conn.executescript("""
@@ -102,7 +149,7 @@ class CoordinatorStore:
             CREATE INDEX IF NOT EXISTS idx_work_orders_requester ON work_orders(requester_instance_id);
             CREATE INDEX IF NOT EXISTS idx_ledger_instance ON action_ledger(instance_id);
         """)
-        self.conn.commit()
+        self._commit()
 
     # ─── Instance CRUD ───────────────────────────────────────────────
 
@@ -124,7 +171,7 @@ class CoordinatorStore:
             json.dumps(inst.result) if inst.result else None,
             inst.error,
         ))
-        self.conn.commit()
+        self._commit()
 
     def get_instance(self, instance_id: str) -> InstanceState | None:
         row = self.conn.execute(
@@ -138,16 +185,18 @@ class CoordinatorStore:
         self,
         status: InstanceStatus | None = None,
         correlation_id: str | None = None,
+        limit: int = 500,
     ) -> list[InstanceState]:
         query = "SELECT * FROM instances WHERE 1=1"
-        params = []
+        params: list[Any] = []
         if status:
             query += " AND status = ?"
             params.append(status.value)
         if correlation_id:
             query += " AND correlation_id = ?"
             params.append(correlation_id)
-        query += " ORDER BY created_at DESC"
+        query += " ORDER BY created_at DESC LIMIT ?"
+        params.append(limit)
         rows = self.conn.execute(query, params).fetchall()
         return [self._row_to_instance(r) for r in rows]
 
@@ -199,7 +248,7 @@ class CoordinatorStore:
             wo.status.value, wo.created_at, wo.dispatched_at, wo.completed_at,
             result_json,
         ))
-        self.conn.commit()
+        self._commit()
 
     def get_work_order(self, work_order_id: str) -> WorkOrder | None:
         row = self.conn.execute(
@@ -257,6 +306,21 @@ class CoordinatorStore:
     # ─── Suspension CRUD ─────────────────────────────────────────────
 
     def save_suspension(self, sus: Suspension):
+        # M2: In strict mode, fail fast on non-serializable state
+        # instead of silently converting objects to their str() repr.
+        _strict = "COGNITIVE_CORE_STRICT" in __import__("os").environ
+        if _strict:
+            try:
+                snapshot_json = json.dumps(sus.state_snapshot)
+            except (TypeError, ValueError) as e:
+                raise TypeError(
+                    f"State snapshot contains non-serializable data: {e}. "
+                    f"This would silently corrupt state on resume. "
+                    f"Fix the upstream code that put a non-JSON-native object into the state."
+                ) from e
+        else:
+            snapshot_json = json.dumps(sus.state_snapshot, default=str)
+
         self.conn.execute("""
             INSERT OR REPLACE INTO suspensions
             (instance_id, suspended_at_step, state_snapshot,
@@ -264,12 +328,12 @@ class CoordinatorStore:
             VALUES (?, ?, ?, ?, ?, ?, ?)
         """, (
             sus.instance_id, sus.suspended_at_step,
-            json.dumps(sus.state_snapshot, default=str),
+            snapshot_json,
             json.dumps(sus.unresolved_needs),
             json.dumps(sus.work_order_ids),
             sus.resume_nonce, sus.suspended_at,
         ))
-        self.conn.commit()
+        self._commit()
 
     def get_suspension(self, instance_id: str) -> Suspension | None:
         row = self.conn.execute(
@@ -291,7 +355,7 @@ class CoordinatorStore:
         self.conn.execute(
             "DELETE FROM suspensions WHERE instance_id = ?", (instance_id,)
         )
-        self.conn.commit()
+        self._commit()
 
     # ─── Action Ledger ───────────────────────────────────────────────
 
@@ -318,7 +382,7 @@ class CoordinatorStore:
                 json.dumps(details, default=str),
                 idempotency_key, time.time(),
             ))
-            self.conn.commit()
+            self._commit()
             return True
         except sqlite3.IntegrityError:
             # Idempotency key already exists
@@ -374,3 +438,49 @@ class CoordinatorStore:
 
     def close(self):
         self.conn.close()
+
+    # ─── Reliability Checks ─────────────────────────────────────────
+
+    def find_stuck_instances(self, max_running_seconds: int = 3600) -> list[InstanceState]:
+        """
+        M3: Find instances stuck in RUNNING state beyond the timeout.
+
+        In normal operation, instances transition through RUNNING in
+        seconds to minutes. An instance stuck in RUNNING for > 1 hour
+        likely crashed mid-execution.
+        """
+        cutoff = time.time() - max_running_seconds
+        rows = self.conn.execute(
+            "SELECT * FROM instances WHERE status = 'running' AND updated_at < ?",
+            (cutoff,)
+        ).fetchall()
+        return [self._row_to_instance(r) for r in rows]
+
+    def find_orphaned_suspensions(self) -> list[dict[str, Any]]:
+        """
+        Find suspensions whose work orders are all COMPLETED or FAILED
+        but the instance is still SUSPENDED (resume never happened).
+        """
+        rows = self.conn.execute("""
+            SELECT s.instance_id, s.suspended_at_step, s.work_order_ids
+            FROM suspensions s
+            JOIN instances i ON s.instance_id = i.instance_id
+            WHERE i.status = 'suspended'
+        """).fetchall()
+
+        orphans = []
+        for r in rows:
+            wo_ids = json.loads(r["work_order_ids"])
+            all_resolved = True
+            for wo_id in wo_ids:
+                wo = self.get_work_order(wo_id)
+                if wo and wo.status in (WorkOrderStatus.DISPATCHED, WorkOrderStatus.RUNNING):
+                    all_resolved = False
+                    break
+            if all_resolved and wo_ids:
+                orphans.append({
+                    "instance_id": r["instance_id"],
+                    "suspended_at": r["suspended_at_step"],
+                    "work_order_ids": wo_ids,
+                })
+        return orphans
