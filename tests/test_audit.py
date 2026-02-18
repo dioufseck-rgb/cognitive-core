@@ -309,3 +309,137 @@ class TestEmptyChainVerification(_AuditTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# ═══════════════════════════════════════════════════════════════════
+# S-012: Tiered Storage Tests
+# ═══════════════════════════════════════════════════════════════════
+
+class TestPayloadStorage(unittest.TestCase):
+    """Test separate payload storage."""
+
+    def setUp(self):
+        self.db = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+        self.trail = AuditTrail(db_path=self.db.name)
+
+    def tearDown(self):
+        self.trail.close()
+        os.unlink(self.db.name)
+
+    def test_store_and_retrieve_payload(self):
+        event = self.trail.record_primitive(
+            "trace_1", "classify", "classify", "hash1", "gemini-2.0-flash", "phash1",
+            confidence=0.9,
+        )
+        self.trail.store_payload(event.id, "trace_1", {
+            "case_text": "My card was stolen",
+            "llm_output": "Category: fraud, Confidence: 0.9",
+        })
+        payload = self.trail.get_payload(event.id)
+        self.assertIsNotNone(payload)
+        self.assertEqual(payload["case_text"], "My card was stolen")
+
+    def test_payload_not_found(self):
+        self.assertIsNone(self.trail.get_payload(99999))
+
+    def test_payloads_for_trace(self):
+        e1 = self.trail.record_primitive("t1", "s1", "classify", "h1", "m1", "ph1")
+        e2 = self.trail.record_primitive("t1", "s2", "investigate", "h2", "m1", "ph2")
+        self.trail.store_payload(e1.id, "t1", {"step": "classify"})
+        self.trail.store_payload(e2.id, "t1", {"step": "investigate"})
+        payloads = self.trail.get_payloads_for_trace("t1")
+        self.assertEqual(len(payloads), 2)
+        self.assertEqual(payloads[e1.id]["step"], "classify")
+
+    def test_delete_payload_preserves_chain(self):
+        """Deleting payload data does NOT break the hash chain."""
+        e1 = self.trail.record_primitive("t1", "s1", "classify", "h1", "m1", "ph1")
+        e2 = self.trail.record_primitive("t1", "s2", "investigate", "h2", "m1", "ph2")
+        self.trail.store_payload(e1.id, "t1", {"sensitive": "data"})
+        self.trail.store_payload(e2.id, "t1", {"sensitive": "more_data"})
+
+        # Delete all payloads
+        count = self.trail.delete_payload_by_trace("t1")
+        self.assertEqual(count, 2)
+
+        # Payloads gone
+        self.assertIsNone(self.trail.get_payload(e1.id))
+        self.assertIsNone(self.trail.get_payload(e2.id))
+
+        # But hash chain still intact!
+        valid, msg = self.trail.verify_chain()
+        self.assertTrue(valid, f"Chain broken after payload deletion: {msg}")
+
+    def test_delete_single_payload(self):
+        e1 = self.trail.record_primitive("t1", "s1", "classify", "h1", "m1", "ph1")
+        self.trail.store_payload(e1.id, "t1", {"data": "value"})
+        self.assertTrue(self.trail.delete_payload_by_event(e1.id))
+        self.assertIsNone(self.trail.get_payload(e1.id))
+
+    def test_delete_nonexistent_payload(self):
+        self.assertFalse(self.trail.delete_payload_by_event(99999))
+
+
+class TestPayloadTTL(unittest.TestCase):
+    """Test TTL-based payload expiration."""
+
+    def setUp(self):
+        self.db = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+        self.trail = AuditTrail(db_path=self.db.name)
+
+    def tearDown(self):
+        self.trail.close()
+        os.unlink(self.db.name)
+
+    def test_no_ttl_never_expires(self):
+        e = self.trail.record_primitive("t1", "s1", "classify", "h1", "m1", "ph1")
+        self.trail.store_payload(e.id, "t1", {"data": "permanent"}, ttl_days=0)
+        expired = self.trail.expire_payloads()
+        self.assertEqual(expired, 0)
+        self.assertIsNotNone(self.trail.get_payload(e.id))
+
+    def test_expired_payload_is_deleted(self):
+        e = self.trail.record_primitive("t1", "s1", "classify", "h1", "m1", "ph1")
+        self.trail.store_payload(e.id, "t1", {"data": "temporary"}, ttl_days=1)
+
+        # Backdate the created_at to make it expired
+        self.trail._conn.execute(
+            "UPDATE audit_payload SET created_at = ? WHERE event_id = ?",
+            (time.time() - 200000, e.id),  # ~2.3 days ago
+        )
+        self.trail._conn.commit()
+
+        expired = self.trail.expire_payloads()
+        self.assertEqual(expired, 1)
+        self.assertIsNone(self.trail.get_payload(e.id))
+
+    def test_non_expired_payload_kept(self):
+        e = self.trail.record_primitive("t1", "s1", "classify", "h1", "m1", "ph1")
+        self.trail.store_payload(e.id, "t1", {"data": "fresh"}, ttl_days=30)
+        expired = self.trail.expire_payloads()
+        self.assertEqual(expired, 0)
+        self.assertIsNotNone(self.trail.get_payload(e.id))
+
+
+class TestPayloadStats(unittest.TestCase):
+    """Test payload storage statistics."""
+
+    def setUp(self):
+        self.db = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+        self.trail = AuditTrail(db_path=self.db.name)
+
+    def tearDown(self):
+        self.trail.close()
+        os.unlink(self.db.name)
+
+    def test_empty_stats(self):
+        stats = self.trail.payload_stats()
+        self.assertEqual(stats["total_payloads"], 0)
+        self.assertEqual(stats["total_bytes"], 0)
+
+    def test_stats_after_storage(self):
+        e = self.trail.record_primitive("t1", "s1", "classify", "h1", "m1", "ph1")
+        self.trail.store_payload(e.id, "t1", {"key": "value"})
+        stats = self.trail.payload_stats()
+        self.assertEqual(stats["total_payloads"], 1)
+        self.assertGreater(stats["total_bytes"], 0)

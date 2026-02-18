@@ -91,17 +91,37 @@ class CallRecord:
 # Cost Tracker
 # ═══════════════════════════════════════════════════════════════════
 
+class BudgetExceededError(Exception):
+    """Raised when a workflow exceeds its cost budget."""
+    pass
+
+
+# Default cost estimate for unknown models (per million tokens)
+UNKNOWN_MODEL_INPUT_PER_MILLION = 1.00   # Conservative: ~$1/M input
+UNKNOWN_MODEL_OUTPUT_PER_MILLION = 3.00  # Conservative: ~$3/M output
+
+
 class CostTracker:
     """
     Tracks LLM call costs for a workflow execution.
 
     Thread-safe. One tracker per workflow instance.
+    Budget cap: if set, raises BudgetExceededError when total_cost exceeds budget.
+    Unknown models: logs WARNING and uses conservative estimate (not silent $0).
     """
 
-    def __init__(self, config_path: str | None = None):
+    def __init__(
+        self,
+        config_path: str | None = None,
+        budget_usd: float | None = None,
+        unknown_model_action: str = "warn",  # "warn" or "fail"
+    ):
         self._pricing = load_pricing(config_path)
         self._records: list[CallRecord] = []
         self._lock = threading.Lock()
+        self.budget_usd = budget_usd
+        self.unknown_model_action = unknown_model_action
+        self._unknown_models_seen: set[str] = set()
 
     def record_call(
         self,
@@ -110,13 +130,36 @@ class CostTracker:
         output_tokens: int,
         step_name: str = "",
     ) -> CallRecord:
-        """Record a single LLM call."""
+        """
+        Record a single LLM call.
+
+        Raises BudgetExceededError if budget is set and would be exceeded.
+        """
         pricing = self._pricing.get(model)
         if pricing:
             cost = pricing.cost(input_tokens, output_tokens)
         else:
-            cost = 0.0
-            logger.debug("No pricing found for model '%s'", model)
+            # Unknown model — estimate conservatively, don't silently use $0
+            estimated_cost = (
+                (input_tokens / 1_000_000) * UNKNOWN_MODEL_INPUT_PER_MILLION
+                + (output_tokens / 1_000_000) * UNKNOWN_MODEL_OUTPUT_PER_MILLION
+            )
+
+            if self.unknown_model_action == "fail":
+                raise ValueError(
+                    f"No pricing configured for model '{model}'. "
+                    f"Add it to llm_config.yaml → pricing section."
+                )
+
+            # warn (default)
+            if model not in self._unknown_models_seen:
+                logger.warning(
+                    "No pricing for model '%s' — using conservative estimate "
+                    "($%.2f/M input, $%.2f/M output). Add to llm_config.yaml → pricing.",
+                    model, UNKNOWN_MODEL_INPUT_PER_MILLION, UNKNOWN_MODEL_OUTPUT_PER_MILLION,
+                )
+                self._unknown_models_seen.add(model)
+            cost = estimated_cost
 
         record = CallRecord(
             model=model,
@@ -129,6 +172,15 @@ class CostTracker:
 
         with self._lock:
             self._records.append(record)
+
+            # Budget enforcement
+            if self.budget_usd is not None:
+                total = sum(r.cost_usd for r in self._records)
+                if total > self.budget_usd:
+                    raise BudgetExceededError(
+                        f"Workflow cost ${total:.4f} exceeds budget "
+                        f"${self.budget_usd:.4f} at step '{step_name}'"
+                    )
 
         return record
 

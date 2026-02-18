@@ -126,6 +126,7 @@ class AuditTrail:
                 ON audit_events(timestamp);
         """)
         self._conn.commit()
+        self._create_payload_table()
 
     def _get_last_hash(self) -> str:
         """Get the hash of the most recent event, or GENESIS_HASH."""
@@ -335,3 +336,138 @@ class AuditTrail:
 
     def close(self):
         self._conn.close()
+
+    # ═══════════════════════════════════════════════════════════════
+    # S-012: Tiered Storage — Separate Payload Table
+    # ═══════════════════════════════════════════════════════════════
+
+    def _create_payload_table(self):
+        """Create the payload table for tiered storage (called from _create_tables)."""
+        self._conn.executescript("""
+            CREATE TABLE IF NOT EXISTS audit_payload (
+                event_id INTEGER PRIMARY KEY,
+                trace_id TEXT NOT NULL,
+                payload_data TEXT NOT NULL,
+                created_at REAL NOT NULL,
+                ttl_days INTEGER DEFAULT 0,
+                FOREIGN KEY (event_id) REFERENCES audit_events(id)
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_payload_trace
+                ON audit_payload(trace_id);
+            CREATE INDEX IF NOT EXISTS idx_payload_created
+                ON audit_payload(created_at);
+        """)
+        self._conn.commit()
+
+    def store_payload(
+        self,
+        event_id: int,
+        trace_id: str,
+        payload_data: dict[str, Any],
+        ttl_days: int = 0,
+    ):
+        """
+        Store sensitive payload data separately from the hash-chained metadata.
+
+        The metadata in audit_events is immutable and hash-chained.
+        The payload_data here is TTL-governed and deletable without
+        breaking the chain.
+
+        Args:
+            event_id: The audit_events.id this payload belongs to
+            trace_id: Trace ID for efficient lookup
+            payload_data: Sensitive data (case text, LLM output, PII-redacted content)
+            ttl_days: Time-to-live in days. 0 = no expiry (manual deletion only)
+        """
+        with self._lock:
+            payload_json = json.dumps(payload_data, sort_keys=True, default=str)
+            self._conn.execute(
+                """INSERT OR REPLACE INTO audit_payload
+                   (event_id, trace_id, payload_data, created_at, ttl_days)
+                   VALUES (?, ?, ?, ?, ?)""",
+                (event_id, trace_id, payload_json, time.time(), ttl_days),
+            )
+            self._conn.commit()
+
+    def get_payload(self, event_id: int) -> dict[str, Any] | None:
+        """Get payload data for a specific event. Returns None if deleted/expired."""
+        row = self._conn.execute(
+            "SELECT payload_data FROM audit_payload WHERE event_id = ?",
+            (event_id,),
+        ).fetchone()
+        if row is None:
+            return None
+        return json.loads(row[0])
+
+    def get_payloads_for_trace(self, trace_id: str) -> dict[int, dict[str, Any]]:
+        """Get all payloads for a trace_id. Returns {event_id: payload_data}."""
+        rows = self._conn.execute(
+            "SELECT event_id, payload_data FROM audit_payload WHERE trace_id = ?",
+            (trace_id,),
+        ).fetchall()
+        return {r[0]: json.loads(r[1]) for r in rows}
+
+    def delete_payload_by_trace(self, trace_id: str) -> int:
+        """
+        Delete payload data for a trace_id (GDPR/CCPA right-to-erasure).
+        Metadata and hash chain remain intact.
+        Returns number of payloads deleted.
+        """
+        with self._lock:
+            cursor = self._conn.execute(
+                "DELETE FROM audit_payload WHERE trace_id = ?",
+                (trace_id,),
+            )
+            self._conn.commit()
+            count = cursor.rowcount
+            if count > 0:
+                logger.info("Deleted %d payloads for trace_id=%s (right-to-erasure)", count, trace_id)
+            return count
+
+    def delete_payload_by_event(self, event_id: int) -> bool:
+        """Delete payload for a specific event."""
+        with self._lock:
+            cursor = self._conn.execute(
+                "DELETE FROM audit_payload WHERE event_id = ?",
+                (event_id,),
+            )
+            self._conn.commit()
+            return cursor.rowcount > 0
+
+    def expire_payloads(self) -> int:
+        """
+        Delete all payloads past their TTL.
+        Call this on a schedule (e.g., daily cron).
+        Returns number of payloads expired.
+        """
+        with self._lock:
+            now = time.time()
+            cursor = self._conn.execute(
+                """DELETE FROM audit_payload
+                   WHERE ttl_days > 0
+                   AND (created_at + ttl_days * 86400) < ?""",
+                (now,),
+            )
+            self._conn.commit()
+            count = cursor.rowcount
+            if count > 0:
+                logger.info("Expired %d payloads past TTL", count)
+            return count
+
+    def payload_stats(self) -> dict[str, Any]:
+        """Get payload storage statistics."""
+        row = self._conn.execute(
+            "SELECT COUNT(*), COALESCE(SUM(LENGTH(payload_data)), 0) FROM audit_payload"
+        ).fetchone()
+        expired_row = self._conn.execute(
+            """SELECT COUNT(*) FROM audit_payload
+               WHERE ttl_days > 0
+               AND (created_at + ttl_days * 86400) < ?""",
+            (time.time(),),
+        ).fetchone()
+        return {
+            "total_payloads": row[0],
+            "total_bytes": row[1],
+            "expired_pending_deletion": expired_row[0],
+        }
