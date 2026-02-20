@@ -1,0 +1,627 @@
+# Member Hardship & Workout — Domain Specification
+#
+# Author: Consumer Lending & Member Care (Collections + Loss Mitigation)
+# Purpose: Triage member hardship cases, assess eligibility, recommend
+#          workout paths, and execute bounded actions — all governed
+#          and fail-closed under ambiguity.
+#
+# This domain covers the full hardship lifecycle across five workflows.
+# Each section below maps to a step in one of the workflows.
+
+domain_name: member_hardship
+workflow: hardship_intake_packet
+governance: gate
+description: >
+  Member hardship intake, eligibility assessment, path recommendation,
+  contact strategy, and bounded action execution for consumer lending
+  products. Covers SCRA, bankruptcy, fraud/exploitation, disaster relief,
+  and standard hardship paths. Fail-closed on missing evidence,
+  conflicting signals, or policy ambiguity.
+
+
+# ═══════════════════════════════════════════════════════════════════
+# WF1: HARDSHIP INTAKE PACKET
+# ═══════════════════════════════════════════════════════════════════
+
+gather_member_data:
+  strategy: deterministic
+  specification: |
+    Pull all available data for this member:
+      - get_member_profile: Tenure, segment, contact preferences,
+        language preference, military status if available
+      - get_loan_accounts: All loan accounts — product type, balance,
+        delinquency status, payment history, rate, term, collateral
+      - get_collections_notes: Contact history, prior hardship notes,
+        promises-to-pay, outcomes
+      - get_risk_flags: ATO score, exploitation risk, recent credential
+        or contact info changes
+      - get_legal_flags: Bankruptcy status, legal holds, SCRA indicator
+        and effective dates, garnishments
+      - get_complaints: Open complaints (CFPB, internal), regulator
+        escalations, complaint categories
+      - get_hardship_statement: Member's own words about their situation
+        (free text from any channel)
+      - get_supporting_docs: Uploaded documents — paystubs, unemployment
+        notices, medical bills, FEMA letters, court documents
+
+investigate_hardship_claim:
+  scope: |
+    Extract and normalize the hardship claims from all available data.
+    For each claim the member makes:
+
+    1. Categorize the hardship type:
+       - income_reduction (temporary or permanent)
+       - medical_event
+       - disaster_impact
+       - military_transition (deployment, PCS, separation, retirement)
+       - overextension (no triggering event)
+       - fraud_exploitation (member is a victim)
+
+    2. Link each claim to evidence:
+       - If there is a document or system record that supports it,
+         cite the document ID and relevant excerpt.
+       - If it is only the member's statement with no corroboration,
+         label it "member-stated, unverified."
+
+    3. Flag risk indicators:
+       - Bankruptcy filed or pending
+       - SCRA indicator active or dates conflicting
+       - Fraud/ATO score elevated
+       - Open complaints or regulator escalations
+       - Contact info changed recently (exploitation risk)
+
+    4. Identify missing information:
+       - What documents would strengthen the case?
+       - What system data is absent or stale?
+
+    5. Provide a preliminary triage (not a decision):
+       - Straightforward: clear evidence, single hardship type
+       - Complex: multiple accounts, legal flags, conflicting evidence
+       - Urgent: disaster, exploitation risk, imminent default
+
+  hypotheses: |
+    H1: The member is experiencing a genuine financial hardship event.
+    H2: The member may qualify for SCRA protections.
+    H3: There may be fraud or exploitation (member as victim).
+    H4: Evidence is insufficient to determine the hardship type.
+    H5: Multiple hardship types may be present simultaneously.
+
+generate_intake_packet:
+  requirements: |
+    Produce the HardshipIntakePacket_v1 artifact containing:
+    - member_token: Masked member identifier (no raw PII — no SSN,
+      DOB, or full address)
+    - account_summary: For each loan account, the product type,
+      balance, delinquency status, and payment history summary
+    - hardship_claims: Normalized list of hardship types with
+      extracted facts
+    - evidence_index: For each claim, the document IDs, relevant
+      snippets, timestamps, and confidence level
+    - risk_flags: Bankruptcy, SCRA, fraud, complaint, exploitation
+      indicators with details
+    - missing_information: Explicit list of what is needed
+    - preliminary_triage: straightforward / complex / urgent
+  format: |
+    {
+      "member_token": "<masked identifier>",
+      "account_summary": [
+        {
+          "account_id": "<masked>",
+          "product_type": "<auto/personal/credit_card>",
+          "balance": <amount>,
+          "delinquency_days": <days>,
+          "payment_history_summary": "<description>"
+        }
+      ],
+      "hardship_claims": [
+        {
+          "type": "<hardship category>",
+          "description": "<normalized description>",
+          "evidence_status": "<verified/member_stated_unverified>",
+          "evidence_ids": ["<doc_id>"]
+        }
+      ],
+      "evidence_index": [
+        {
+          "evidence_id": "<doc_id>",
+          "source": "<document type or system>",
+          "relevant_excerpt": "<brief quote or summary>",
+          "confidence": <0.0-1.0>,
+          "timestamp": "<date>"
+        }
+      ],
+      "risk_flags": {
+        "bankruptcy": { "status": "<none/filed/pending/discharged>", "details": "" },
+        "scra": { "status": "<none/active/pending/dates_conflict>", "details": "" },
+        "fraud_exploitation": { "status": "<none/elevated/high>", "details": "" },
+        "complaints": { "status": "<none/open/regulator>", "details": "" }
+      },
+      "missing_information": ["<list of needed items>"],
+      "preliminary_triage": "<straightforward/complex/urgent>"
+    }
+  constraints: |
+    - NEVER output raw PII (SSN, DOB, full address). Only masked tokens.
+    - Every hardship claim must be linked to evidence IDs or marked
+      "member_stated_unverified".
+    - If evidence conflicts with the claim, note the conflict explicitly.
+    - Risk flags must reflect the actual system data, not assumptions.
+    - Preliminary triage is informational only — it is not a decision.
+
+verify_evidence_linkage:
+  rules: |
+    1. Every item in hardship_claims has either:
+       (a) at least one entry in evidence_index with a matching evidence_id, OR
+       (b) evidence_status set to "member_stated_unverified"
+    2. No raw PII appears anywhere in the artifact (no SSN patterns,
+       no date-of-birth patterns, no full street addresses).
+    3. risk_flags is present and all four sub-fields have a status.
+    4. missing_information is present (even if empty list).
+    5. preliminary_triage is one of: straightforward, complex, urgent.
+    6. At least one account appears in account_summary.
+
+
+# ═══════════════════════════════════════════════════════════════════
+# WF2: ELIGIBILITY & CONSTRAINTS ASSESSMENT
+# ═══════════════════════════════════════════════════════════════════
+
+gather_policy_data:
+  strategy: deterministic
+  specification: |
+    Pull policy and constraint data:
+      - get_risk_flags: Current fraud/exploitation scores
+      - get_legal_flags: Bankruptcy, SCRA, legal holds, garnishments
+      - get_product_rules: Product eligibility matrix for hardship programs
+      - get_policy_config: POL-HARD-001 through POL-HARD-007 parameters
+
+classify_constraint_tier:
+  categories: |
+    - standard: No legal/regulatory constraints. Standard eligibility rules apply.
+    - scra_protected: SCRA indicator active or pending. Rate cap and
+      retroactive adjustment rules apply. (POL-HARD-007)
+    - bankruptcy_hold: Bankruptcy filed or pending. All collection and
+      modification actions restricted. (POL-HARD-004)
+    - fraud_exploitation: Elevated ATO or exploitation risk. Freeze all
+      actions pending security review. (POL-HARD-007)
+    - multiple_constraints: More than one constraint type applies.
+      Each must be assessed independently.
+    - complaint_active: Open CFPB or regulator complaint. Communication
+      restrictions and escalation required.
+  criteria: |
+    Check the risk flags and legal flags in order of severity:
+    1. Bankruptcy filed or pending → bankruptcy_hold
+    2. SCRA indicator active or dates present → scra_protected
+    3. Fraud/ATO score elevated + recent contact changes → fraud_exploitation
+    4. Open CFPB/regulator complaint → complaint_active
+    5. Multiple of the above → multiple_constraints
+    6. None of the above → standard
+
+    When in doubt, classify as the more restrictive tier.
+
+assess_scra:
+  considerations: |
+    SCRA Assessment (POL-HARD-007):
+    - Is the member on active duty or was within 1 year of end of service?
+    - Do the SCRA effective dates match the claimed service period?
+    - If dates conflict or indicator is pending, set status to "unclear"
+      and force escalation — do not assume eligibility.
+    - If SCRA applies: interest rate capped at 6%, retroactive adjustments
+      may be required, foreclosure protections active.
+    - Document the specific protections that apply per account.
+
+assess_bankruptcy:
+  considerations: |
+    Bankruptcy Assessment (POL-HARD-004):
+    - Is the filing Chapter 7 (liquidation) or Chapter 13 (reorganization)?
+    - Is the automatic stay in effect?
+    - Which accounts are included in the filing?
+    - All collection activity must cease on included accounts.
+    - Modification offers require bankruptcy court approval.
+    - If status is unclear (filing date ambiguous, incomplete data),
+      treat as active hold until confirmed.
+
+assess_fraud:
+  considerations: |
+    Fraud/Exploitation Screen (POL-HARD-007):
+    - Is the ATO risk score above threshold?
+    - Were credentials or contact info changed in the last 7 days?
+    - Is the hardship claim potentially a social engineering attack?
+    - Is the member potentially a victim of exploitation?
+    - If exploitation risk: protect the member, freeze actions,
+      route to security team.
+    - If ATO risk: do not execute any account changes until verified.
+
+think_eligibility:
+  considerations: |
+    For each account, determine eligibility using these policies:
+
+    POL-HARD-001: Hardship categories and minimum evidence
+    - Income reduction: requires either paystub showing decrease,
+      unemployment notice, or employer letter
+    - Medical: requires medical documentation or billing statements
+    - Disaster: requires FEMA declaration or county declaration
+    - Military: requires orders, LES, or DD-214
+    - Overextension: member statement sufficient for initial triage
+
+    POL-HARD-002: Product eligibility matrix
+    - Auto loans: eligible for deferral, rate reduction, term extension
+    - Personal loans: eligible for deferral, term extension
+    - Credit cards: eligible for rate reduction, payment plan
+    - Mortgage: NOT in scope for pilot (exclude)
+
+    POL-HARD-003: Plan constraints
+    - Max deferral: 6 months
+    - Max term extension: 12 months
+    - Rate reduction: temporary (up to 12 months) or permanent
+    - Cannot combine multiple plan types on same account simultaneously
+
+    POL-HARD-004: Ineligible conditions
+    - Account in charge-off status
+    - Active bankruptcy hold (unless court-approved)
+    - Active fraud freeze
+    - Account less than 6 months old
+
+    Output for each account:
+    - eligible / ineligible / unclear
+    - Which plans are available
+    - What constraints apply
+    - What approvals are needed
+    - What is explicitly disallowed
+
+verify_constraints:
+  rules: |
+    1. Every account has an eligibility status (eligible/ineligible/unclear).
+    2. If eligibility is "unclear", a reason is provided.
+    3. Ineligible accounts cite the specific policy (POL-HARD-004).
+    4. No account marked "eligible" has an active bankruptcy hold,
+       fraud freeze, or charge-off status.
+    5. SCRA-protected accounts have rate cap constraints documented.
+    6. Required approvals are listed for each non-standard action.
+
+challenge_eligibility:
+  perspective: |
+    A compliance auditor reviewing the eligibility assessment:
+    - Are there date mismatches between claimed events and evidence?
+    - Are there inconsistencies between different data sources?
+    - Could any eligibility determination be wrong?
+    - Are there accounts marked "eligible" that should be "unclear"?
+  threat_model: |
+    CRITICAL: Inconsistent evidence used to grant eligibility.
+    CRITICAL: Bankruptcy or legal hold missed on an account.
+    HIGH: SCRA dates don't align with claimed service period.
+    HIGH: Fraud indicators present but eligibility granted.
+    MEDIUM: Missing evidence not flagged as a gap.
+    MEDIUM: Overly generous eligibility on thin evidence.
+
+generate_constraints_artifact:
+  requirements: |
+    Produce the HardshipConstraints_v1 artifact.
+  format: |
+    {
+      "eligibility": [
+        {
+          "account_id": "<masked>",
+          "status": "<eligible/ineligible/unclear>",
+          "available_plans": ["<plan types>"],
+          "constraints": ["<specific constraints>"],
+          "required_approvals": ["<approval types>"],
+          "disallowed_actions": ["<explicit list>"],
+          "reason_codes": ["<POL-xxx: justification>"]
+        }
+      ],
+      "global_constraints": {
+        "scra_applies": <true/false>,
+        "bankruptcy_hold": <true/false>,
+        "fraud_freeze": <true/false>,
+        "complaint_restrictions": <true/false>
+      },
+      "required_human_review": <true/false>,
+      "review_reason": "<why human review is needed>"
+    }
+  constraints: |
+    - Every eligibility status must cite at least one policy ID.
+    - "unclear" status always sets required_human_review to true.
+    - Disallowed actions must be explicit, not implied.
+    - If any global constraint is true, document the impact on all accounts.
+
+generate_escalation_artifact:
+  requirements: |
+    The challenge step found contradictions or ambiguities.
+    Document what was found and what the human reviewer should focus on.
+  format: |
+    {
+      "escalation_type": "challenge_failed",
+      "contradictions": ["<list of specific issues>"],
+      "affected_accounts": ["<account IDs>"],
+      "recommended_focus": ["<specific questions for reviewer>"],
+      "all_evidence": "<summary of evidence reviewed>",
+      "original_assessment": "<what automation concluded before challenge>"
+    }
+  constraints: |
+    - Be specific about what contradicted what.
+    - Do not attempt to resolve the contradiction — that is the human's job.
+    - Include all relevant evidence so the reviewer doesn't re-investigate.
+
+
+# ═══════════════════════════════════════════════════════════════════
+# WF3: HARDSHIP PATH RECOMMENDATION
+# ═══════════════════════════════════════════════════════════════════
+
+think_path_selection:
+  considerations: |
+    Path selection follows this priority order:
+
+    P0: Not hardship → standard collections
+      - No credible hardship evidence; member may be avoiding payment
+      - Return to standard collections process
+
+    P1: Short-term hardship (30-90 day recovery expected)
+      - Temporary income reduction with clear recovery timeline
+      - Options: payment deferral, temporary reduced payment
+      - Least intrusive intervention
+
+    P2: Long-term hardship (90+ days, no clear recovery)
+      - Permanent income reduction or extended medical situation
+      - Options: loan restructure, term extension, rate reduction
+      - More significant intervention; requires Tier C approval
+
+    P3: Disaster relief
+      - FEMA or county disaster declaration applies to member's area
+      - Special program terms may be available
+      - Verify address matches declaration area
+
+    P4: SCRA protected
+      - Active duty military with verified SCRA eligibility
+      - Rate cap at 6%, retroactive adjustments required
+      - Requires Tier D approval + specialist review
+
+    P5: Bankruptcy/legal hold
+      - Active bankruptcy filing or legal hold on account
+      - Cease all collection and modification actions
+      - Specialist only — automation cannot proceed
+
+    P6: Fraud/exploitation risk
+      - Elevated ATO score or exploitation indicators
+      - Freeze all actions, route to security team
+      - Protect the member first, investigate second
+
+    Selection rules:
+    - P4/P5/P6 always override P0-P3 (legal/safety takes priority)
+    - If evidence conflicts, do not select a path — escalate
+    - Confidence below 0.7 forces human review
+    - Consider ALL accounts together, not individually
+
+generate_recommendation:
+  requirements: |
+    Produce the HardshipPathRecommendation_v1 artifact with:
+    - The selected path and why
+    - Ranked plan options with tradeoffs and assumptions
+    - Confidence score and rationale
+    - Whether human review is required (and why)
+    - A member message draft (only if the contact plan allows it
+      and the path is P1/P2/P3 — never for P4/P5/P6)
+    - Policy citations for each option
+  format: |
+    {
+      "selected_path": "<P0-P6 enum>",
+      "path_rationale": "<why this path>",
+      "plan_options": [
+        {
+          "rank": 1,
+          "plan_type": "<deferral/rate_reduction/term_extension/restructure>",
+          "description": "<what changes, how long, what happens after>",
+          "tradeoffs": "<what member gives up vs gains>",
+          "assumptions": "<what must be true for this to work>",
+          "policy_citation": "<POL-xxx>"
+        }
+      ],
+      "confidence_score": <0.0-1.0>,
+      "confidence_rationale": "<why this confidence level>",
+      "required_human_review": <true/false>,
+      "review_reason": "<why>",
+      "member_message_draft": "<template-based message or null>",
+      "policy_citations": ["<POL-xxx for each cited policy>"]
+    }
+  constraints: |
+    - selected_path must be one of: P0, P1, P2, P3, P4, P5, P6.
+    - P4/P5/P6 must set required_human_review to true.
+    - member_message_draft must be null for P4, P5, P6 paths.
+    - Never promise specific terms — use "may be eligible" language.
+    - Every plan option must cite a policy ID.
+    - If evidence conflicts exist, set confidence below 0.5 and force review.
+
+verify_recommendation:
+  rules: |
+    1. selected_path is a valid enum (P0-P6).
+    2. At least one plan_option is present (unless P5/P6 which may have zero).
+    3. confidence_score is between 0.0 and 1.0.
+    4. If selected_path is P4, P5, or P6, required_human_review is true.
+    5. If selected_path is P4, P5, or P6, member_message_draft is null.
+    6. Every plan_option has a policy_citation.
+    7. No language promising specific approval or terms.
+
+challenge_recommendation:
+  perspective: |
+    Three reviewers challenge simultaneously:
+    1. The member: "Does this actually help me? Are these real options?"
+    2. A fair lending examiner: "Would a similarly situated member
+       get the same recommendation?"
+    3. A consumer attorney: "Are there misleading promises or
+       missing disclosures?"
+  threat_model: |
+    CRITICAL: Recommendation contradicts eligibility constraints.
+    CRITICAL: P4/P5/P6 path without human review flag.
+    HIGH: Plan option not supported by policy citation.
+    HIGH: Conflicting evidence ignored in path selection.
+    MEDIUM: Confidence score doesn't reflect actual evidence strength.
+    MEDIUM: Member message makes promises automation can't keep.
+    LOW: Options not clearly ranked by member benefit.
+
+
+# ═══════════════════════════════════════════════════════════════════
+# WF4: MEMBER CONTACT STRATEGY
+# ═══════════════════════════════════════════════════════════════════
+
+classify_contact_context:
+  categories: |
+    - standard_outreach: No legal or communication restrictions.
+      Standard templates and channels available.
+    - restricted_communication: Legal hold, bankruptcy, or complaint
+      restricts what can be said and through which channels.
+    - no_contact_allowed: Complete contact restriction (active
+      litigation, cease-and-desist, certain bankruptcy stages).
+    - escalation_required: Complaint or regulator involvement
+      requires supervisor or specialist handling.
+  criteria: |
+    Check constraints in this order:
+    1. Active litigation or cease-and-desist → no_contact_allowed
+    2. Bankruptcy automatic stay → restricted_communication
+    3. Open CFPB complaint → escalation_required
+    4. Open internal complaint → restricted_communication
+    5. Legal hold without contact restriction → restricted_communication
+    6. None of the above → standard_outreach
+
+    POL-COMM-003: Channel restrictions under legal holds.
+
+think_contact_plan:
+  considerations: |
+    POL-COMM-001: Approved templates and mandatory disclaimers
+    - Each path (P0-P6) has approved template IDs
+    - Disclaimers: "Subject to approval," "This is not a commitment"
+    - Language must match member preference (POL-COMM-004)
+
+    POL-COMM-002: Prohibited language (UDAAP)
+    - Never: "guaranteed," "approved," "you will receive"
+    - Never: "you must," "failure to," "consequences include"
+    - Never: language implying the member has no choice
+    - Never: urgency language designed to pressure
+
+    Channel selection:
+    - Member's preferred channel first (from profile)
+    - If restricted: fall back to mail only
+    - If non-English: verified translated template required
+    - If complaint open: supervisor channel only
+
+generate_contact_plan:
+  requirements: |
+    Produce the MemberContactPlan_v1 artifact.
+  format: |
+    {
+      "channel": "<call/chat/email/mail/none>",
+      "language": "<en/es/fr/ar/other>",
+      "template_ids": ["<approved template IDs>"],
+      "disclosure_set": ["<required disclosures>"],
+      "prohibited_phrases": ["<UDAAP-prohibited language>"],
+      "message_draft": "<template-based draft or null>",
+      "escalation_needed": <true/false>,
+      "escalation_reason": "<why>"
+    }
+  constraints: |
+    - Channel must respect member preference and legal restrictions.
+    - message_draft must use approved templates only — no free-form text.
+    - All disclosures from the disclosure_set must appear in the draft.
+    - None of the prohibited_phrases may appear in the draft.
+    - If language is not English, template must be verified translated.
+
+generate_no_contact_plan:
+  requirements: |
+    Document why contact is restricted and what internal actions are allowed.
+  format: |
+    {
+      "channel": "none",
+      "restriction_reason": "<why contact is blocked>",
+      "allowed_internal_actions": ["<list of permitted internal steps>"],
+      "escalation_needed": true,
+      "escalation_reason": "Contact restriction in effect"
+    }
+  constraints: |
+    - No member-facing content of any kind.
+    - escalation_needed must be true.
+
+verify_contact_plan:
+  rules: |
+    1. Channel is one of: call, chat, email, mail, none.
+    2. If channel is not "none", at least one template_id is present.
+    3. disclosure_set is present and non-empty for any member-facing channel.
+    4. message_draft does not contain any prohibited_phrases.
+    5. If language is not "en", a translated template is referenced.
+    6. If escalation_needed is true, escalation_reason is provided.
+
+
+# ═══════════════════════════════════════════════════════════════════
+# WF5: ACTION EXECUTION ORCHESTRATION
+# ═══════════════════════════════════════════════════════════════════
+
+verify_action_gates:
+  rules: |
+    GATE-ACT: An action may only execute if ALL of the following are true:
+    1. The action_type is in the allowed set for the pilot:
+       - create_case_ticket
+       - schedule_callback
+       - request_missing_docs
+       - generate_letter_draft (does NOT send)
+       - apply_plan_template (ONLY if eligible + tier permits + approved)
+    2. The member's account is eligible (not ineligible or unclear).
+    3. The governance tier permits the action:
+       - Tier A (auto): doc request, callback, case creation only
+       - Tier B (spot check): doc request + letter draft
+       - Tier C (gate): plan template application (requires approval)
+       - Tier D (hold): no automated actions (specialist only)
+    4. Required approvals are satisfied (for Tier C/D actions).
+    5. An idempotency_key is present (POL-ACT-003).
+    6. No fraud freeze or bankruptcy hold is active on the account.
+
+execute_action:
+  action_spec: |
+    Execute the requested action against the target system.
+    Allowed actions (strict enum — reject anything not listed):
+      - create_case_ticket: Create a hardship case in the CRM
+      - schedule_callback: Add the member to the callback queue
+      - request_missing_docs: Send document request through member portal
+      - generate_letter_draft: Generate a letter draft (NOT send)
+      - apply_plan_template: Apply a pre-approved plan template to account
+  tool_config: |
+    - CRM: Create/update hardship case tickets
+    - Queue: Assign callback scheduling
+    - Portal: Request documents from member
+    - Letters: Generate draft letters
+    - Account: Apply plan templates (write — requires approval record)
+
+verify_execution:
+  rules: |
+    1. The action result confirms successful execution.
+    2. The action type matches what was requested (no action drift).
+    3. An audit record was created for the action.
+    4. If the action was apply_plan_template, an approval record exists.
+
+generate_action_result:
+  requirements: |
+    Produce the HardshipActionResult_v1 artifact.
+  format: |
+    {
+      "action_type": "<what was executed>",
+      "status": "<completed/failed/pending_approval>",
+      "target_account": "<masked account ID>",
+      "details": "<what specifically happened>",
+      "audit_id": "<audit trail reference>",
+      "idempotency_key": "<key used>",
+      "next_steps": ["<what happens next>"]
+    }
+  constraints: |
+    - No raw PII in the result.
+    - audit_id must be present for every completed action.
+    - If status is "failed", include the failure reason.
+
+generate_rejection:
+  requirements: |
+    Document why the action was rejected.
+  format: |
+    {
+      "action_type": "<what was requested>",
+      "status": "rejected",
+      "rejection_reasons": ["<which gates failed>"],
+      "required_corrections": ["<what needs to change>"],
+      "escalation_path": "<where this goes next>"
+    }
+  constraints: |
+    - Be specific about which gate failed and why.
+    - Include the escalation path so the specialist knows what to do.

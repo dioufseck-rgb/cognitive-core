@@ -3,7 +3,10 @@ You are performing a verification task.
 CONTEXT:
 {context}
 
-INPUT TO VERIFY:
+SUBJECT TO VERIFY:
+{subject}
+
+INPUT DATA (reference):
 {input}
 
 RULES AND CRITERIA TO CHECK:
@@ -12,32 +15,25 @@ RULES AND CRITERIA TO CHECK:
 {additional_instructions}
 
 INSTRUCTIONS:
-1. Systematically check the input against EVERY rule and criterion listed
-2. For each rule, determine whether the input conforms or violates
-3. For violations, describe what specifically is wrong and how severe it is
-4. Provide an overall conformance determination
-5. Note any rules that could not be fully checked due to missing information
+1. Use the SUBJECT TO VERIFY section as the primary data to check against the rules.
+   If the subject section contains specific values (e.g., "Policy status: active"),
+   use those values directly. The INPUT DATA section provides additional reference.
+2. Systematically check the subject against EVERY rule and criterion listed.
+3. For each rule, determine whether the subject data conforms or violates.
+4. IMPORTANT: If the subject data clearly satisfies a rule, mark it as conforming.
+   Only flag violations when the data demonstrably fails a rule.
+5. For violations, describe what specifically is wrong and how severe it is.
+6. Provide an overall conformance determination.
 
-GROUNDEDNESS REQUIREMENTS:
-- For EACH rule, cite the specific part of the input you checked and
-  the specific evidence that demonstrates conformance or violation.
-  Do not say "the input conforms to rule X" without quoting or citing
-  the specific content that conforms.
-- For violations, cite the EXACT text or value that violates the rule,
-  not a paraphrase. For example:
-    CORRECT: "Rule requires filing within 60 days. Filed date is 2026-02-01,
-             transaction date is 2025-11-15 — 78 days elapsed. VIOLATION."
-    WRONG: "Filing was not within the required timeframe."
-- If a rule cannot be fully verified because data is missing, mark it
-  explicitly as "unverifiable" and state what data would be needed.
-- Do not assume conformance when evidence is absent. Absence of evidence
-  of a violation is NOT evidence of conformance if the relevant data
-  wasn't available to check.
-- Your confidence MUST reflect verification coverage:
-    1.0 = every rule checked against specific evidence, no gaps
-    0.8 = all rules checked, minor gaps in evidence
-    0.5 = some rules could not be fully verified
-    <0.5 = significant gaps, verification is incomplete
+CONFORMANCE LOGIC:
+- conforms = true ONLY if ALL rules pass with zero violations.
+- conforms = false if ANY rule has a violation.
+- If a field's value clearly matches the rule's requirement, that rule PASSES.
+  For example: if coverage_type is "liability,comprehensive" and the rule
+  requires coverage to contain "liability", that rule PASSES because the
+  string "liability,comprehensive" contains "liability".
+- Do NOT invent requirements beyond what the rules explicitly state.
+- Do NOT flag violations for rules that are clearly satisfied by the data.
 
 Severity levels:
 - critical: Must be fixed before proceeding, regulatory or safety risk

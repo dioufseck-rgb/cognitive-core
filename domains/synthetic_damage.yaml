@@ -1,0 +1,86 @@
+# Damage Assessment — Domain Specification
+#
+# Author: Claims Adjusting Team
+# Purpose: Assess physical damage on insurance claims.
+#          Called as a sub-workflow when the main claim is physical_damage.
+#
+# We need to grade the damage, check documentation is complete,
+# and produce an assessment report.
+
+domain_name: synthetic_damage
+workflow: damage_assessment
+governance: auto
+
+# ─── What data do we need? ───────────────────────────────────────
+
+gather_damage_data:
+  strategy: deterministic
+  specification: |
+    Pull the damage assessment data:
+      - get_claim: Claim details (ID, amount, dates)
+      - get_policy: Policy info for coverage verification
+      - get_photos: Photos submitted (count, quality)
+      - get_estimate: Repair estimate (if provided, and the amount)
+      - get_police_report: Whether a police report was filed
+
+# ─── How bad is the damage? ──────────────────────────────────────
+
+classify_damage_severity:
+  categories: |
+    - minor: Cosmetic or small damage. Repair cost under $2,000.
+    - moderate: Significant damage but repairable. $2,000 - $10,000.
+    - major: Extensive damage, may approach vehicle value. $10,000 - $25,000.
+    - total_loss: Repair cost exceeds vehicle value or is over $25,000.
+  criteria: |
+    Use the repair estimate amount to determine severity.
+    If no estimate is provided, base it on the claim description
+    and photos — but note that the assessment will need human review.
+
+# ─── Is the documentation complete? ──────────────────────────────
+
+verify_documentation:
+  rules: |
+    We need certain documentation depending on the damage severity:
+
+    For all claims:
+    - At least one photo is required.
+    - A repair estimate must be provided.
+
+    For major damage and total loss:
+    - A police report must be filed.
+
+    If documentation is missing, the assessment can't proceed.
+    Note what's missing so we can request it from the member.
+
+# ─── Assessment output (docs complete) ──────────────────────────
+
+generate_assessment:
+  format: |
+    Return a JSON assessment:
+    {
+      "claim_id": "<from data>",
+      "damage_grade": "<minor, moderate, major, or total_loss>",
+      "repair_cost": <from the estimate>,
+      "documentation_complete": true,
+      "assessment_ready": true
+    }
+  constraints: |
+    The damage grade must match the severity classification.
+    Repair cost should come from the estimate, not be invented.
+
+# ─── Incomplete docs output ──────────────────────────────────────
+
+generate_incomplete:
+  format: |
+    Return a JSON object:
+    {
+      "claim_id": "<from data>",
+      "damage_grade": "<from classification>",
+      "documentation_complete": false,
+      "missing_documentation": ["<what's missing>"],
+      "assessment_ready": false,
+      "action_required": "Collect missing documentation before assessment can proceed"
+    }
+  constraints: |
+    List all missing documentation, not just the first item found.
+    assessment_ready must be false.

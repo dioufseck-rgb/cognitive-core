@@ -1,0 +1,117 @@
+# Insurance Claim Intake — Domain Specification
+#
+# Author: Claims Operations Team
+# Purpose: Triage incoming insurance claims — classify, check eligibility,
+#          assess risk, and route to the right outcome.
+#
+# Most claims are straightforward. The automation should handle the clear
+# approvals and clear denials. Anything ambiguous goes to a human.
+
+domain_name: synthetic_claim
+workflow: claim_intake
+governance: gate
+
+# ─── What data do we need? ───────────────────────────────────────
+
+gather_claim_data:
+  strategy: deterministic
+  specification: |
+    For each incoming claim, pull:
+      - get_claim: The claim details (claim_id, claim_type_hint, amount,
+        incident_date, description, and any system-generated flags)
+      - get_policy: The member's policy (policy_id, status, coverage_type,
+        tenure_months, prior_claims count)
+      - get_claimant: Basic member info (name, age, member_since)
+
+# ─── What type of claim is this? ─────────────────────────────────
+
+classify_claim_type:
+  categories: |
+    - liability: Injury or damage the member caused to someone else.
+    - physical_damage: Damage to the member's own property.
+    - theft: Stolen property claim.
+    - other: Doesn't fit the above categories.
+  criteria: |
+    Look at the claim description and type field.
+    Most claims clearly state what happened.
+    If it's ambiguous, go with "other" — a human will sort it out.
+
+# ─── Is this claim eligible? ────────────────────────────────────
+
+check_eligibility:
+  rules: |
+    A claim is eligible if ALL of the following are true:
+
+    1. The policy is active (status = "active").
+
+    2. The policy covers this type of claim. Coverage mapping:
+       - liability claims need "liability" coverage
+       - physical_damage claims need "comprehensive" coverage
+       - theft claims need "comprehensive" coverage
+
+    3. The claim amount is between $1 and $500,000.
+
+    4. The incident date is not in the future.
+
+    If any of these fail, the claim is denied with the specific
+    reasons listed.
+
+# ─── How risky is this claim? ───────────────────────────────────
+
+assess_risk:
+  question: |
+    For eligible claims, assess the risk level.
+
+    Consider:
+    - How many fraud flags does the claim have? (More flags = higher risk)
+    - Is the amount unusually large for this type of claim?
+    - Is the claimant a new customer filing quickly?
+    - Does the claim history show concerning patterns?
+
+    Give a risk score from 0 (no risk) to 100 (very high risk).
+
+    Based on the score:
+    - 0-29: Auto-approve — this looks clean.
+    - 30-59: Manual review — something's worth a second look.
+    - 60-79: Enhanced review — multiple concerns.
+    - 80-100: Refer to investigations — serious red flags.
+  constraints: |
+    Show your reasoning. Explain what factors contributed to the score.
+
+# ─── Approved claim output ──────────────────────────────────────
+
+generate_decision:
+  format: |
+    Return a JSON object with these fields:
+    {
+      "claim_id": "<from the claim data>",
+      "decision": "<the recommendation: auto_approve, manual_review, etc.>",
+      "risk_score": <the integer score>,
+      "eligible": true,
+      "claim_type": "<from the classification>",
+      "amount": <from the claim data>,
+      "requires_delegation": {
+        "damage_assessment": <true if it's a physical damage claim>,
+        "fraud_screening": <true if risk score is 30+ or flags are present>
+      }
+    }
+  constraints: |
+    The decision should match the risk score tier.
+    Physical damage claims need a damage assessment.
+    Claims with risk flags or elevated scores need fraud screening.
+
+# ─── Denied claim output ────────────────────────────────────────
+
+generate_denial:
+  format: |
+    Return a JSON object:
+    {
+      "claim_id": "<from claim data>",
+      "decision": "denied",
+      "eligible": false,
+      "violations": ["<list every reason the claim was denied>"],
+      "claim_type": "<from the classification>"
+    }
+  constraints: |
+    List ALL eligibility failures, not just the first one.
+    Be specific — "policy is not active" not "eligibility check failed."

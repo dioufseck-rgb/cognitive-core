@@ -1,0 +1,54 @@
+{
+  "_meta": {
+    "case_id": "mh_003_disaster_mismatch",
+    "description": "Disaster mismatch: member claims hurricane impact but address is outside declared disaster area. Should allow doc request only, not grant disaster relief path.",
+    "expected_triage": "complex",
+    "expected_path": "P1"
+  },
+  "get_member_profile": {
+    "member_token": "MBR-9003",
+    "tenure_years": 12,
+    "segment": "prime",
+    "contact_preference": "email",
+    "language_preference": "en",
+    "military_status": "none"
+  },
+  "get_loan_accounts": [
+    {
+      "account_id": "ACCT-AUTO-020",
+      "product_type": "auto_loan",
+      "balance": 15000,
+      "delinquency_days": 15,
+      "rate": 4.75,
+      "term_remaining_months": 24,
+      "payment_history_summary": "Perfect payment history for 5 years, first late payment ever",
+      "collateral": "2023 Toyota Camry",
+      "status": "active"
+    }
+  ],
+  "get_collections_notes": [
+    {"date": "2026-02-14", "agent": "AGENT-105", "note": "Member called saying hurricane damaged their home and they need payment relief. Very distressed. Long-term member, perfect history."}
+  ],
+  "get_risk_flags": {
+    "ato_score": 2,
+    "exploitation_risk": "low",
+    "recent_credential_changes": false,
+    "recent_contact_changes": false
+  },
+  "get_legal_flags": {
+    "bankruptcy_status": "none",
+    "scra_indicator": "none",
+    "legal_holds": [],
+    "garnishments": []
+  },
+  "get_complaints": {
+    "open_complaints": [],
+    "regulator_escalations": [],
+    "internal_categories": []
+  },
+  "get_hardship_statement": "Hurricane Milton destroyed our fence and flooded our garage. Our car was damaged and we had to pay $3,000 out of pocket for emergency repairs to the house. We can't make payments this month. We've been members for 12 years and never missed a payment.",
+  "get_supporting_docs": [
+    {"doc_id": "DOC-020", "type": "fema_letter", "date": "2026-01-30", "summary": "FEMA disaster declaration DR-4828 for counties: Lee, Charlotte, Collier, Sarasota."},
+    {"doc_id": "DOC-021", "type": "repair_receipt", "date": "2026-02-01", "summary": "Emergency home repair invoice: $3,150 for water damage remediation. Address: 1425 Oak Lane, Hillsborough County, FL."}
+  ]
+}

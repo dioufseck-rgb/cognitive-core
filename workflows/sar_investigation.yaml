@@ -1,137 +1,142 @@
-# SAR Investigation Workflow
-# Classify → Investigate (may loop) → Classify filing decision →
-# Generate narrative → Challenge → Verify checklist
-# With: agent-decided investigation depth, generate-challenge loop, escalation
-
 name: sar_investigation
 description: Investigate suspicious activity alerts and produce SAR narratives.
-
 steps:
-  # Step 0: Pull alert details, member info, and transaction history
-  - name: retrieve_data
-    primitive: retrieve
-    params:
-      specification: |
-        Retrieve AML alert details, member profile, and transaction history.
-        Tools needed: get_aml_alert, get_member, get_transactions
-      strategy: parallel
+- name: classify_alert
+  primitive: classify
+  params:
+    categories: ${domain.classify_alert.categories}
+    criteria: ${domain.classify_alert.criteria}
+    confidence_threshold: '0.7'
+  transitions:
+  - when: output.confidence < 0.5
+    goto: escalate
+  - default: investigate_activity
+  temperature: 0.0
+- name: investigate_activity
+  primitive: investigate
+  max_loops: 2
+  params:
+    question: 'Alert classification: ${classify_alert.category}
 
-  - name: classify_alert
-    primitive: classify
-    params:
-      categories: "${domain.classify_alert.categories}"
-      criteria: "${domain.classify_alert.criteria}"
-      confidence_threshold: "0.7"
-    transitions:
-      - when: "output.confidence < 0.5"
-        goto: escalate
-      - default: investigate_activity
+      Is this activity consistent with legitimate operations or does it
 
-  - name: investigate_activity
-    primitive: investigate
-    max_loops: 2
-    loop_fallback: classify_filing_decision
-    params:
-      question: |
-        Alert classification: ${classify_alert.category}
-        Is this activity consistent with legitimate operations or does it
-        indicate potential illicit activity warranting a SAR filing?
-      scope: "${domain.investigate_activity.scope}"
-      available_evidence: |
-        AML alert: ${retrieve_data.data.get_aml_alert}
-        Member: ${retrieve_data.data.get_member}
-        Transactions: ${retrieve_data.data.get_transactions}
-      effort_level: deep
-    transitions:
-      - agent_decide:
-          prompt: |
-            Finding: ${investigate_activity.finding}
-            Confidence: ${investigate_activity.confidence}
-          options:
-            - step: classify_filing_decision
-              description: Sufficient evidence for filing determination.
-            - step: investigate_activity
-              description: Critical evidence gaps remain, investigate deeper.
-            - step: escalate
-              description: Requires human BSA officer judgment.
+      indicate potential illicit activity warranting a SAR filing?
 
-  - name: classify_filing_decision
-    primitive: classify
-    params:
-      categories: "${domain.classify_filing_decision.categories}"
-      criteria: |
-        Investigation: ${investigate_activity.finding} (${investigate_activity.confidence})
-        Alert: ${classify_alert.category}
-        ${domain.classify_filing_decision.criteria}
-      confidence_threshold: "0.8"
-    transitions:
-      - when: "output.category == 'file_sar'"
-        goto: generate_narrative
-      - when: "output.category == 'no_sar_document'"
-        goto: generate_closure
-      - default: escalate
+      '
+    scope: ${domain.investigate_activity.scope}
+    available_evidence: 'Transactions: ${input.triggering_activity}
 
-  - name: generate_narrative
-    primitive: generate
-    max_loops: 3
-    params:
-      requirements: |
-        Alert: ${retrieve_data.data.get_aml_alert}
-        Transactions: ${retrieve_data.data.get_transactions}
-        Finding: ${investigate_activity.finding}
-        Filing rationale: ${classify_filing_decision.reasoning}
-        ${domain.generate_narrative.requirements}
-      format: sar_narrative
-      constraints: "${domain.generate_narrative.constraints}"
-    transitions:
-      - default: challenge_narrative
+      Account history: ${input.account_history}
 
-  - name: challenge_narrative
-    primitive: challenge
-    max_loops: 3
-    params:
-      input: "${generate_narrative.artifact}"
-      perspective: "${domain.challenge_narrative.perspective}"
-      threat_model: "${domain.challenge_narrative.threat_model}"
-    transitions:
-      - when: "output.survives == true"
-        goto: verify_completeness
-      - when: "output.survives == false"
-        goto: generate_narrative
-      - default: verify_completeness
+      Subject: ${input.subject}
 
-  - name: verify_completeness
-    primitive: verify
-    params:
-      input: "${generate_narrative.artifact}"
-      rules: "${domain.verify_completeness.rules}"
-    transitions:
-      - when: "output.conforms == false"
-        goto: escalate
-      - default: __end__
+      '
+    effort_level: deep
+  transitions:
+  - agent_decide:
+      prompt: 'Finding: ${investigate_activity.finding}
 
-  - name: generate_closure
-    primitive: generate
-    params:
-      requirements: |
-        Alert: ${input.alert_id} (${input.alert_type})
-        Subject: ${retrieve_data.data.get_aml_alert.subject_name}
-        Finding: ${investigate_activity.finding}
-        Decision: ${classify_filing_decision.reasoning}
-        ${domain.generate_closure.requirements}
-      format: closure_memorandum
-      constraints: "${domain.generate_closure.constraints}"
-    transitions:
-      - default: __end__
+        Confidence: ${investigate_activity.confidence}
 
-  - name: escalate
-    primitive: generate
-    params:
-      requirements: |
-        Alert: ${input.alert_id}
-        Subject: ${retrieve_data.data.get_aml_alert.subject_name}
-        ${domain.escalate.requirements}
-      format: escalation_package
-      constraints: "${domain.escalate.constraints}"
-    transitions:
-      - default: __end__
+        '
+      options:
+      - step: classify_filing_decision
+        description: Sufficient evidence for filing determination.
+      - step: investigate_activity
+        description: Critical evidence gaps remain, investigate deeper.
+      - step: escalate
+        description: Requires human BSA officer judgment.
+- name: classify_filing_decision
+  primitive: classify
+  params:
+    categories: ${domain.classify_filing_decision.categories}
+    criteria: 'Investigation: ${investigate_activity.finding} (${investigate_activity.confidence})
+
+      Alert: ${classify_alert.category}
+
+      ${domain.classify_filing_decision.criteria}
+
+      '
+    confidence_threshold: '0.8'
+  transitions:
+  - when: output.category == 'file_sar'
+    goto: generate_narrative
+  - when: output.category == 'no_sar_document'
+    goto: generate_closure
+  - default: escalate
+  temperature: 0.0
+- name: generate_narrative
+  primitive: generate
+  max_loops: 3
+  params:
+    requirements: 'Subject: ${input.subject}
+
+      Activity: ${input.triggering_activity}
+
+      Finding: ${investigate_activity.finding}
+
+      Filing rationale: ${classify_filing_decision.reasoning}
+
+      ${domain.generate_narrative.requirements}
+
+      '
+    format: sar_narrative
+    constraints: ${domain.generate_narrative.constraints}
+  transitions:
+  - default: challenge_narrative
+- name: challenge_narrative
+  primitive: challenge
+  max_loops: 3
+  params:
+    input: ${generate_narrative.artifact}
+    perspective: ${domain.challenge_narrative.perspective}
+    threat_model: ${domain.challenge_narrative.threat_model}
+  transitions:
+  - when: output.survives == true
+    goto: verify_completeness
+  - when: output.survives == false
+    goto: generate_narrative
+  - default: verify_completeness
+- name: verify_completeness
+  primitive: verify
+  params:
+    input: ${generate_narrative.artifact}
+    rules: ${domain.verify_completeness.rules}
+  transitions:
+  - when: output.conforms == false
+    goto: escalate
+  - default: __end__
+  temperature: 0.0
+  model: standard
+- name: generate_closure
+  primitive: generate
+  params:
+    requirements: 'Alert: ${input.alert_id} (${input.alert_type})
+
+      Subject: ${input.subject.name}
+
+      Finding: ${investigate_activity.finding}
+
+      Decision: ${classify_filing_decision.reasoning}
+
+      ${domain.generate_closure.requirements}
+
+      '
+    format: closure_memorandum
+    constraints: ${domain.generate_closure.constraints}
+  transitions:
+  - default: __end__
+- name: escalate
+  primitive: generate
+  params:
+    requirements: 'Alert: ${input.alert_id}
+
+      Subject: ${input.subject.name}
+
+      ${domain.escalate.requirements}
+
+      '
+    format: escalation_package
+    constraints: ${domain.escalate.constraints}
+  transitions:
+  - default: __end__

@@ -1,0 +1,67 @@
+# Hardship Path Recommendation Workflow
+#
+# Choose the right playbook path + propose ranked options.
+# Recommendation only — cannot execute.
+#
+# Think → Generate → Verify → Challenge
+
+name: hardship_path_recommendation
+description: >
+  Given a validated intake packet and constraints assessment, recommend
+  a hardship path with ranked plan options. Proposes only — never executes.
+
+steps:
+  - name: think_path_selection
+    primitive: think
+    params:
+      instruction: |
+        Given this member's hardship situation and the eligibility
+        constraints, which path is the best fit and what plan options
+        should be offered?
+
+        Considerations: ${domain.think_path_selection.considerations}
+
+        Available evidence:
+        Intake packet: ${input.intake_packet}
+        Constraints: ${input.constraints}
+    transitions:
+      - default: generate_recommendation
+
+  - name: generate_recommendation
+    primitive: generate
+    temperature: 0.2
+    max_loops: 3
+    params:
+      requirements: "${domain.generate_recommendation.requirements}"
+      format: "${domain.generate_recommendation.format}"
+      constraints: "${domain.generate_recommendation.constraints}"
+    transitions:
+      - default: verify_recommendation
+
+  - name: verify_recommendation
+    primitive: verify
+    temperature: 0.0
+    params:
+      subject: "${generate_recommendation.artifact}"
+      rules: "${domain.verify_recommendation.rules}"
+    transitions:
+      - when: "output.conforms == true"
+        goto: challenge_recommendation
+      - when: "output.conforms == false"
+        goto: generate_recommendation
+
+  - name: challenge_recommendation
+    primitive: challenge
+    model: strong
+    temperature: 0.0
+    max_loops: 2
+    params:
+      input: "${generate_recommendation.artifact}"
+      perspective: "${domain.challenge_recommendation.perspective}"
+      threat_model: "${domain.challenge_recommendation.threat_model}"
+    transitions:
+      - when: "output.survives == true"
+        goto: __end__
+      - when: "output.survives == false"
+        goto: generate_recommendation
+      - default: __end__

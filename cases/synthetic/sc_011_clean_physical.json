@@ -1,0 +1,35 @@
+{
+  "_meta": {
+    "expected": {
+      "classify_claim_type": "physical_damage",
+      "check_eligibility": true,
+      "risk_score_range": [
+        0,
+        29
+      ],
+      "recommendation": "auto_approve",
+      "delegation_damage_assessment": true,
+      "delegation_fraud_screening": false
+    }
+  },
+  "get_policy": {
+    "policy_id": "POL-011",
+    "status": "active",
+    "coverage_type": "collision,liability",
+    "tenure_months": 120,
+    "prior_claims": 0
+  },
+  "get_claim": {
+    "claim_id": "CLM-011",
+    "amount": 3500,
+    "incident_date": "2026-02-15",
+    "claim_type_hint": "physical_damage",
+    "flags": [],
+    "description": "Rear-ended at stoplight. Bumper and taillight damage."
+  },
+  "get_claimant": {
+    "name": "Robert Williams",
+    "member_since": "2016-02-01",
+    "age": 55
+  }
+}

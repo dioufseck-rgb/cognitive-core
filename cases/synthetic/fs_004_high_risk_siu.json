@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "case_id": "FS-004",
+    "parent_case": "SC-004",
+    "description": "Fraud screening for SC-004. 3 flags = high_risk. days_active=90 → P1 (rapid). 3 priors in 3 months → P2 (high freq). $45K vs avg $3K priors → P3 (escalation). No missing_docs → no P4. 3 patterns = significant_concerns → refer_to_siu.",
+    "expected": {
+      "classify_fraud_risk": "high_risk",
+      "patterns_found": ["P1", "P2", "P3"],
+      "finding": "significant_concerns",
+      "recommendation": "refer_to_siu",
+      "requires_siu": true
+    }
+  },
+  "get_claim": {
+    "claim_id": "CLM-004",
+    "amount": 45000,
+    "incident_date": "2026-02-10",
+    "description": "Vehicle totaled in single-car accident."
+  },
+  "get_claim_history": {
+    "claims": [
+      {"claim_id": "CLM-H1", "date": "2025-12-15", "amount": 3000, "type": "physical_damage"},
+      {"claim_id": "CLM-H2", "date": "2026-01-05", "amount": 2500, "type": "physical_damage"},
+      {"claim_id": "CLM-H3", "date": "2026-01-28", "amount": 4000, "type": "physical_damage"}
+    ]
+  },
+  "get_flags": {
+    "count": 3,
+    "types": ["fraud_indicator", "repeat_claimant", "new_policy"]
+  },
+  "get_policy": {
+    "policy_id": "POL-004",
+    "days_active": 90,
+    "coverage_type": "collision,comprehensive,liability"
+  }
+}

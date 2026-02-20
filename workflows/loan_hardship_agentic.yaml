@@ -17,7 +17,6 @@ mode: agentic
 goal: "${domain.goal}"
 
 available_primitives:
-  - retrieve
   - classify
   - investigate
   - think

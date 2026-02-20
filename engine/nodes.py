@@ -13,7 +13,7 @@ import time
 from typing import Any, Callable, Protocol
 
 from langchain_core.messages import HumanMessage
-from engine.llm import create_llm, create_fallback_llm
+from engine.llm import create_llm
 
 from registry.primitives import render_prompt, get_schema_class
 from engine.state import (
@@ -23,20 +23,6 @@ from engine.state import (
     resolve_param,
     build_context_from_state,
 )
-
-# Retry support — import conditionally so tests without langgraph still work
-try:
-    from engine.retry import invoke_with_retry, get_retry_policy, RetryPolicy
-    _HAS_RETRY = True
-except ImportError:
-    _HAS_RETRY = False
-
-# PII redaction support
-try:
-    from engine.pii import PiiRedactor
-    _HAS_PII = True
-except ImportError:
-    _HAS_PII = False
 
 
 # ---------------------------------------------------------------------------
@@ -192,7 +178,123 @@ def extract_json(text: str) -> dict:
         except json.JSONDecodeError:
             pass
 
+    # Attempt 5: LLMs (especially Gemini) often produce JSON where "artifact"
+    # is a nested JSON object wrapped in quotes but without proper escaping:
+    #   {"artifact": "{\n  "claim_id": ...}", ...}
+    # This is unparseable as-is. Strategy: find "artifact" key, extract the
+    # nested object as raw text, parse the rest of the fields separately,
+    # then reconstruct with artifact as a dict (model_validator will stringify).
+    try:
+        result = _extract_with_nested_artifact(json_str)
+        if result is not None:
+            return result
+    except Exception:
+        pass
+
     raise ValueError(f"Could not parse JSON: {json_str[:500]}")
+
+
+def _extract_with_nested_artifact(json_str: str) -> dict | None:
+    """
+    Handle the common LLM failure mode where "artifact" contains an
+    unescaped JSON object inside a string value, e.g.:
+        {"artifact": "{\n  "key": "value"\n}", "confidence": 0.8, ...}
+
+    Strategy: find the artifact's nested JSON object by brace-matching,
+    extract it, then parse the surrounding fields as a separate JSON object.
+    """
+    # Find "artifact": pattern
+    art_match = re.search(r'"artifact"\s*:\s*"?\s*\{', json_str)
+    if not art_match:
+        return None
+
+    # Find the start of the nested object (the '{' after "artifact":)
+    nested_start = json_str.index('{', art_match.start() + len('"artifact"'))
+
+    # Brace-match to find the end of the nested object.
+    # We track depth WITHOUT relying on string detection since the
+    # inner JSON has unescaped quotes.
+    depth = 0
+    nested_end = None
+    for i in range(nested_start, len(json_str)):
+        if json_str[i] == '{':
+            depth += 1
+        elif json_str[i] == '}':
+            depth -= 1
+            if depth == 0:
+                nested_end = i + 1
+                break
+
+    if nested_end is None:
+        return None
+
+    nested_json_str = json_str[nested_start:nested_end]
+
+    # Try to parse the nested object
+    try:
+        nested_obj = json.loads(nested_json_str)
+    except json.JSONDecodeError:
+        # Try cleaning control chars in the nested string
+        cleaned_nested = re.sub(r'[\x00-\x1f]', ' ', nested_json_str)
+        try:
+            nested_obj = json.loads(cleaned_nested)
+        except json.JSONDecodeError:
+            return None
+
+    # Now reconstruct: replace the artifact value region with a placeholder,
+    # then parse the outer JSON.
+    # Find the extent of the artifact value (may have a trailing quote and comma)
+    after_nested = json_str[nested_end:].lstrip()
+    # Skip optional trailing quote from the malformed string wrapper
+    skip = 0
+    if after_nested and after_nested[0] == '"':
+        skip = 1
+
+    outer_before = json_str[:art_match.start()]
+    outer_after = json_str[nested_end + skip:]
+
+    # Build outer JSON with artifact as a placeholder string
+    outer_json_str = outer_before + '"artifact": "__PLACEHOLDER__"' + outer_after
+
+    try:
+        outer = json.loads(outer_json_str)
+    except json.JSONDecodeError:
+        # If outer parse still fails, try to extract other fields via regex
+        outer = _extract_fields_regex(json_str, nested_start, nested_end)
+        if outer is None:
+            return None
+
+    outer["artifact"] = nested_obj
+    return outer
+
+
+def _extract_fields_regex(json_str: str, skip_start: int, skip_end: int) -> dict | None:
+    """
+    Last-resort extraction: pull known fields from the JSON string via regex,
+    skipping the artifact region.
+    """
+    text_outside = json_str[:skip_start] + json_str[skip_end:]
+
+    result = {}
+    # Extract confidence
+    m = re.search(r'"confidence"\s*:\s*([\d.]+)', text_outside)
+    if m:
+        result["confidence"] = float(m.group(1))
+
+    # Extract format
+    m = re.search(r'"format"\s*:\s*"([^"]*)"', text_outside)
+    if m:
+        result["format"] = m.group(1)
+
+    # Extract reasoning
+    m = re.search(r'"reasoning"\s*:\s*"((?:[^"\\]|\\.)*)"', text_outside)
+    if m:
+        result["reasoning"] = m.group(1)
+
+    if not result:
+        return None
+
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -210,26 +312,6 @@ def create_node(
 
     llm = create_llm(model=model, temperature=temperature)
     schema_cls = get_schema_class(primitive_name)
-
-    # Retry setup — create fallback LLM and policy once at node creation
-    _retry_policy = None
-    _fallback_llm = None
-    _provider = "unknown"
-    _model_name = model
-    if _HAS_RETRY:
-        try:
-            from engine.llm import detect_provider
-            _provider = detect_provider()
-        except Exception:
-            _provider = "unknown"
-        _retry_policy = get_retry_policy(_provider)
-        _fallback_llm = create_fallback_llm(_provider, temperature)
-        # Resolve display model name
-        try:
-            from engine.llm import resolve_model
-            _model_name = resolve_model(model, _provider)
-        except Exception:
-            _model_name = model
 
     def node_fn(state: WorkflowState) -> dict:
         # Compute loop iteration
@@ -253,55 +335,37 @@ def create_node(
 
         if auto_context and "context" not in resolved_params:
             prior_context = build_context_from_state(state)
-            input_context = json.dumps(state["input"], indent=2) if state["input"] else ""
-            resolved_params["context"] = f"Workflow Input:\n{input_context}\n\n{prior_context}"
+            ctx_data = {k: v for k, v in state["input"].items() if k != "_meta"}
+            input_context = json.dumps(ctx_data, indent=2) if ctx_data else ""
+            from datetime import date
+            today = date.today().isoformat()
+            resolved_params["context"] = f"Today's date: {today}\n\nWorkflow Input:\n{input_context}\n\n{prior_context}"
         elif auto_context and "${" not in params.get("context", ""):
             prior_context = build_context_from_state(state)
             if prior_context != "No prior steps completed.":
                 resolved_params["context"] = resolved_params["context"] + "\n\n" + prior_context
 
         if "input" not in resolved_params:
-            resolved_params["input"] = json.dumps(state["input"], indent=2)
+            # Filter out _meta (test metadata) to avoid leaking expected
+            # outcomes into LLM prompts during eval runs
+            input_data = {k: v for k, v in state["input"].items() if k != "_meta"}
+            # If a curated 'subject' was provided, minimize {input} to avoid
+            # the LLM being distracted by extraneous data (e.g. fraud flags
+            # in a verify step that should only check eligibility rules)
+            if "subject" in resolved_params and resolved_params["subject"] != "See input data below.":
+                resolved_params["input"] = "See SUBJECT TO VERIFY section above for the relevant data."
+            else:
+                resolved_params["input"] = json.dumps(input_data, indent=2)
 
         rendered_prompt = render_prompt(primitive_name, resolved_params)
 
-        # PII redaction — create redactor on first call, register case entities
-        _redactor = None
-        if _HAS_PII:
-            _redactor = PiiRedactor()
-            case_input = state.get("input")
-            if case_input and isinstance(case_input, dict):
-                _redactor.register_entities_from_case(case_input)
-            rendered_prompt = _redactor.redact(rendered_prompt)
-
-        # LLM call with retry and tracing
+        # LLM call with tracing
         _trace.on_llm_start(step_name, len(rendered_prompt))
         t0 = time.time()
 
         messages = [HumanMessage(content=rendered_prompt)]
-
-        if _HAS_RETRY and _retry_policy is not None:
-            def _parse_check(raw: str):
-                parsed = extract_json(raw)
-                schema_cls.model_validate(parsed)
-
-            retry_result = invoke_with_retry(
-                llm, messages,
-                policy=_retry_policy,
-                step_name=step_name,
-                provider=_provider,
-                model_name=_model_name,
-                parse_fn=_parse_check,
-                fallback_llm=_fallback_llm,
-            )
-            raw_response = retry_result.content
-        else:
-            response = llm.invoke(messages)
-            raw_response = response.content
-
-        # PII de-redaction — restore PII in LLM response
-        if _redactor is not None:
-            raw_response = _redactor.deredact(raw_response)
+        response = llm.invoke(messages)
+        raw_response = response.content
 
         elapsed = time.time() - t0
         _trace.on_llm_end(step_name, len(raw_response), elapsed)
@@ -320,7 +384,6 @@ def create_node(
                 "reasoning": f"Failed to parse LLM response: {e}",
                 "evidence_used": [],
                 "evidence_missing": [],
-                "_parse_failed": True,
             }
             _trace.on_parse_error(step_name, str(e))
 
@@ -380,28 +443,13 @@ Respond ONLY with JSON."""
         t0 = time.time()
 
         messages = [HumanMessage(content=prompt)]
-        if _HAS_RETRY:
-            try:
-                from engine.llm import detect_provider
-                _prov = detect_provider()
-            except Exception:
-                _prov = "unknown"
-            _rpol = get_retry_policy(_prov)
-            retry_result = invoke_with_retry(
-                llm, messages, policy=_rpol,
-                step_name=f"agent_router({from_step})",
-                provider=_prov, model_name="router",
-            )
-            raw_content = retry_result.content
-        else:
-            response = llm.invoke(messages)
-            raw_content = response.content
+        response = llm.invoke(messages)
 
         elapsed = time.time() - t0
-        _trace.on_llm_end(f"agent_router({from_step})", len(raw_content), elapsed)
+        _trace.on_llm_end(f"agent_router({from_step})", len(response.content), elapsed)
 
         try:
-            parsed = extract_json(raw_content)
+            parsed = extract_json(response.content)
             chosen = parsed.get("chosen_step", "")
             reasoning = parsed.get("reasoning", "")
             if chosen not in valid_steps:
@@ -558,47 +606,19 @@ def create_retrieve_node(
         resolved["sources"] = tool_registry.describe()
         resolved["source_results"] = source_results_text
         if "context" not in resolved:
-            input_ctx = json.dumps(state["input"], indent=2) if state["input"] else ""
+            ctx_data = {k: v for k, v in state["input"].items() if k != "_meta"}
+            input_ctx = json.dumps(ctx_data, indent=2) if ctx_data else ""
             prior_ctx = build_context_from_state(state)
-            resolved["context"] = f"Workflow Input:\n{input_ctx}\n\n{prior_ctx}"
+            from datetime import date
+            today = date.today().isoformat()
+            resolved["context"] = f"Today's date: {today}\n\nWorkflow Input:\n{input_ctx}\n\n{prior_ctx}"
 
         rendered_prompt = render_prompt("retrieve", resolved)
 
-        # PII redaction
-        _redactor = None
-        if _HAS_PII:
-            _redactor = PiiRedactor()
-            case_input = state.get("input")
-            if case_input and isinstance(case_input, dict):
-                _redactor.register_entities_from_case(case_input)
-            rendered_prompt = _redactor.redact(rendered_prompt)
-
         _trace.on_llm_start(step_name, len(rendered_prompt))
         t0 = time.time()
-
-        messages = [HumanMessage(content=rendered_prompt)]
-        if _HAS_RETRY:
-            try:
-                from engine.llm import detect_provider
-                _prov = detect_provider()
-            except Exception:
-                _prov = "unknown"
-            _rpol = get_retry_policy(_prov)
-            retry_result = invoke_with_retry(
-                llm, messages, policy=_rpol,
-                step_name=step_name, provider=_prov,
-                model_name=model,
-                fallback_llm=create_fallback_llm(_prov, temperature) if _HAS_RETRY else None,
-            )
-            raw_response = retry_result.content
-        else:
-            response = llm.invoke(messages)
-            raw_response = response.content
-
-        # PII de-redaction
-        if _redactor is not None:
-            raw_response = _redactor.deredact(raw_response)
-
+        response = llm.invoke([HumanMessage(content=rendered_prompt)])
+        raw_response = response.content
         elapsed = time.time() - t0
         _trace.on_llm_end(step_name, len(raw_response), elapsed)
 
@@ -722,12 +742,16 @@ def create_act_node(
 
         # Build context
         if "context" not in resolved:
-            input_ctx = json.dumps(state["input"], indent=2) if state["input"] else ""
+            ctx_data = {k: v for k, v in state["input"].items() if k != "_meta"}
+            input_ctx = json.dumps(ctx_data, indent=2) if ctx_data else ""
             prior_ctx = build_context_from_state(state)
-            resolved["context"] = f"Workflow Input:\n{input_ctx}\n\n{prior_ctx}"
+            from datetime import date
+            today = date.today().isoformat()
+            resolved["context"] = f"Today's date: {today}\n\nWorkflow Input:\n{input_ctx}\n\n{prior_ctx}"
 
         if "input" not in resolved:
-            resolved["input"] = json.dumps(state["input"], indent=2)
+            input_data = {k: v for k, v in state["input"].items() if k != "_meta"}
+            resolved["input"] = json.dumps(input_data, indent=2)
 
         # Set execution mode
         mode = resolved.get("mode", "dry_run" if dry_run else "execution")
@@ -924,30 +948,12 @@ Respond ONLY with JSON."""
 
     _trace.on_llm_start(f"retrieval_planner({step_name})", len(prompt))
     t0 = time.time()
-
-    messages = [HumanMessage(content=prompt)]
-    if _HAS_RETRY:
-        try:
-            from engine.llm import detect_provider
-            _prov = detect_provider()
-        except Exception:
-            _prov = "unknown"
-        _rpol = get_retry_policy(_prov)
-        retry_result = invoke_with_retry(
-            llm, messages, policy=_rpol,
-            step_name=f"retrieval_planner({step_name})",
-            provider=_prov, model_name="planner",
-        )
-        raw_content = retry_result.content
-    else:
-        response = llm.invoke(messages)
-        raw_content = response.content
-
+    response = llm.invoke([HumanMessage(content=prompt)])
     elapsed = time.time() - t0
-    _trace.on_llm_end(f"retrieval_planner({step_name})", len(raw_content), elapsed)
+    _trace.on_llm_end(f"retrieval_planner({step_name})", len(response.content), elapsed)
 
     try:
-        parsed = extract_json(raw_content)
+        parsed = extract_json(response.content)
         sources = parsed.get("sources", [])
         valid = [s for s in sources if s in available_tools]
         return valid if valid else available_tools

@@ -498,68 +498,7 @@ Single-file (legacy):
 
     tool_registry = None
     if has_retrieve:
-        # Data sourcing priority:
-        #   1. MCP data_services server (if DATA_MCP_URL or DATA_MCP_CMD is set)
-        #   2. Fixture database (if cognitive_core.db exists)
-        #   3. Case passthrough (legacy fallback)
-        data_mcp_url = os.environ.get("DATA_MCP_URL", "")
-        data_mcp_cmd = os.environ.get("DATA_MCP_CMD", "")
-
-        if data_mcp_url or data_mcp_cmd:
-            # ── MCP-backed retrieval ──
-            import asyncio
-            from engine.providers import MCPProvider
-            from engine.tools import ToolRegistry as _TR
-
-            tool_registry = _TR()
-            if data_mcp_url:
-                provider = MCPProvider(transport="http", url=data_mcp_url)
-            else:
-                parts = data_mcp_cmd.split()
-                provider = MCPProvider(
-                    transport="stdio", command=parts[0], args=parts[1:],
-                )
-
-            async def _connect_mcp():
-                await provider.connect()
-                provider.register_all(tool_registry)
-
-            asyncio.get_event_loop().run_until_complete(_connect_mcp())
-            if not args.no_trace:
-                src = data_mcp_url or data_mcp_cmd
-                print(f"  data: MCP ({src})", file=sys.stderr)
-        else:
-            try:
-                from fixtures.api import create_service_registry
-                from fixtures.db import DB_PATH
-                # Case JSON with get_* tool data takes priority over fixtures DB
-                has_case_tools = any(
-                    isinstance(v, (dict, list)) and k.startswith("get_")
-                    for k, v in workflow_input.items()
-                )
-                if has_case_tools:
-                    tool_registry = create_case_registry(workflow_input)
-                    if not args.no_trace:
-                        print(f"  data: case tools", file=sys.stderr)
-                elif DB_PATH.exists():
-                    # ── Fixture DB (in-process, no MCP overhead) ──
-                    tool_registry = create_service_registry()
-                    if not args.no_trace:
-                        print(f"  data: fixture DB ({DB_PATH.name})", file=sys.stderr)
-                else:
-                    raise FileNotFoundError
-            except (ImportError, FileNotFoundError):
-                # ── Legacy case passthrough ──
-                fixtures_path = None
-                if args.case:
-                    from pathlib import Path
-                    case_p = Path(args.case)
-                    fixtures_candidate = case_p.parent / "fixtures" / case_p.name
-                    if fixtures_candidate.exists():
-                        fixtures_path = str(fixtures_candidate)
-                tool_registry = create_case_registry(workflow_input, fixtures_path=fixtures_path)
-                if not args.no_trace:
-                    print(f"  data: case passthrough", file=sys.stderr)
+        tool_registry = create_case_registry(workflow_input)
         if not args.no_trace:
             print(f"  tools: {', '.join(tool_registry.list_tools())}", file=sys.stderr)
 

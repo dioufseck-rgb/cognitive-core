@@ -1,0 +1,48 @@
+# Delegated workflow: Fraud screening
+# Called by claim_intake when amount > $5,000 OR flags present
+
+name: fraud_screening
+description: >
+  Screen an insurance claim for fraud indicators. Deterministic rules:
+  fraud_score is computed from flag count and pattern matching.
+
+steps:
+  - name: gather_fraud_data
+    primitive: retrieve
+    params:
+      specification: "${domain.gather_fraud_data.specification}"
+      strategy: "${domain.gather_fraud_data.strategy}"
+
+  - name: classify_fraud_risk
+    primitive: classify
+    temperature: 0.0
+    params:
+      categories: "${domain.classify_fraud_risk.categories}"
+      criteria: "${domain.classify_fraud_risk.criteria}"
+      confidence_threshold: "0.85"
+
+  - name: investigate_patterns
+    primitive: investigate
+    temperature: 0.0
+    params:
+      question: "${domain.investigate_patterns.question}"
+      scope: "${domain.investigate_patterns.question}"
+      hypotheses: "${domain.investigate_patterns.hypotheses}"
+      evidence: |
+        Prior claims: ${gather_fraud_data.data.get_claim_history.claims}
+        Flag count: ${gather_fraud_data.data.get_flags.count}
+        Flag types: ${gather_fraud_data.data.get_flags.types}
+        Claim amount: ${gather_fraud_data.data.get_claim.amount}
+        Days since policy start: ${gather_fraud_data.data.get_policy.days_active}
+
+  - name: generate_screening_result
+    primitive: generate
+    params:
+      format: "${domain.generate_screening_result.format}"
+      requirements: "${domain.generate_screening_result.format}"
+      constraints: "${domain.generate_screening_result.constraints}"
+      inputs: |
+        Fraud risk category: ${classify_fraud_risk.category}
+        Investigation finding: ${investigate_patterns.finding}
+        Evidence flags: ${investigate_patterns.evidence_flags}
+        Recommendation: ${investigate_patterns.recommendation}

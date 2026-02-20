@@ -39,6 +39,8 @@ Respond with a JSON object matching this structure:
     "second key takeaway"
   ],
   "decision": "your recommended course of action (or null if no clear recommendation)",
+  "risk_score": null,
+  "recommendation": null,
   "confidence": 0.0 to 1.0,
   "reasoning": "brief summary of your reasoning approach",
   "evidence_used": [
@@ -48,5 +50,10 @@ Respond with a JSON object matching this structure:
     {{"source": "where to find it", "description": "how it would change your reasoning"}}
   ]
 }}
+
+IMPORTANT: If the instruction asks you to compute a risk_score, return it as
+an integer in the "risk_score" field. If the instruction asks for a recommendation
+(e.g. "auto_approve", "refer_to_siu"), return it in the "recommendation" field
+AND in the "decision" field.
 
 Respond ONLY with the JSON object. No other text.

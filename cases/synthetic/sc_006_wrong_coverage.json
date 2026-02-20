@@ -1,0 +1,34 @@
+{
+  "_meta": {
+    "case_id": "SC-006",
+    "description": "Theft claim but policy only has liability coverage. Fails E2. Decision = denied.",
+    "expected": {
+      "classify_claim_type": "theft",
+      "check_eligibility": false,
+      "eligibility_violations": ["E2"],
+      "decision": "denied",
+      "delegation_damage_assessment": false,
+      "delegation_fraud_screening": false
+    }
+  },
+  "get_policy": {
+    "policy_id": "POL-006",
+    "status": "active",
+    "coverage_type": "liability",
+    "tenure_months": 30,
+    "prior_claims": 0
+  },
+  "get_claim": {
+    "claim_id": "CLM-006",
+    "amount": 8000,
+    "incident_date": "2026-02-05",
+    "claim_type_hint": "theft",
+    "flags": [],
+    "description": "Laptop stolen from backseat of car."
+  },
+  "get_claimant": {
+    "name": "Frank Chen",
+    "member_since": "2023-08-01",
+    "age": 31
+  }
+}

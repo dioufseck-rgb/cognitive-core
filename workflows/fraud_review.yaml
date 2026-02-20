@@ -1,89 +1,105 @@
-# Fraud Review Workflow
-# Triggered by blocking delegation when product_return finds fraud indicators.
-# Retrieve → Investigate → Classify risk → Generate assessment
-#
-# Governance: auto (completes immediately, result cascades back to source)
-
 name: fraud_review
 description: Deep-dive fraud assessment for flagged return requests.
-
 steps:
-  - name: gather_fraud_data
-    primitive: retrieve
-    params:
-      specification: |
-        Retrieve fraud-relevant data for this customer:
-          - get_customer: Full customer profile and account standing
-          - get_return_history: Complete return history across all orders
-          - get_fraud_signals: Known fraud indicators, IP/device data, prior flags
-        Pull all available sources.
-      strategy: deterministic
+- name: gather_fraud_data
+  primitive: retrieve
+  params:
+    specification: "Retrieve fraud-relevant data for this customer:\n  - get_customer: Full customer profile and account standing\n\
+      \  - get_return_history: Complete return history across all orders\n  - get_fraud_signals: Known fraud indicators, IP/device\
+      \ data, prior flags\nPull all available sources.\n"
+    strategy: deterministic
+- name: investigate_fraud
+  primitive: investigate
+  max_loops: 2
+  loop_fallback: classify_risk
+  params:
+    question: 'Referral reason: ${input.referral_reason}
 
-  - name: investigate_fraud
-    primitive: investigate
-    max_loops: 2
-    loop_fallback: classify_risk
-    params:
-      question: |
-        Referral reason: ${input.referral_reason}
-        Triggering evidence: ${input.triggering_evidence}
-        Is this customer engaging in return fraud, return abuse, or is this a legitimate return?
-      scope: |
-        - Return frequency: How often does this customer return items? Is the rate abnormal?
-        - Pattern analysis: Are returns concentrated in high-value items? Electronics?
-        - Timing patterns: Returns consistently near the end of return windows?
-        - Wardrobing indicators: Items used then returned (wear marks, missing tags)?
-        - Cross-channel abuse: Returns split across online/in-store to avoid detection?
-        - Account signals: Multiple accounts, address changes, velocity anomalies?
-      available_evidence: |
-        Customer: ${gather_fraud_data.data.get_customer}
-        Return history: ${gather_fraud_data.data.get_return_history}
-        Fraud signals: ${gather_fraud_data.data.get_fraud_signals}
-      effort_level: deep
-    transitions:
-      - default: classify_risk
+      Triggering evidence: ${input.triggering_evidence}
 
-  - name: classify_risk
-    primitive: classify
-    params:
-      categories: |
-        - high_risk: Strong indicators of deliberate return fraud or organized abuse.
-          Recommend deny current return + account restriction.
-        - moderate_risk: Pattern suggests potential abuse but not conclusive.
-          Recommend approve with conditions + monitoring flag.
-        - low_risk: No significant fraud indicators found.
-          Recommend approve, customer appears legitimate.
-      criteria: |
-        Investigation finding: ${investigate_fraud.finding}
-        Evidence: ${investigate_fraud.evidence_flags}
+      Is this customer engaging in return fraud, return abuse, or is this a legitimate return?
 
-        Classify the fraud risk level based on:
-        - Strength and number of fraud indicators
-        - Whether patterns are consistent with known fraud typologies
-        - Customer's overall relationship and tenure
-        - Severity of financial impact
-      confidence_threshold: "0.75"
-    transitions:
-      - default: generate_assessment
+      '
+    scope: '- Return frequency: How often does this customer return items? Is the rate abnormal?
 
-  - name: generate_assessment
-    primitive: generate
-    params:
-      requirements: |
-        Generate a fraud assessment report summarizing:
-        1. Risk classification: ${classify_risk.category} (confidence: ${classify_risk.confidence})
-        2. Key findings from investigation: ${investigate_fraud.finding}
-        3. Evidence flags: ${investigate_fraud.evidence_flags}
-        4. Recommended action for the return request
-        5. Recommended account-level actions (monitoring, restriction, none)
+      - Pattern analysis: Are returns concentrated in high-value items? Electronics?
 
-        This report will be consumed by the originating return workflow
-        to inform its resolution decision.
-      format: fraud_assessment_report
-      constraints: |
-        - Be specific about which evidence supports the risk classification
-        - Clearly state recommended actions
-        - Include confidence levels for key findings
-        - Do not speculate beyond the evidence
-    transitions:
-      - default: __end__
+      - Timing patterns: Returns consistently near the end of return windows?
+
+      - Wardrobing indicators: Items used then returned (wear marks, missing tags)?
+
+      - Cross-channel abuse: Returns split across online/in-store to avoid detection?
+
+      - Account signals: Multiple accounts, address changes, velocity anomalies?
+
+      '
+    available_evidence: 'Customer: ${gather_fraud_data.data.get_customer}
+
+      Return history: ${gather_fraud_data.data.get_return_history}
+
+      Fraud signals: ${gather_fraud_data.data.get_fraud_signals}
+
+      '
+    effort_level: deep
+  transitions:
+  - default: classify_risk
+- name: classify_risk
+  primitive: classify
+  params:
+    categories: "- high_risk: Strong indicators of deliberate return fraud or organized abuse.\n  Recommend deny current return\
+      \ + account restriction.\n- moderate_risk: Pattern suggests potential abuse but not conclusive.\n  Recommend approve\
+      \ with conditions + monitoring flag.\n- low_risk: No significant fraud indicators found.\n  Recommend approve, customer\
+      \ appears legitimate.\n"
+    criteria: 'Investigation finding: ${investigate_fraud.finding}
+
+      Evidence: ${investigate_fraud.evidence_flags}
+
+
+      Classify the fraud risk level based on:
+
+      - Strength and number of fraud indicators
+
+      - Whether patterns are consistent with known fraud typologies
+
+      - Customer''s overall relationship and tenure
+
+      - Severity of financial impact
+
+      '
+    confidence_threshold: '0.75'
+  transitions:
+  - default: generate_assessment
+  temperature: 0.0
+- name: generate_assessment
+  primitive: generate
+  params:
+    requirements: 'Generate a fraud assessment report summarizing:
+
+      1. Risk classification: ${classify_risk.category} (confidence: ${classify_risk.confidence})
+
+      2. Key findings from investigation: ${investigate_fraud.finding}
+
+      3. Evidence flags: ${investigate_fraud.evidence_flags}
+
+      4. Recommended action for the return request
+
+      5. Recommended account-level actions (monitoring, restriction, none)
+
+
+      This report will be consumed by the originating return workflow
+
+      to inform its resolution decision.
+
+      '
+    format: fraud_assessment_report
+    constraints: '- Be specific about which evidence supports the risk classification
+
+      - Clearly state recommended actions
+
+      - Include confidence levels for key findings
+
+      - Do not speculate beyond the evidence
+
+      '
+  transitions:
+  - default: __end__

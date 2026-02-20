@@ -2,5 +2,34 @@
   "alert_id": "AML-2026-00847",
   "alert_type": "structuring",
   "alert_score": 87,
-  "member_id": "AML-ROBERT-J.-MANCINI"
+  "subject": {
+    "name": "Robert J. Mancini",
+    "member_since": "2020-11-03",
+    "account_type": "Business Checking",
+    "business_name": "Mancini Consulting LLC",
+    "business_type": "Management Consulting",
+    "occupation": "Consultant"
+  },
+  "triggering_activity": {
+    "period": "2026-01-01 to 2026-01-31",
+    "transactions": [
+      {"date": "2026-01-03", "type": "cash_deposit", "amount": 9400, "location": "Branch #442 Virginia Beach"},
+      {"date": "2026-01-07", "type": "cash_deposit", "amount": 9200, "location": "Branch #442 Virginia Beach"},
+      {"date": "2026-01-10", "type": "cash_deposit", "amount": 8800, "location": "Branch #518 Norfolk"},
+      {"date": "2026-01-14", "type": "cash_deposit", "amount": 9500, "location": "Branch #442 Virginia Beach"},
+      {"date": "2026-01-17", "type": "cash_deposit", "amount": 9100, "location": "Branch #518 Norfolk"},
+      {"date": "2026-01-21", "type": "cash_deposit", "amount": 9700, "location": "Branch #442 Virginia Beach"},
+      {"date": "2026-01-24", "type": "wire_transfer_out", "amount": 45000, "destination": "Cayman National Bank, George Town"},
+      {"date": "2026-01-28", "type": "cash_deposit", "amount": 9300, "location": "Branch #518 Norfolk"}
+    ],
+    "total_cash_deposits": 64900,
+    "ctr_filed": false
+  },
+  "account_history": {
+    "avg_monthly_deposits_prior_6mo": 12000,
+    "prior_sars": 0,
+    "prior_alerts": 1,
+    "prior_alert_disposition": "closed_no_action",
+    "account_balance": 23400
+  }
 }

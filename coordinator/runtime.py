@@ -595,6 +595,8 @@ class Coordinator:
                 )
                 # Override governance tier to force HITL review
                 instance.governance_tier = qg["escalation_tier"]
+                # Stash for escalation brief
+                instance._quality_gate = qg
 
         # ── Step 1: Evaluate governance tier ──
         # Skip on resume: governance was already evaluated before suspension.
@@ -690,6 +692,9 @@ class Coordinator:
         Truly suspend an instance pending governance approval.
         Saves state snapshot, publishes a task to the approval queue,
         and marks instance as suspended.
+
+        The task includes an escalation brief — a structured summary
+        that helps the human reviewer make a decision faster.
         """
         suspension = Suspension.create(
             instance_id=instance.instance_id,
@@ -703,7 +708,30 @@ class Coordinator:
         instance.resume_nonce = suspension.resume_nonce
         self.store.save_instance(instance)
 
+        # Build escalation brief for the human reviewer
+        escalation_brief = None
+        try:
+            from coordinator.escalation import build_escalation_brief
+            escalation_brief = build_escalation_brief(
+                workflow_type=instance.workflow_type,
+                domain=instance.domain,
+                final_state=final_state,
+                escalation_reason=gov_decision.reason,
+                quality_gate=getattr(instance, '_quality_gate', None),
+            )
+        except Exception as e:
+            self._log(f"  ⚠ Failed to build escalation brief: {e}")
+
         # Publish task to approval queue
+        task_payload = {
+            "governance_tier": gov_decision.tier,
+            "reason": gov_decision.reason,
+            "step_count": instance.step_count,
+            "result_summary": instance.result,
+        }
+        if escalation_brief:
+            task_payload["escalation_brief"] = escalation_brief
+
         task = Task.create(
             task_type=TaskType.GOVERNANCE_APPROVAL,
             queue=gov_decision.queue,
@@ -711,12 +739,7 @@ class Coordinator:
             correlation_id=instance.correlation_id,
             workflow_type=instance.workflow_type,
             domain=instance.domain,
-            payload={
-                "governance_tier": gov_decision.tier,
-                "reason": gov_decision.reason,
-                "step_count": instance.step_count,
-                "result_summary": instance.result,
-            },
+            payload=task_payload,
             callback=TaskCallback(
                 method="approve",
                 instance_id=instance.instance_id,
@@ -1387,6 +1410,17 @@ class Coordinator:
             if prim == "classify":
                 step_summary["category"] = output.get("category")
                 step_summary["confidence"] = output.get("confidence")
+            elif prim == "think":
+                step_summary["risk_score"] = output.get("risk_score")
+                step_summary["decision"] = output.get("decision")
+                # Pull recommendation from dedicated field first, fall back to decision
+                step_summary["recommendation"] = (
+                    output.get("recommendation") or output.get("decision")
+                )
+                step_summary["reasoning"] = str(output.get("reasoning", ""))[:500]
+                step_summary["thought"] = str(output.get("thought", ""))[:500]
+                step_summary["confidence"] = output.get("confidence")
+                step_summary["conclusions"] = output.get("conclusions", [])
             elif prim == "investigate":
                 step_summary["finding"] = str(output.get("finding", ""))[:500]
                 step_summary["confidence"] = output.get("confidence")
@@ -1394,6 +1428,7 @@ class Coordinator:
                 step_summary["missing_evidence"] = output.get("missing_evidence", [])
             elif prim == "generate":
                 step_summary["artifact_preview"] = str(output.get("artifact", ""))[:300]
+                step_summary["artifact"] = output.get("artifact")
                 step_summary["confidence"] = output.get("confidence")
             elif prim == "challenge":
                 step_summary["survives"] = output.get("survives")
@@ -1517,6 +1552,10 @@ class Coordinator:
             with open(domain_path) as f:
                 domain_config = yaml.safe_load(f)
             tier = domain_config.get("governance", "gate")
+            # v2 domains have governance as a dict: {"tier": "auto", ...}
+            # v1 domains have governance as a string: "gate"
+            if isinstance(tier, dict):
+                tier = tier.get("tier", "gate")
         except FileNotFoundError:
             tier = "gate"  # safe default
 
@@ -1663,14 +1702,23 @@ class _CoordinatorTrace:
             data = output.get("data", {})
             sources = output.get("sources_queried", [])
             n_ok = sum(1 for s in sources if s.get("status") == "success")
+            # Only count as EMPTY when record_count is explicitly 0,
+            # not when it's absent/None (which means "not tracked")
             n_empty = sum(1 for s in sources
                          if s.get("status") == "success"
-                         and not s.get("record_count"))
-            self._log(f"    → {n_ok}/{len(sources)} sources, "
-                       f"{len(data)} data keys"
-                       f"{f', {n_empty} EMPTY' if n_empty else ''}")
+                         and s.get("record_count") is not None
+                         and s.get("record_count") == 0)
+            n_untracked = sum(1 for s in sources
+                             if s.get("status") == "success"
+                             and s.get("record_count") is None)
+            parts = [f"{n_ok}/{len(sources)} sources", f"{len(data)} data keys"]
+            if n_empty:
+                parts.append(f"{n_empty} EMPTY")
+            if n_untracked:
+                parts.append(f"{n_untracked} record_count n/a")
+            self._log(f"    → {', '.join(parts)}")
         elif primitive == "generate":
-            self._log(f"    → generated {len(output.get('artifact', '')):,} chars")
+            self._log(f"    → generated {len(str(output.get('artifact', ''))):,} chars")
         elif primitive == "think":
             decision = output.get("decision", "")[:70]
             self._log(f"    → {decision}")

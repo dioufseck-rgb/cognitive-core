@@ -1,0 +1,96 @@
+# Fraud Screening — Domain Specification
+#
+# Author: Fraud Operations Team
+# Purpose: Screen insurance claims for fraud indicators before approval.
+#
+# This document describes what we look for and how we handle it.
+# The framework handles routing, artifact generation, and escalation.
+
+domain_name: synthetic_fraud
+workflow: fraud_screening
+governance: spot_check
+
+# ─── What data do we need? ───────────────────────────────────────
+
+gather_fraud_data:
+  strategy: deterministic
+  specification: |
+    Pull the following for each claim:
+      - get_claim: The claim itself (ID, amount, dates, description)
+      - get_claim_history: All prior claims by this claimant
+      - get_flags: System-generated fraud flags (count and types)
+      - get_policy: Policy details (how long they've been a customer, coverage)
+
+# ─── How do we assess risk? ──────────────────────────────────────
+
+classify_fraud_risk:
+  categories: |
+    - low_risk: No fraud flags on the claim.
+    - medium_risk: One or two fraud flags — worth monitoring but not blocking.
+    - high_risk: Three or more fraud flags — needs serious scrutiny.
+  criteria: |
+    Base the risk category on the number of fraud flags (get_flags.count).
+    Zero flags = low risk. One or two = medium. Three or more = high.
+
+# ─── What patterns do we look for? ───────────────────────────────
+
+investigate_patterns:
+  question: |
+    Look for these fraud patterns in the claim data:
+
+    1. "Rapid filing" — Did the claimant file very soon after getting
+       the policy? (Less than 90 days is suspicious.)
+
+    2. "High frequency" — Has the claimant filed multiple claims
+       recently? (Two or more in the last 12 months is a pattern.)
+
+    3. "Amount escalation" — Is this claim significantly larger than
+       their previous claims? (More than double the average is notable.)
+
+    4. "Documentation gaps" — Are there missing documents flagged
+       in the system?
+
+    Based on what you find:
+    - If nothing suspicious, say so and recommend clearing the claim.
+    - If minor concerns, recommend flagging for monitoring.
+    - If significant concerns, recommend referring to the SIU
+      (Special Investigations Unit).
+
+    The risk level from the classification step should inform your
+    judgment. A high-risk claim with even one pattern is more
+    concerning than a low-risk claim with the same pattern.
+
+  hypotheses: |
+    H1: The claim was filed suspiciously soon after policy start.
+    H2: The claimant files claims frequently.
+    H3: Claim amounts are escalating.
+    H4: Documentation is intentionally incomplete.
+
+# ─── What's the output? ─────────────────────────────────────────
+
+generate_screening_result:
+  format: |
+    Produce a JSON summary:
+    {
+      "claim_id": "<from the claim data>",
+      "fraud_risk_category": "<low_risk, medium_risk, or high_risk>",
+      "patterns_found": ["<list which patterns were found>"],
+      "finding": "<your overall assessment>",
+      "recommendation": "<clear, flag_for_monitoring, or refer_to_siu>",
+      "requires_siu": <true if recommending SIU referral>
+    }
+  constraints: |
+    - Don't approve high-risk claims without explaining why.
+    - If recommending SIU, requires_siu must be true.
+    - The recommendation should be consistent with the risk level
+      and the patterns found.
+
+# ─── When should this escalate to a human? ───────────────────────
+#
+# The framework handles escalation automatically when:
+#   - The LLM's confidence drops below the governance threshold
+#   - The governance tier (spot_check) flags it for review
+#
+# But as a domain rule: if the risk is high and patterns are found,
+# always recommend SIU referral. Let the SIU team decide — don't
+# try to resolve it in automation.

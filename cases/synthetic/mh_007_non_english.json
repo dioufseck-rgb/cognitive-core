@@ -1,0 +1,55 @@
+{
+  "_meta": {
+    "case_id": "mh_007_non_english",
+    "description": "Non-English preference: French-speaking member requesting hardship assistance. Tests language enforcement, translated templates, and channel restrictions.",
+    "expected_triage": "straightforward",
+    "expected_path": "P1"
+  },
+  "get_member_profile": {
+    "member_token": "MBR-9007",
+    "tenure_years": 4,
+    "segment": "standard",
+    "contact_preference": "phone",
+    "language_preference": "fr",
+    "military_status": "none"
+  },
+  "get_loan_accounts": [
+    {
+      "account_id": "ACCT-AUTO-060",
+      "product_type": "auto_loan",
+      "balance": 16000,
+      "delinquency_days": 45,
+      "rate": 6.5,
+      "term_remaining_months": 30,
+      "payment_history_summary": "On time for 18 months, missed last 2 payments",
+      "collateral": "2023 Hyundai Tucson",
+      "status": "active"
+    }
+  ],
+  "get_collections_notes": [
+    {"date": "2026-02-01", "agent": "AGENT-225", "note": "Member called, limited English. Transferred to French-speaking agent."},
+    {"date": "2026-02-01", "agent": "AGENT-FR-04", "note": "Member reports temporary income reduction due to reduced work hours. Employer cutting hours from 40 to 25/week. Expects restoration in 2-3 months. Requesting payment deferral."}
+  ],
+  "get_risk_flags": {
+    "ato_score": 3,
+    "exploitation_risk": "low",
+    "recent_credential_changes": false,
+    "recent_contact_changes": false
+  },
+  "get_legal_flags": {
+    "bankruptcy_status": "none",
+    "scra_indicator": "none",
+    "legal_holds": [],
+    "garnishments": []
+  },
+  "get_complaints": {
+    "open_complaints": [],
+    "regulator_escalations": [],
+    "internal_categories": []
+  },
+  "get_hardship_statement": "Mon employeur a réduit mes heures de travail de 40 à 25 heures par semaine. Je ne peux plus payer mes mensualités complètes. J'espère que les heures seront rétablies dans 2 à 3 mois.",
+  "get_supporting_docs": [
+    {"doc_id": "DOC-060", "type": "employer_letter", "date": "2026-01-28", "summary": "Letter from employer (in English) confirming reduction from 40 to 25 hours/week effective January 15, 2026. Notes this is temporary due to seasonal business slowdown."},
+    {"doc_id": "DOC-061", "type": "paystub", "date": "2026-02-15", "summary": "Paystub showing gross pay $1,562.50 (25 hrs × $62.50/hr). Previous paystub showed $2,500 (40 hrs × $62.50/hr)."}
+  ]
+}

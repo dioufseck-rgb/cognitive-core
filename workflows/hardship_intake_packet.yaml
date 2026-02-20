@@ -1,0 +1,63 @@
+# Hardship Intake Packet Workflow
+#
+# Turn messy multichannel inputs into a clean, evidence-linked packet.
+# Never decides — only structures and validates evidence.
+#
+# Retrieve → Investigate → Generate → Verify
+
+name: hardship_intake_packet
+description: >
+  Collect member data from all systems, investigate the hardship claim,
+  generate a structured intake packet, and verify evidence linkage.
+
+steps:
+  - name: gather_member_data
+    primitive: retrieve
+    params:
+      specification: "${domain.gather_member_data.specification}"
+      strategy: deterministic
+    transitions:
+      - default: investigate_hardship_claim
+
+  - name: investigate_hardship_claim
+    primitive: investigate
+    params:
+      question: |
+        What is this member's hardship situation?
+        Extract and normalize the hardship claims from all available data.
+      scope: "${domain.investigate_hardship_claim.scope}"
+      available_evidence: |
+        Member profile: ${gather_member_data.data.get_member_profile}
+        Loan accounts: ${gather_member_data.data.get_loan_accounts}
+        Collections notes: ${gather_member_data.data.get_collections_notes}
+        Risk flags: ${gather_member_data.data.get_risk_flags}
+        Legal flags: ${gather_member_data.data.get_legal_flags}
+        Complaints: ${gather_member_data.data.get_complaints}
+        Hardship statement: ${gather_member_data.data.get_hardship_statement}
+        Supporting documents: ${gather_member_data.data.get_supporting_docs}
+      hypotheses: "${domain.investigate_hardship_claim.hypotheses}"
+      effort_level: deep
+    transitions:
+      - default: generate_intake_packet
+
+  - name: generate_intake_packet
+    primitive: generate
+    temperature: 0.1
+    params:
+      requirements: "${domain.generate_intake_packet.requirements}"
+      format: "${domain.generate_intake_packet.format}"
+      constraints: "${domain.generate_intake_packet.constraints}"
+    transitions:
+      - default: verify_evidence_linkage
+
+  - name: verify_evidence_linkage
+    primitive: verify
+    temperature: 0.0
+    params:
+      subject: "${generate_intake_packet.artifact}"
+      rules: "${domain.verify_evidence_linkage.rules}"
+    transitions:
+      - when: "output.conforms == true"
+        goto: __end__
+      - when: "output.conforms == false"
+        goto: generate_intake_packet

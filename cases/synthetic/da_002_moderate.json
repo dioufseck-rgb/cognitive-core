@@ -1,0 +1,34 @@
+{
+  "_meta": {
+    "case_id": "DA-002",
+    "parent_case": "SC-002",
+    "description": "Damage assessment for SC-002. Repair cost $4500 = moderate. 4 photos, estimate provided, no police report needed (not major). Documentation complete.",
+    "expected": {
+      "classify_damage_severity": "moderate",
+      "verify_documentation": true,
+      "assessment_ready": true
+    }
+  },
+  "get_claim": {
+    "claim_id": "CLM-002",
+    "amount": 4500,
+    "description": "Tree fell on car during storm. Windshield and roof damaged."
+  },
+  "get_photos": {
+    "count": 4,
+    "descriptions": ["Front view of car", "Roof damage closeup", "Windshield crack", "Tree branch on hood"]
+  },
+  "get_estimate": {
+    "provided": true,
+    "amount": 4500,
+    "vendor": "AutoBody Pro"
+  },
+  "get_police_report": {
+    "filed": false,
+    "report_number": null
+  },
+  "get_policy": {
+    "policy_id": "POL-002",
+    "coverage_type": "collision,comprehensive,liability"
+  }
+}

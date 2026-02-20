@@ -1,110 +1,121 @@
-# Regulatory Impact Assessment Workflow
-# Classify severity → Investigate (depth varies) → Classify business impact →
-# Generate report → Challenge
-# With: agent reclassifies severity after standard investigation
-
 name: regulatory_impact
 description: Assess impact of new regulations with dynamic investigation depth.
-
 steps:
-  - name: classify_severity
-    primitive: classify
-    params:
-      categories: "${domain.classify_severity.categories}"
-      criteria: |
-        Regulation: ${input.regulation}
-        Institution: ${input.institution_context}
-        ${domain.classify_severity.criteria}
-      confidence_threshold: "0.7"
-    transitions:
-      - when: "output.category == 'high_impact_immediate'"
-        goto: investigate_deep
-      - when: "output.category == 'clarification_needed'"
-        goto: escalate
-      - default: investigate_standard
+- name: classify_severity
+  primitive: classify
+  params:
+    categories: ${domain.classify_severity.categories}
+    criteria: 'Regulation: ${input.regulation}
 
-  - name: investigate_deep
-    primitive: investigate
-    params:
-      question: |
-        What are all specific impacts of this regulation on our institution?
-      scope: "${domain.investigate_deep.scope}"
-      available_evidence: |
-        Regulation: ${input.regulation}
-        Institution: ${input.institution_context}
-        Classification: ${classify_severity.category}
-      effort_level: deep
-    transitions:
-      - default: classify_business_impact
+      Institution: ${input.institution_context}
 
-  - name: investigate_standard
-    primitive: investigate
-    params:
-      question: What are the primary impacts and required actions?
-      scope: "${domain.investigate_standard.scope}"
-      available_evidence: |
-        Regulation: ${input.regulation}
-        Institution: ${input.institution_context}
-        Classification: ${classify_severity.category}
-      effort_level: moderate
-    transitions:
-      - agent_decide:
-          prompt: |
-            Finding: ${investigate_standard.finding}
-            Confidence: ${investigate_standard.confidence}
-          options:
-            - step: investigate_deep
-              description: More impactful than initially classified, escalate to deep.
-            - step: generate_report
-              description: Standard investigation sufficient, proceed to report.
+      ${domain.classify_severity.criteria}
 
-  - name: classify_business_impact
-    primitive: classify
-    params:
-      categories: "${domain.classify_business_impact.categories}"
-      criteria: |
-        Investigation: ${previous.finding}
-        Affected areas: ${input.institution_context.affected_business_lines}
-        ${domain.classify_business_impact.criteria}
-      confidence_threshold: "0.7"
-    transitions:
-      - default: generate_report
+      '
+    confidence_threshold: '0.7'
+  transitions:
+  - when: output.category == 'high_impact_immediate'
+    goto: investigate_deep
+  - when: output.category == 'clarification_needed'
+    goto: escalate
+  - default: investigate_standard
+  temperature: 0.0
+- name: investigate_deep
+  primitive: investigate
+  params:
+    question: 'What are all specific impacts of this regulation on our institution?
 
-  - name: generate_report
-    primitive: generate
-    max_loops: 3
-    params:
-      requirements: |
-        Regulation: ${input.regulation.title} (${input.regulation.agency})
-        Effective: ${input.regulation.effective_date}
-        ${domain.generate_report.requirements}
-      format: executive_impact_report
-      constraints: "${domain.generate_report.constraints}"
-    transitions:
-      - default: challenge_report
+      '
+    scope: ${domain.investigate_deep.scope}
+    available_evidence: 'Regulation: ${input.regulation}
 
-  - name: challenge_report
-    primitive: challenge
-    max_loops: 3
-    params:
-      input: "${generate_report.artifact}"
-      perspective: "${domain.challenge_report.perspective}"
-      threat_model: "${domain.challenge_report.threat_model}"
-    transitions:
-      - when: "output.survives == true"
-        goto: __end__
-      - when: "output.survives == false"
-        goto: generate_report
-      - default: __end__
+      Institution: ${input.institution_context}
 
-  - name: escalate
-    primitive: generate
-    params:
-      requirements: |
-        Regulation: ${input.regulation}
-        Uncertainty: ${classify_severity.reasoning}
-        ${domain.escalate.requirements}
-      format: compliance_brief
-      constraints: "${domain.escalate.constraints}"
-    transitions:
-      - default: __end__
+      Classification: ${classify_severity.category}
+
+      '
+    effort_level: deep
+  transitions:
+  - default: classify_business_impact
+- name: investigate_standard
+  primitive: investigate
+  params:
+    question: What are the primary impacts and required actions?
+    scope: ${domain.investigate_standard.scope}
+    available_evidence: 'Regulation: ${input.regulation}
+
+      Institution: ${input.institution_context}
+
+      Classification: ${classify_severity.category}
+
+      '
+    effort_level: moderate
+  transitions:
+  - agent_decide:
+      prompt: 'Finding: ${investigate_standard.finding}
+
+        Confidence: ${investigate_standard.confidence}
+
+        '
+      options:
+      - step: investigate_deep
+        description: More impactful than initially classified, escalate to deep.
+      - step: generate_report
+        description: Standard investigation sufficient, proceed to report.
+- name: classify_business_impact
+  primitive: classify
+  params:
+    categories: ${domain.classify_business_impact.categories}
+    criteria: 'Investigation: ${previous.finding}
+
+      Affected areas: ${input.institution_context.affected_business_lines}
+
+      ${domain.classify_business_impact.criteria}
+
+      '
+    confidence_threshold: '0.7'
+  transitions:
+  - default: generate_report
+  temperature: 0.0
+- name: generate_report
+  primitive: generate
+  max_loops: 3
+  params:
+    requirements: 'Regulation: ${input.regulation.title} (${input.regulation.agency})
+
+      Effective: ${input.regulation.effective_date}
+
+      ${domain.generate_report.requirements}
+
+      '
+    format: executive_impact_report
+    constraints: ${domain.generate_report.constraints}
+  transitions:
+  - default: challenge_report
+- name: challenge_report
+  primitive: challenge
+  max_loops: 3
+  params:
+    input: ${generate_report.artifact}
+    perspective: ${domain.challenge_report.perspective}
+    threat_model: ${domain.challenge_report.threat_model}
+  transitions:
+  - when: output.survives == true
+    goto: __end__
+  - when: output.survives == false
+    goto: generate_report
+  - default: __end__
+- name: escalate
+  primitive: generate
+  params:
+    requirements: 'Regulation: ${input.regulation}
+
+      Uncertainty: ${classify_severity.reasoning}
+
+      ${domain.escalate.requirements}
+
+      '
+    format: compliance_brief
+    constraints: ${domain.escalate.constraints}
+  transitions:
+  - default: __end__

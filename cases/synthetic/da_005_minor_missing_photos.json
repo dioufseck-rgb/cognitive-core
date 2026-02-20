@@ -1,0 +1,33 @@
+{
+  "_meta": {
+    "expected": {
+      "classify_damage_severity": "minor",
+      "verify_documentation": false,
+      "assessment_ready": false
+    }
+  },
+  "get_claim": {
+    "claim_id": "CLM-DA-005",
+    "amount": 500,
+    "description": "Scratch on rear quarter panel."
+  },
+  "get_photos": {
+    "count": 1,
+    "descriptions": [
+      "distant photo of car"
+    ]
+  },
+  "get_estimate": {
+    "provided": true,
+    "amount": 900,
+    "vendor": "QuickFix Auto"
+  },
+  "get_police_report": {
+    "filed": false,
+    "report_number": null
+  },
+  "get_policy": {
+    "policy_id": "POL-DA-005",
+    "coverage_type": "collision"
+  }
+}

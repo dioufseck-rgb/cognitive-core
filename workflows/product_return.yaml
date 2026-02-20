@@ -1,135 +1,165 @@
-# Product Return Investigation Workflow
-# Retrieve → Classify → Investigate → Think → Generate
-#
-# Delegation triggers (defined in coordinator/config.yaml):
-#   - If investigation finds fraud indicators → fraud_review (blocking)
-#   - If item is high-value from a vendor → vendor_notification (fire-and-forget)
-
 name: product_return
 description: Evaluate and adjudicate product return requests.
-
 steps:
-  - name: gather_return_data
-    primitive: retrieve
-    params:
-      specification: |
-        Retrieve all information about this return request:
-          - return_request: The customer's return claim details
-          - get_customer: Customer profile, purchase history, return history
-          - get_order: Original order details, item specs, price paid
-          - get_return_policy: Applicable return policy for this product category
-          - get_fraud_signals: Fraud risk score, signals, and account flags
-          - get_product: Product details, warranty status, known defect bulletins
-          - get_vendor: Vendor return procedures and SLA
-        Pull all available sources.
-      strategy: deterministic
+- name: gather_return_data
+  primitive: retrieve
+  params:
+    specification: "Retrieve all information about this return request:\n  - return_request: The customer's return claim details\n\
+      \  - get_customer: Customer profile, purchase history, return history\n  - get_order: Original order details, item specs,\
+      \ price paid\n  - get_return_policy: Applicable return policy for this product category\n  - get_fraud_signals: Fraud\
+      \ risk score, signals, and account flags\n  - get_product: Product details, warranty status, known defect bulletins\n\
+      \  - get_vendor: Vendor return procedures and SLA\nPull all available sources.\n"
+    strategy: deterministic
+- name: classify_return_type
+  primitive: classify
+  params:
+    categories: ${domain.classify_return_type.categories}
+    criteria: ${domain.classify_return_type.criteria}
+    confidence_threshold: '0.8'
+  transitions:
+  - when: output.confidence < 0.5
+    goto: escalate_to_manager
+  - default: investigate_claim
+  temperature: 0.0
+- name: investigate_claim
+  primitive: investigate
+  max_loops: 2
+  loop_fallback: decide_resolution
+  params:
+    question: 'Return classification: ${classify_return_type.category}
 
-  - name: classify_return_type
-    primitive: classify
-    params:
-      categories: "${domain.classify_return_type.categories}"
-      criteria: "${domain.classify_return_type.criteria}"
-      confidence_threshold: "0.8"
-    transitions:
-      - when: "output.confidence < 0.5"
-        goto: escalate_to_manager
-      - default: investigate_claim
+      Is this return legitimate, or are there indicators of return abuse or fraud?
 
-  - name: investigate_claim
-    primitive: investigate
-    max_loops: 2
-    loop_fallback: decide_resolution
-    params:
-      question: |
-        Return classification: ${classify_return_type.category}
-        Is this return legitimate, or are there indicators of return abuse or fraud?
-        Consider the customer's history, the stated reason, timing, and any red flags.
-      scope: "${domain.investigate_claim.scope}"
-      available_evidence: |
-        Customer profile: ${gather_return_data.data.get_customer}
-        Order details: ${gather_return_data.data.get_order}
-        Return request: ${gather_return_data.data.return_request}
-        Return policy: ${gather_return_data.data.get_return_policy}
-        Fraud signals: ${gather_return_data.data.get_fraud_signals}
-        Product details: ${gather_return_data.data.get_product}
-      effort_level: moderate
-    transitions:
-      - when: "'ESCALATION REQUIRED' in str(output.get('finding', ''))"
-        goto: escalate_to_manager
-      - agent_decide:
-          prompt: |
-            Finding: ${investigate_claim.finding}
-            Confidence: ${investigate_claim.confidence}
-            Evidence flags: ${investigate_claim.evidence_flags}
+      Consider the customer''s history, the stated reason, timing, and any red flags.
 
-            If the finding mentions fraud, serial number mismatch, identity
-            issues, manipulation, or any safety concern, route to escalation.
-          options:
-            - step: decide_resolution
-              description: Sufficient evidence to make a resolution decision. No fraud or safety concerns.
-            - step: investigate_claim
-              description: Need to investigate further — key evidence gaps remain.
-            - step: escalate_to_manager
-              description: Fraud indicators, safety concerns, or ambiguous case requiring human judgment.
+      '
+    scope: ${domain.investigate_claim.scope}
+    available_evidence: 'Customer profile: ${gather_return_data.data.get_customer}
 
-  - name: decide_resolution
-    primitive: think
-    params:
-      instruction: |
-        Based on all evidence gathered, decide how to resolve this return.
+      Order details: ${gather_return_data.data.get_order}
 
-        MANDATORY ESCALATION CHECK — evaluate FIRST before any other decision:
-        ${domain.decide_resolution.escalation_rules}
+      Return request: ${gather_return_data.data.return_request}
 
-        Return type: ${classify_return_type.category} (confidence: ${classify_return_type.confidence})
-        Investigation finding: ${investigate_claim.finding} (confidence: ${investigate_claim.confidence})
+      Return policy: ${gather_return_data.data.get_return_policy}
+
+      Fraud signals: ${gather_return_data.data.get_fraud_signals}
+
+      Product details: ${gather_return_data.data.get_product}
+
+      '
+    effort_level: moderate
+  transitions:
+  - when: '''ESCALATION REQUIRED'' in str(output.get(''finding'', ''''))'
+    goto: escalate_to_manager
+  - agent_decide:
+      prompt: 'Finding: ${investigate_claim.finding}
+
+        Confidence: ${investigate_claim.confidence}
+
         Evidence flags: ${investigate_claim.evidence_flags}
-        Customer: ${gather_return_data.data.get_customer}
-        Order: ${gather_return_data.data.get_order}
-        Policy: ${gather_return_data.data.get_return_policy}
-        Fraud signals: ${gather_return_data.data.get_fraud_signals}
-        Product: ${gather_return_data.data.get_product}
 
-        If no escalation rule is triggered, choose one resolution:
-        1. approve_full_refund — Issue full refund, customer returns the item
-        2. approve_partial_refund — Partial refund with restocking fee
-        3. approve_exchange — Replace with same or equivalent item
-        4. deny_return — Deny based on policy violation or fraud indicators
-        5. escalate — Too complex or risky for automated decision
 
-        State your decision clearly and explain the reasoning.
-        If escalating, cite which specific rule triggered the escalation.
-      focus: |
-        Weigh: return policy compliance, customer lifetime value,
-        fraud risk indicators, item condition, time since purchase.
-    transitions:
-      - default: generate_response
+        If the finding mentions fraud, serial number mismatch, identity
 
-  - name: generate_response
-    primitive: generate
-    params:
-      requirements: "${domain.generate_response.requirements}"
-      format: customer_email
-      constraints: "${domain.generate_response.constraints}"
-    transitions:
-      - default: __end__
+        issues, manipulation, or any safety concern, route to escalation.
 
-  - name: escalate_to_manager
-    primitive: generate
-    params:
-      requirements: |
-        Create an escalation brief for the returns manager:
-        - Customer: ${gather_return_data.data.get_customer}
-        - Order: ${gather_return_data.data.get_order}
-        - Return request: ${gather_return_data.data.return_request}
-        - Fraud signals: ${gather_return_data.data.get_fraud_signals}
-        - Product: ${gather_return_data.data.get_product}
-        - Why automated resolution was not appropriate
-        - Recommended action and confidence level
-      format: escalation_brief
-      constraints: |
-        - Include all relevant evidence gathered so far
-        - Flag any time-sensitive issues (return window expiring)
-        - Be concise but complete
-    transitions:
-      - default: __end__
+        '
+      options:
+      - step: decide_resolution
+        description: Sufficient evidence to make a resolution decision. No fraud or safety concerns.
+      - step: investigate_claim
+        description: Need to investigate further — key evidence gaps remain.
+      - step: escalate_to_manager
+        description: Fraud indicators, safety concerns, or ambiguous case requiring human judgment.
+- name: decide_resolution
+  primitive: think
+  params:
+    instruction: 'Based on all evidence gathered, decide how to resolve this return.
+
+
+      MANDATORY ESCALATION CHECK — evaluate FIRST before any other decision:
+
+      ${domain.decide_resolution.escalation_rules}
+
+
+      Return type: ${classify_return_type.category} (confidence: ${classify_return_type.confidence})
+
+      Investigation finding: ${investigate_claim.finding} (confidence: ${investigate_claim.confidence})
+
+      Evidence flags: ${investigate_claim.evidence_flags}
+
+      Customer: ${gather_return_data.data.get_customer}
+
+      Order: ${gather_return_data.data.get_order}
+
+      Policy: ${gather_return_data.data.get_return_policy}
+
+      Fraud signals: ${gather_return_data.data.get_fraud_signals}
+
+      Product: ${gather_return_data.data.get_product}
+
+
+      If no escalation rule is triggered, choose one resolution:
+
+      1. approve_full_refund — Issue full refund, customer returns the item
+
+      2. approve_partial_refund — Partial refund with restocking fee
+
+      3. approve_exchange — Replace with same or equivalent item
+
+      4. deny_return — Deny based on policy violation or fraud indicators
+
+      5. escalate — Too complex or risky for automated decision
+
+
+      State your decision clearly and explain the reasoning.
+
+      If escalating, cite which specific rule triggered the escalation.
+
+      '
+    focus: 'Weigh: return policy compliance, customer lifetime value,
+
+      fraud risk indicators, item condition, time since purchase.
+
+      '
+  transitions:
+  - default: generate_response
+  model: standard
+- name: generate_response
+  primitive: generate
+  params:
+    requirements: ${domain.generate_response.requirements}
+    format: customer_email
+    constraints: ${domain.generate_response.constraints}
+  transitions:
+  - default: __end__
+- name: escalate_to_manager
+  primitive: generate
+  params:
+    requirements: 'Create an escalation brief for the returns manager:
+
+      - Customer: ${gather_return_data.data.get_customer}
+
+      - Order: ${gather_return_data.data.get_order}
+
+      - Return request: ${gather_return_data.data.return_request}
+
+      - Fraud signals: ${gather_return_data.data.get_fraud_signals}
+
+      - Product: ${gather_return_data.data.get_product}
+
+      - Why automated resolution was not appropriate
+
+      - Recommended action and confidence level
+
+      '
+    format: escalation_brief
+    constraints: '- Include all relevant evidence gathered so far
+
+      - Flag any time-sensitive issues (return window expiring)
+
+      - Be concise but complete
+
+      '
+  transitions:
+  - default: __end__

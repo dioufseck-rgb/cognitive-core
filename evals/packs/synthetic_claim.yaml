@@ -1,0 +1,312 @@
+# ═══════════════════════════════════════════════════════════════
+# Eval Pack: Synthetic Claim Processing
+#
+# Tests mechanical correctness of multi-agent orchestration.
+# Every expected output is deterministic from the input data
+# and domain rules. Failures indicate engine or LLM compliance
+# problems, not ambiguity.
+#
+# Usage:
+#   python -m evals --pack evals/packs/synthetic_claim.yaml
+# ═══════════════════════════════════════════════════════════════
+
+pack_name: synthetic_claim
+description: >
+  Deterministic multi-agent claim processing. 8 intake cases,
+  2 damage assessment cases, 2 fraud screening cases.
+  Every expected result is computable from the domain rules.
+
+# ─── Claim Intake Cases ─────────────────────────────────────
+
+cases:
+
+  # SC-001: Simple approve, no delegations
+  - case_file: cases/synthetic/sc_001_simple_approve.json
+    workflow: claim_intake
+    domain: synthetic_claim
+    assertions:
+      - step: classify_claim_type
+        field: category
+        operator: equals
+        value: "liability"
+      - step: classify_claim_type
+        field: confidence
+        operator: gte
+        value: 0.8
+      - step: check_eligibility
+        field: conforms
+        operator: equals
+        value: true
+      - step: assess_risk
+        field: recommendation
+        operator: equals
+        value: "auto_approve"
+      - step: generate_decision
+        field: output
+        operator: json_field_equals
+        json_field: "requires_delegation.damage_assessment"
+        value: false
+      - step: generate_decision
+        field: output
+        operator: json_field_equals
+        json_field: "requires_delegation.fraud_screening"
+        value: false
+
+  # SC-002: Physical damage → damage_assessment delegation
+  - case_file: cases/synthetic/sc_002_physical_damage.json
+    workflow: claim_intake
+    domain: synthetic_claim
+    assertions:
+      - step: classify_claim_type
+        field: category
+        operator: equals
+        value: "physical_damage"
+      - step: check_eligibility
+        field: conforms
+        operator: equals
+        value: true
+      - step: generate_decision
+        field: output
+        operator: json_field_equals
+        json_field: "requires_delegation.damage_assessment"
+        value: true
+      - step: generate_decision
+        field: output
+        operator: json_field_equals
+        json_field: "requires_delegation.fraud_screening"
+        value: false
+
+  # SC-003: High value + flag → fraud_screening
+  - case_file: cases/synthetic/sc_003_high_value_flagged.json
+    workflow: claim_intake
+    domain: synthetic_claim
+    assertions:
+      - step: classify_claim_type
+        field: category
+        operator: equals
+        value: "theft"
+      - step: check_eligibility
+        field: conforms
+        operator: equals
+        value: true
+      - step: assess_risk
+        field: recommendation
+        operator: in
+        value: ["enhanced_review", "refer_to_siu"]
+      - step: generate_decision
+        field: output
+        operator: json_field_equals
+        json_field: "requires_delegation.damage_assessment"
+        value: false
+      - step: generate_decision
+        field: output
+        operator: json_field_equals
+        json_field: "requires_delegation.fraud_screening"
+        value: true
+
+  # SC-004: Both delegations
+  - case_file: cases/synthetic/sc_004_both_delegations.json
+    workflow: claim_intake
+    domain: synthetic_claim
+    assertions:
+      - step: classify_claim_type
+        field: category
+        operator: equals
+        value: "physical_damage"
+      - step: check_eligibility
+        field: conforms
+        operator: equals
+        value: true
+      - step: assess_risk
+        field: recommendation
+        operator: equals
+        value: "refer_to_siu"
+      - step: generate_decision
+        field: output
+        operator: json_field_equals
+        json_field: "requires_delegation.damage_assessment"
+        value: true
+      - step: generate_decision
+        field: output
+        operator: json_field_equals
+        json_field: "requires_delegation.fraud_screening"
+        value: true
+
+  # SC-005: Inactive policy → denied
+  - case_file: cases/synthetic/sc_005_inactive_policy.json
+    workflow: claim_intake
+    domain: synthetic_claim
+    assertions:
+      - step: classify_claim_type
+        field: category
+        operator: equals
+        value: "liability"
+      - step: check_eligibility
+        field: conforms
+        operator: equals
+        value: false
+      - step: check_eligibility
+        field: violations
+        operator: contains
+        value: "E1"
+      - step: generate_denial
+        field: output
+        operator: json_field_equals
+        json_field: "decision"
+        value: "denied"
+
+  # SC-006: Wrong coverage → denied
+  - case_file: cases/synthetic/sc_006_wrong_coverage.json
+    workflow: claim_intake
+    domain: synthetic_claim
+    assertions:
+      - step: classify_claim_type
+        field: category
+        operator: equals
+        value: "theft"
+      - step: check_eligibility
+        field: conforms
+        operator: equals
+        value: false
+      - step: check_eligibility
+        field: violations
+        operator: contains
+        value: "E2"
+
+  # SC-007: Multiple violations
+  - case_file: cases/synthetic/sc_007_multi_violation.json
+    workflow: claim_intake
+    domain: synthetic_claim
+    assertions:
+      - step: classify_claim_type
+        field: category
+        operator: equals
+        value: "medical"
+      - step: check_eligibility
+        field: conforms
+        operator: equals
+        value: false
+      - step: check_eligibility
+        field: violations
+        operator: contains
+        value: "E1"
+      - step: check_eligibility
+        field: violations
+        operator: contains
+        value: "E3"
+
+  # SC-008: Medium risk, fraud screening from flags
+  - case_file: cases/synthetic/sc_008_medium_risk.json
+    workflow: claim_intake
+    domain: synthetic_claim
+    assertions:
+      - step: classify_claim_type
+        field: category
+        operator: equals
+        value: "medical"
+      - step: check_eligibility
+        field: conforms
+        operator: equals
+        value: true
+      - step: assess_risk
+        field: recommendation
+        operator: equals
+        value: "standard_review"
+      - step: generate_decision
+        field: output
+        operator: json_field_equals
+        json_field: "requires_delegation.fraud_screening"
+        value: true
+
+# ─── Damage Assessment Cases ────────────────────────────────
+
+  - case_file: cases/synthetic/da_002_moderate.json
+    workflow: damage_assessment
+    domain: synthetic_damage
+    assertions:
+      - step: classify_damage_severity
+        field: category
+        operator: equals
+        value: "moderate"
+      - step: verify_documentation
+        field: conforms
+        operator: equals
+        value: true
+
+  - case_file: cases/synthetic/da_004_major_missing_docs.json
+    workflow: damage_assessment
+    domain: synthetic_damage
+    assertions:
+      - step: classify_damage_severity
+        field: category
+        operator: equals
+        value: "major"
+      - step: verify_documentation
+        field: conforms
+        operator: equals
+        value: false
+      - step: verify_documentation
+        field: violations
+        operator: contains
+        value: "D3"
+
+# ─── Fraud Screening Cases ──────────────────────────────────
+
+  - case_file: cases/synthetic/fs_003_medium_risk.json
+    workflow: fraud_screening
+    domain: synthetic_fraud
+    assertions:
+      - step: classify_fraud_risk
+        field: category
+        operator: equals
+        value: "medium_risk"
+
+  - case_file: cases/synthetic/fs_004_high_risk_siu.json
+    workflow: fraud_screening
+    domain: synthetic_fraud
+    assertions:
+      - step: classify_fraud_risk
+        field: category
+        operator: equals
+        value: "high_risk"
+      - step: investigate_patterns
+        field: finding
+        operator: equals
+        value: "significant_concerns"
+      - step: investigate_patterns
+        field: recommendation
+        operator: equals
+        value: "refer_to_siu"
+
+# ─── Quality Gates ──────────────────────────────────────────
+
+quality_gates:
+  classification_accuracy:
+    description: "All classify steps return correct deterministic category"
+    threshold: 1.0
+    scope: classify
+    metric: exact_match
+
+  eligibility_accuracy:
+    description: "All verify steps return correct conforms value"
+    threshold: 1.0
+    scope: verify
+    metric: exact_match
+
+  risk_score_accuracy:
+    description: "Risk scores within expected ranges"
+    threshold: 0.875
+    scope: think
+    metric: range_match
+
+  delegation_routing:
+    description: "Delegation flags correctly set"
+    threshold: 1.0
+    scope: generate
+    metric: json_field_match
+
+  denial_completeness:
+    description: "Denied claims list all violations"
+    threshold: 1.0
+    scope: denial
+    metric: contains_all

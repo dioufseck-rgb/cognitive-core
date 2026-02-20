@@ -1,0 +1,105 @@
+# [Your Domain Name] — Domain Specification
+#
+# Author: [Team Name]
+# Purpose: [One sentence: what does this workflow do and why?]
+#
+# Write this like you're explaining the process to a smart new hire.
+# Describe what you look for and how you handle it. The framework
+# handles routing, artifact generation, audit trails, and escalation.
+#
+# You don't need to write code, define state machines, or specify
+# exact scoring formulas. If a reasonable analyst could follow your
+# description and get it right 80-90% of the time, that's sufficient.
+# The other 10-20% will escalate to humans automatically.
+
+domain_name: [replace_me]
+workflow: [replace_me]
+governance: gate          # gate = human reviews all | spot_check | auto
+
+# ─── What data do we need? ───────────────────────────────────────
+#
+# List the data sources. Each one becomes a tool the system calls.
+# The names must match the keys in your case data files.
+
+gather_data:
+  strategy: deterministic
+  specification: |
+    Pull the following:
+      - get_[source_1]: [What this contains and why we need it]
+      - get_[source_2]: [What this contains]
+      - get_[source_3]: [What this contains]
+
+# ─── How do we categorize the input? ─────────────────────────────
+#
+# Define the categories in plain language. What are they, and how
+# do you tell them apart? Think: if a new analyst read this, could
+# they categorize correctly 90% of the time?
+
+classify_[thing]:
+  categories: |
+    - category_a: [When does this apply? Be specific enough to act on.]
+    - category_b: [When does this apply?]
+    - category_c: [Catch-all for anything that doesn't fit above.]
+  criteria: |
+    [How do you decide? What do you look at first?
+     What's the tiebreaker when it's ambiguous?
+     When in doubt, what's the safe default?]
+
+# ─── What rules must be satisfied? ───────────────────────────────
+#
+# Optional. Only include if there are hard eligibility/compliance rules.
+# Write them as a checklist a human could follow.
+
+# check_[thing]:
+#   rules: |
+#     The [thing] is valid if ALL of the following are true:
+#     1. [Rule in plain language, with specific thresholds if applicable]
+#     2. [Rule]
+#     3. [Rule]
+#
+#     If any rule fails, [what happens — deny? request more info?]
+
+# ─── What do we need to investigate? ─────────────────────────────
+#
+# Optional. Include when you need deeper analysis beyond classification.
+
+# investigate_[thing]:
+#   question: |
+#     [What are you looking for? What patterns matter?
+#      What should raise concerns? What's normal?
+#      How should the findings influence the decision?]
+
+# ─── What do we produce? ─────────────────────────────────────────
+#
+# Define the output artifact. The framework ensures it's a valid
+# JSON object. Just describe what fields you need and where the
+# values come from.
+
+generate_[output]:
+  format: |
+    Produce a JSON object:
+    {
+      "case_id": "<from the data>",
+      "decision": "<the recommendation>",
+      "category": "<from the classification>",
+      "summary": "<brief explanation of the decision>"
+    }
+  constraints: |
+    [What must always be true about the output?
+     What should never be included? (e.g., internal scores)
+     What consistency rules matter?]
+
+# ─── When should this escalate? ──────────────────────────────────
+#
+# You don't need to write escalation logic. The framework escalates
+# automatically when:
+#   - Confidence is low (the LLM isn't sure)
+#   - The governance tier requires human review
+#   - A quality gate fires (parse error, missing data, etc.)
+#
+# But you can add domain-specific guidance here:
+#
+# As a rule of thumb: [describe when a human should look at this
+# instead of trusting the automation. E.g., "If the amount is over
+# $50K, always have a senior adjuster review." or "If the customer
+# has threatened legal action, escalate immediately."]

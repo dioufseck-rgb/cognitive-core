@@ -1,0 +1,35 @@
+{
+  "_meta": {
+    "case_id": "DA-004",
+    "parent_case": "SC-004",
+    "description": "Damage assessment for SC-004. $45K = major. 5 photos, estimate provided, but NO police report. D3 violation (major damage requires police report). Documentation incomplete.",
+    "expected": {
+      "classify_damage_severity": "major",
+      "verify_documentation": false,
+      "documentation_violations": ["D3"],
+      "assessment_ready": false
+    }
+  },
+  "get_claim": {
+    "claim_id": "CLM-004",
+    "amount": 45000,
+    "description": "Vehicle totaled in single-car accident."
+  },
+  "get_photos": {
+    "count": 5,
+    "descriptions": ["Front impact", "Engine bay", "Interior", "Side panel", "Rear axle"]
+  },
+  "get_estimate": {
+    "provided": true,
+    "amount": 45000,
+    "vendor": "TotalCare Auto"
+  },
+  "get_police_report": {
+    "filed": false,
+    "report_number": null
+  },
+  "get_policy": {
+    "policy_id": "POL-004",
+    "coverage_type": "collision,comprehensive,liability"
+  }
+}

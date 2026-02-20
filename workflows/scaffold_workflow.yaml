@@ -1,0 +1,105 @@
+# ═══════════════════════════════════════════════════════════════
+# WORKFLOW SCAFFOLD — Copy and customize for new use cases
+#
+# This defines the STRUCTURAL FLOW — what steps run in what order,
+# what branches on what, what model to use where.
+#
+# The DOMAIN SPEC (domains/*.yaml) defines what each step does.
+# Domain authors write policy in plain language. This file is
+# plumbing — domain authors shouldn't need to touch it.
+# ═══════════════════════════════════════════════════════════════
+
+name: scaffold_workflow
+description: >
+  [REPLACE] One-line description. E.g., "Intake → Classify → Verify →
+  Assess → Generate artifact, with denial branch on verification failure."
+
+steps:
+  # ─── Gather data ──────────────────────────────────────────
+  - name: gather_data
+    primitive: retrieve
+    params:
+      specification: "${domain.gather_data.specification}"
+      strategy: "${domain.gather_data.strategy}"
+
+  # ─── Classify ─────────────────────────────────────────────
+  - name: classify_type
+    primitive: classify
+    temperature: 0.0
+    params:
+      categories: "${domain.classify_type.categories}"
+      criteria: "${domain.classify_type.criteria}"
+    transitions:
+      - default: check_compliance
+
+  # ─── Verify (branches on failure) ─────────────────────────
+  - name: check_compliance
+    primitive: verify
+    model: standard
+    temperature: 0.0
+    params:
+      rules: "${domain.check_compliance.rules}"
+    transitions:
+      - when: "output.conforms == false"
+        goto: generate_denial
+      - default: assess_situation
+
+  # ─── Assess / Reason ──────────────────────────────────────
+  - name: assess_situation
+    primitive: think
+    model: standard
+    params:
+      question: "${domain.assess_situation.question}"
+      constraints: "${domain.assess_situation.constraints}"
+
+  # ─── Generate (happy path) ────────────────────────────────
+  - name: generate_decision
+    primitive: generate
+    params:
+      format: "${domain.generate_decision.format}"
+      constraints: "${domain.generate_decision.constraints}"
+    transitions:
+      - default: __end__
+
+  # ─── Generate (denial path) ───────────────────────────────
+  - name: generate_denial
+    primitive: generate
+    params:
+      format: "${domain.generate_denial.format}"
+      constraints: "${domain.generate_denial.constraints}"
+
+  # ─── Optional steps (uncomment as needed) ─────────────────
+
+  # Challenge — adversarial review of generated content
+  # - name: challenge_output
+  #   primitive: challenge
+  #   model: standard
+  #   max_loops: 3
+  #   params:
+  #     input: "${generate_decision.artifact}"
+  #     perspective: "${domain.challenge_output.perspective}"
+  #     threat_model: "${domain.challenge_output.threat_model}"
+  #   transitions:
+  #     - when: "output.survives == true"
+  #       goto: __end__
+  #     - when: "output.survives == false"
+  #       goto: generate_decision
+
+  # Investigate — deeper analysis before decision
+  # - name: investigate_evidence
+  #   primitive: investigate
+  #   params:
+  #     question: "${domain.investigate_evidence.question}"
+  #     scope: "${domain.investigate_evidence.scope}"
+  #   transitions:
+  #     - when: "output.confidence < 0.4"
+  #       goto: escalate
+
+  # Escalation — hand off to human
+  # - name: escalate
+  #   primitive: generate
+  #   params:
+  #     format: "${domain.escalate.format}"
+  #     constraints: "${domain.escalate.constraints}"
+  #   transitions:
+  #     - default: __end__

@@ -290,6 +290,42 @@ CREATE INDEX IF NOT EXISTS idx_goals_member ON financial_goals(member_id);
 CREATE INDEX IF NOT EXISTS idx_summaries_member ON monthly_summaries(member_id, month);
 CREATE INDEX IF NOT EXISTS idx_nsf_member ON nsf_events(member_id);
 CREATE INDEX IF NOT EXISTS idx_check_deposits_member ON check_deposits(member_id);
+
+CREATE TABLE IF NOT EXISTS hardship_cases (
+    case_id            TEXT PRIMARY KEY,
+    member_id          TEXT NOT NULL,
+    language_preference TEXT DEFAULT 'en',
+    tenure_years       REAL,
+    segment            TEXT,
+    military_status    TEXT,
+    hardship_statement TEXT,
+    ato_score          INTEGER DEFAULT 0,
+    exploitation_risk  TEXT DEFAULT 'low',
+    recent_credential_changes INTEGER DEFAULT 0,
+    recent_contact_changes    INTEGER DEFAULT 0,
+    bankruptcy_status  TEXT DEFAULT 'none',
+    scra_indicator     TEXT DEFAULT 'none',
+    legal_holds        TEXT,
+    open_complaints    TEXT,
+    regulator_escalations TEXT,
+    supporting_docs    TEXT,
+    collections_notes  TEXT,
+    source_case        TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS hardship_accounts (
+    account_id       TEXT PRIMARY KEY,
+    case_id          TEXT NOT NULL,
+    member_id        TEXT NOT NULL,
+    product_type     TEXT NOT NULL,
+    balance          REAL,
+    delinquency_days INTEGER DEFAULT 0,
+    status           TEXT DEFAULT 'active',
+    source_case      TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_hardship_member ON hardship_cases(member_id);
+CREATE INDEX IF NOT EXISTS idx_hardship_accts_case ON hardship_accounts(case_id);
 """
 
 
@@ -638,6 +674,55 @@ def _load_avm_regulation(db: sqlite3.Connection, case: dict, case_name: str):
          case_name))
 
 
+def _load_hardship_synthetic(db: sqlite3.Connection, case: dict, case_name: str):
+    """mh_* synthetic hardship cases → hardship_cases, hardship_accounts."""
+    meta = case.get("_meta", {})
+    profile = case.get("get_member_profile", {})
+    accounts = case.get("get_loan_accounts", [])
+    if isinstance(accounts, dict):
+        accounts = [accounts]
+    risk = case.get("get_risk_flags", {})
+    legal = case.get("get_legal_flags", {})
+    complaints = case.get("get_complaints", {})
+    docs = case.get("get_supporting_docs", [])
+    stmt = case.get("get_hardship_statement", "")
+    collections = case.get("get_collections_notes", "")
+
+    mid = profile.get("member_token", f"MBR-{case_name}")
+    cid = meta.get("case_id", case_name)
+
+    db.execute("""INSERT OR REPLACE INTO hardship_cases VALUES (
+        ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (cid, mid,
+         profile.get("language_preference", "en"),
+         profile.get("tenure_years"),
+         profile.get("segment"),
+         profile.get("military_status"),
+         stmt if isinstance(stmt, str) else _json_dumps(stmt),
+         risk.get("ato_score", 0),
+         risk.get("exploitation_risk", "low"),
+         1 if risk.get("recent_credential_changes") else 0,
+         1 if risk.get("recent_contact_changes") else 0,
+         legal.get("bankruptcy_status", "none"),
+         legal.get("scra_indicator", "none"),
+         _json_dumps(legal.get("legal_holds", [])),
+         _json_dumps(complaints.get("open_complaints", [])),
+         _json_dumps(complaints.get("regulator_escalations", [])),
+         _json_dumps(docs),
+         collections if isinstance(collections, str) else _json_dumps(collections),
+         case_name))
+
+    for acct in accounts:
+        db.execute("""INSERT OR REPLACE INTO hardship_accounts VALUES (
+            ?,?,?,?,?,?,?,?)""",
+            (acct.get("account_id"), cid, mid,
+             acct.get("product_type", "unknown"),
+             acct.get("balance", 0),
+             acct.get("delinquency_days", 0),
+             acct.get("status", "active"),
+             case_name))
+
+
 # Dispatch table: case filename stem → loader function
 _LOADERS = {
     "card_clear_fraud": _load_card_fraud,
@@ -649,6 +734,14 @@ _LOADERS = {
     "spending_advisor_williams_followup": _load_spending_advisor,
     "cardiac_chest_pain": _load_cardiac_triage,
     "avm_regulation": _load_avm_regulation,
+    # Hardship synthetic cases
+    "mh_001_mixed_portfolio": _load_hardship_synthetic,
+    "mh_002_scra_ambiguity": _load_hardship_synthetic,
+    "mh_003_disaster_mismatch": _load_hardship_synthetic,
+    "mh_004_fraud_exploitation": _load_hardship_synthetic,
+    "mh_005_open_complaint": _load_hardship_synthetic,
+    "mh_006_income_conflict": _load_hardship_synthetic,
+    "mh_007_non_english": _load_hardship_synthetic,
 }
 
 
@@ -684,6 +777,23 @@ def build_fixture_db(db_path: str | Path | None = None) -> Path:
         except Exception as e:
             print(f"  ⚠ {case_name}: {e}")
             skipped.append(case_name)
+
+    # Also scan synthetic cases (mh_* hardship cases live here)
+    SYNTHETIC_DIR = CASES_DIR / "synthetic"
+    if SYNTHETIC_DIR.exists():
+        for case_file in sorted(SYNTHETIC_DIR.glob("*.json")):
+            case_name = case_file.stem
+            loader = _LOADERS.get(case_name)
+            if loader is None:
+                continue  # synthetic cases without loaders are expected
+
+            case_data = json.load(open(case_file))
+            try:
+                loader(conn, case_data, case_name)
+                loaded.append(case_name)
+            except Exception as e:
+                print(f"  ⚠ {case_name}: {e}")
+                skipped.append(case_name)
 
     conn.commit()
 

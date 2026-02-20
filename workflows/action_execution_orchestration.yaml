@@ -1,0 +1,82 @@
+# Action Execution Orchestration Workflow
+#
+# Execute only bounded, authorized actions. Otherwise escalate.
+# No write action unless: eligible + tier permits + approvals met.
+#
+# Verify (pre-action) → Act → Verify (post-action)
+
+name: action_execution_orchestration
+description: >
+  Execute bounded, authorized actions against member accounts and systems.
+  Pre-flight verification ensures all gates are satisfied. Post-action
+  verification confirms execution. Fail-closed on any gate violation.
+
+steps:
+  - name: verify_action_gates
+    primitive: verify
+    temperature: 0.0
+    params:
+      subject: |
+        Proposed action: ${input.action_request}
+        Constraints: ${input.constraints}
+        Recommendation: ${input.recommendation}
+        Contact plan: ${input.contact_plan}
+      rules: "${domain.verify_action_gates.rules}"
+    transitions:
+      - when: "output.conforms == true"
+        goto: execute_action
+      - when: "output.conforms == false"
+        goto: generate_rejection
+
+  - name: execute_action
+    primitive: act
+    params:
+      actions: |
+        Action type: ${input.action_request.action_type}
+        Action spec: ${domain.execute_action.action_spec}
+        Tool config: ${domain.execute_action.tool_config}
+        Idempotency key: ${input.action_request.idempotency_key}
+      authorization: |
+        Pre-action verification passed. Tier permits action.
+        Idempotency key: ${input.action_request.idempotency_key}
+    transitions:
+      - default: verify_execution
+
+  - name: verify_execution
+    primitive: verify
+    temperature: 0.0
+    params:
+      subject: "${execute_action.result}"
+      rules: "${domain.verify_execution.rules}"
+    transitions:
+      - when: "output.conforms == true"
+        goto: generate_action_result
+      - when: "output.conforms == false"
+        goto: generate_rejection
+
+  - name: generate_action_result
+    primitive: generate
+    temperature: 0.0
+    params:
+      requirements: "${domain.generate_action_result.requirements}"
+      format: "${domain.generate_action_result.format}"
+      constraints: "${domain.generate_action_result.constraints}"
+    transitions:
+      - default: __end__
+
+  - name: generate_rejection
+    primitive: generate
+    temperature: 0.0
+    params:
+      requirements: |
+        The action was rejected or failed verification.
+        Generate a rejection artifact documenting:
+        - Which gate(s) failed
+        - Why the action cannot proceed
+        - What approvals or corrections are needed
+        - Escalation path for the specialist
+        ${domain.generate_rejection.requirements}
+      format: "${domain.generate_rejection.format}"
+      constraints: "${domain.generate_rejection.constraints}"
+    transitions:
+      - default: __end__

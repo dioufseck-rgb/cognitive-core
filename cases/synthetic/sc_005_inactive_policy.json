@@ -1,0 +1,34 @@
+{
+  "_meta": {
+    "case_id": "SC-005",
+    "description": "Inactive policy. Should fail eligibility at E1. Decision = denied. No delegations.",
+    "expected": {
+      "classify_claim_type": "liability",
+      "check_eligibility": false,
+      "eligibility_violations": ["E1"],
+      "decision": "denied",
+      "delegation_damage_assessment": false,
+      "delegation_fraud_screening": false
+    }
+  },
+  "get_policy": {
+    "policy_id": "POL-005",
+    "status": "cancelled",
+    "coverage_type": "liability,comprehensive",
+    "tenure_months": 60,
+    "prior_claims": 0
+  },
+  "get_claim": {
+    "claim_id": "CLM-005",
+    "amount": 3000,
+    "incident_date": "2026-01-25",
+    "claim_type_hint": "liability",
+    "flags": [],
+    "description": "Rear-ended at traffic light."
+  },
+  "get_claimant": {
+    "name": "Eve Wilson",
+    "member_since": "2020-01-01",
+    "age": 50
+  }
+}

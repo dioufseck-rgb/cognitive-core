@@ -1,0 +1,107 @@
+name: claim_intake
+description: 'Intake a new insurance claim. Classify the claim type, assess eligibility, and route to downstream workflows
+  based on deterministic conditions.
+
+  '
+steps:
+- name: gather_claim_data
+  primitive: retrieve
+  params:
+    specification: ${domain.gather_claim_data.specification}
+    strategy: ${domain.gather_claim_data.strategy}
+- name: classify_claim_type
+  primitive: classify
+  temperature: 0.0
+  params:
+    categories: ${domain.classify_claim_type.categories}
+    criteria: ${domain.classify_claim_type.criteria}
+    confidence_threshold: '0.8'
+  transitions:
+  - default: check_eligibility
+- name: check_eligibility
+  primitive: verify
+  model: standard
+  temperature: 0.0
+  params:
+    rules: ${domain.check_eligibility.rules}
+    subject: 'Claim type: ${classify_claim_type.category}
+
+      Policy ID: ${gather_claim_data.data.get_policy.policy_id}
+
+      Policy status: ${gather_claim_data.data.get_policy.status}
+
+      Coverage type: ${gather_claim_data.data.get_policy.coverage_type}
+
+      Claim amount: ${gather_claim_data.data.get_claim.amount}
+
+      Incident date: ${gather_claim_data.data.get_claim.incident_date}
+
+      '
+    additional_instructions: 'CRITICAL: Check ONLY the four rules E1-E4 listed above.
+
+      The SUBJECT TO VERIFY section contains ALL the data you need.
+
+      IGNORE any flags, fraud_indicator, repeat_claimant, new_policy,
+
+      prior_claims, tenure_months, or other risk factors that may appear
+
+      in the context. These are NOT eligibility rules.
+
+      If E1, E2, E3, and E4 all pass, then conforms MUST be true.
+
+      '
+  transitions:
+  - when: output.conforms == false
+    goto: generate_denial
+  - default: assess_risk
+- name: assess_risk
+  primitive: think
+  temperature: 0.0
+  params:
+    instruction: ${domain.assess_risk.question}
+    question: ${domain.assess_risk.question}
+    constraints: ${domain.assess_risk.constraints}
+    context: 'Claim type: ${classify_claim_type.category}
+
+      Claim amount: ${gather_claim_data.data.get_claim.amount}
+
+      Policy tenure months: ${gather_claim_data.data.get_policy.tenure_months}
+
+      Prior claims count: ${gather_claim_data.data.get_policy.prior_claims}
+
+      Flags: ${gather_claim_data.data.get_claim.flags}
+
+      '
+  model: standard
+- name: generate_decision
+  primitive: generate
+  params:
+    format: ${domain.generate_decision.format}
+    requirements: ${domain.generate_decision.format}
+    constraints: ${domain.generate_decision.constraints}
+    inputs: 'Claim type: ${classify_claim_type.category}
+
+      Eligible: ${check_eligibility.conforms}
+
+      Risk assessment: ${assess_risk.recommendation}
+
+      Risk score: ${assess_risk.risk_score}
+
+      Claim amount: ${gather_claim_data.data.get_claim.amount}
+
+      '
+  transitions:
+  - default: __end__
+- name: generate_denial
+  primitive: generate
+  params:
+    format: ${domain.generate_denial.format}
+    requirements: ${domain.generate_denial.format}
+    constraints: ${domain.generate_denial.constraints}
+    inputs: 'Claim type: ${classify_claim_type.category}
+
+      Violations: ${check_eligibility.violations}
+
+      Policy ID: ${gather_claim_data.data.get_policy.policy_id}
+
+      '

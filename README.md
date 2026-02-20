@@ -20,7 +20,7 @@ export GOOGLE_API_KEY=your_key
 
 # Validate (no LLM calls)
 python3 engine/validate.py --root .
-python3 -m unittest discover -s tests   # 876 tests
+python3 -m unittest discover -s tests   # 1,097 tests
 
 # Run a workflow
 LLM_PROVIDER=google python -m engine.runner \
@@ -77,7 +77,7 @@ docker run -p 8080:8080 -e LLM_PROVIDER=google -e GOOGLE_API_KEY=... cognitive-c
 | Layer | Purpose | Owner | Artifact |
 |-------|---------|-------|----------|
 | **Workflow** | Primitive sequence, transitions, routing | AI Engineers | `workflows/*.yaml` |
-| **Domain** | Categories, rules, risk tier, vocabulary | SMEs + Engineers | `domains/*.yaml` |
+| **Domain** | Natural-language policy: what to look for, how to handle it | SMEs + Engineers | `domains/*.yaml` |
 | **Case** | Runtime input (member ID, complaint, alert) | Production APIs | `cases/*.json` |
 | **Coordinator** | Governance tiers, A2A delegation, HITL | Risk / Compliance | `coordinator/config.yaml` |
 
@@ -94,7 +94,7 @@ docker run -p 8080:8080 -e LLM_PROVIDER=google -e GOOGLE_API_KEY=... cognitive-c
 | 7 | Challenge | Can this survive? | Read |
 | 8 | Act | Execute this action | **Write** |
 
-## Enterprise Modules (876 tests)
+## Enterprise Modules (1,097 tests)
 
 | Module | File | Purpose | Tests |
 |--------|------|---------|-------|
@@ -146,3 +146,55 @@ OPENAI_API_KEY=
 | spot_check | 10% sampled | Card disputes |
 | gate | Pre-action review | Complaint resolution |
 | hold | Expert sign-off | SAR investigation |
+
+## Escalation Briefs
+
+When a workflow suspends (governance gate or quality gate), the coordinator
+builds a structured escalation brief for the human reviewer:
+
+| Section | Purpose |
+|---------|---------|
+| Case Summary | What case this is (ID, amount, description) |
+| Determinations | What automation decided at each step, with confidence |
+| Uncertainties | Where automation was unsure (low confidence, conflicting signals) |
+| Focus Questions | Specific questions for the reviewer to answer |
+| Evidence | All data gathered — reviewer doesn't re-investigate |
+| Priority | High/medium/standard based on uncertainty count |
+
+The brief makes the human faster: legwork is done, ambiguity is identified,
+and the reviewer has a checklist instead of a blank slate.
+
+## Domain Philosophy
+
+Domain specs are **natural-language policy documents**, not pseudo-code.
+Write them like you're training a smart new hire:
+
+```yaml
+classify_fraud_risk:
+  categories: |
+    - low_risk: No fraud flags on the claim.
+    - medium_risk: One or two fraud flags.
+    - high_risk: Three or more fraud flags.
+```
+
+The LLM reads the policy and applies judgment. The framework handles routing,
+artifact validation, audit trails, and escalation. More precise specs get
+higher automation rates (85% → 95%). When the LLM is unsure, it escalates
+with a structured brief.
+
+## Live Eval Harness
+
+```bash
+# Run all synthetic cases with live LLM
+python scripts/eval_live.py --all --auto-approve
+
+# Run specific workflow
+python scripts/eval_live.py --workflow fraud_screening --auto-approve
+
+# Run single case with verbose output
+python scripts/eval_live.py --case sc_001_simple_approve --auto-approve -v
+```
+
+The eval harness validates structural invariants (routing correctness,
+artifact schemas, parse reliability) and reports semantic checks as advisory.
+

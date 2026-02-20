@@ -1,0 +1,35 @@
+{
+  "_meta": {
+    "case_id": "SC-001",
+    "description": "Simple low-value liability claim. Active policy, low risk, no flags. Should auto-approve with no delegations.",
+    "expected": {
+      "classify_claim_type": "liability",
+      "check_eligibility": true,
+      "risk_score_range": [0, 29],
+      "recommendation": "auto_approve",
+      "delegation_damage_assessment": false,
+      "delegation_fraud_screening": false,
+      "decision": "auto_approve"
+    }
+  },
+  "get_policy": {
+    "policy_id": "POL-001",
+    "status": "active",
+    "coverage_type": "liability,comprehensive",
+    "tenure_months": 48,
+    "prior_claims": 0
+  },
+  "get_claim": {
+    "claim_id": "CLM-001",
+    "amount": 2500,
+    "incident_date": "2026-01-15",
+    "claim_type_hint": "liability",
+    "flags": [],
+    "description": "Minor fender bender in parking lot. Other driver at fault."
+  },
+  "get_claimant": {
+    "name": "Alice Thompson",
+    "member_since": "2022-01-01",
+    "age": 35
+  }
+}

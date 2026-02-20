@@ -1,0 +1,161 @@
+# Eligibility & Constraints Assessment Workflow
+#
+# Determine what is allowed, disallowed, or requires approval
+# before any plan is proposed. Delegates to specialist sub-assessments.
+#
+# Retrieve → Classify → Think → Verify → Challenge
+
+name: eligibility_constraints_assessment
+description: >
+  Assess eligibility per account, identify legal/regulatory constraints,
+  determine required approvals, and challenge the assessment for
+  contradictions. Delegates to SCRA, bankruptcy, and fraud screens.
+
+steps:
+  - name: gather_policy_data
+    primitive: retrieve
+    params:
+      specification: "${domain.gather_policy_data.specification}"
+      strategy: deterministic
+    transitions:
+      - default: classify_constraint_tier
+
+  - name: classify_constraint_tier
+    primitive: classify
+    temperature: 0.0
+    params:
+      categories: "${domain.classify_constraint_tier.categories}"
+      criteria: |
+        Intake packet: ${input.intake_packet}
+        Risk flags: ${gather_policy_data.data.get_risk_flags}
+        Legal flags: ${gather_policy_data.data.get_legal_flags}
+        ${domain.classify_constraint_tier.criteria}
+      confidence_threshold: "0.7"
+    transitions:
+      - when: "output.category == 'scra_protected'"
+        goto: assess_scra
+      - when: "output.category == 'bankruptcy_hold'"
+        goto: assess_bankruptcy
+      - when: "output.category == 'fraud_exploitation'"
+        goto: assess_fraud
+      - when: "output.category == 'multiple_constraints'"
+        goto: assess_scra
+      - default: think_eligibility
+
+  # Sub-assessment steps that trigger delegations
+  - name: assess_scra
+    primitive: think
+    params:
+      instruction: |
+        Based on the SCRA indicators and intake packet, what SCRA
+        protections apply to this member's accounts?
+
+        Considerations: ${domain.assess_scra.considerations}
+
+        Available evidence:
+        Intake packet: ${input.intake_packet}
+        Legal flags: ${gather_policy_data.data.get_legal_flags}
+    transitions:
+      - default: think_eligibility
+
+  - name: assess_bankruptcy
+    primitive: think
+    params:
+      instruction: |
+        Based on the bankruptcy indicators, what holds and restrictions
+        apply to this member's accounts?
+
+        Considerations: ${domain.assess_bankruptcy.considerations}
+
+        Available evidence:
+        Intake packet: ${input.intake_packet}
+        Legal flags: ${gather_policy_data.data.get_legal_flags}
+    transitions:
+      - default: think_eligibility
+
+  - name: assess_fraud
+    primitive: think
+    params:
+      instruction: |
+        Based on the fraud/exploitation risk signals, should actions
+        be frozen pending security review?
+
+        Considerations: ${domain.assess_fraud.considerations}
+
+        Available evidence:
+        Intake packet: ${input.intake_packet}
+        Risk flags: ${gather_policy_data.data.get_risk_flags}
+    transitions:
+      - default: think_eligibility
+
+  - name: think_eligibility
+    primitive: think
+    params:
+      instruction: |
+        For each of this member's accounts, determine:
+        1. Is the account eligible for hardship assistance?
+        2. What constraints apply (legal, product, policy)?
+        3. What approvals are required?
+        4. What actions are explicitly disallowed?
+
+        Considerations: ${domain.think_eligibility.considerations}
+
+        Available evidence:
+        Intake packet: ${input.intake_packet}
+        Constraint tier: ${classify_constraint_tier.category}
+        Policy data: ${gather_policy_data.data}
+    transitions:
+      - default: verify_constraints
+
+  - name: verify_constraints
+    primitive: verify
+    temperature: 0.0
+    params:
+      subject: "${think_eligibility.conclusions}"
+      rules: "${domain.verify_constraints.rules}"
+    transitions:
+      - when: "output.conforms == true"
+        goto: challenge_eligibility
+      - when: "output.conforms == false"
+        goto: generate_constraints_artifact
+
+  - name: challenge_eligibility
+    primitive: challenge
+    model: strong
+    temperature: 0.0
+    max_loops: 2
+    params:
+      input: "${think_eligibility.conclusions}"
+      perspective: "${domain.challenge_eligibility.perspective}"
+      threat_model: "${domain.challenge_eligibility.threat_model}"
+    transitions:
+      - when: "output.survives == true"
+        goto: generate_constraints_artifact
+      - when: "output.survives == false"
+        goto: generate_escalation_artifact
+
+  - name: generate_constraints_artifact
+    primitive: generate
+    temperature: 0.1
+    params:
+      requirements: "${domain.generate_constraints_artifact.requirements}"
+      format: "${domain.generate_constraints_artifact.format}"
+      constraints: "${domain.generate_constraints_artifact.constraints}"
+    transitions:
+      - default: __end__
+
+  - name: generate_escalation_artifact
+    primitive: generate
+    temperature: 0.1
+    params:
+      requirements: |
+        The eligibility assessment did not survive challenge.
+        Generate an escalation artifact with:
+        - What was challenged and why it failed
+        - The specific contradictions or ambiguities found
+        - Recommended human review focus areas
+        ${domain.generate_escalation_artifact.requirements}
+      format: "${domain.generate_escalation_artifact.format}"
+      constraints: "${domain.generate_escalation_artifact.constraints}"
+    transitions:
+      - default: __end__

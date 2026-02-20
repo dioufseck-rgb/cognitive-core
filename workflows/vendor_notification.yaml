@@ -1,84 +1,95 @@
-# Vendor Notification Workflow
-# Triggered by fire-and-forget delegation for high-value returns.
-# Generates a vendor return notification package.
-#
-# Governance: hold (requires ops team approval before vendor is notified)
-
 name: vendor_notification
 description: Generate vendor return notification for logistics and warranty tracking.
-
 steps:
-  - name: gather_vendor_data
-    primitive: retrieve
-    params:
-      specification: |
-        Retrieve vendor and product information:
-          - get_vendor: Vendor contact info, return procedures, SLA terms
-          - get_product: Product details, warranty status, serial number
-          - get_order: Original order with vendor cost and margin data
-        Pull all available sources.
-      strategy: deterministic
+- name: gather_vendor_data
+  primitive: retrieve
+  params:
+    specification: "Retrieve vendor and product information:\n  - get_vendor: Vendor contact info, return procedures, SLA\
+      \ terms\n  - get_product: Product details, warranty status, serial number\n  - get_order: Original order with vendor\
+      \ cost and margin data\nPull all available sources.\n"
+    strategy: deterministic
+- name: classify_return_reason
+  primitive: classify
+  params:
+    categories: "- defective_product: Item has a manufacturing defect or malfunction.\n  Vendor may owe warranty credit.\n\
+      - customer_preference: Customer changed their mind or found a better option.\n  Standard return, no vendor obligation.\n\
+      - damaged_in_transit: Item damaged during shipping.\n  Shipping carrier claim may apply.\n- wrong_item_sent: Incorrect\
+      \ item shipped to customer.\n  Fulfillment error, vendor restocking applies.\n"
+    criteria: 'Return reason from customer: ${input.return_reason}
 
-  - name: classify_return_reason
-    primitive: classify
-    params:
-      categories: |
-        - defective_product: Item has a manufacturing defect or malfunction.
-          Vendor may owe warranty credit.
-        - customer_preference: Customer changed their mind or found a better option.
-          Standard return, no vendor obligation.
-        - damaged_in_transit: Item damaged during shipping.
-          Shipping carrier claim may apply.
-        - wrong_item_sent: Incorrect item shipped to customer.
-          Fulfillment error, vendor restocking applies.
-      criteria: |
-        Return reason from customer: ${input.return_reason}
-        Product condition: ${input.item_condition}
+      Product condition: ${input.item_condition}
 
-        Classify why the item is being returned from the vendor's perspective.
-        This determines the vendor's financial responsibility and logistics handling.
-      confidence_threshold: "0.8"
-    transitions:
-      - default: generate_notification
 
-  - name: generate_notification
-    primitive: generate
-    params:
-      requirements: |
-        Generate a vendor return notification email containing:
-        1. Return authorization reference number
-        2. Product details: ${gather_vendor_data.data.get_product}
-        3. Return category: ${classify_return_reason.category}
-        4. Original order reference: ${gather_vendor_data.data.get_order}
-        5. Vendor return procedure compliance: ${gather_vendor_data.data.get_vendor}
-        6. Required vendor actions (RMA, credit memo, replacement shipment)
-        7. Timeline expectations per vendor SLA
+      Classify why the item is being returned from the vendor''s perspective.
 
-        Customer info: ${input.customer_name}
-        Return reason: ${input.return_reason}
-      format: vendor_notification_email
-      constraints: |
-        - Follow vendor's preferred notification format if specified
-        - Include all required reference numbers
-        - State clear deadlines per the vendor SLA
-        - Do not include customer personal information beyond name
-        - Professional B2B tone
-    transitions:
-      - default: verify_notification
+      This determines the vendor''s financial responsibility and logistics handling.
 
-  - name: verify_notification
-    primitive: verify
-    params:
-      rules: |
-        1. Return authorization number is present and properly formatted
-        2. Product serial number or SKU is included
-        3. Original order reference is correct
-        4. Return category matches the customer's stated reason
-        5. Vendor SLA deadlines are correctly calculated
-        6. No customer PII beyond name (no address, email, phone, payment info)
-        7. Required vendor action is clearly stated
-      input: "${generate_notification.artifact}"
-    transitions:
-      - when: "output.conforms == false"
-        goto: generate_notification
-      - default: __end__
+      '
+    confidence_threshold: '0.8'
+  transitions:
+  - default: generate_notification
+  temperature: 0.0
+- name: generate_notification
+  primitive: generate
+  params:
+    requirements: 'Generate a vendor return notification email containing:
+
+      1. Return authorization reference number
+
+      2. Product details: ${gather_vendor_data.data.get_product}
+
+      3. Return category: ${classify_return_reason.category}
+
+      4. Original order reference: ${gather_vendor_data.data.get_order}
+
+      5. Vendor return procedure compliance: ${gather_vendor_data.data.get_vendor}
+
+      6. Required vendor actions (RMA, credit memo, replacement shipment)
+
+      7. Timeline expectations per vendor SLA
+
+
+      Customer info: ${input.customer_name}
+
+      Return reason: ${input.return_reason}
+
+      '
+    format: vendor_notification_email
+    constraints: '- Follow vendor''s preferred notification format if specified
+
+      - Include all required reference numbers
+
+      - State clear deadlines per the vendor SLA
+
+      - Do not include customer personal information beyond name
+
+      - Professional B2B tone
+
+      '
+  transitions:
+  - default: verify_notification
+- name: verify_notification
+  primitive: verify
+  params:
+    rules: '1. Return authorization number is present and properly formatted
+
+      2. Product serial number or SKU is included
+
+      3. Original order reference is correct
+
+      4. Return category matches the customer''s stated reason
+
+      5. Vendor SLA deadlines are correctly calculated
+
+      6. No customer PII beyond name (no address, email, phone, payment info)
+
+      7. Required vendor action is clearly stated
+
+      '
+    input: ${generate_notification.artifact}
+  transitions:
+  - when: output.conforms == false
+    goto: generate_notification
+  - default: __end__
+  temperature: 0.0
+  model: standard

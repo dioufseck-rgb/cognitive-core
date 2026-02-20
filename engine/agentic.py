@@ -38,12 +38,6 @@ from engine.state import (
     build_context_from_state,
     get_step_output,
 )
-
-try:
-    from engine.retry import invoke_with_retry, get_retry_policy
-    _HAS_RETRY = True
-except ImportError:
-    _HAS_RETRY = False
 from engine.nodes import (
     create_node,
     create_retrieve_node,
@@ -276,29 +270,12 @@ def compose_agentic_workflow(
         trace.on_step_start("orchestrator", "orchestrator", 0)
         trace.on_llm_start("orchestrator", len(prompt))
         t0 = time.time()
-        messages = [HumanMessage(content=prompt)]
-        if _HAS_RETRY:
-            try:
-                from engine.llm import detect_provider
-                _prov = detect_provider()
-            except Exception:
-                _prov = "unknown"
-            _rpol = get_retry_policy(_prov)
-            retry_result = invoke_with_retry(
-                orch_llm, messages, policy=_rpol,
-                step_name="orchestrator",
-                provider=_prov, model_name="orchestrator",
-            )
-            raw_content = retry_result.content
-        else:
-            response = orch_llm.invoke(messages)
-            raw_content = response.content
-
+        response = orch_llm.invoke([HumanMessage(content=prompt)])
         elapsed = time.time() - t0
-        trace.on_llm_end("orchestrator", len(raw_content), elapsed)
+        trace.on_llm_end("orchestrator", len(response.content), elapsed)
 
         try:
-            decision = extract_json(raw_content)
+            decision = extract_json(response.content)
         except Exception:
             # Can't parse — force end
             decision = {"action": "end", "reasoning": "Failed to parse orchestrator response"}

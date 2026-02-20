@@ -1,0 +1,122 @@
+# Eligibility & Constraints Assessment — Domain Specification
+#
+# Paired with eligibility_constraints_assessment workflow.
+# Determines what is allowed, disallowed, or needs approval.
+
+domain_name: hardship_eligibility
+workflow: eligibility_constraints_assessment
+governance: gate
+description: >
+  Assess per-account eligibility for hardship programs, identify
+  legal and regulatory constraints, determine required approvals.
+  Fail-closed on ambiguity.
+
+# This domain reuses all step definitions from member_hardship.yaml
+# sections prefixed with WF2. The workflow resolves ${domain.*}
+# references against this file.
+
+# Data sources
+gather_policy_data:
+  strategy: deterministic
+  specification: |
+    Pull policy and constraint data:
+      - get_risk_flags: Current fraud/exploitation scores
+      - get_legal_flags: Bankruptcy, SCRA, legal holds, garnishments
+      - get_loan_accounts: Account details including product type, balance, delinquency
+      - intake_packet: The intake packet from WF1 containing claims and evidence
+
+# Classification
+classify_constraint_tier:
+  categories: |
+    - standard: No legal/regulatory constraints.
+    - scra_protected: SCRA indicator active or pending.
+    - bankruptcy_hold: Bankruptcy filed or pending.
+    - fraud_exploitation: Elevated ATO or exploitation risk.
+    - multiple_constraints: More than one constraint applies.
+    - complaint_active: Open CFPB or regulator complaint.
+  criteria: |
+    Check in order of severity: bankruptcy → SCRA → fraud → complaint.
+    When in doubt, classify as the more restrictive tier.
+
+# Sub-assessments
+assess_scra:
+  considerations: |
+    Is the member on active duty or within 1 year of end of service?
+    Do SCRA effective dates match the claimed service period?
+    If dates conflict or pending, status is "unclear" — force escalation.
+    If applies: rate capped at 6%, retroactive adjustments required.
+
+assess_bankruptcy:
+  considerations: |
+    Chapter 7 or 13? Automatic stay in effect? Which accounts included?
+    All collection must cease on included accounts.
+    Modifications require court approval.
+    If unclear, treat as active hold until confirmed.
+
+assess_fraud:
+  considerations: |
+    ATO risk above threshold? Credentials changed in last 7 days?
+    Could the hardship claim be social engineering?
+    Is member potentially an exploitation victim?
+    Protect member first, freeze actions, route to security.
+
+# Eligibility determination
+think_eligibility:
+  considerations: |
+    Per account: eligible, ineligible, or unclear.
+    Apply POL-HARD-001 through POL-HARD-004.
+    Ineligible conditions: charge-off, bankruptcy hold, fraud freeze,
+    account less than 6 months old.
+
+# Verification
+verify_constraints:
+  rules: |
+    Every account has eligibility status with policy citation.
+    No eligible account has bankruptcy hold, fraud freeze, or charge-off.
+    SCRA accounts have rate cap constraints documented.
+    Unclear status includes reason and forces human review.
+
+# Challenge
+challenge_eligibility:
+  perspective: |
+    Compliance auditor checking for date mismatches, inconsistent
+    evidence, and accounts wrongly marked eligible.
+  threat_model: |
+    CRITICAL: Inconsistent evidence used to grant eligibility.
+    CRITICAL: Bankruptcy or legal hold missed.
+    HIGH: SCRA dates misaligned. Fraud indicators ignored.
+    MEDIUM: Missing evidence not flagged.
+
+# Output artifacts
+generate_constraints_artifact:
+  requirements: |
+    Produce HardshipConstraints_v1 with per-account eligibility,
+    global constraints, and review requirements.
+  format: |
+    {
+      "eligibility": [{"account_id": "", "status": "", "available_plans": [],
+        "constraints": [], "required_approvals": [], "disallowed_actions": [],
+        "reason_codes": []}],
+      "global_constraints": {"scra_applies": false, "bankruptcy_hold": false,
+        "fraud_freeze": false, "complaint_restrictions": false},
+      "required_human_review": false,
+      "review_reason": ""
+    }
+  constraints: |
+    Every status must cite a policy ID.
+    Unclear always forces human review.
+
+generate_escalation_artifact:
+  requirements: |
+    Document contradictions found by the challenge step.
+  format: |
+    {
+      "escalation_type": "challenge_failed",
+      "contradictions": [],
+      "affected_accounts": [],
+      "recommended_focus": [],
+      "all_evidence": "",
+      "original_assessment": ""
+    }
+  constraints: |
+    Be specific. Do not resolve contradictions — that is the human's job.

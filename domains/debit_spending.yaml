@@ -5,7 +5,6 @@
 # and personalized financial advice tied to member goals.
 
 domain_name: debit_spending
-governance: auto
 workflow: spending_advisor
 description: >
   Domain configuration for debit card spending analysis and advisory.
@@ -16,12 +15,11 @@ gather_member_data:
   strategy: deterministic
   specification: |
     Required data sources:
-      - get_member: Name, age, tenure, income band, products
-      - get_accounts: Account balances (checking, savings)
+      - member_profile: Name, age, tenure, income band, balances
       - member_question: The member's question or request
-      - get_financial_goals: Stated savings and spending goals
-      - get_spending_summary: Pre-aggregated monthly spending by category
-      - get_transactions: Raw transaction history for detailed analysis
+      - financial_goals: Stated savings and spending goals
+      - monthly_summaries: Pre-aggregated monthly spending by category
+      - transactions: Raw transaction history for detailed analysis
 
     Conditional (include if available):
       - prior_conversation: Previous turns in this conversation, including

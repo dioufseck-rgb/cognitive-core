@@ -1,0 +1,27 @@
+{
+  "_meta": {
+    "expected": {
+      "classify_fraud_risk": "low_risk",
+      "finding": "no_suspicious_patterns",
+      "recommendation": "clear"
+    }
+  },
+  "get_claim": {
+    "claim_id": "CLM-FS-001",
+    "amount": 3000,
+    "incident_date": "2026-01-25",
+    "description": "Windshield cracked by road debris."
+  },
+  "get_claim_history": {
+    "claims": []
+  },
+  "get_flags": {
+    "count": 0,
+    "types": []
+  },
+  "get_policy": {
+    "policy_id": "POL-FS-001",
+    "days_active": 730,
+    "coverage_type": "comprehensive,collision"
+  }
+}

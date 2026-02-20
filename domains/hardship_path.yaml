@@ -1,0 +1,65 @@
+# Hardship Path Recommendation — Domain Specification
+#
+# Paired with hardship_path_recommendation workflow.
+# Proposes ranked options — never executes.
+
+domain_name: hardship_path
+workflow: hardship_path_recommendation
+governance: gate
+description: >
+  Recommend a hardship workout path with ranked plan options.
+  Recommendation only — no execution authority.
+
+think_path_selection:
+  considerations: |
+    Paths (priority order — legal/safety overrides all):
+    P0: Not hardship → standard collections
+    P1: Short-term (30-90 days) → deferral / reduced payment
+    P2: Long-term (90+ days) → restructure / term extension
+    P3: Disaster relief → special program terms
+    P4: SCRA protected → rate cap + specialist (Tier D)
+    P5: Bankruptcy/legal hold → cease actions, specialist only
+    P6: Fraud/exploitation → freeze actions, security review
+
+    P4/P5/P6 always override P0-P3.
+    Conflicting evidence → escalate, do not select a path.
+    Consider ALL accounts together, not individually.
+
+generate_recommendation:
+  requirements: |
+    Produce HardshipPathRecommendation_v1 with selected path,
+    ranked options, confidence, and policy citations.
+  format: |
+    {
+      "selected_path": "<P0-P6>",
+      "path_rationale": "",
+      "plan_options": [{"rank": 1, "plan_type": "", "description": "",
+        "tradeoffs": "", "assumptions": "", "policy_citation": ""}],
+      "confidence_score": 0.0,
+      "confidence_rationale": "",
+      "required_human_review": false,
+      "review_reason": "",
+      "member_message_draft": null,
+      "policy_citations": []
+    }
+  constraints: |
+    P4/P5/P6 require human review. No message draft for P4/P5/P6.
+    Never promise specific terms. Every option cites a policy.
+    Conflicting evidence → confidence below 0.5 and force review.
+
+verify_recommendation:
+  rules: |
+    selected_path is P0-P6. At least one plan_option (unless P5/P6).
+    P4/P5/P6 → required_human_review true and message_draft null.
+    Every plan_option has a policy_citation.
+    No language promising specific approval.
+
+challenge_recommendation:
+  perspective: |
+    Member: does this help? Fair lending examiner: same treatment
+    for similarly situated? Consumer attorney: misleading promises?
+  threat_model: |
+    CRITICAL: Contradicts eligibility constraints.
+    CRITICAL: P4/P5/P6 without human review.
+    HIGH: Plan not supported by policy. Conflicting evidence ignored.
+    MEDIUM: Confidence doesn't reflect evidence strength.

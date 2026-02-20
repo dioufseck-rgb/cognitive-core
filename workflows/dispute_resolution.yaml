@@ -1,147 +1,172 @@
-# Dispute Resolution Workflow
-# Retrieve → Classify → Verify → Investigate → Classify → Generate → Challenge
-# With: source-driven retrieval, fast-path skip, agent routing, refinement loop
-
 name: dispute_resolution
-description: >
-  Dispute resolution with runtime data retrieval. Gathers case data
-  from registered sources before cognitive processing begins.
+description: 'Dispute resolution with runtime data retrieval. Gathers case data from registered sources before cognitive processing
+  begins.
 
+  '
 steps:
-  # Step 0: Gather data from sources
-  - name: gather_case_data
-    primitive: retrieve
-    params:
-      specification: "${domain.gather_case_data.specification}"
-      strategy: "${domain.gather_case_data.strategy}"
+- name: gather_case_data
+  primitive: retrieve
+  params:
+    specification: ${domain.gather_case_data.specification}
+    strategy: ${domain.gather_case_data.strategy}
+- name: classify_dispute_type
+  primitive: classify
+  params:
+    categories: ${domain.classify_dispute_type.categories}
+    criteria: 'Dispute intake: ${gather_case_data.data.dispute_intake}
 
-  # Step 1: What type of dispute is this?
-  - name: classify_dispute_type
-    primitive: classify
-    params:
-      categories: "${domain.classify_dispute_type.categories}"
-      criteria: |
-        Dispute intake: ${gather_case_data.data.dispute_intake}
-        Member: ${gather_case_data.data.member_profile}
-        Transaction: ${gather_case_data.data.transaction_detail}
-        ${domain.classify_dispute_type.criteria}
-      confidence_threshold: "${domain.classify_dispute_type.confidence_threshold}"
-    transitions:
-      - when: "output.confidence >= 0.95"
-        goto: classify_resolution_fast
-      - default: verify_against_records
+      Member: ${gather_case_data.data.member_profile}
 
-  # Step 2: Do records support the claim?
-  - name: verify_against_records
-    primitive: verify
-    params:
-      input: |
-        Claim: ${classify_dispute_type.category}
-        Transaction: ${gather_case_data.data.transaction_detail}
-        History: ${gather_case_data.data.transaction_history}
-        Member: ${gather_case_data.data.member_profile}
-      rules: "${domain.verify_against_records.rules}"
+      Transaction: ${gather_case_data.data.transaction_detail}
 
-  # Step 3: What actually happened?
-  - name: investigate_dispute
-    primitive: investigate
-    params:
-      question: |
-        Classified as '${classify_dispute_type.category}', verification
-        found: ${verify_against_records.reasoning}
-        What most likely happened?
-      scope: "${domain.investigate_dispute.scope}"
-      available_evidence: |
-        Transaction: ${gather_case_data.data.transaction_detail}
-        Fraud score: ${gather_case_data.data.fraud_score}
-        Device data: ${gather_case_data.data.device_fingerprints}
-        History: ${gather_case_data.data.transaction_history}
-        Verification: ${verify_against_records.reasoning}
-      effort_level: "${domain.investigate_dispute.effort_level}"
-    transitions:
-      - when: "output.confidence < 0.4"
-        goto: escalate_to_human
-      - agent_decide:
-          prompt: |
-            Investigation complete. Finding: ${investigate_dispute.finding}
-            Confidence: ${investigate_dispute.confidence}
-          options:
-            - step: classify_resolution
-              description: Sufficient evidence for resolution decision.
-            - step: escalate_to_human
-              description: Too complex for automated resolution.
+      ${domain.classify_dispute_type.criteria}
 
-  # Step 4a: Fast resolution (high confidence path)
-  - name: classify_resolution_fast
-    primitive: classify
-    params:
-      categories: "${domain.classify_resolution_fast.categories}"
-      criteria: |
-        Dispute: ${classify_dispute_type.category} (${classify_dispute_type.confidence})
-        Member: ${gather_case_data.data.member_profile}
-        Transaction: ${gather_case_data.data.transaction_detail}
-        Fraud score: ${gather_case_data.data.fraud_score}
-        ${domain.classify_resolution_fast.criteria}
-      confidence_threshold: "0.8"
-    transitions:
-      - default: generate_response
+      '
+    confidence_threshold: ${domain.classify_dispute_type.confidence_threshold}
+  transitions:
+  - when: output.confidence >= 0.95
+    goto: classify_resolution_fast
+  - default: verify_against_records
+  temperature: 0.0
+- name: verify_against_records
+  primitive: verify
+  params:
+    rules: ${domain.verify_against_records.rules}
+    subject: 'Claim: ${classify_dispute_type.category}
 
-  # Step 4b: Full resolution decision
-  - name: classify_resolution
-    primitive: classify
-    params:
-      categories: "${domain.classify_resolution.categories}"
-      criteria: |
-        Type: ${classify_dispute_type.category} (${classify_dispute_type.confidence})
-        Verification: ${verify_against_records.conforms}
-        Investigation: ${investigate_dispute.finding} (${investigate_dispute.confidence})
-        Member: ${gather_case_data.data.member_profile}
-        ${domain.classify_resolution.criteria}
-      confidence_threshold: "0.75"
-    transitions:
-      - default: generate_response
+      Transaction: ${gather_case_data.data.transaction_detail}
 
-  # Step 5: Generate member response
-  - name: generate_response
-    primitive: generate
-    max_loops: 3
-    params:
-      requirements: |
-        Resolution: ${previous.category}
-        Dispute type: ${classify_dispute_type.category}
-        Member: ${gather_case_data.data.dispute_intake.member_name}
-        Transaction: ${gather_case_data.data.transaction_detail}
-        ${domain.generate_response.requirements}
-      format: member_notification_letter
-      constraints: "${domain.generate_response.constraints}"
-    transitions:
-      - default: challenge_response
+      History: ${gather_case_data.data.transaction_history}
 
-  # Step 6: Challenge the response
-  - name: challenge_response
-    primitive: challenge
-    max_loops: 3
-    params:
-      input: "${generate_response.artifact}"
-      perspective: "${domain.challenge_response.perspective}"
-      threat_model: "${domain.challenge_response.threat_model}"
-    transitions:
-      - when: "output.survives == true"
-        goto: __end__
-      - when: "output.survives == false"
-        goto: generate_response
-      - default: __end__
+      Member: ${gather_case_data.data.member_profile}
 
-  # Escalation path
-  - name: escalate_to_human
-    primitive: generate
-    params:
-      requirements: |
-        Member: ${gather_case_data.data.dispute_intake.member_name}
-        Profile: ${gather_case_data.data.member_profile}
-        Dispute type: ${classify_dispute_type.category}
-        ${domain.escalate_to_human.requirements}
-      format: escalation_summary
-      constraints: "${domain.escalate_to_human.constraints}"
-    transitions:
-      - default: __end__
+      '
+  temperature: 0.0
+  model: standard
+  transitions:
+  - when: output.conforms == false
+    goto: investigate_dispute
+  - default: investigate_dispute
+- name: investigate_dispute
+  primitive: investigate
+  params:
+    question: 'Classified as ''${classify_dispute_type.category}'', verification
+
+      found: ${verify_against_records.reasoning}
+
+      What most likely happened?
+
+      '
+    scope: ${domain.investigate_dispute.scope}
+    available_evidence: 'Transaction: ${gather_case_data.data.transaction_detail}
+
+      Fraud score: ${gather_case_data.data.fraud_score}
+
+      Device data: ${gather_case_data.data.device_fingerprints}
+
+      History: ${gather_case_data.data.transaction_history}
+
+      Verification: ${verify_against_records.reasoning}
+
+      '
+    effort_level: ${domain.investigate_dispute.effort_level}
+  transitions:
+  - when: output.confidence < 0.4
+    goto: escalate_to_human
+  - agent_decide:
+      prompt: 'Investigation complete. Finding: ${investigate_dispute.finding}
+
+        Confidence: ${investigate_dispute.confidence}
+
+        '
+      options:
+      - step: classify_resolution
+        description: Sufficient evidence for resolution decision.
+      - step: escalate_to_human
+        description: Too complex for automated resolution.
+- name: classify_resolution_fast
+  primitive: classify
+  params:
+    categories: ${domain.classify_resolution_fast.categories}
+    criteria: 'Dispute: ${classify_dispute_type.category} (${classify_dispute_type.confidence})
+
+      Member: ${gather_case_data.data.member_profile}
+
+      Transaction: ${gather_case_data.data.transaction_detail}
+
+      Fraud score: ${gather_case_data.data.fraud_score}
+
+      ${domain.classify_resolution_fast.criteria}
+
+      '
+    confidence_threshold: '0.8'
+  transitions:
+  - default: generate_response
+  temperature: 0.0
+- name: classify_resolution
+  primitive: classify
+  params:
+    categories: ${domain.classify_resolution.categories}
+    criteria: 'Type: ${classify_dispute_type.category} (${classify_dispute_type.confidence})
+
+      Verification: ${verify_against_records.conforms}
+
+      Investigation: ${investigate_dispute.finding} (${investigate_dispute.confidence})
+
+      Member: ${gather_case_data.data.member_profile}
+
+      ${domain.classify_resolution.criteria}
+
+      '
+    confidence_threshold: '0.75'
+  transitions:
+  - default: generate_response
+  temperature: 0.0
+- name: generate_response
+  primitive: generate
+  max_loops: 3
+  params:
+    requirements: 'Resolution: ${previous.category}
+
+      Dispute type: ${classify_dispute_type.category}
+
+      Member: ${gather_case_data.data.dispute_intake.member_name}
+
+      Transaction: ${gather_case_data.data.transaction_detail}
+
+      ${domain.generate_response.requirements}
+
+      '
+    format: member_notification_letter
+    constraints: ${domain.generate_response.constraints}
+  transitions:
+  - default: challenge_response
+- name: challenge_response
+  primitive: challenge
+  max_loops: 3
+  params:
+    input: ${generate_response.artifact}
+    perspective: ${domain.challenge_response.perspective}
+    threat_model: ${domain.challenge_response.threat_model}
+  transitions:
+  - when: output.survives == true
+    goto: __end__
+  - when: output.survives == false
+    goto: generate_response
+  - default: __end__
+- name: escalate_to_human
+  primitive: generate
+  params:
+    requirements: 'Member: ${gather_case_data.data.dispute_intake.member_name}
+
+      Profile: ${gather_case_data.data.member_profile}
+
+      Dispute type: ${classify_dispute_type.category}
+
+      ${domain.escalate_to_human.requirements}
+
+      '
+    format: escalation_summary
+    constraints: ${domain.escalate_to_human.constraints}
+  transitions:
+  - default: __end__

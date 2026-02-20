@@ -1,0 +1,35 @@
+{
+  "_meta": {
+    "case_id": "SC-008",
+    "description": "Medical claim, $6K, 1 prior claim, 1 flag. Risk: >$5K=15, 1 prior=10, flag=30 = 55. Standard review. Fraud screening triggered by flag presence.",
+    "expected": {
+      "classify_claim_type": "medical",
+      "check_eligibility": true,
+      "risk_score_range": [30, 59],
+      "recommendation": "standard_review",
+      "delegation_damage_assessment": false,
+      "delegation_fraud_screening": true,
+      "decision": "standard_review"
+    }
+  },
+  "get_policy": {
+    "policy_id": "POL-008",
+    "status": "active",
+    "coverage_type": "medical,pip,liability,comprehensive",
+    "tenure_months": 18,
+    "prior_claims": 1
+  },
+  "get_claim": {
+    "claim_id": "CLM-008",
+    "amount": 6000,
+    "incident_date": "2026-02-12",
+    "claim_type_hint": "medical",
+    "flags": ["repeat_claimant"],
+    "description": "Back injury from rear-end collision."
+  },
+  "get_claimant": {
+    "name": "Henry Nguyen",
+    "member_since": "2024-08-01",
+    "age": 38
+  }
+}

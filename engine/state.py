@@ -75,23 +75,6 @@ def resolve_param(value: str, state: WorkflowState) -> str:
                 return str(get_loop_count(state, parts[1]))
             return str(get_loop_count(state, state.get("current_step", "")))
 
-        if parts[0] == "_delegations":
-            # ${_delegations.wo_id.field} → delegation result reference
-            delegations = state.get("delegation_results", {})
-            if len(parts) > 1:
-                obj = delegations.get(parts[1], delegations)
-                for part in parts[2:]:
-                    if isinstance(obj, dict):
-                        obj = obj.get(part, f"[field '{part}' not found]")
-                    else:
-                        return f"[cannot navigate into {type(obj).__name__}]"
-                if isinstance(obj, (dict, list)):
-                    return json.dumps(obj, indent=2)
-                return str(obj)
-            if isinstance(delegations, (dict, list)):
-                return json.dumps(delegations, indent=2)
-            return str(delegations)
-
         if parts[0] == "input":
             obj = state["input"]
             parts = parts[1:]

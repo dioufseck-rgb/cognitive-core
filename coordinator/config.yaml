@@ -164,6 +164,64 @@ delegations:
       get_transactions: "${source.last_retrieve.data.get_transactions}"
       get_aml_alert: "${source.last_retrieve.data.get_aml_alert}"
 
+  # ─── Claim Intake Delegations (Multi-Agent) ────────────────────
+  # Orchestrator pattern: claim_intake delegates to
+  # damage_assessment + fraud_screening based on claim attributes.
+  # Both are fire-and-forget: claim completes, assessments run independently.
+
+  - name: claim_physical_damage_assessment
+    mode: fire_and_forget
+    conditions:
+      - domain: synthetic_claim
+        selector: last_verify
+        field: conforms
+        operator: eq
+        value: true
+      - domain: synthetic_claim
+        selector: last_classify
+        field: category
+        operator: eq
+        value: physical_damage
+    target_workflow: damage_assessment
+    target_domain: synthetic_damage
+    contract: damage_assessment_v1
+    sla: 3600  # 1 hour
+    inputs:
+      claim_id: "${source.last_retrieve.data.get_claim.claim_id}"
+      policy_id: "${source.last_retrieve.data.get_policy.policy_id}"
+      # Pass tool data so handler retrieve step can access them
+      get_claim: "${source.last_retrieve.data.get_claim}"
+      get_policy: "${source.last_retrieve.data.get_policy}"
+      get_photos: "${source.input.get_photos}"
+      get_estimate: "${source.input.get_estimate}"
+      get_police_report: "${source.input.get_police_report}"
+
+  - name: claim_high_value_fraud_screening
+    mode: fire_and_forget
+    conditions:
+      - domain: synthetic_claim
+        selector: last_verify
+        field: conforms
+        operator: eq
+        value: true
+      - domain: synthetic_claim
+        selector: last_retrieve
+        field: data.get_claim.amount
+        operator: gte
+        value: 5000
+    target_workflow: fraud_screening
+    target_domain: synthetic_fraud
+    contract: fraud_screening_v1
+    sla: 3600  # 1 hour
+    inputs:
+      claim_id: "${source.last_retrieve.data.get_claim.claim_id}"
+      amount: "${source.last_retrieve.data.get_claim.amount}"
+      # Pass tool data so handler retrieve step can access them
+      get_claim: "${source.last_retrieve.data.get_claim}"
+      get_policy: "${source.last_retrieve.data.get_policy}"
+      get_claim_history: "${source.input.get_claim_history}"
+      get_flags: "${source.input.get_flags}"
+
   # ─── Product Return Delegations ───────────────────────────────
 
   # Suspicious return patterns → fraud review (blocking)
@@ -220,11 +278,162 @@ delegations:
       get_product: "${source.input.get_product}"
       get_order: "${source.input.get_order}"
 
+  # ─── Member Hardship Lifecycle Delegations ──────────────────────
+  # Five-workflow orchestration: intake → eligibility → recommendation
+  # → contact strategy → action execution.
+  # Coordinator chains these via fire-and-forget with suspend/resume
+  # at governance gates.
+
+  # WF1 completes → WF2 fires (eligibility assessment)
+  - name: hardship_intake_to_eligibility
+    mode: fire_and_forget
+    conditions:
+      - domain: member_hardship
+        selector: last_generate
+        field: artifact.preliminary_triage
+        operator: in
+        value:
+          - straightforward
+          - complex
+          - urgent
+    target_workflow: eligibility_constraints_assessment
+    target_domain: hardship_eligibility
+    contract: hardship_eligibility_v1
+    sla: 7200  # 2 hours
+    inputs:
+      intake_packet: "${source.last_generate.artifact}"
+      member_token: "${source.last_generate.artifact.member_token}"
+      get_risk_flags: "${source.last_retrieve.data.get_risk_flags}"
+      get_legal_flags: "${source.last_retrieve.data.get_legal_flags}"
+      get_product_rules: "${source.last_retrieve.data.get_loan_accounts}"
+      get_policy_config: "{}"
+
+  # WF2 completes → WF3 fires (path recommendation)
+  - name: hardship_eligibility_to_recommendation
+    mode: fire_and_forget
+    conditions:
+      - domain: hardship_eligibility
+        selector: last_generate
+        field: artifact.required_human_review
+        operator: eq
+        value: false
+    target_workflow: hardship_path_recommendation
+    target_domain: hardship_path
+    contract: hardship_recommendation_v1
+    sla: 3600  # 1 hour
+    inputs:
+      intake_packet: "${source.input.intake_packet}"
+      constraints: "${source.last_generate.artifact}"
+
+  # WF3 completes → WF4 fires (contact strategy)
+  - name: hardship_recommendation_to_contact
+    mode: fire_and_forget
+    conditions:
+      - domain: hardship_path
+        selector: last_generate
+        field: artifact.selected_path
+        operator: in
+        value:
+          - P0
+          - P1
+          - P2
+          - P3
+    target_workflow: member_contact_strategy
+    target_domain: hardship_contact
+    contract: hardship_contact_v1
+    sla: 3600
+    inputs:
+      intake_packet: "${source.input.intake_packet}"
+      constraints: "${source.input.constraints}"
+      recommendation: "${source.last_generate.artifact}"
+
+  # WF2 SCRA detected → specialist sub-assessment (fire and forget)
+  - name: hardship_scra_specialist
+    mode: fire_and_forget
+    conditions:
+      - domain: hardship_eligibility
+        selector: last_classify
+        field: category
+        operator: in
+        value:
+          - scra_protected
+          - multiple_constraints
+    target_workflow: eligibility_constraints_assessment
+    target_domain: hardship_eligibility
+    contract: hardship_eligibility_v1
+    sla: 14400  # 4 hours
+    inputs:
+      intake_packet: "${source.input.intake_packet}"
+      assessment_focus: "scra"
+
+  # WF2 Fraud/exploitation detected → security freeze
+  - name: hardship_fraud_exploitation_freeze
+    mode: fire_and_forget
+    conditions:
+      - domain: hardship_eligibility
+        selector: last_classify
+        field: category
+        operator: eq
+        value: fraud_exploitation
+    target_workflow: eligibility_constraints_assessment
+    target_domain: hardship_eligibility
+    contract: hardship_eligibility_v1
+    sla: 3600
+    inputs:
+      intake_packet: "${source.input.intake_packet}"
+      assessment_focus: "fraud_exploitation"
+
 # ─── Contracts ───────────────────────────────────────────────────
 # Versioned interface schemas for cross-workflow delegation.
 # Neither sender nor receiver knows the other's identity.
 
 contracts:
+
+  damage_assessment_v1:
+    version: 1
+    request:
+      - name: claim_id
+        type: string
+        required: true
+      - name: policy_id
+        type: string
+        required: false
+    response:
+      - name: damage_grade
+        type: enum
+        required: true
+        enum_values:
+          - minor
+          - moderate
+          - major
+          - total_loss
+      - name: repair_cost
+        type: float
+        required: true
+      - name: documentation_complete
+        type: bool
+        required: true
+
+  fraud_screening_v1:
+    version: 1
+    request:
+      - name: claim_id
+        type: string
+        required: true
+      - name: amount
+        type: float
+        required: false
+    response:
+      - name: fraud_risk
+        type: enum
+        required: true
+        enum_values:
+          - low_risk
+          - medium_risk
+          - high_risk
+      - name: recommendation
+        type: string
+        required: true
 
   aml_referral_v1:
     version: 1
@@ -324,6 +533,102 @@ contracts:
         type: string
         required: true
       - name: rma_number
+        type: string
+        required: false
+
+  # ─── Hardship Lifecycle Contracts ──────────────────────────────
+
+  hardship_eligibility_v1:
+    version: 1
+    request:
+      - name: intake_packet
+        type: object
+        required: true
+      - name: member_token
+        type: string
+        required: false
+    response:
+      - name: eligibility
+        type: list
+        required: true
+      - name: global_constraints
+        type: object
+        required: true
+      - name: required_human_review
+        type: bool
+        required: true
+
+  hardship_recommendation_v1:
+    version: 1
+    request:
+      - name: intake_packet
+        type: object
+        required: true
+      - name: constraints
+        type: object
+        required: true
+    response:
+      - name: selected_path
+        type: string
+        required: true
+      - name: plan_options
+        type: list
+        required: true
+      - name: confidence_score
+        type: float
+        required: true
+      - name: required_human_review
+        type: bool
+        required: true
+
+  hardship_contact_v1:
+    version: 1
+    request:
+      - name: intake_packet
+        type: object
+        required: true
+      - name: constraints
+        type: object
+        required: true
+      - name: recommendation
+        type: object
+        required: true
+    response:
+      - name: channel
+        type: string
+        required: true
+      - name: template_ids
+        type: list
+        required: false
+      - name: escalation_needed
+        type: bool
+        required: true
+
+  hardship_action_v1:
+    version: 1
+    request:
+      - name: action_request
+        type: object
+        required: true
+      - name: constraints
+        type: object
+        required: true
+      - name: recommendation
+        type: object
+        required: true
+    response:
+      - name: action_type
+        type: string
+        required: true
+      - name: status
+        type: enum
+        required: true
+        enum_values:
+          - completed
+          - failed
+          - rejected
+          - pending_approval
+      - name: audit_id
         type: string
         required: false
 

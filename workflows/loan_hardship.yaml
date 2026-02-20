@@ -7,18 +7,9 @@ name: loan_hardship
 description: Assess member hardship and determine loan modification options.
 
 steps:
-  # Step 0: Pull member profile and loan data from services
-  - name: retrieve_data
-    primitive: retrieve
-    params:
-      specification: |
-        Retrieve member profile and loan details for hardship assessment.
-        Tools needed: get_member, get_loans, get_accounts
-      strategy: parallel
-
   - name: classify_hardship
     primitive: classify
-    temperature: 0.05
+    temperature: 0.0
     params:
       categories: "${domain.classify_hardship.categories}"
       criteria: |
@@ -34,14 +25,15 @@ steps:
 
   - name: investigate_military
     primitive: investigate
+    # deep investigation of SCRA/VA — precision critical
     params:
       question: |
         What military-specific benefits and protections apply?
       scope: "${domain.investigate_military.scope}"
       available_evidence: |
         Statement: ${input.member_statement}
-        Loans: ${retrieve_data.data.get_loans}
-        Profile: ${retrieve_data.data.get_member}
+        Loans: ${input.loan_details}
+        Profile: ${input.member_profile}
       effort_level: deep
     transitions:
       - default: classify_assistance
@@ -54,20 +46,20 @@ steps:
       scope: "${domain.investigate_financial.scope}"
       available_evidence: |
         Statement: ${input.member_statement}
-        Loans: ${retrieve_data.data.get_loans}
-        Profile: ${retrieve_data.data.get_member}
+        Loans: ${input.loan_details}
+        Profile: ${input.member_profile}
       effort_level: moderate
     transitions:
       - default: classify_assistance
 
   - name: classify_assistance
     primitive: classify
-    temperature: 0.05
+    temperature: 0.0
     params:
       categories: "${domain.classify_assistance.categories}"
       criteria: |
         Hardship: ${classify_hardship.category}
-        Profile: ${retrieve_data.data.get_member}
+        Profile: ${input.member_profile}
         ${domain.classify_assistance.criteria}
       confidence_threshold: "0.6"
     transitions:
@@ -84,10 +76,11 @@ steps:
   - name: generate_guidance
     primitive: generate
     max_loops: 3
+    # member-facing letter — warmer tone, higher temp
     temperature: 0.3
     params:
       requirements: |
-        Member: ${retrieve_data.data.get_member.name}
+        Member: ${input.member_name}
         Hardship: ${classify_hardship.category}
         Option: ${classify_assistance.category}
         ${domain.generate_guidance.requirements}
@@ -99,8 +92,9 @@ steps:
   - name: challenge_guidance
     primitive: challenge
     max_loops: 3
+    # regulatory review — Pro model for stronger reasoning, very low temp
     model: strong
-    temperature: 0.05
+    temperature: 0.0
     params:
       input: "${generate_guidance.artifact}"
       perspective: "${domain.challenge_guidance.perspective}"
@@ -114,10 +108,11 @@ steps:
 
   - name: escalate
     primitive: generate
+    # internal handoff brief — precise, not creative
     temperature: 0.1
     params:
       requirements: |
-        Member: ${retrieve_data.data.get_member.name} (${retrieve_data.data.get_member.tenure_years}yr member)
+        Member: ${input.member_name} (${input.member_profile.tenure_years}yr member)
         Hardship: ${classify_hardship.category}
         ${domain.escalate.requirements}
       format: specialist_handoff

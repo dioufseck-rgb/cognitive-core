@@ -369,6 +369,46 @@ def _make_get_regulation(db_path):
     return fn
 
 
+def _make_get_hardship_case(db_path):
+    """GET /v1/hardship/{case_id} or GET /v1/hardship?member_id=..."""
+    def fn(context: dict[str, Any]) -> dict[str, Any]:
+        conn = _get_conn(db_path)
+        cid = context.get("case_id")
+        if cid:
+            row = conn.execute("SELECT * FROM hardship_cases WHERE case_id = ?", (cid,)).fetchone()
+        else:
+            mid = context.get("member_id")
+            if mid:
+                row = conn.execute("SELECT * FROM hardship_cases WHERE member_id = ?", (mid,)).fetchone()
+            else:
+                conn.close()
+                return {"error": "case_id or member_id required", "status": 400}
+        conn.close()
+        if row is None:
+            return {"error": "Hardship case not found", "status": 404}
+        return _row_to_dict(row)
+    return fn
+
+
+def _make_get_hardship_accounts(db_path):
+    """GET /v1/hardship/{case_id}/accounts"""
+    def fn(context: dict[str, Any]) -> dict[str, Any]:
+        conn = _get_conn(db_path)
+        cid = context.get("case_id")
+        if cid:
+            rows = conn.execute("SELECT * FROM hardship_accounts WHERE case_id = ?", (cid,)).fetchall()
+        else:
+            mid = context.get("member_id")
+            if mid:
+                rows = conn.execute("SELECT * FROM hardship_accounts WHERE member_id = ?", (mid,)).fetchall()
+            else:
+                conn.close()
+                return {"error": "case_id or member_id required", "status": 400}
+        conn.close()
+        return {"accounts": _rows_to_list(rows), "count": len(rows)}
+    return fn
+
+
 # ═══════════════════════════════════════════════════════════════════════
 # Registry factory
 # ═══════════════════════════════════════════════════════════════════════
@@ -523,6 +563,102 @@ def create_service_registry(db_path: str | Path = DB_PATH) -> ToolRegistry:
         fn=_make_get_regulation(db_path),
         description="Regulation details: title, agency, effective date, institution impact. Params: regulation_id",
         latency_hint_ms=40,
+    )
+
+    # ── Hardship Services ─────────────────────────────────────────
+    registry.register(
+        name="get_hardship_case",
+        fn=_make_get_hardship_case(db_path),
+        description="Hardship case: member profile, risk flags, legal flags, hardship statement, supporting docs, complaints, collections notes. Params: case_id OR member_id",
+        latency_hint_ms=60,
+    )
+
+    registry.register(
+        name="get_hardship_accounts",
+        fn=_make_get_hardship_accounts(db_path),
+        description="Loan/account details for a hardship case: product type, balance, delinquency, status. Params: case_id OR member_id",
+        latency_hint_ms=40,
+    )
+
+    # ── Hardship Aliases ──────────────────────────────────────────
+    # WF1 domain spec references tool names that map to hardship_cases columns.
+    # These wrappers extract the relevant subset from the hardship case row.
+
+    def _make_hardship_field_tool(db_path, fields, list_wrap=False):
+        """Create a tool that returns specific fields from the hardship_cases row."""
+        base_fn = _make_get_hardship_case(db_path)
+        def fn(context: dict[str, Any]) -> dict[str, Any]:
+            row = base_fn(context)
+            if "error" in row:
+                return row
+            result = {k: row.get(k) for k in fields if k in row}
+            return result
+        return fn
+
+    registry.register(
+        name="get_member_profile",
+        fn=_make_hardship_field_tool(db_path, [
+            "member_id", "language_preference", "tenure_years",
+            "segment", "military_status",
+        ]),
+        description="Member profile for hardship: language, tenure, segment, military status. Params: case_id OR member_id",
+        latency_hint_ms=50,
+    )
+
+    registry.register(
+        name="get_loan_accounts",
+        fn=_make_get_hardship_accounts(db_path),
+        description="Loan accounts for hardship case. Params: case_id OR member_id",
+        latency_hint_ms=40,
+    )
+
+    registry.register(
+        name="get_risk_flags",
+        fn=_make_hardship_field_tool(db_path, [
+            "ato_score", "exploitation_risk",
+            "recent_credential_changes", "recent_contact_changes",
+        ]),
+        description="Risk/fraud flags: ATO score, exploitation risk, credential changes. Params: case_id OR member_id",
+        latency_hint_ms=60,
+    )
+
+    registry.register(
+        name="get_legal_flags",
+        fn=_make_hardship_field_tool(db_path, [
+            "bankruptcy_status", "scra_indicator", "legal_holds",
+        ]),
+        description="Legal flags: bankruptcy, SCRA, holds. Params: case_id OR member_id",
+        latency_hint_ms=50,
+    )
+
+    registry.register(
+        name="get_complaints",
+        fn=_make_hardship_field_tool(db_path, [
+            "open_complaints", "regulator_escalations",
+        ]),
+        description="Open complaints and regulator escalations. Params: case_id OR member_id",
+        latency_hint_ms=40,
+    )
+
+    registry.register(
+        name="get_hardship_statement",
+        fn=_make_hardship_field_tool(db_path, ["hardship_statement"]),
+        description="Member's hardship statement / narrative. Params: case_id OR member_id",
+        latency_hint_ms=30,
+    )
+
+    registry.register(
+        name="get_supporting_docs",
+        fn=_make_hardship_field_tool(db_path, ["supporting_docs"]),
+        description="Supporting documentation for hardship claim. Params: case_id OR member_id",
+        latency_hint_ms=40,
+    )
+
+    registry.register(
+        name="get_collections_notes",
+        fn=_make_hardship_field_tool(db_path, ["collections_notes"]),
+        description="Collections activity notes. Params: case_id OR member_id",
+        latency_hint_ms=30,
     )
 
     return registry

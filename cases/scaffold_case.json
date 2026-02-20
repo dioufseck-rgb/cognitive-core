@@ -1,0 +1,35 @@
+{
+  "_meta": {
+    "description": "[REPLACE] What this test case validates",
+    "expected": {
+      "classify_type": "[REPLACE] expected category",
+      "check_compliance": true,
+      "score_range": [0, 29],
+      "recommendation": "[REPLACE] expected recommendation"
+    },
+    "tags": ["happy_path"],
+    "notes": "[REPLACE] Why this case exists"
+  },
+
+  "source_name_1": {
+    "field_a": "[REPLACE] value",
+    "field_b": 1000,
+    "field_c": "active",
+    "field_d": "2026-01-15"
+  },
+
+  "source_name_2": {
+    "field_e": "type_a",
+    "field_f": ["item1", "item2"],
+    "field_g": {
+      "nested_field": "value"
+    }
+  },
+
+  "source_name_3": {
+    "records": [
+      {"id": "REC-001", "date": "2025-06-01", "amount": 500},
+      {"id": "REC-002", "date": "2025-09-15", "amount": 750}
+    ]
+  }
+}

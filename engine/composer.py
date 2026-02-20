@@ -221,12 +221,6 @@ def validate_use_case(config: dict[str, Any]) -> list[str]:
 
 def _evaluate_condition(condition: str, state: WorkflowState, step_name: str) -> bool:
     condition = condition.strip()
-
-    # Built-in: _parse_failed — true if last step's output has a parse error
-    if condition == "_parse_failed":
-        output = get_step_output(state, step_name)
-        return bool(output and output.get("_parse_failed"))
-
     if condition.startswith("_loop_count"):
         m = re.match(r'_loop_count\s*(>=|<=|>|<|==|!=)\s*(\d+)', condition)
         if m:
@@ -384,28 +378,7 @@ def _add_transitions(graph, step_name, transitions, default_next, max_loops, loo
 
     trace = get_trace()
 
-    # H6: Max retries for parse failures before aborting
-    MAX_PARSE_RETRIES = 2
-
     def composite_router(state: WorkflowState) -> str:
-        # H6: Circuit breaker — if last step had a parse failure,
-        # check if any route handles it. If not, and we're past max retries, abort.
-        last_output = get_step_output(state, step_name)
-        if last_output and last_output.get("_parse_failed"):
-            # Check if any deterministic route handles _parse_failed
-            has_parse_route = any(c == "_parse_failed" for c, _ in det_routes)
-            if not has_parse_route and max_loops is not None:
-                count = get_loop_count(state, step_name)
-                if count >= max_loops:
-                    trace.on_route_decision(step_name, "__end__", "circuit_breaker",
-                                            f"Parse failed after {count} retries — aborting")
-                    return END
-                # Let it retry via normal loop logic below
-            elif not has_parse_route and max_loops is None:
-                # No retry mechanism at all — log and continue to default
-                trace.on_route_decision(step_name, final_default, "parse_failed_no_handler",
-                                        "Parse failed but no _parse_failed route or max_loops configured")
-
         if max_loops is not None:
             count = get_loop_count(state, step_name)
             if count >= max_loops:
@@ -413,24 +386,6 @@ def _add_transitions(graph, step_name, transitions, default_next, max_loops, loo
                 trace.on_route_decision(step_name, target, "loop_limit",
                                         f"Count {count} >= max {max_loops}")
                 return END if target == "__end__" else target
-
-        # H6: Circuit breaker — if the last execution of this step
-        # failed to parse, retry it (up to MAX_PARSE_RETRIES).
-        # After that, abort rather than cascade garbage downstream.
-        last_output = get_step_output(state, step_name)
-        if last_output and last_output.get("_parse_failed"):
-            parse_fail_count = sum(
-                1 for s in state.get("steps", [])
-                if s["step_name"] == step_name and s.get("output", {}).get("_parse_failed")
-            )
-            if parse_fail_count <= MAX_PARSE_RETRIES:
-                trace.on_route_decision(step_name, step_name, "parse_retry",
-                                        f"Parse failed, retry {parse_fail_count}/{MAX_PARSE_RETRIES}")
-                return step_name
-            else:
-                trace.on_route_decision(step_name, "__end__", "parse_abort",
-                                        f"Parse failed {parse_fail_count} times, aborting")
-                return END
 
         for condition, target in det_routes:
             if _evaluate_condition(condition, state, step_name):
@@ -463,116 +418,3 @@ def run_workflow(config, workflow_input, model="default", temperature=0.1, tool_
         "routing_log": [],
     }
     return compiled.invoke(initial)
-
-
-def run_workflow_from_step(
-    config: dict[str, Any],
-    state_snapshot: dict[str, Any],
-    resume_step: str,
-    model: str = "default",
-    temperature: float = 0.1,
-    tool_registry: ToolRegistry | None = None,
-    action_registry: ActionRegistry | None = None,
-) -> dict[str, Any]:
-    """
-    Resume a workflow from a specific step with pre-populated state.
-
-    Builds a subgraph containing only the steps from resume_step forward,
-    then executes it with the provided state snapshot. Prior step outputs
-    are already in the state, so parameter resolution (${step_name.field})
-    works naturally.
-
-    The state_snapshot should be a valid WorkflowState dict with the
-    'steps' list containing outputs from all steps that have already
-    executed. Any 'delegation_results' in the state are available
-    via ${_delegations.work_order_id.field} parameter resolution.
-    """
-    all_steps = config["steps"]
-    step_names = [s["name"] for s in all_steps]
-
-    if resume_step not in step_names:
-        raise ValueError(
-            f"Resume step '{resume_step}' not found. "
-            f"Available: {step_names}"
-        )
-
-    resume_idx = step_names.index(resume_step)
-
-    # Build a subconfig containing only steps from resume_step onward,
-    # plus any steps that are reachable via transitions (back-jumps for loops)
-    reachable = _find_reachable_steps(all_steps, resume_idx)
-    sub_steps = [s for s in all_steps if s["name"] in reachable]
-
-    sub_config = {**config, "steps": sub_steps}
-
-    # Compile the subgraph — compose_workflow will set the first step
-    # in sub_steps as entry point, which is our resume step
-    compiled = compile_workflow(
-        sub_config, model, temperature,
-        tool_registry, action_registry,
-    )
-
-    # Restore the state — keep prior step outputs intact
-    resume_state: WorkflowState = {
-        "input": state_snapshot.get("input", {}),
-        "steps": state_snapshot.get("steps", []),
-        "current_step": resume_step,
-        "metadata": state_snapshot.get("metadata", {}),
-        "loop_counts": state_snapshot.get("loop_counts", {}),
-        "routing_log": state_snapshot.get("routing_log", []),
-    }
-
-    return compiled.invoke(resume_state)
-
-
-def _find_reachable_steps(
-    all_steps: list[dict[str, Any]],
-    start_idx: int,
-) -> set[str]:
-    """
-    Find all step names reachable from start_idx, including back-jumps.
-    Needed so that loops (e.g., generate → challenge → generate) work
-    when resuming from a mid-workflow step.
-    """
-    step_names = [s["name"] for s in all_steps]
-    reachable: set[str] = set()
-    to_visit = [step_names[start_idx]]
-
-    while to_visit:
-        current = to_visit.pop()
-        if current in reachable or current == "__end__":
-            continue
-        reachable.add(current)
-
-        # Find this step's config
-        step_config = None
-        step_idx = None
-        for i, s in enumerate(all_steps):
-            if s["name"] == current:
-                step_config = s
-                step_idx = i
-                break
-        if not step_config:
-            continue
-
-        # Add transition targets
-        transitions = step_config.get("transitions", [])
-        if not transitions:
-            # Default: next step
-            if step_idx + 1 < len(all_steps):
-                to_visit.append(step_names[step_idx + 1])
-        else:
-            for t in transitions:
-                if "goto" in t:
-                    to_visit.append(t["goto"])
-                if "default" in t:
-                    to_visit.append(t["default"])
-                if "agent_decide" in t:
-                    for opt in t["agent_decide"].get("options", []):
-                        if "step" in opt:
-                            to_visit.append(opt["step"])
-            # Also add the implicit default (next sequential step)
-            if step_idx + 1 < len(all_steps):
-                to_visit.append(step_names[step_idx + 1])
-
-    return reachable

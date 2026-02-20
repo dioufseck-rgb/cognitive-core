@@ -435,6 +435,59 @@ def get_regulation(regulation_id: str = "") -> str:
     return json.dumps(_row_to_dict(row))
 
 
+# ─── Hardship Services ───────────────────────────────────────────────
+
+@mcp.tool()
+def get_hardship_case(case_id: str = "", member_id: str = "") -> str:
+    """
+    Retrieve hardship case: member profile, risk flags, legal flags,
+    hardship statement, supporting docs, complaints, collections notes.
+
+    Args:
+        case_id: Hardship case identifier (e.g., mh_001_mixed_portfolio)
+        member_id: Member token (e.g., MBR-9007)
+    """
+    conn = _get_conn()
+    if case_id:
+        row = conn.execute(
+            "SELECT * FROM hardship_cases WHERE case_id = ?", (case_id,)
+        ).fetchone()
+    elif member_id:
+        row = conn.execute(
+            "SELECT * FROM hardship_cases WHERE member_id = ?", (member_id,)
+        ).fetchone()
+    else:
+        row = conn.execute("SELECT * FROM hardship_cases LIMIT 1").fetchone()
+    conn.close()
+    if row is None:
+        return json.dumps({"error": "Hardship case not found", "status": 404})
+    return json.dumps(_row_to_dict(row))
+
+
+@mcp.tool()
+def get_hardship_accounts(case_id: str = "", member_id: str = "") -> str:
+    """
+    Retrieve loan/account details for a hardship case.
+
+    Args:
+        case_id: Hardship case identifier
+        member_id: Member token
+    """
+    conn = _get_conn()
+    if case_id:
+        rows = conn.execute(
+            "SELECT * FROM hardship_accounts WHERE case_id = ?", (case_id,)
+        ).fetchall()
+    elif member_id:
+        rows = conn.execute(
+            "SELECT * FROM hardship_accounts WHERE member_id = ?", (member_id,)
+        ).fetchall()
+    else:
+        rows = []
+    conn.close()
+    return json.dumps(_rows_to_list(rows))
+
+
 # ─── Entrypoint ──────────────────────────────────────────────────────
 
 if __name__ == "__main__":

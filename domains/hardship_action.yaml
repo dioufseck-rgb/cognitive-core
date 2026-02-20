@@ -1,0 +1,73 @@
+# Action Execution — Domain Specification
+#
+# Paired with action_execution_orchestration workflow.
+# Bounded, authorized actions only. Fail-closed.
+
+domain_name: hardship_action
+workflow: action_execution_orchestration
+governance: gate
+description: >
+  Execute bounded actions against member accounts and systems.
+  No write action unless eligible + tier permits + approvals met.
+
+verify_action_gates:
+  rules: |
+    GATE-ACT pre-flight check. ALL must be true:
+    1. action_type is one of: create_case_ticket, schedule_callback,
+       request_missing_docs, generate_letter_draft, apply_plan_template
+    2. Account is eligible (not ineligible or unclear)
+    3. Governance tier permits:
+       - Tier A: doc request, callback, case creation only
+       - Tier B: + letter draft
+       - Tier C: + plan template (requires approval)
+       - Tier D: no automated actions
+    4. Required approvals satisfied (Tier C/D)
+    5. idempotency_key present
+    6. No fraud freeze or bankruptcy hold active
+
+execute_action:
+  action_spec: |
+    Strict enum — reject anything not listed:
+    - create_case_ticket: Create hardship case in CRM
+    - schedule_callback: Add to callback queue
+    - request_missing_docs: Send doc request via portal
+    - generate_letter_draft: Generate draft (NOT send)
+    - apply_plan_template: Apply pre-approved plan to account
+  tool_config: |
+    CRM, Queue, Portal, Letters, Account systems.
+
+verify_execution:
+  rules: |
+    Action result confirms success. Action type matches request.
+    Audit record created. Plan template has approval record.
+
+generate_action_result:
+  requirements: |
+    Produce HardshipActionResult_v1.
+  format: |
+    {
+      "action_type": "",
+      "status": "<completed/failed/pending_approval>",
+      "target_account": "<masked>",
+      "details": "",
+      "audit_id": "",
+      "idempotency_key": "",
+      "next_steps": []
+    }
+  constraints: |
+    No raw PII. audit_id required for completed actions.
+    Failed actions include failure reason.
+
+generate_rejection:
+  requirements: |
+    Document which gates failed and the escalation path.
+  format: |
+    {
+      "action_type": "",
+      "status": "rejected",
+      "rejection_reasons": [],
+      "required_corrections": [],
+      "escalation_path": ""
+    }
+  constraints: |
+    Specific about which gate failed. Include escalation path.

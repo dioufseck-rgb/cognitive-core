@@ -1,0 +1,84 @@
+# Member Contact Strategy Workflow
+#
+# Decide what we can say, how, and with what disclosures.
+# Content compliance > persuasion. Templates only.
+#
+# Classify → Think → Generate → Verify
+
+name: member_contact_strategy
+description: >
+  Determine the appropriate communication channel, language, disclosures,
+  and template for member outreach. Content compliance is the primary
+  objective — no free-form promises.
+
+steps:
+  - name: classify_contact_context
+    primitive: classify
+    temperature: 0.0
+    params:
+      categories: "${domain.classify_contact_context.categories}"
+      criteria: |
+        Intake packet: ${input.intake_packet}
+        Constraints: ${input.constraints}
+        Recommendation: ${input.recommendation}
+        ${domain.classify_contact_context.criteria}
+      confidence_threshold: "0.7"
+    transitions:
+      - when: "output.category == 'no_contact_allowed'"
+        goto: generate_no_contact_plan
+      - default: think_contact_plan
+
+  - name: think_contact_plan
+    primitive: think
+    params:
+      instruction: |
+        What is the safest and most effective way to communicate
+        with this member given their situation and constraints?
+
+        Considerations: ${domain.think_contact_plan.considerations}
+
+        Available evidence:
+        Contact context: ${classify_contact_context.category}
+        Intake packet: ${input.intake_packet}
+        Constraints: ${input.constraints}
+        Recommendation: ${input.recommendation}
+    transitions:
+      - default: generate_contact_plan
+
+  - name: generate_contact_plan
+    primitive: generate
+    temperature: 0.1
+    max_loops: 3
+    params:
+      requirements: "${domain.generate_contact_plan.requirements}"
+      format: "${domain.generate_contact_plan.format}"
+      constraints: "${domain.generate_contact_plan.constraints}"
+    transitions:
+      - default: verify_contact_plan
+
+  - name: generate_no_contact_plan
+    primitive: generate
+    temperature: 0.0
+    params:
+      requirements: |
+        Member contact is restricted. Generate a contact plan that:
+        - Documents why contact is restricted
+        - Lists allowed exceptions (if any)
+        - Specifies internal-only actions permitted
+        ${domain.generate_no_contact_plan.requirements}
+      format: "${domain.generate_no_contact_plan.format}"
+      constraints: "${domain.generate_no_contact_plan.constraints}"
+    transitions:
+      - default: __end__
+
+  - name: verify_contact_plan
+    primitive: verify
+    temperature: 0.0
+    params:
+      subject: "${generate_contact_plan.artifact}"
+      rules: "${domain.verify_contact_plan.rules}"
+    transitions:
+      - when: "output.conforms == true"
+        goto: __end__
+      - when: "output.conforms == false"
+        goto: generate_contact_plan

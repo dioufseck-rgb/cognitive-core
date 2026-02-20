@@ -55,8 +55,9 @@ PRIMITIVE_CONFIGS: dict[str, dict[str, Any]] = {
     },
     "verify": {
         "required_params": ["rules"],
-        "optional_params": ["additional_instructions"],
+        "optional_params": ["subject", "additional_instructions"],
         "defaults": {
+            "subject": "See input data below.",
             "additional_instructions": "",
             "context": "No additional context provided.",
         },

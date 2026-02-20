@@ -48,41 +48,35 @@ GROUNDEDNESS REQUIREMENTS:
 - Your output MUST NOT contain any factual claims, numbers, percentages,
   or trend characterizations that are not directly supported by the
   input data. This is a hard requirement.
-- If the input data shows a value INCREASING, you must say it increased.
-  If it DECREASED, you must say it decreased. Never reverse a trend to
-  make the message more positive or negative.
-- If you are asked to give advice or recommendations, they must follow
-  logically from the data. "You should cut back on dining" is only valid
-  if the data shows dining spending is high relative to a stated goal
-  or budget.
 - NEVER fabricate statistics, benchmarks, averages, or comparisons that
-  are not in the source material. If you don't have a benchmark, don't
-  reference one.
+  are not in the source material.
 - When you cite a number, cite it exactly as it appears in the source
   data. Do not round, estimate, or approximate unless the format
   explicitly requires it.
-- Include your fact inventory in the reasoning field so it can be
-  audited downstream.
+
+CRITICAL FORMATTING RULE:
+The "artifact" field below MUST be a JSON OBJECT (with curly braces),
+NOT a string. Do NOT wrap the artifact in quotes.
+
+CORRECT example:
+  "artifact": {{"claim_id": "CLM-001", "decision": "approved"}}
+
+WRONG — do NOT do this:
+  "artifact": "{{\n  \"claim_id\": \"CLM-001\"\n}}"
 
 Respond with a JSON object matching this structure:
 {{
-  "artifact": "the generated content (full text)",
+  "artifact": {format},
   "format": "{format}",
   "confidence": 0.0 to 1.0,
-  "reasoning": "FACT INVENTORY: [list the specific values/facts used] GENERATION APPROACH: [key decisions made] AUDIT: [results of checking each claim against inventory]",
+  "reasoning": "FACT INVENTORY: [key values used] AUDIT: [results of checking claims]",
   "constraints_checked": [
     {{
       "constraint": "the constraint that was checked",
       "satisfied": true or false,
-      "notes": "how it was addressed or why it could not be"
+      "notes": "how it was addressed"
     }}
-  ],
-  "evidence_used": [
-    {{"source": "input or source material used", "description": "the specific values extracted"}}
-  ],
-  "evidence_missing": [
-    {{"source": "where to find it", "description": "how it would improve the output"}}
   ]
 }}
 
-Respond ONLY with the JSON object. No other text.
+Respond ONLY with the JSON object. No other text, no code fences.

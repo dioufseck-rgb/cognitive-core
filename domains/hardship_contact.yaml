@@ -1,0 +1,71 @@
+# Member Contact Strategy — Domain Specification
+#
+# Paired with member_contact_strategy workflow.
+# Content compliance > persuasion. Templates only.
+
+domain_name: hardship_contact
+workflow: member_contact_strategy
+governance: spot_check
+description: >
+  Determine safe communication channel, language, disclosures,
+  and template for member outreach. Content compliance is primary.
+
+classify_contact_context:
+  categories: |
+    - standard_outreach: No restrictions. Standard templates available.
+    - restricted_communication: Legal hold or complaint limits channels.
+    - no_contact_allowed: Active litigation or cease-and-desist.
+    - escalation_required: Complaint or regulator involvement.
+  criteria: |
+    Check in order: litigation → bankruptcy stay → CFPB complaint →
+    internal complaint → legal hold → standard.
+
+think_contact_plan:
+  considerations: |
+    POL-COMM-001: Approved templates + mandatory disclaimers.
+    POL-COMM-002: Prohibited language (UDAAP) — never "guaranteed,"
+    "approved," "you must," urgency/pressure language.
+    POL-COMM-004: Language preference enforcement.
+    Channel: member preference first; restricted → mail only.
+    Non-English: verified translated template required.
+    Complaint open: supervisor channel only.
+
+generate_contact_plan:
+  requirements: |
+    Produce MemberContactPlan_v1 artifact.
+  format: |
+    {
+      "channel": "<call/chat/email/mail/none>",
+      "language": "<en/es/fr/ar>",
+      "template_ids": [],
+      "disclosure_set": [],
+      "prohibited_phrases": [],
+      "message_draft": null,
+      "escalation_needed": false,
+      "escalation_reason": ""
+    }
+  constraints: |
+    Templates only — no free-form text. All disclosures must appear
+    in draft. No prohibited phrases in draft. Non-English requires
+    verified translated template.
+
+generate_no_contact_plan:
+  requirements: |
+    Document restriction reason and allowed internal actions.
+  format: |
+    {
+      "channel": "none",
+      "restriction_reason": "",
+      "allowed_internal_actions": [],
+      "escalation_needed": true,
+      "escalation_reason": "Contact restriction in effect"
+    }
+  constraints: |
+    No member-facing content. escalation_needed must be true.
+
+verify_contact_plan:
+  rules: |
+    Channel is call/chat/email/mail/none. Template present for
+    member-facing channels. Disclosures present. No prohibited
+    phrases in draft. Non-English has translated template.
+    Escalation reason provided when needed.

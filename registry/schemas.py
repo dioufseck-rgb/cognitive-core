@@ -6,8 +6,8 @@ These define the interface between primitives in a composition chain.
 All primitives share a common base; each adds primitive-specific fields.
 """
 
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, Field, model_validator
+from typing import Any, Optional
 from enum import Enum
 
 
@@ -90,14 +90,6 @@ class InvestigateOutput(BaseOutput):
         default_factory=list,
         description="Suggested next steps based on findings"
     )
-    evidence_flags: list[str] = Field(
-        default_factory=list,
-        description="Named risk indicators found during investigation (e.g., foreign_ip, unknown_device, multi_transaction_pattern, structuring, high_risk_merchant, velocity_spike)"
-    )
-    missing_evidence: list[str] = Field(
-        default_factory=list,
-        description="Evidence types that would improve the investigation but are not available"
-    )
 
 
 # ---------------------------------------------------------------------------
@@ -138,7 +130,7 @@ class ConstraintResult(BaseModel):
 
 class GenerateOutput(BaseOutput):
     """Output from a Generate primitive."""
-    artifact: str = Field(description="The generated artifact (text, document, etc.)")
+    artifact: Any = Field(description="The generated artifact (JSON object, text, etc.)")
     format: str = Field(default="text", description="Format of the artifact")
     constraints_checked: list[ConstraintResult] = Field(
         default_factory=list,
@@ -235,6 +227,15 @@ class ThinkOutput(BaseOutput):
     decision: Optional[str] = Field(
         default=None,
         description="Recommended course of action, if one emerges from the reasoning"
+    )
+    # Domain-specific fields that prompts may request
+    risk_score: Optional[int] = Field(
+        default=None,
+        description="Numeric risk score if the instruction asks for one"
+    )
+    recommendation: Optional[str] = Field(
+        default=None,
+        description="Named recommendation if the instruction asks for one"
     )
 
 

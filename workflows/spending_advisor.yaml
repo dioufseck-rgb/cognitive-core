@@ -21,12 +21,12 @@ steps:
   - name: classify_inquiry
     primitive: classify
     # classify: default model, low temp — picking from fixed categories
-    temperature: 0.05
+    temperature: 0.0
     params:
       categories: "${domain.classify_inquiry.categories}"
       criteria: |
         Member question: ${gather_member_data.data.member_question}
-        Member profile: ${gather_member_data.data.get_member}
+        Member profile: ${gather_member_data.data.member_profile}
         ${domain.classify_inquiry.criteria}
       confidence_threshold: "${domain.classify_inquiry.confidence_threshold}"
     transitions:
@@ -44,11 +44,9 @@ steps:
         Analyze their transaction data to answer this question thoroughly.
       scope: "${domain.investigate_spending.scope}"
       available_evidence: |
-        Transactions (with category/merchant fields): ${gather_member_data.data.get_transactions}
-        Monthly summaries (by category): ${gather_member_data.data.get_spending_summary}
-        Financial goals: ${gather_member_data.data.get_financial_goals}
-        Member profile: ${gather_member_data.data.get_member}
-        Accounts: ${gather_member_data.data.get_accounts}
+        Monthly summaries: ${gather_member_data.data.monthly_summaries}
+        Financial goals: ${gather_member_data.data.financial_goals}
+        Member profile: ${gather_member_data.data.member_profile}
       effort_level: "${domain.investigate_spending.effort_level}"
     transitions:
       - default: generate_advice
@@ -61,13 +59,13 @@ steps:
     temperature: 0.3
     params:
       requirements: |
-        Member name: ${gather_member_data.data.get_member.name}
+        Member name: ${gather_member_data.data.member_profile.name}
         Their question: "${gather_member_data.data.member_question}"
         Inquiry type: ${classify_inquiry.category}
         Analysis finding: ${investigate_spending.finding}
         Hypotheses: ${investigate_spending.hypotheses_tested}
         Recommended actions: ${investigate_spending.recommended_actions}
-        Goals: ${gather_member_data.data.get_financial_goals}
+        Goals: ${gather_member_data.data.financial_goals}
         ${domain.generate_advice.requirements}
       format: "${domain.generate_advice.format}"
       constraints: "${domain.generate_advice.constraints}"
@@ -81,7 +79,7 @@ steps:
     # challenge: use Pro for adversarial diversity — different model catches
     # errors the generator's model might share as blind spots
     model: strong
-    temperature: 0.05
+    temperature: 0.0
     params:
       input: "${generate_advice.artifact}"
       perspective: "${domain.challenge_advice.perspective}"

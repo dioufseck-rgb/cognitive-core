@@ -1,0 +1,63 @@
+{
+  "_meta": {
+    "case_id": "mh_006_income_conflict",
+    "description": "Income conflict: member claims unemployment but payroll direct deposits still posting. Challenge step should catch this and escalate.",
+    "expected_triage": "complex",
+    "expected_path": "P0_or_escalate"
+  },
+  "get_member_profile": {
+    "member_token": "MBR-9006",
+    "tenure_years": 2,
+    "segment": "standard",
+    "contact_preference": "chat",
+    "language_preference": "en",
+    "military_status": "none"
+  },
+  "get_loan_accounts": [
+    {
+      "account_id": "ACCT-AUTO-050",
+      "product_type": "auto_loan",
+      "balance": 22000,
+      "delinquency_days": 30,
+      "rate": 8.99,
+      "term_remaining_months": 48,
+      "payment_history_summary": "Sporadic payment history — 3 late payments in 18 months",
+      "collateral": "2024 Nissan Altima",
+      "status": "active"
+    },
+    {
+      "account_id": "ACCT-CC-051",
+      "product_type": "credit_card",
+      "balance": 5500,
+      "delinquency_days": 15,
+      "rate": 21.99,
+      "payment_history_summary": "Minimum payments, frequently late",
+      "status": "active"
+    }
+  ],
+  "get_collections_notes": [
+    {"date": "2026-02-10", "agent": "AGENT-315", "note": "Member submitted hardship request via portal claiming job loss."},
+    {"date": "2026-02-18", "agent": "AGENT-315", "note": "Note: payroll direct deposits from TechCorp Inc still posting to checking account as of 2/15."}
+  ],
+  "get_risk_flags": {
+    "ato_score": 8,
+    "exploitation_risk": "low",
+    "recent_credential_changes": false,
+    "recent_contact_changes": false
+  },
+  "get_legal_flags": {
+    "bankruptcy_status": "none",
+    "scra_indicator": "none",
+    "legal_holds": [],
+    "garnishments": []
+  },
+  "get_complaints": {
+    "open_complaints": [],
+    "regulator_escalations": [],
+    "internal_categories": []
+  },
+  "get_hardship_statement": "I was laid off from my tech job in January and I'm struggling to find new work. I need a break on my payments while I job search. I have some savings but they won't last long.",
+  "get_supporting_docs": [
+    {"doc_id": "DOC-050", "type": "hardship_affidavit", "date": "2026-02-10", "summary": "Member-signed hardship affidavit claiming involuntary job loss effective January 2026. Employer listed: TechCorp Inc."}
+  ]
+}

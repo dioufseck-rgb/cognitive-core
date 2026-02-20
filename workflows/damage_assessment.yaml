@@ -1,0 +1,70 @@
+name: damage_assessment
+description: 'Assess physical damage for an insurance claim. Deterministic rules: damage_grade is based on repair_cost thresholds.
+
+  '
+steps:
+- name: gather_damage_data
+  primitive: retrieve
+  params:
+    specification: ${domain.gather_damage_data.specification}
+    strategy: ${domain.gather_damage_data.strategy}
+- name: classify_damage_severity
+  primitive: classify
+  temperature: 0.0
+  params:
+    categories: ${domain.classify_damage_severity.categories}
+    criteria: ${domain.classify_damage_severity.criteria}
+    confidence_threshold: '0.9'
+- name: verify_documentation
+  primitive: verify
+  temperature: 0.0
+  params:
+    rules: ${domain.verify_documentation.rules}
+    subject: 'Photos provided: ${gather_damage_data.data.get_photos.count}
+
+      Repair estimate provided: ${gather_damage_data.data.get_estimate.provided}
+
+      Police report: ${gather_damage_data.data.get_police_report.filed}
+
+      Damage grade: ${classify_damage_severity.category}
+
+      '
+  transitions:
+  - when: output.conforms == false
+    goto: generate_incomplete
+  - default: generate_assessment
+  model: standard
+- name: generate_assessment
+  primitive: generate
+  params:
+    format: ${domain.generate_assessment.format}
+    requirements: ${domain.generate_assessment.format}
+    constraints: ${domain.generate_assessment.constraints}
+    inputs: 'Damage grade: ${classify_damage_severity.category}
+
+      Documentation complete: ${verify_documentation.conforms}
+
+      Missing docs: ${verify_documentation.violations}
+
+      Repair cost: ${gather_damage_data.data.get_estimate.amount}
+
+      '
+  transitions:
+  - default: __end__
+- name: generate_incomplete
+  primitive: generate
+  params:
+    format: "Return a JSON object:\n{\n  \"claim_id\": \"<from data>\",\n  \"damage_grade\": \"<from classify step>\",\n \
+      \ \"documentation_complete\": false,\n  \"missing_documentation\": [\"<violations from verify step>\"],\n  \"assessment_ready\"\
+      : false,\n  \"action_required\": \"Collect missing documentation before assessment can proceed\"\n}\n"
+    requirements: "Return a JSON object:\n{\n  \"claim_id\": \"<from data>\",\n  \"damage_grade\": \"<from classify step>\"\
+      ,\n  \"documentation_complete\": false,\n  \"missing_documentation\": [\"<violations from verify step>\"],\n  \"assessment_ready\"\
+      : false,\n  \"action_required\": \"Collect missing documentation before assessment can proceed\"\n}\n"
+    constraints: assessment_ready must be false. documentation_complete must be false.
+    inputs: 'Damage grade: ${classify_damage_severity.category}
+
+      Violations: ${verify_documentation.violations}
+
+      Claim ID: ${gather_damage_data.data.get_claim.claim_id}
+
+      '
