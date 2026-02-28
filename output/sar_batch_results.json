@@ -1,0 +1,40 @@
+{
+  "timestamp": "2026-02-28 21:00:26",
+  "provider": "google",
+  "total_elapsed": 110.790536403656,
+  "cases": {
+    "ALT-2026-8831": {
+      "elapsed": 62.03001809120178,
+      "optimizer_tier": "optimal",
+      "was_queued": false,
+      "result_keys": [
+        "input",
+        "metadata",
+        "loop_counts"
+      ]
+    },
+    "ALT-2026-8847": {
+      "elapsed": 26.30183982849121,
+      "optimizer_tier": "optimal",
+      "was_queued": false,
+      "result_keys": [
+        "input",
+        "metadata",
+        "loop_counts"
+      ]
+    },
+    "ALT-2026-8862": {
+      "elapsed": 22.447239637374878,
+      "optimizer_tier": "unassigned",
+      "was_queued": true,
+      "result_keys": [
+        "input",
+        "metadata",
+        "loop_counts"
+      ]
+    }
+  },
+  "ddr_count": 3,
+  "reservation_events": 4,
+  "queue_events": 2
+}

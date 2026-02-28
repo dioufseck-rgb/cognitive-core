@@ -1,0 +1,44 @@
+[
+  {
+    "alert_id": "ALT-2026-8831",
+    "alert_type": "structuring",
+    "subject": {
+      "name": "Marcus Chen",
+      "member_id": "M-88421",
+      "account_number": "****7712",
+      "relationship": "Business checking — Chen Auto Detailing LLC",
+      "member_since": "2019-03-14"
+    },
+    "triggering_activity": "12 cash deposits over 18 days totaling $87,400. Individual deposits range $4,200–$9,800. 8 of 12 deposits at different branch locations. No prior CTR filings for this member.",
+    "account_history": "Average monthly deposits $22,000 for prior 6 months. Current month deposits 4x average. Business type: auto detailing (cash-intensive). No prior SARs. One prior fraud alert (cleared 2023).",
+    "risk_score": 0.82
+  },
+  {
+    "alert_id": "ALT-2026-8847",
+    "alert_type": "unusual_pattern",
+    "subject": {
+      "name": "Diana Reeves",
+      "member_id": "M-77209",
+      "account_number": "****3390",
+      "relationship": "Personal savings and checking",
+      "member_since": "2015-07-22"
+    },
+    "triggering_activity": "3 incoming wire transfers from Cayman Islands entity 'Reef Capital Partners' totaling $43,500 over 10 days. Funds immediately moved to external brokerage account within 48 hours of each receipt.",
+    "account_history": "No prior international wire activity. Member is retired schoolteacher, pension income $3,800/month. Account balances historically under $15,000. No prior alerts.",
+    "risk_score": 0.71
+  },
+  {
+    "alert_id": "ALT-2026-8862",
+    "alert_type": "structuring",
+    "subject": {
+      "name": "Robert and Lisa Tran",
+      "member_id": "M-33810",
+      "account_number": "****5501",
+      "relationship": "Joint personal checking",
+      "member_since": "2021-11-08"
+    },
+    "triggering_activity": "7 cash deposits in 5 days: $4,999, $4,800, $4,999, $4,750, $4,999, $4,900, $4,999. All at branch ATMs. Total $34,446. Followed by $30,000 cashier's check to 'Pacific Rim Imports LLC'.",
+    "account_history": "Combined household income $95,000 (military + civilian). Prior 12 months: zero cash deposits. No business accounts. New activity pattern started 3 weeks ago. No prior alerts.",
+    "risk_score": 0.88
+  }
+]
