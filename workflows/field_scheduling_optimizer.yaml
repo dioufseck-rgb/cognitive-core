@@ -1,0 +1,29 @@
+# Field Scheduling Optimizer — Back Office Skill Agent
+#
+# Behind this workflow contract is a mixed-integer program that
+# optimizes adjuster assignment. The LLM step reads the solver
+# output and formats it for the contract.
+
+name: field_scheduling_optimizer
+description: >
+  Schedule a field adjuster for inspection. Optimizes assignment
+  based on location, certification requirements, and availability.
+
+steps:
+  - name: gather_constraints
+    primitive: retrieve
+    params:
+      specification: "${domain.gather_constraints.specification}"
+      strategy: deterministic
+    transitions:
+      - default: format_schedule
+
+  - name: format_schedule
+    primitive: generate
+    temperature: 0.1
+    params:
+      requirements: "${domain.format_schedule.requirements}"
+      format: "${domain.format_schedule.format}"
+      constraints: "${domain.format_schedule.constraints}"
+    transitions:
+      - default: __end__

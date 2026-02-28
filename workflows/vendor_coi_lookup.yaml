@@ -1,0 +1,24 @@
+# Vendor COI Lookup — Back Office Skill Agent
+name: vendor_coi_lookup
+description: >
+  Retrieve a vendor/contractor's Certificate of Insurance from
+  the vendor management system.
+
+steps:
+  - name: lookup_coi
+    primitive: retrieve
+    params:
+      specification: "${domain.lookup_coi.specification}"
+      strategy: deterministic
+    transitions:
+      - default: report_coi
+
+  - name: report_coi
+    primitive: generate
+    temperature: 0.1
+    params:
+      requirements: "${domain.report_coi.requirements}"
+      format: "${domain.report_coi.format}"
+      constraints: "${domain.report_coi.constraints}"
+    transitions:
+      - default: __end__

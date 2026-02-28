@@ -1,0 +1,110 @@
+{
+    "_case_id": "CLM-2025-90112",
+    "_description": "MCP tool response fixtures for simple claim case",
+
+    "get_claim": {
+        "claim_id": "CLM-2025-90112",
+        "policy_number": "BOP-5518823",
+        "claimant": "Ridgeline Carpentry, Inc.",
+        "claimant_contact": "Sarah Lindstrom, Owner",
+        "date_of_loss": "2025-01-22",
+        "date_filed": "2025-01-24",
+        "claim_type": "property_damage",
+        "filing_delay_days": 2,
+        "claimed_amounts": {
+            "property_damage": {
+                "roof_repairs": 18500,
+                "wall_repairs": 6200,
+                "damaged_lumber_inventory": 3100,
+                "total_property": 27800
+            },
+            "business_interruption": {
+                "total_bi": 0
+            },
+            "total_claimed": 27800
+        },
+        "adjuster_notes": [
+            "Straightforward wind damage claim. Photos consistent with storm damage.",
+            "Single repair estimate from licensed contractor. Amounts reasonable.",
+            "No business interruption claimed — workshop operational within 2 days."
+        ]
+    },
+
+    "get_policy": {
+        "policy_number": "BOP-5518823",
+        "policyholder": "Ridgeline Carpentry, Inc.",
+        "policy_type": "Business Owners Policy",
+        "effective_date": "2024-10-01",
+        "expiration_date": "2025-10-01",
+        "status": "active",
+        "property_coverage": {
+            "building_limit": 300000,
+            "bpp_limit": 150000,
+            "deductible": 2500,
+            "coinsurance": 80,
+            "valuation": "replacement_cost"
+        },
+        "endorsements": [],
+        "business_income": {
+            "limit": 100000,
+            "waiting_period_hours": 72,
+            "period_of_restoration_months": 12,
+            "coinsurance": 50
+        },
+        "exclusions": [
+            "Flood (standard)",
+            "Earthquake (standard)",
+            "Pollution and contamination (standard)"
+        ],
+        "conditions": {
+            "filing_deadline_days": 30,
+            "cooperation_clause": "Standard cooperation clause"
+        }
+    },
+
+    "get_incident_report": {
+        "source": "National Weather Service Storm Report + Claimant Photos",
+        "incident_date": "2025-01-22",
+        "origin": "Severe thunderstorm with 65mph gusts — NWS confirmed for area",
+        "cause_determination": "Wind damage — accidental, weather-related. No ambiguity.",
+        "damage_assessment_preliminary": {
+            "structure": "Roof section damaged, exterior wall panel displaced. No structural compromise.",
+            "equipment": "No equipment damage.",
+            "inventory": "Small quantity of lumber exposed to rain before tarping. Minor loss."
+        },
+        "repair_estimates": [
+            {
+                "contractor": "Summit Roofing & Restoration",
+                "estimate": 24700,
+                "scope": "Roof repair, wall panel replacement, lumber replacement",
+                "date": "2025-01-25"
+            }
+        ]
+    },
+
+    "get_claimant_history": {
+        "policyholder": "Ridgeline Carpentry, Inc.",
+        "years_insured": 8,
+        "prior_claims": [],
+        "fraud_indicators": {
+            "siu_referrals": 0,
+            "pattern_flags": [],
+            "overall_risk": "low"
+        }
+    },
+
+    "calculate_settlement": {
+        "_type": "deterministic_tool",
+        "_description": "Settlement arithmetic calculator. In production this is an MCP service. Here we mock the expected input/output contract.",
+        "_input_schema": {
+            "line_items": [
+                {"category": "string", "claimed": "number", "verified": "number", "adjustment_reason": "string"}
+            ],
+            "deductible": "number",
+            "sublimits": [{"category": "string", "limit": "number"}],
+            "coinsurance": {"required_pct": "number", "carried_limit": "number", "annual_revenue": "number"},
+            "subrogation_offset": "number"
+        },
+        "_note": "The LLM calls this tool with structured line items. The tool recomputes all arithmetic deterministically."
+    }
+}

@@ -34,6 +34,39 @@ from coordinator.tasks import (
     Task, TaskType, TaskStatus, TaskCallback, TaskResolution,
 )
 
+# Dispatch optimization (optional — graceful degradation if not configured)
+try:
+    from coordinator.optimizer import DispatchOptimizer
+    from coordinator.physics import OptimizationConfig, parse_optimization_config
+    from coordinator.ddd import ResourceRegistry
+    _OPTIMIZER_AVAILABLE = True
+except ImportError:
+    _OPTIMIZER_AVAILABLE = False
+
+# Resilience layer (optional — graceful degradation)
+try:
+    from coordinator.resilience import (
+        ResumeRevalidator, RevalidationGuard, StalenessVerdict,
+        OscillationDetector, OscillationAction,
+        CapacityRevocationManager, RevocationConfig,
+        SagaCoordinator,
+    )
+    _RESILIENCE_AVAILABLE = True
+except ImportError:
+    _RESILIENCE_AVAILABLE = False
+
+# Production hardening layer (optional)
+try:
+    from coordinator.hardening import (
+        build_ddr, DDREligibilityEntry, DDRCandidateScore,
+        PartialFailureHandler, PartialFailurePolicy, FailureAction,
+        ReservationEventLog, ReservationOp,
+        LearningScopeEnforcer,
+    )
+    _HARDENING_AVAILABLE = True
+except ImportError:
+    _HARDENING_AVAILABLE = False
+
 
 # ─── Reliability Exceptions ──────────────────────────────────────────
 
@@ -92,7 +125,7 @@ class Coordinator:
         if task_queue:
             self.tasks = task_queue
         else:
-            self.tasks = SQLiteTaskQueue(self.store.conn)
+            self.tasks = SQLiteTaskQueue(self.store.db)
 
         # Workflow/domain resolution paths
         # Resolve relative to config file directory (not cwd)
@@ -107,7 +140,53 @@ class Coordinator:
         # Domain → governance tier mapping (loaded from domain configs)
         self._domain_tiers: dict[str, str] = {}
 
+        # Dispatch optimizer (Spec v1.1 Sections 9, 14, 17.2, 17.4)
+        self._optimizer: Any = None
+        self._resource_registry: Any = None
+        self._optimization_configs: dict[str, Any] = {}  # domain → OptimizationConfig
+        self._ddr_log: list[dict[str, Any]] = []  # in-memory DDR log (production: action_ledger)
+        if _OPTIMIZER_AVAILABLE:
+            self._resource_registry = ResourceRegistry()
+            # Build production hooks for optimizer
+            ddr_cb = None
+            res_log = None
+            learn_enf = None
+            if _HARDENING_AVAILABLE:
+                res_log = ReservationEventLog()
+                learn_enf = LearningScopeEnforcer()
+                ddr_cb = self._persist_ddr
+            self._optimizer = DispatchOptimizer(
+                self._resource_registry,
+                ddr_callback=ddr_cb,
+                reservation_log=res_log,
+                learning_enforcer=learn_enf,
+            )
+
+        # Resilience layer (four failure mode defenses)
+        self._revalidator: Any = None
+        self._oscillation_detector: Any = None
+        self._revocation_manager: Any = None
+        self._saga_coordinator: Any = None
+        if _RESILIENCE_AVAILABLE:
+            self._revalidator = ResumeRevalidator()
+            self._oscillation_detector = OscillationDetector()
+            self._revocation_manager = CapacityRevocationManager()
+            self._saga_coordinator = SagaCoordinator()
+
+        # Production hardening layer
+        self._partial_failure_handler: Any = None
+        self._reservation_log: Any = None
+        self._learning_enforcer: Any = None
+        if _HARDENING_AVAILABLE:
+            self._partial_failure_handler = PartialFailureHandler()
+            self._reservation_log = ReservationEventLog()
+            self._learning_enforcer = LearningScopeEnforcer()
+
         self.verbose = verbose
+
+        # Resource backpressure queue: work orders waiting for capacity
+        # Key: resource_id or capability_key → list of (wo_id, instance_id, req, capability)
+        self._resource_wait_queue: dict[str, list[dict[str, Any]]] = {}
 
     # ─── Four Operations ─────────────────────────────────────────────
 
@@ -128,6 +207,10 @@ class Coordinator:
         """
         Create and execute a new workflow instance.
         Returns the instance_id.
+
+        The workflow may complete, be interrupted by a resource request
+        (demand-driven delegation), or fail. All three outcomes are
+        handled here.
         """
         # ── C1: Delegation depth guard ──
         effective_lineage = lineage or []
@@ -172,12 +255,20 @@ class Coordinator:
         self._log(f"▶ START {instance.instance_id} "
                    f"({workflow_type}/{domain}) [tier={tier}]")
 
-        # Execute the workflow
+        # Execute the workflow (may complete or interrupt)
         try:
-            final_state = self._execute_workflow(
+            result = self._execute_workflow(
                 instance, case_input, model, temperature
             )
-            self._on_completed(instance, final_state)
+
+            if isinstance(result, dict):
+                # Workflow completed — normal path
+                self._on_completed(instance, result)
+            else:
+                # Workflow was interrupted by a resource request
+                # result is a StepInterrupt from engine.stepper
+                self._on_interrupted(instance, result, model, temperature)
+
         except Exception as e:
             self._on_failed(instance, str(e))
             raise
@@ -242,12 +333,19 @@ class Coordinator:
 
         # Re-execute from suspended step using mid-graph entry
         try:
-            final_state = self._execute_workflow_from_state(
+            result = self._execute_workflow_from_state(
                 instance, state_snapshot,
                 resume_step=suspension.suspended_at_step,
                 model=model, temperature=temperature,
             )
-            self._on_completed(instance, final_state, is_resume=True)
+
+            if isinstance(result, dict):
+                # Workflow completed — normal path
+                self._on_completed(instance, result, is_resume=True)
+            else:
+                # Workflow was interrupted again (recursive demand)
+                self._on_interrupted(instance, result, model, temperature)
+
         except Exception as e:
             self._on_failed(instance, str(e))
             raise
@@ -536,12 +634,12 @@ class Coordinator:
                 task_obj.claimed_by = ""
                 # Update in-place (SQLite uses INSERT OR REPLACE, InMemory updates dict)
                 if isinstance(self.tasks, SQLiteTaskQueue):
-                    self.tasks.conn.execute("""
+                    self.tasks.db.execute("""
                         UPDATE task_queue SET status = 'pending',
                             claimed_at = NULL, claimed_by = ''
                         WHERE task_id = ?
                     """, (task_id,))
-                    self.tasks.conn.commit()
+                    self.tasks.db.commit()
                 elif isinstance(self.tasks, InMemoryTaskQueue):
                     self.tasks._tasks[task_id] = task_obj
             return task_obj.instance_id if task_obj else ""
@@ -551,6 +649,70 @@ class Coordinator:
     def expire_overdue_tasks(self) -> int:
         """Expire tasks past their SLA. Call periodically."""
         return self.tasks.expire_overdue()
+
+    def sweep_reservations(self) -> dict[str, Any]:
+        """
+        Periodic reservation sweep. Call alongside expire_overdue_tasks.
+
+        1. Sweeps expired reservations in the resource registry (ddd.py)
+        2. Evaluates expiring reservations through the revocation manager
+        3. Logs reservation events for audit trail
+
+        Returns summary dict with counts.
+        """
+        summary = {"expired": 0, "extended": 0, "revoked": 0}
+
+        if not (self._resource_registry and _OPTIMIZER_AVAILABLE):
+            return summary
+
+        # Phase 1: Hard TTL expiry sweep via ddd.py
+        expired_ids = self._resource_registry.sweep_expired_reservations()
+        summary["expired"] = len(expired_ids)
+
+        # Log expire events
+        if _HARDENING_AVAILABLE and hasattr(self, '_reservation_log') and self._reservation_log:
+            for rsv_id in expired_ids:
+                self._reservation_log.record(
+                    rsv_id, "", "", "expire",
+                )
+
+        # Phase 2: Graceful revocation for near-expiry reservations
+        if self._revocation_manager:
+            for res in self._resource_registry.list_resources():
+                for rsv in getattr(res, '_reservations', {}).values():
+                    if not hasattr(rsv, 'is_expired') or rsv.is_expired():
+                        continue
+                    ttl_remaining = 0.0
+                    if hasattr(rsv, 'expires_at') and rsv.expires_at:
+                        import time as _time
+                        ttl_remaining = rsv.expires_at - _time.time()
+
+                    # Estimate progress from work order status
+                    progress = 0.5  # default estimate
+
+                    signal = self._revocation_manager.evaluate_expiring_reservation(
+                        work_order_id=getattr(rsv, 'work_order_id', ''),
+                        reservation_ttl_remaining=ttl_remaining,
+                        work_order_priority="routine",
+                        work_order_progress=progress,
+                        waiting_queue_depth=0,
+                    )
+                    if signal:
+                        if signal.policy.value == "extend_ttl":
+                            summary["extended"] += 1
+                        else:
+                            summary["revoked"] += 1
+                            self._log(
+                                f"  ⚠ REVOCATION: {signal.work_order_id} → "
+                                f"{signal.policy.value}: {signal.reason}"
+                            )
+
+        # Phase 3: Drain backpressure queue — resources may now have capacity
+        drained = self.drain_resource_queue()
+        if drained:
+            summary["drained"] = drained
+
+        return summary
 
     # ─── Event Handlers ──────────────────────────────────────────────
 
@@ -924,6 +1086,615 @@ class Coordinator:
 
         self._log(f"✗ FAILED {instance.instance_id}: {error}")
 
+    # ─── Demand-Driven Delegation (Backward Chaining) ────────────────
+
+    def _on_interrupted(
+        self,
+        instance: InstanceState,
+        interrupt,  # StepInterrupt from engine.stepper
+        model: str = "default",
+        temperature: float = 0.1,
+    ):
+        """
+        Handle a workflow that paused mid-execution because a step
+        couldn't proceed without external input.
+
+        The workflow was moving forward through its steps normally.
+        At some step, the agent realized it needs something it doesn't
+        have — a decision, analysis, data, authorization, anything.
+        It produced a ResourceRequest and the stepper paused.
+
+        The coordinator now:
+        1. Looks up each need in the capability registry
+        2. Dispatches providers (workflows or human tasks) to fulfill them
+        3. Suspends the source workflow with its partial state
+        4. When all providers complete, resumes the source forward
+           from the step that paused, now with the resources available
+        """
+        from engine.stepper import StepInterrupt
+
+        step_name = interrupt.suspended_at_step
+        requests = interrupt.resource_requests
+        partial_state = interrupt.state_at_interrupt
+
+        self._log(f"  ⏸ INTERRUPTED {instance.instance_id} at '{step_name}'")
+        self._log(f"    {len(requests)} blocking resource request(s)")
+
+        # ── Match needs to capabilities ──
+        # Guard: check if this need was already dispatched & completed
+        # by looking at delegation_results in the partial state.
+        # After prepare_resume_state, delegation results live in
+        # state.input.delegation (NOT at top-level delegation_results).
+        existing_delegations = set(
+            partial_state.get("input", {}).get("delegation", {}).keys()
+        ) | set(
+            partial_state.get("delegation_results", {}).keys()
+        )
+
+        matched = []
+        unmatched = []
+        for req in requests:
+            need = req.get("need", "")
+
+            if need in existing_delegations:
+                self._log(f"    ⚠ '{need}' already fulfilled (result in delegation_results) — "
+                          f"LLM is not using delegation results. Skipping re-dispatch.")
+                # Don't add to unmatched — just skip it entirely
+                continue
+
+            # Look up in capability registry
+            capability = self._find_capability(need)
+            if capability:
+                matched.append((req, capability))
+                self._log(f"    ✓ '{need}' → {capability.provider_type}"
+                           f":{capability.workflow_type}/{capability.domain}")
+            else:
+                unmatched.append(req)
+                self._log(f"    ✗ '{need}' → no capability found")
+        if not matched:
+            # Check if ALL requests were already fulfilled (duplicate guard)
+            all_skipped = all(
+                req.get("need", "") in existing_delegations
+                for req in requests
+            )
+            if all_skipped and existing_delegations:
+                # All needs already fulfilled — LLM is not using delegation
+                # results. The stepper callback should have caught this,
+                # but if we got here as a fallback, just log and return.
+                # The instance will be left in a confused state, but
+                # that's better than marking it as failed.
+                self._log(f"    ⚠ All {len(requests)} request(s) already fulfilled "
+                          f"but stepper didn't filter them. This shouldn't happen.")
+                self._on_failed(instance,
+                    f"LLM re-requested already-fulfilled needs at '{step_name}'. "
+                    f"Delegation results were present but LLM ignored them.")
+                return
+
+            # Truly unresolvable — no capabilities found
+            need_names = [r.get("need", "?") for r in requests]
+            error = (
+                f"Workflow interrupted at '{step_name}' with unresolvable "
+                f"resource requests: {need_names}. No matching capabilities "
+                f"in registry."
+            )
+            self._on_failed(instance, error)
+            return
+
+        if unmatched:
+            unmatched_names = [r.get("need", "?") for r in unmatched]
+            self._log(f"    ⚠ {len(unmatched)} unmatched needs (proceeding with matched): "
+                       f"{unmatched_names}")
+
+        # ── Create work orders for each matched capability ──
+        work_order_ids = []
+        wo_need_map = {}  # wo_id → need_name
+        for req, capability in matched:
+            wo = WorkOrder.create(
+                requester_instance_id=instance.instance_id,
+                correlation_id=instance.correlation_id,
+                contract_name=capability.contract_name or req.get("contract", ""),
+                contract_version=1,
+                inputs=req.get("context", {}),
+                sla_seconds=None,
+                urgency=req.get("urgency", "routine"),
+            )
+            wo.handler_workflow_type = capability.workflow_type
+            wo.handler_domain = capability.domain
+            wo.status = WorkOrderStatus.DISPATCHED
+            wo.dispatched_at = time.time()
+            self.store.save_work_order(wo)
+            work_order_ids.append(wo.work_order_id)
+            wo_need_map[wo.work_order_id] = req.get("need", "")
+
+            self._log(f"    → DISPATCH [{req.get('need', '?')}]: "
+                       f"{wo.work_order_id} → "
+                       f"{capability.workflow_type}/{capability.domain}")
+
+        # ── Suspend the source ──
+        # Resume at the same step that paused. It already ran and
+        # produced the ResourceRequest, but on resume it will re-run
+        # with the provider results now available in state.input.delegation.
+        # Its prior output (with the ResourceRequest) is stripped by
+        # prepare_resume_state.
+        resume_step = step_name
+
+        suspension = Suspension.create(
+            instance_id=instance.instance_id,
+            suspended_at_step=resume_step,
+            state_snapshot=self._compact_state_for_suspension(partial_state),
+            unresolved_needs=[r for r in requests],
+            work_order_ids=work_order_ids,
+        )
+        suspension.wo_need_map = wo_need_map
+        self.store.save_suspension(suspension)
+
+        instance.status = InstanceStatus.SUSPENDED
+        instance.updated_at = time.time()
+        instance.resume_nonce = suspension.resume_nonce
+        instance.pending_work_orders = work_order_ids
+        self.store.save_instance(instance)
+
+        self.store.log_action(
+            instance_id=instance.instance_id,
+            correlation_id=instance.correlation_id,
+            action_type="interrupted_for_resources",
+            details={
+                "suspended_at_step": step_name,
+                "matched_needs": [r.get("need") for r, _ in matched],
+                "unmatched_needs": [r.get("need", "?") for r in unmatched],
+                "work_order_ids": work_order_ids,
+                "resume_nonce": suspension.resume_nonce,
+            },
+            idempotency_key=f"interrupt:{instance.instance_id}:{step_name}",
+        )
+
+        self._log(f"    source SUSPENDED at '{resume_step}', "
+                   f"waiting for {len(work_order_ids)} provider(s)")
+
+        # ── Dispatch providers: parallel for independent, staged for dependent ──
+        lineage = instance.lineage + [
+            f"{instance.workflow_type}:{instance.instance_id}"
+        ]
+
+        # Build dependency graph: which needs must complete before others
+        need_to_wo = {}  # need_name → work_order_id
+        for (req, capability), wo_id in zip(matched, work_order_ids):
+            need_to_wo[req.get("need", "")] = wo_id
+
+        # Partition into dispatchable now (no unmet deps) vs deferred
+        dispatched_needs = set()
+        deferred = []
+        dispatch_now = []
+
+        for (req, capability), wo_id in zip(matched, work_order_ids):
+            deps = req.get("depends_on", [])
+            unmet = [d for d in deps if d in need_to_wo and d not in dispatched_needs]
+            if unmet:
+                deferred.append((req, capability, wo_id, deps))
+                self._log(f"    ⏳ '{req.get('need')}' deferred — "
+                           f"depends on: {unmet}")
+            else:
+                dispatch_now.append((req, capability, wo_id))
+
+        # Store deferred needs in suspension for staged dispatch
+        # Only put dispatched work orders in work_order_ids — deferred
+        # ones stay in deferred_needs until their deps are met
+        dispatched_wo_ids = [wo_id for _, _, wo_id in dispatch_now]
+        if deferred:
+            suspension.deferred_needs = [
+                {
+                    "need": req.get("need"),
+                    "context": req.get("context", {}),
+                    "depends_on": deps,
+                    "work_order_id": wo_id,
+                    "capability_need_type": capability.need_type,
+                }
+                for req, capability, wo_id, deps in deferred
+            ]
+        # Update work_order_ids to only include dispatched ones
+        suspension.work_order_ids = dispatched_wo_ids
+        self.store.save_suspension(suspension)
+
+        all_handlers_done = True
+
+        # ── Optimizer consultation (Spec v1.1 Section 9) ──
+        # If the optimizer is available AND we have a resource registry,
+        # consult it for optimal provider selection. The optimizer
+        # enhances the capability routing with resource-level optimization.
+        # Without it, the existing direct dispatch path is preserved.
+        optimizer_decisions = {}
+        if self._optimizer and self._resource_registry and len(dispatch_now) > 1:
+            opt_config = self._get_optimization_config(instance.domain)
+            if opt_config:
+                try:
+                    from coordinator.ddd import DDDWorkOrder
+                    ddd_wos = []
+                    for req, capability, wo_id in dispatch_now:
+                        ddd_wo = DDDWorkOrder.create(
+                            instance.workflow_type,
+                            instance.correlation_id,
+                            req.get("need", ""),
+                            priority=req.get("urgency", "routine"),
+                            sla_seconds=self._get_tier_sla(
+                                self._resolve_governance_tier(instance.domain)
+                            ) or 3600.0,
+                        )
+                        ddd_wos.append((ddd_wo, wo_id))
+
+                    decisions = self._optimizer.dispatch(
+                        [dwo for dwo, _ in ddd_wos],
+                        instance.workflow_type,
+                        instance.domain,
+                        opt_config,
+                    )
+                    for (dwo, wo_id), decision in zip(ddd_wos, decisions):
+                        optimizer_decisions[wo_id] = decision
+                    self._log(
+                        f"    optimizer consulted: {len(decisions)} decisions, "
+                        f"{sum(1 for d in decisions if d.selected_resource_id)} assigned"
+                    )
+                except Exception as e:
+                    self._log(f"    optimizer error (fallback to direct dispatch): {e}")
+
+        for req, capability, wo_id in dispatch_now:
+            wo = self.store.get_work_order(wo_id)
+            if not wo:
+                continue
+
+            done = self._dispatch_provider(
+                instance, wo, req, capability, lineage, model, temperature
+            )
+            # Log optimizer decision if available
+            opt_decision = optimizer_decisions.get(wo_id)
+            if opt_decision and opt_decision.selected_resource_id:
+                self.store.log_action(
+                    instance_id=instance.instance_id,
+                    correlation_id=instance.correlation_id,
+                    action_type="optimizer_resource_selection",
+                    details={
+                        "work_order_id": wo_id,
+                        "selected_resource": opt_decision.selected_resource_id,
+                        "tier": opt_decision.tier,
+                        "reservation_id": opt_decision.reservation_id,
+                    },
+                    idempotency_key=f"opt:{wo_id}",
+                )
+            if done:
+                dispatched_needs.add(req.get("need", ""))
+            else:
+                all_handlers_done = False
+
+        # ── If all dispatched providers completed, check deferred ──
+        if all_handlers_done and work_order_ids:
+            self._try_resume_after_all_providers(instance, suspension)
+
+    def _dispatch_provider(
+        self,
+        instance: InstanceState,
+        wo: WorkOrder,
+        req: dict,
+        capability,
+        lineage: list[str],
+        model: str = "default",
+        temperature: float = 0.1,
+    ) -> bool:
+        """
+        Dispatch a single provider for a resource request.
+        Returns True if the provider completed synchronously.
+        """
+        if capability.provider_type == "workflow":
+            try:
+                handler_id = self.start(
+                    workflow_type=capability.workflow_type,
+                    domain=capability.domain,
+                    case_input=req.get("context", {}),
+                    lineage=lineage,
+                    correlation_id=instance.correlation_id,
+                    model=model,
+                    temperature=temperature,
+                )
+                wo.handler_instance_id = handler_id
+                handler = self.store.get_instance(handler_id)
+
+                if handler and handler.status == InstanceStatus.COMPLETED:
+                    wo.status = WorkOrderStatus.COMPLETED
+                    wo.completed_at = time.time()
+                    wo.result = WorkOrderResult(
+                        work_order_id=wo.work_order_id,
+                        status="completed",
+                        outputs=handler.result or {},
+                        completed_at=time.time(),
+                    )
+                    self.store.save_work_order(wo)
+                    self._log(f"    provider {handler_id} → completed")
+                    # Record for oscillation detection
+                    self._record_work_order_completion(
+                        instance, wo,
+                        need_name=req.get("need", ""),
+                        accepted=True,
+                    )
+                    # Saga: register side effects from completed work order
+                    if self._saga_coordinator and handler and handler.result:
+                        self._register_saga_side_effects(
+                            instance.correlation_id,
+                            wo.work_order_id,
+                            handler.result,
+                        )
+                    return True
+                elif handler and handler.status == InstanceStatus.SUSPENDED:
+                    wo.status = WorkOrderStatus.RUNNING
+                    self.store.save_work_order(wo)
+                    self._log(f"    provider {handler_id} → suspended (waiting)")
+                    return False
+                else:
+                    wo.status = WorkOrderStatus.FAILED
+                    wo.result = WorkOrderResult(
+                        work_order_id=wo.work_order_id,
+                        status="failed",
+                        error=f"Provider in state: {handler.status.value if handler else 'none'}",
+                        completed_at=time.time(),
+                    )
+                    self.store.save_work_order(wo)
+                    self._log(f"    provider {handler_id} → failed")
+                    # Record for oscillation detection
+                    self._record_work_order_completion(
+                        instance, wo,
+                        need_name=req.get("need", ""),
+                        accepted=False,
+                        rejection_reason=f"Provider in state: {handler.status.value if handler else 'none'}",
+                    )
+                    return True  # Failed is still "done" for fan-in purposes
+
+            except Exception as e:
+                wo.status = WorkOrderStatus.FAILED
+                wo.result = WorkOrderResult(
+                    work_order_id=wo.work_order_id,
+                    status="failed",
+                    error=str(e)[:500],
+                    completed_at=time.time(),
+                )
+                self.store.save_work_order(wo)
+                self._log(f"    provider FAILED: {e}")
+                # Record for oscillation detection
+                self._record_work_order_completion(
+                    instance, wo,
+                    need_name=req.get("need", ""),
+                    accepted=False,
+                    rejection_reason=str(e)[:200],
+                )
+                return True
+
+        elif capability.provider_type == "human_task":
+            task = Task.create(
+                task_type=TaskType.RESOURCE_REQUEST,
+                queue=capability.queue,
+                instance_id=instance.instance_id,
+                correlation_id=instance.correlation_id,
+                workflow_type=instance.workflow_type,
+                domain=instance.domain,
+                payload={
+                    "need": req.get("need"),
+                    "reason": req.get("reason"),
+                    "context": req.get("context", {}),
+                    "work_order_id": wo.work_order_id,
+                },
+                callback=TaskCallback(
+                    method="fulfill_resource",
+                    instance_id=instance.instance_id,
+                ),
+                priority=1 if req.get("urgency") == "critical" else 0,
+            )
+            self.tasks.publish(task)
+            wo.status = WorkOrderStatus.RUNNING
+            self.store.save_work_order(wo)
+            self._log(f"    → human task published to '{capability.queue}'")
+            return False
+
+        return False
+
+    def _find_capability(self, need: str):
+        """Look up a capability by need type."""
+        for cap in self.policy.capabilities:
+            if cap.need_type == need:
+                return cap
+        return None
+
+    def _try_resume_after_all_providers(
+        self,
+        instance: InstanceState,
+        suspension: Suspension,
+    ):
+        """
+        Check if all work orders for a suspended instance are done.
+
+        Three cases:
+        1. All work orders done, no deferred needs → resume source
+        2. All dispatched work orders done, deferred needs remain →
+           dispatch the next wave (needs whose deps are now met)
+        3. Some work orders still running → do nothing, wait
+        """
+        # Build wo_id → need_name mapping
+        wo_to_need = getattr(suspension, 'wo_need_map', {}) or {}
+
+        completed_needs = set()
+        all_dispatched_done = True
+        external_input = {}
+
+        for wo_id in suspension.work_order_ids:
+            wo = self.store.get_work_order(wo_id)
+            if not wo:
+                continue
+            if wo.status == WorkOrderStatus.COMPLETED and wo.result:
+                external_input[wo_id] = wo.result.outputs
+                # Also key by need name so LLM sees meaningful keys
+                need_name = wo_to_need.get(wo_id, "")
+                if need_name:
+                    external_input[need_name] = wo.result.outputs
+                    completed_needs.add(need_name)
+            elif wo.status == WorkOrderStatus.FAILED and wo.result:
+                external_input[wo_id] = {
+                    "_error": wo.result.error,
+                    "_status": "failed",
+                }
+                need_name = wo_to_need.get(wo_id, "")
+                if need_name:
+                    external_input[need_name] = {
+                        "_error": wo.result.error,
+                        "_status": "failed",
+                    }
+                    completed_needs.add(need_name)
+            else:
+                all_dispatched_done = False
+
+        if not all_dispatched_done:
+            return  # Still waiting
+
+        # ── Check for deferred needs that can now be dispatched ──
+        deferred = getattr(suspension, 'deferred_needs', []) or []
+        if deferred:
+            still_deferred = []
+            dispatch_wave = []
+
+            for d in deferred:
+                deps = d.get("depends_on", [])
+                unmet = [dep for dep in deps if dep not in completed_needs]
+                if unmet:
+                    still_deferred.append(d)
+                else:
+                    dispatch_wave.append(d)
+
+            if dispatch_wave:
+                self._log(f"  ▶ DISPATCHING NEXT WAVE: {len(dispatch_wave)} deferred need(s)")
+                lineage = instance.lineage + [
+                    f"{instance.workflow_type}:{instance.instance_id}"
+                ]
+                for d in dispatch_wave:
+                    wo_id = d.get("work_order_id")
+                    wo = self.store.get_work_order(wo_id) if wo_id else None
+                    if not wo:
+                        continue
+
+                    # Enrich context with results from dependencies
+                    enriched_context = dict(d.get("context", {}))
+                    enriched_context["_dependency_results"] = external_input
+
+                    capability = self._find_capability(d.get("capability_need_type", d.get("need", "")))
+                    if capability:
+                        req = {
+                            "need": d.get("need"),
+                            "context": enriched_context,
+                            "urgency": d.get("urgency", "routine"),
+                        }
+                        done = self._dispatch_provider(
+                            instance, wo, req, capability, lineage
+                        )
+                        # Track this work order and its need
+                        suspension.work_order_ids.append(wo_id)
+                        suspension.wo_need_map[wo_id] = d.get("need", "")
+                        if done:
+                            completed_needs.add(d.get("need", ""))
+
+                # Update deferred list and re-check
+                suspension.deferred_needs = still_deferred
+                self.store.save_suspension(suspension)
+
+                # If this wave also completed synchronously, recurse
+                if not still_deferred:
+                    self._try_resume_after_all_providers(instance, suspension)
+                return
+
+        # ── All done (no deferred remaining) → resume source ──
+
+        # ── Resilience: Revalidation (Failure Mode 1) ──
+        # Before resuming, verify the world hasn't changed in ways
+        # that invalidate the original Need's assumptions.
+        if self._revalidator:
+            reval_result = self._revalidator.revalidate(
+                instance.instance_id, external_input,
+            )
+            if reval_result.verdict.value == "invalidated":
+                self._log(
+                    f"  ⚠ REVALIDATION FAILED: {reval_result.reason} "
+                    f"— escalating to HITL"
+                )
+                self.store.log_action(
+                    instance_id=instance.instance_id,
+                    correlation_id=instance.correlation_id,
+                    action_type="resume_revalidation_failed",
+                    details={
+                        "verdict": reval_result.verdict.value,
+                        "reason": reval_result.reason,
+                        "checks_run": reval_result.checks_run,
+                    },
+                )
+                return  # Do NOT resume — escalate to HITL
+            elif reval_result.verdict.value == "stale":
+                self._log(
+                    f"  ⚠ STALE CONTEXT: enriching with {len(reval_result.enrichment)} fields"
+                )
+                external_input.update(reval_result.enrichment)
+                self.store.log_action(
+                    instance_id=instance.instance_id,
+                    correlation_id=instance.correlation_id,
+                    action_type="resume_revalidation_stale",
+                    details={
+                        "enrichment_keys": list(reval_result.enrichment.keys()),
+                        "checks_run": reval_result.checks_run,
+                    },
+                )
+
+        # ── Hardening: Partial Failure (Requirement 3) ──
+        # Check if any work orders failed and resolve per-need policies.
+        if self._partial_failure_handler:
+            for wo_id in suspension.work_order_ids:
+                wo = self.store.get_work_order(wo_id)
+                if wo and wo.status == WorkOrderStatus.FAILED and wo.result:
+                    need_name = wo_to_need.get(wo_id, "")
+                    error_class = "retryable"  # default
+                    if wo.result.error and "permanent" in str(wo.result.error).lower():
+                        error_class = "permanent"
+                    elif wo.result.error and "degraded" in str(wo.result.error).lower():
+                        error_class = "degraded"
+
+                    decision = self._partial_failure_handler.resolve(
+                        wo.work_order_id, need_name,
+                        instance.correlation_id, error_class,
+                    )
+                    self.store.log_action(
+                        instance_id=instance.instance_id,
+                        correlation_id=instance.correlation_id,
+                        action_type="partial_failure_resolved",
+                        details={
+                            "work_order_id": wo_id,
+                            "need_type": need_name,
+                            "error_class": error_class,
+                            "action": decision.action.value,
+                            "reason": decision.reason,
+                        },
+                    )
+                    if decision.action.value == "degrade" and decision.degraded_output:
+                        # Inject degraded output so agent can proceed
+                        external_input[wo_id] = decision.degraded_output
+                        if need_name:
+                            external_input[need_name] = decision.degraded_output
+                    elif decision.action.value == "abort":
+                        self._log(f"  ⚠ ABORT: partial failure policy aborted saga")
+                        # Trigger saga compensation if available
+                        if self._saga_coordinator:
+                            self._saga_coordinator.compensate(
+                                instance.correlation_id,
+                                handler=None,  # escalate to HITL
+                                failed_work_order_id=wo_id,
+                            )
+                        return  # Do NOT resume
+
+        self._log(f"  ▶ ALL PROVIDERS DONE — resuming {instance.instance_id}")
+        self.resume(
+            instance_id=instance.instance_id,
+            external_input=external_input,
+            resume_nonce=suspension.resume_nonce,
+        )
+
     # ─── Delegation Execution ────────────────────────────────────────
 
     def _execute_delegation(
@@ -1237,15 +2008,13 @@ class Coordinator:
     def _check_delegation_completion(self, instance: InstanceState):
         """
         Check if this instance was a handler for a blocking delegation.
-        If so, update the work order and resume the requester.
+        If so, update the work order and check if the requester can resume.
 
-        This is the cascade mechanism: when a handler completes
-        (either directly or via governance approval), the coordinator
-        checks if any work order references this instance as its handler,
-        and if the requester is suspended waiting for it.
+        For single-WO suspensions (forward delegation), resumes immediately.
+        For multi-WO suspensions (demand-driven fan-out), waits until ALL
+        work orders are resolved before resuming the source.
         """
         # Find work orders where this instance is the handler
-        # and the requester is suspended
         all_wos = self.store.get_work_orders_for_requester_or_handler(
             instance.instance_id
         )
@@ -1269,12 +2038,46 @@ class Coordinator:
 
             # Check if requester is suspended waiting
             requester = self.store.get_instance(wo.requester_instance_id)
-            if requester and requester.status == InstanceStatus.SUSPENDED:
-                suspension = self.store.get_suspension(requester.instance_id)
-                if suspension and wo.work_order_id in suspension.work_order_ids:
-                    self._log(f"  ↩ delegation cascade: {instance.instance_id} → "
-                               f"resuming {requester.instance_id}")
-                    self._resume_after_delegation(requester, wo, suspension)
+            if not requester or requester.status != InstanceStatus.SUSPENDED:
+                continue
+
+            suspension = self.store.get_suspension(requester.instance_id)
+            if not suspension or wo.work_order_id not in suspension.work_order_ids:
+                continue
+
+            # Check if ALL work orders for this suspension are resolved
+            all_resolved = True
+            combined_input = {}
+            for sibling_wo_id in suspension.work_order_ids:
+                sibling_wo = self.store.get_work_order(sibling_wo_id)
+                if not sibling_wo:
+                    continue
+                if sibling_wo.status == WorkOrderStatus.COMPLETED and sibling_wo.result:
+                    combined_input[sibling_wo_id] = sibling_wo.result.outputs
+                elif sibling_wo.status == WorkOrderStatus.FAILED and sibling_wo.result:
+                    combined_input[sibling_wo_id] = {
+                        "_error": sibling_wo.result.error,
+                        "_status": "failed",
+                    }
+                else:
+                    all_resolved = False
+
+            if all_resolved:
+                self._log(f"  ↩ all {len(suspension.work_order_ids)} provider(s) done → "
+                           f"resuming {requester.instance_id}")
+                self.resume(
+                    instance_id=requester.instance_id,
+                    external_input=combined_input,
+                    resume_nonce=suspension.resume_nonce,
+                )
+            else:
+                pending = [
+                    wid for wid in suspension.work_order_ids
+                    if wid not in combined_input
+                ]
+                self._log(f"  ⏳ {instance.instance_id} done, but "
+                           f"{len(pending)} provider(s) still pending for "
+                           f"{requester.instance_id}")
 
     # ─── Workflow Execution ──────────────────────────────────────────
 
@@ -1284,11 +2087,27 @@ class Coordinator:
         case_input: dict[str, Any],
         model: str = "default",
         temperature: float = 0.1,
-    ) -> dict[str, Any]:
-        """Execute a workflow using the existing engine."""
-        from engine.composer import load_three_layer, run_workflow
-        from engine.agentic import run_agentic_workflow
-        from engine.nodes import set_trace
+    ) -> dict[str, Any] | Any:
+        """
+        Execute a workflow using step-by-step execution.
+
+        Returns either:
+          - dict (WorkflowState): workflow completed normally
+          - StepInterrupt: workflow was interrupted by a resource request
+
+        The stepper runs each step, then calls our callback between steps.
+        The callback checks for blocking ResourceRequests in step output.
+        If found, the stepper pauses and returns a StepInterrupt.
+
+        If LangGraph is not installed, falls back to simulated execution
+        using the case fixture data and workflow step definitions.
+        """
+        from engine.composer import load_three_layer
+        from engine.trace import set_trace
+        from engine.stepper import (
+            step_execute, resource_request_callback,
+            no_interrupt_callback, StepResult,
+        )
 
         # Resolve workflow and domain file paths
         workflow_path = self._find_workflow(instance.workflow_type)
@@ -1336,18 +2155,196 @@ class Coordinator:
             if has_act:
                 action_registry = self._build_action_registry(case_input)
 
-        # Execute
+        # ── Check execution prerequisites ──
+        # Need both LangGraph and a configured LLM provider for real execution.
+        # If either is missing, fall back to simulated execution which exercises
+        # the full coordinator state machine without LLM calls.
+        _can_execute = True
+        _fallback_reason = None
+        try:
+            from langgraph.graph import StateGraph  # noqa: F401
+        except ImportError:
+            _can_execute = False
+            _fallback_reason = "LangGraph not installed"
+
+        if _can_execute:
+            try:
+                from engine.llm import create_llm
+                _test_llm = create_llm(model="default", temperature=0.1)
+            except Exception as e:
+                _can_execute = False
+                _fallback_reason = f"LLM not configured ({e})"
+
+        if not _can_execute:
+            self._log(f"  ⚠ {_fallback_reason} — running simulated execution")
+            return self._execute_workflow_simulated(
+                instance, config, case_input, tool_registry, action_registry,
+            )
+
+        # Execute with step-level interception
         if is_agentic:
+            # Agentic mode: no stepper support yet, use direct execution
+            from engine.agentic import run_agentic_workflow
             return run_agentic_workflow(
                 config, case_input, model, temperature,
                 tool_registry=tool_registry,
             )
         else:
-            return run_workflow(
+            result = step_execute(
                 config, case_input, model, temperature,
                 tool_registry=tool_registry,
                 action_registry=action_registry,
+                step_callback=resource_request_callback,
             )
+
+            if result.completed:
+                return result.final_state
+            else:
+                # Return the interrupt for start() to handle
+                return result.interrupt
+
+    def _execute_workflow_simulated(
+        self,
+        instance: InstanceState,
+        config: dict[str, Any],
+        case_input: dict[str, Any],
+        tool_registry,
+        action_registry,
+    ) -> dict[str, Any]:
+        """
+        Simulated workflow execution when LangGraph is not installed.
+
+        Walks through each step in the workflow config, using tool registry
+        data to populate retrieve steps and generating deterministic outputs
+        for think/verify/generate/decide steps. Detects resource request
+        patterns in step configurations to trigger realistic interrupts.
+
+        This enables the coordinator state machine (suspend/resume/dispatch)
+        to be tested end-to-end without LLM or LangGraph dependencies.
+        """
+        from engine.stepper import StepInterrupt
+
+        steps = config.get("steps", [])
+        step_outputs = []
+        step_names = [s["name"] for s in steps]
+
+        # Build context from case_input for tool calls
+        for i, step in enumerate(steps):
+            step_name = step["name"]
+            primitive = step["primitive"]
+            params = step.get("params", {})
+
+            self._log(f"  [sim] step {i+1}/{len(steps)}: {step_name} ({primitive})")
+
+            output: dict[str, Any] = {
+                "step_name": step_name,
+                "primitive": primitive,
+                "confidence": 0.85,
+            }
+
+            if primitive == "retrieve":
+                # Use tool registry to get actual data
+                data = {}
+                if tool_registry:
+                    for tool_name in tool_registry.list_tools():
+                        try:
+                            result = tool_registry.call(tool_name, case_input)
+                            if result.success:
+                                data[tool_name] = result.data
+                        except Exception:
+                            pass
+                output["output"] = {"data": data}
+                output["confidence"] = 0.95 if data else 0.50
+
+            elif primitive == "think":
+                # Check if this step might need resources (coverage analysis pattern)
+                spec = params.get("specification", "")
+                resource_triggers = params.get("resource_request_triggers", [])
+
+                if resource_triggers or "equipment" in spec.lower() or "schedule" in spec.lower():
+                    # Check if we have the data already (from delegation results)
+                    delegation_results = case_input.get("_delegation_results", {})
+                    if not delegation_results:
+                        # Simulate resource request
+                        need_name = "scheduled_equipment_verification"
+                        for trigger in resource_triggers:
+                            if isinstance(trigger, dict):
+                                need_name = trigger.get("need", need_name)
+                                break
+
+                        output["output"] = {
+                            "analysis": f"Cannot complete {step_name} without external resource.",
+                            "resource_requests": [{
+                                "need": need_name,
+                                "reason": f"Step {step_name} requires external data to proceed.",
+                                "blocking": True,
+                                "context": {"claim_id": case_input.get("claim_id", "")},
+                            }],
+                        }
+                        output["confidence"] = 0.55
+
+                        # Create interrupt
+                        interrupt = StepInterrupt(
+                            step_name=step_name,
+                            resource_requests=output["output"]["resource_requests"],
+                            partial_output=output,
+                            state_at_interrupt={
+                                "input": case_input,
+                                "steps": step_outputs + [output],
+                                "current_step": step_name,
+                                "metadata": config.get("metadata", {}),
+                                "loop_counts": {},
+                                "routing_log": [],
+                            },
+                        )
+                        return interrupt
+
+                output["output"] = {"analysis": f"Analysis complete for {step_name}."}
+
+            elif primitive == "generate":
+                # Settlement recommendation — use calculate_settlement if available
+                if tool_registry and "calculate_settlement" in tool_registry.list_tools():
+                    try:
+                        calc_result = tool_registry.call("calculate_settlement", case_input)
+                        if calc_result.success:
+                            output["output"] = {"artifact": calc_result.data}
+                            output["confidence"] = 0.94
+                        else:
+                            output["output"] = {"artifact": {"summary": f"Generated output for {step_name}"}}
+                    except Exception:
+                        output["output"] = {"artifact": {"summary": f"Generated output for {step_name}"}}
+                else:
+                    output["output"] = {"artifact": {"summary": f"Generated output for {step_name}"}}
+
+            elif primitive == "verify":
+                output["output"] = {"conforms": True, "findings": []}
+                output["confidence"] = 0.90
+
+            elif primitive == "decide":
+                output["output"] = {"decision": "approve", "reasoning": "Simulated decision."}
+
+            elif primitive == "act":
+                output["output"] = {"action_taken": True, "result": "Simulated action."}
+
+            elif primitive == "delegate":
+                # Explicit delegation step
+                output["output"] = {"delegated": True}
+
+            else:
+                output["output"] = {"result": f"Simulated {primitive} output."}
+
+            step_outputs.append(output)
+
+        # Workflow completed
+        final_state = {
+            "input": case_input,
+            "steps": step_outputs,
+            "current_step": step_names[-1] if step_names else "",
+            "metadata": config.get("metadata", {}),
+            "loop_counts": {},
+            "routing_log": [],
+        }
+        return final_state
 
     def _execute_workflow_from_state(
         self,
@@ -1356,13 +2353,20 @@ class Coordinator:
         resume_step: str,
         model: str = "default",
         temperature: float = 0.1,
-    ) -> dict[str, Any]:
+    ) -> dict[str, Any] | Any:
         """
         Resume a workflow from a saved state snapshot at the given step.
-        Uses mid-graph entry: builds a subgraph from resume_step forward,
-        feeds it the pre-populated state with prior step outputs intact.
+        Uses step-by-step execution so resumed workflows can also
+        produce ResourceRequests and be interrupted again.
+
+        Returns either:
+          - dict: workflow completed
+          - StepInterrupt: workflow interrupted again
         """
-        from engine.composer import load_three_layer, run_workflow_from_step
+        from engine.composer import load_three_layer
+        from engine.stepper import (
+            step_resume, resource_request_callback, StepResult,
+        )
 
         workflow_path = self._find_workflow(instance.workflow_type)
         domain_path = self._find_domain(instance.domain)
@@ -1382,12 +2386,36 @@ class Coordinator:
                     state_snapshot.get("input", {})
                 )
 
-        return run_workflow_from_step(
+        # ── Check execution prerequisites ──
+        _can_execute = True
+        try:
+            from langgraph.graph import StateGraph  # noqa: F401
+            from engine.llm import create_llm
+            create_llm(model="default", temperature=0.1)
+        except Exception:
+            _can_execute = False
+
+        if not _can_execute:
+            self._log(f"  ⚠ LLM not available — simulated resume at '{resume_step}'")
+            # Inject delegation results into case_input for simulated execution
+            case_input = dict(state_snapshot.get("input", {}))
+            case_input["_delegation_results"] = state_snapshot.get("delegation_results", {})
+            return self._execute_workflow_simulated(
+                instance, config, case_input, tool_registry, action_registry,
+            )
+
+        result = step_resume(
             config, state_snapshot, resume_step,
             model, temperature,
             tool_registry=tool_registry,
             action_registry=action_registry,
+            step_callback=resource_request_callback,
         )
+
+        if result.completed:
+            return result.final_state
+        else:
+            return result.interrupt
 
     # ─── Result Extraction ───────────────────────────────────────────
 
@@ -1562,6 +2590,422 @@ class Coordinator:
         self._domain_tiers[domain] = tier
         return tier
 
+    def _get_optimization_config(self, domain: str) -> Any:
+        """
+        Load optimization config from domain YAML. Cached.
+
+        Returns OptimizationConfig if available, None if optimizer not loaded
+        or domain has no optimization section (backward compatible).
+        """
+        if not _OPTIMIZER_AVAILABLE:
+            return None
+
+        if domain in self._optimization_configs:
+            return self._optimization_configs[domain]
+
+        opt_config = None
+        try:
+            domain_path = self._find_domain(domain)
+            with open(domain_path) as f:
+                domain_yaml = yaml.safe_load(f) or {}
+            opt_section = domain_yaml.get("optimization")
+            if opt_section:
+                opt_config = parse_optimization_config(opt_section)
+            else:
+                # Use coordinator-level defaults if present
+                defaults = self.config.get("optimization_defaults")
+                if defaults:
+                    opt_config = parse_optimization_config(defaults)
+        except (FileNotFoundError, Exception):
+            pass
+
+        self._optimization_configs[domain] = opt_config
+        return opt_config
+
+    # ─── Resource Backpressure Queue ────────────────────────────────
+
+    def _enqueue_for_resource(
+        self,
+        resource_key: str,
+        work_order_id: str,
+        instance_id: str,
+        req: dict,
+        capability: Any,
+        lineage: list[str],
+    ) -> None:
+        """
+        Queue a work order for dispatch when a resource becomes available.
+
+        Called when the optimizer returns no_eligible_resources because
+        all resources are at capacity (e.g., batch in EXECUTING state).
+        The work order transitions to QUEUED status and waits.
+        """
+        entry = {
+            "work_order_id": work_order_id,
+            "instance_id": instance_id,
+            "req": req,
+            "capability_need_type": getattr(capability, 'need_type', ''),
+            "lineage": lineage,
+            "queued_at": time.time(),
+        }
+        self._resource_wait_queue.setdefault(resource_key, []).append(entry)
+        self._log(f"    ⏳ QUEUED: {work_order_id} waiting for {resource_key}")
+
+        self.store.log_action(
+            instance_id=instance_id,
+            correlation_id="",
+            action_type="work_order_queued_for_resource",
+            details={
+                "work_order_id": work_order_id,
+                "resource_key": resource_key,
+                "queue_depth": len(self._resource_wait_queue.get(resource_key, [])),
+            },
+        )
+
+    def drain_resource_queue(self, resource_key: str | None = None) -> int:
+        """
+        Attempt to dispatch queued work orders whose resources are now available.
+
+        Called:
+        - After batch complete_batch() (batch resource returns to COLLECTING)
+        - After sweep_reservations() releases expired reservations
+        - After any resource capacity is freed
+
+        Returns number of work orders successfully drained.
+        """
+        drained = 0
+        keys = [resource_key] if resource_key else list(self._resource_wait_queue.keys())
+
+        for rk in keys:
+            queue = self._resource_wait_queue.get(rk, [])
+            if not queue:
+                continue
+
+            still_waiting = []
+            for entry in queue:
+                wo_id = entry["work_order_id"]
+                wo = self.store.get_work_order(wo_id)
+                if not wo or wo.status != WorkOrderStatus.QUEUED:
+                    continue  # already handled or cancelled
+
+                # Check if resource can now accept
+                can_dispatch = False
+                if self._resource_registry:
+                    res = self._resource_registry.get(rk)
+                    if res and res.capacity.can_accept():
+                        can_dispatch = True
+
+                if can_dispatch:
+                    # Mark as DISPATCHED — resource has capacity
+                    wo.status = WorkOrderStatus.DISPATCHED
+                    self.store.save_work_order(wo)
+
+                    # Try full dispatch if instance and capability available
+                    instance = self.store.get_instance(entry["instance_id"])
+                    capability = self._find_capability(entry.get("capability_need_type", ""))
+                    if instance and capability:
+                        done = self._dispatch_provider(
+                            instance, wo, entry["req"], capability,
+                            entry.get("lineage", []),
+                        )
+                    else:
+                        # Capability routing not available (e.g., test environment)
+                        # WO is DISPATCHED and will be picked up by the next
+                        # sweep or poll cycle. This is safe: the WO is no longer
+                        # QUEUED, so it won't be drained again.
+                        pass
+
+                    drained += 1
+                    wait_time = time.time() - entry.get("queued_at", 0)
+                    self._log(
+                        f"    ▶ DRAINED: {wo_id} from queue for {rk} "
+                        f"(waited {wait_time:.1f}s)"
+                    )
+                    self.store.log_action(
+                        instance_id=entry["instance_id"],
+                        correlation_id="",
+                        action_type="work_order_drained_from_queue",
+                        details={
+                            "work_order_id": wo_id,
+                            "resource_key": rk,
+                            "waited_seconds": wait_time,
+                        },
+                    )
+                else:
+                    still_waiting.append(entry)
+
+            if still_waiting:
+                self._resource_wait_queue[rk] = still_waiting
+            else:
+                self._resource_wait_queue.pop(rk, None)
+
+        return drained
+
+    @property
+    def queued_work_order_count(self) -> int:
+        """Total work orders waiting for resource capacity."""
+        return sum(len(q) for q in self._resource_wait_queue.values())
+
+    def get_queue_depth(self, resource_key: str) -> int:
+        """Queue depth for a specific resource."""
+        return len(self._resource_wait_queue.get(resource_key, []))
+
+    # ─── Production Hardening Hooks ──────────────────────────────────
+
+    def _persist_ddr(
+        self,
+        decision: Any,   # DispatchDecision from ddd.py
+        eligible: list,   # eligible ResourceRegistration list
+        eligibility_audit: list,  # EligibilityResult list
+        config: Any,      # OptimizationConfig
+        solution: Any,    # ArchetypeSolution (may be None)
+    ) -> None:
+        """
+        DDR callback — called by the optimizer for every dispatch decision.
+
+        Builds a DispatchDecisionRecord and persists it to the action_ledger
+        so every dispatch is auditable.
+        """
+        if not _HARDENING_AVAILABLE:
+            return
+
+        try:
+            # Build eligibility entries for DDR
+            eligible_entries = []
+            excluded_entries = []
+            for er in eligibility_audit:
+                entry = DDREligibilityEntry(
+                    resource_id=getattr(er, 'resource_id', ''),
+                    eligible=getattr(er, 'eligible', False),
+                    constraint_name=getattr(er, 'failed_constraint', ''),
+                    constraint_reason=getattr(er, 'audit_reason', ''),
+                )
+                if entry.eligible:
+                    eligible_entries.append(entry)
+                else:
+                    excluded_entries.append(entry)
+
+            # Build candidate scores
+            candidate_scores = []
+            for i, rs in enumerate(getattr(decision, 'ranking_scores', [])):
+                candidate_scores.append(DDRCandidateScore(
+                    resource_id=getattr(rs, 'resource_id', ''),
+                    total_score=getattr(rs, 'total_score', 0.0),
+                    rank=i + 1,
+                    feature_scores=getattr(rs, 'feature_scores', {}),
+                ))
+
+            solver_name = ""
+            solver_seed = 0
+            if solution:
+                solver_name = getattr(solution, 'solver_name', '')
+                solver_seed = getattr(solution, 'solver_seed', 0)
+
+            ddr = build_ddr(
+                work_order_id=getattr(decision, 'work_order_id', ''),
+                correlation_id="",  # filled by coordinator context
+                case_id="",
+                trace_id="",
+                policy_version="1.0.0",
+                policy_mode="static",
+                solver_name=solver_name,
+                solver_version="1.0",
+                solver_seed=solver_seed,
+                eligible_entries=eligible_entries,
+                excluded_entries=excluded_entries,
+                objective_weights=getattr(config, 'objectives', {}),
+                candidate_scores=candidate_scores,
+                selected_resource_id=getattr(decision, 'selected_resource_id', None),
+                selection_tier=getattr(decision, 'tier', ''),
+                reservation_id=getattr(decision, 'reservation_id', None),
+                active_constraints=[],
+            )
+
+            # Persist to in-memory log (production: action_ledger table)
+            self._ddr_log.append(ddr.to_ledger_entry())
+
+            # Also persist to action_ledger if store is available
+            if hasattr(self, 'store') and self.store:
+                self.store.log_action(
+                    instance_id="",
+                    correlation_id="",
+                    action_type="dispatch_decision_record",
+                    details=ddr.to_ledger_entry(),
+                    idempotency_key=f"ddr:{ddr.ddr_id}",
+                )
+        except Exception as e:
+            # DDR persistence failure must never break dispatch
+            if self.verbose:
+                self._log(f"  ⚠ DDR persistence error (non-fatal): {e}")
+
+    # ─── Production Hardening Hooks ────────────────────────────────
+
+    def _persist_ddr(
+        self,
+        decision: Any,
+        eligible: list,
+        eligibility_audit: list,
+        config: Any,
+        solution: Any,
+    ) -> None:
+        """
+        DDR callback — called by optimizer for every dispatch decision.
+        Builds and persists a DispatchDecisionRecord to the action_ledger.
+        """
+        if not _HARDENING_AVAILABLE:
+            return
+
+        # Build eligible/excluded entries
+        eligible_entries = []
+        excluded_entries = []
+        for e in eligibility_audit:
+            entry = DDREligibilityEntry(
+                resource_id=e.resource_id,
+                eligible=e.eligible,
+                constraint_name=e.failed_constraint or "",
+                constraint_reason=e.audit_reason or "",
+            )
+            if e.eligible:
+                eligible_entries.append(entry)
+            else:
+                excluded_entries.append(entry)
+
+        # Build candidate scores from ranking_scores
+        candidate_scores = []
+        for rank, rs in enumerate(decision.ranking_scores or [], 1):
+            candidate_scores.append(DDRCandidateScore(
+                resource_id=rs.resource_id,
+                total_score=rs.total_score,
+                rank=rank,
+                feature_scores=rs.feature_scores,
+            ))
+
+        # Build reason codes
+        reason_codes = [decision.tier]
+        if not decision.selected_resource_id:
+            reason_codes.append("no_assignment")
+
+        # Solver info
+        solver_name = ""
+        solver_version = "1.0"
+        solver_seed = 0
+        if solution:
+            solver_name = getattr(solution, 'solver_name', '')
+            solver_seed = getattr(solution, 'solver_seed', 0)
+
+        ddr = build_ddr(
+            work_order_id=decision.work_order_id,
+            correlation_id="",  # filled by caller if available
+            case_id="",
+            trace_id="",
+            policy_version="1.0.0",  # from PolicyManager when wired
+            policy_mode="static",
+            solver_name=solver_name,
+            solver_version=solver_version,
+            solver_seed=solver_seed,
+            eligible_entries=eligible_entries,
+            excluded_entries=excluded_entries,
+            objective_weights=config.objectives if config else {},
+            candidate_scores=candidate_scores,
+            selected_resource_id=decision.selected_resource_id,
+            selection_tier=decision.tier,
+            reservation_id=decision.reservation_id,
+            reason_codes=reason_codes,
+        )
+
+        # Persist to action_ledger
+        self.store.log_action(
+            instance_id="",
+            correlation_id="",
+            action_type="dispatch_decision_record",
+            details=ddr.to_ledger_entry(),
+            idempotency_key=f"ddr:{ddr.ddr_id}",
+        )
+        self._ddr_log.append(ddr.to_ledger_entry())
+
+    def _record_work_order_completion(
+        self,
+        instance: Any,
+        wo: Any,
+        need_name: str,
+        accepted: bool,
+        rejection_reason: str = "",
+    ) -> None:
+        """
+        Record work order completion for oscillation detection.
+        Called when a provider completes and the requestor evaluates the result.
+        """
+        if not self._oscillation_detector:
+            return
+
+        provider_id = getattr(wo, 'handler_instance_id', '') or ''
+        verdict = self._oscillation_detector.record_attempt(
+            need_type=need_name,
+            case_id=instance.correlation_id,
+            correlation_id=instance.correlation_id,
+            provider_resource_id=provider_id,
+            work_order_id=wo.work_order_id,
+            accepted=accepted,
+            rejection_reason=rejection_reason,
+        )
+
+        if verdict.action.value == "escalate":
+            self._log(
+                f"  ⚠ OSCILLATION: {need_name} for {instance.correlation_id} "
+                f"— {verdict.reason}"
+            )
+            self.store.log_action(
+                instance_id=instance.instance_id,
+                correlation_id=instance.correlation_id,
+                action_type="semantic_oscillation_detected",
+                details={
+                    "need_type": need_name,
+                    "action": verdict.action.value,
+                    "reason": verdict.reason,
+                },
+            )
+        elif verdict.action.value == "retry_different":
+            self._log(
+                f"  ↻ OSCILLATION: retrying {need_name} with different provider "
+                f"(excluding {verdict.exclude_providers})"
+            )
+
+    def _register_saga_side_effects(
+        self,
+        correlation_id: str,
+        work_order_id: str,
+        result: dict[str, Any] | Any,
+    ) -> None:
+        """
+        Register side effects from a completed work order in the saga coordinator.
+
+        Side effects are detected by looking for `_side_effects` in the
+        handler's result output. Each side effect must include:
+        - action: what was done ("send_email", "update_database")
+        - inverse: how to undo it (serialized compensating transaction)
+        - step_name: which workflow step produced it
+
+        This is also called when the engine's CompensationLedger has
+        confirmed entries — those are promoted to the saga level.
+        """
+        if not self._saga_coordinator:
+            return
+
+        # Check for explicitly declared side effects in result
+        result_dict = result if isinstance(result, dict) else {}
+        side_effects = result_dict.get("_side_effects", [])
+        for se in side_effects:
+            if isinstance(se, dict) and "action" in se:
+                entry_id = self._saga_coordinator.register(
+                    saga_id=correlation_id,
+                    work_order_id=work_order_id,
+                    step_name=se.get("step_name", "unknown"),
+                    action_description=se.get("action", ""),
+                    inverse_action=se.get("inverse", {}),
+                )
+                # Auto-confirm since the work order already completed
+                self._saga_coordinator.confirm(entry_id)
+
     def _build_tool_registry(self, case_input: dict[str, Any]):
         """
         Build tool registry with correct priority:
@@ -1720,8 +3164,8 @@ class _CoordinatorTrace:
         elif primitive == "generate":
             self._log(f"    → generated {len(str(output.get('artifact', ''))):,} chars")
         elif primitive == "think":
-            decision = output.get("decision", "")[:70]
-            self._log(f"    → {decision}")
+            decision = output.get("decision") or ""
+            self._log(f"    → {decision[:70]}")
         elif primitive == "verify":
             conforms = output.get("conforms", "?")
             n_viol = len(output.get("violations", []))
@@ -1729,7 +3173,11 @@ class _CoordinatorTrace:
                        f"{f' ({n_viol} violations)' if n_viol else ''}")
 
     def on_parse_error(self, step_name, error):
-        self._log(f"    ⚠ PARSE ERROR: {error[:120]}")
+        # Show full error, split into multiple lines for tracebacks
+        for line in str(error).split("\n"):
+            line = line.rstrip()
+            if line:
+                self._log(f"    ⚠ PARSE ERROR: {line}")
 
     def on_route_decision(self, from_step, to_step, decision_type, reason):
         target = "END" if to_step == "__end__" else to_step

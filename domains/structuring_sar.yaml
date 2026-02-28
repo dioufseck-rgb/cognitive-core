@@ -89,3 +89,20 @@ escalate:
     - Include all context gathered
     - Flag 30-day SAR filing deadline if applicable
     - Include confidence levels
+
+# ─── Dispatch Optimization ────────────────────────────────────────
+
+optimization:
+  archetype: assignment
+  physics: default
+  objectives:
+    minimize_cost: 0.1
+    minimize_wait_time: 0.3
+    minimize_sla_risk: 0.6
+  solver_time_budget: 5s
+  greedy_fallback: true
+  exploration:
+    enabled: true
+    maturity_threshold: 20
+    base_epsilon: 0.05
+    max_exploration_pct: 0.10

@@ -27,7 +27,12 @@ from pathlib import Path
 from typing import Any
 
 from langgraph.graph import StateGraph, END
-from langchain_core.messages import HumanMessage
+try:
+    from langchain_core.messages import HumanMessage
+except ImportError:
+    class HumanMessage:
+        def __init__(self, content: str):
+            self.content = content
 from engine.llm import create_llm
 
 from registry.primitives import render_prompt, get_schema_class, PRIMITIVE_CONFIGS

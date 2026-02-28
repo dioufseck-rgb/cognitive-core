@@ -1,0 +1,28 @@
+# Recovery Optimizer — Back Office Skill Agent
+#
+# Behind this contract is a linear program that optimizes
+# subrogation recovery strategy given legal costs and probabilities.
+
+name: recovery_optimizer
+description: >
+  Analyze subrogation recovery potential. Optimizes recovery strategy
+  based on settlement amount, third party coverage, and legal costs.
+
+steps:
+  - name: gather_inputs
+    primitive: retrieve
+    params:
+      specification: "${domain.gather_inputs.specification}"
+      strategy: deterministic
+    transitions:
+      - default: format_analysis
+
+  - name: format_analysis
+    primitive: generate
+    temperature: 0.1
+    params:
+      requirements: "${domain.format_analysis.requirements}"
+      format: "${domain.format_analysis.format}"
+      constraints: "${domain.format_analysis.constraints}"
+    transitions:
+      - default: __end__

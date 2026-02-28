@@ -1,23 +1,54 @@
-# Cognitive Core — Dependencies
+# ═══════════════════════════════════════════════════════════════════════
+# Cognitive Core — Python Dependencies
+# ═══════════════════════════════════════════════════════════════════════
 #
-# Core is always required. Install ONE provider package for your platform.
+# Install:  pip install -r requirements.txt
 #
-# Quick start:
-#   pip install -r requirements.txt                          # core only
-#   pip install -r requirements.txt langchain-azure-ai azure-identity  # Azure AI Foundry (recommended)
-#   pip install -r requirements.txt langchain-openai         # Azure OpenAI / OpenAI direct
-#   pip install -r requirements.txt langchain-google-genai   # Google Gemini
-#   pip install -r requirements.txt langchain-aws            # Amazon Bedrock
+# The framework has a layered dependency model:
+#   Core   — runs simulated demos, coordinator tests, batch validation
+#   LLM    — enables real LLM execution (pick ONE provider group)
+#   Prod   — production infrastructure (Postgres, HTTP server, MCP)
+#
+# ═══════════════════════════════════════════════════════════════════════
 
-# --- Core (always required) ---
-langgraph>=0.2.0
+# ── Core (always required) ──────────────────────────────────────────
+PyYAML>=6.0
+pydantic>=2.0,<3.0
+
+# ── LLM Execution (pick at least one provider) ─────────────────────
+# Uncomment the provider(s) you need.
+# The langchain ecosystem has two version tracks:
+#   - 0.3.x (legacy)
+#   - 1.x+ (current, requires langchain-core>=1.0)
+# Install whichever provider you need; it will pull the right core.
+
+# Azure AI Foundry (default for NFCU)
 langchain-core>=0.3.0
-pydantic>=2.0.0
-pyyaml>=6.0
+langchain-openai>=0.3.0
+# langchain-azure-ai>=0.1.0        # Azure AI Foundry / Model Catalog
 
-# --- LLM Providers (install one or more) ---
-# langchain-azure-ai>=0.1.0        # Azure AI Foundry (Model Catalog + Azure OpenAI)
-# azure-identity>=1.17.0           # Azure credential management (for Foundry)
-# langchain-openai>=0.3.0          # Azure OpenAI Service / OpenAI direct
-# langchain-google-genai>=2.0.0    # Google Gemini
-# langchain-aws>=0.2.0             # Amazon Bedrock
+# Google Gemini
+# langchain-google-genai>=2.0.0
+
+# Amazon Bedrock
+# langchain-aws>=0.2.0
+
+# OpenAI direct
+# langchain-openai>=0.3.0          # (already listed under Azure)
+
+# ── MCP Tool Servers ────────────────────────────────────────────────
+# Required for MCP-based tool integration (dev and prod).
+# mcp[cli]>=1.0.0
+
+# ── Production Infrastructure ───────────────────────────────────────
+# Uncomment for production deployments.
+
+# HTTP API server
+# fastapi>=0.115.0
+# uvicorn[standard]>=0.30.0
+
+# Postgres persistence (replaces SQLite)
+# psycopg[binary]>=3.2.0
+
+# Async HTTP client (MCP HTTP transport, webhooks)
+# httpx>=0.27.0

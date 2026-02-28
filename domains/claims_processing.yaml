@@ -1,0 +1,298 @@
+# ═══════════════════════════════════════════════════════════════════
+# Claims Processing — Domain Specification
+#
+# Paired with claim_adjudication workflow.
+# General liability / property / BOP claims.
+#
+# This domain teaches the agent WHEN to request resources and
+# WHAT to name them. The agent doesn't know who provides them.
+# ═══════════════════════════════════════════════════════════════════
+
+domain_name: claims_processing
+workflow: claim_adjudication
+governance: gate
+
+# ─── Intake ──────────────────────────────────────────────────────
+
+intake:
+  specification: |
+    Pull all available claim and policy data:
+      - get_claim: Claim filing (ID, amounts, dates, description, claimant)
+      - get_policy: Policy details (type, limits, deductibles, endorsements, riders)
+      - get_incident_report: Incident report and supporting documentation
+      - get_claimant_history: Prior claims by this policyholder (if available)
+
+# ─── Coverage Analysis ───────────────────────────────────────────
+
+coverage_analysis:
+  instruction: |
+    Analyze whether the claimed losses are covered under the policy.
+
+    For each claimed loss category (property damage, business interruption,
+    liability, etc.), determine:
+    1. Does the base policy cover this type of loss?
+    2. Are there endorsements that expand or limit coverage?
+    3. What are the applicable limits, sublimits, and deductibles?
+    4. Are there any exclusions that might apply?
+
+    IMPORTANT — CHECK FOR DELEGATION RESULTS FIRST:
+    If "delegation" appears in the workflow input, it contains results
+    from previously requested resources. Look for your needed data there
+    before requesting it again. The keys are work order IDs — examine
+    the values to find the relevant data.
+
+    EQUIPMENT BREAKDOWN ENDORSEMENTS:
+    If the policy has an equipment breakdown endorsement and the claim
+    involves equipment damage, you MUST verify the specific equipment
+    against the scheduled equipment list to determine the applicable
+    sublimit. If you do not have the scheduled equipment list AND it
+    is not in the delegation results, you CANNOT determine the sublimit.
+
+    RESOURCE REQUESTS — USE EXACTLY THESE NEED NAMES:
+    If you need the equipment schedule, add a resource_request with:
+      need: "scheduled_equipment_verification"
+      blocking: true
+      reason: "<why you need it>"
+      context: {"policy_number": "<policy number>", "equipment": "<description>"}
+
+    If you need specialist coverage interpretation, add:
+      need: "coverage_specialist_review"
+      blocking: true
+      reason: "<the specific question>"
+      context: {"policy_clause": "<clause text>", "question": "<question>"}
+
+    Do NOT invent other need names. Use ONLY the names listed above.
+    Do NOT guess at sublimits when the equipment schedule is absent.
+
+  focus: |
+    Coverage applicability, endorsement activation, sublimit
+    determination, exclusion analysis. Check delegation results
+    before requesting resources.
+
+# ─── Damage Assessment ───────────────────────────────────────────
+
+damage_assessment:
+  instruction: |
+    Assess the verified loss amounts for each covered category.
+
+    IMPORTANT — CHECK FOR DELEGATION RESULTS FIRST:
+    If "delegation" appears in the workflow input, it contains results
+    from previously requested resources. Examine the values (ignore
+    the work order ID keys) to find forensic review results, COI data,
+    or other previously requested information. Use these results
+    instead of requesting them again.
+
+    PROPERTY DAMAGE:
+    - Use the repair estimate or replacement value from intake data
+    - Compare against policy sublimits from coverage analysis
+    - Flag if amount exceeds sublimit
+
+    BUSINESS INTERRUPTION:
+    - If the claimed BI amount exceeds $100,000, it REQUIRES independent
+      forensic accounting verification
+    - You CANNOT self-assess BI claims above this threshold
+    - If BI is below threshold, verify against documented revenue history
+
+    SUBROGATION INDICATORS:
+    - If a third party may be liable (contractor, manufacturer, etc.),
+      you need their Certificate of Insurance (COI) to evaluate recovery
+    - Do NOT evaluate subrogation potential without the COI
+
+    RESOURCE REQUESTS — USE EXACTLY THESE NEED NAMES:
+    If BI exceeds $100,000 and no forensic review in delegation results:
+      need: "forensic_accounting_review"
+      blocking: true
+      reason: "BI claim exceeds $100K self-assessment threshold"
+      context: {"claim_id": "<claim_id>", "claimed_bi": <amount>, "policyholder": "<name>"}
+
+    If third party liable and no COI in delegation results:
+      need: "third_party_coi_retrieval"
+      blocking: true
+      reason: "Need contractor COI for subrogation evaluation"
+      context: {"contractor": "<contractor name>"}
+
+    These two requests are INDEPENDENT — do NOT set depends_on between
+    them. They can run in parallel. Leave depends_on as an empty list
+    for both.
+
+    Do NOT invent other need names. Use ONLY the names listed above.
+
+  focus: |
+    Loss verification, threshold checks, subrogation indicators.
+    Check delegation results before requesting resources.
+
+# ─── Subrogation Evaluation ──────────────────────────────────────
+
+subrogation_evaluation:
+  instruction: |
+    Determine whether to pursue subrogation and what resources are
+    needed to execute.
+
+    IMPORTANT — CHECK FOR DELEGATION RESULTS FIRST:
+    If "delegation" appears in the workflow input, it contains results
+    from previously fulfilled resource requests. Examine the values
+    (ignore the work order ID keys) to find scheduling results,
+    recovery analysis, COI data, etc. If the data you need is already
+    there, USE IT — do not request it again.
+
+    If you already have recovery analysis results (with fields like
+    "recommended", "expected_net_recovery", "strategy"), proceed to
+    settlement recommendation. Do NOT re-request what you already have.
+
+    WHEN YOU NEED NEW RESOURCES:
+    If a third party's COI was retrieved and GL coverage is confirmed,
+    and you need field scheduling and recovery analysis:
+
+    Request 1 (no dependencies):
+      need: "adjuster_scheduling"
+      blocking: true
+      reason: "Need field adjuster for final inspection"
+      context: {"location": "<city, state>", "certification": "<type>", "claim_id": "<id>"}
+      depends_on: []
+
+    Request 2 (depends on request 1):
+      need: "subrogation_recovery_analysis"
+      blocking: true
+      reason: "Need recovery optimization given settlement figure"
+      context: {"net_payable": <amount>, "contractor_gl_limit": <limit>}
+      depends_on: ["adjuster_scheduling"]
+
+    The coordinator will dispatch scheduling first, then recovery
+    analysis after scheduling completes.
+
+    Do NOT invent other need names. Use ONLY the names listed above.
+    If subrogation is not viable (no third party, no COI, no liability),
+    skip resource requests and proceed to settlement.
+
+  focus: |
+    Subrogation viability, recovery potential, dependency ordering.
+    Check delegation results before requesting new resources.
+
+# ─── Settlement Calculation (deterministic tool) ─────────────────
+
+settlement_calculation:
+  specification: |
+    Call the settlement calculator to compute exact amounts:
+      - calculate_settlement: Deterministic settlement arithmetic
+        (deductibles, sublimits, coinsurance penalties, net payable).
+        Accepts the full claim context and extracts the right inputs
+        from policy and claim data automatically.
+
+# ─── Settlement Recommendation ───────────────────────────────────
+
+settlement_recommendation:
+  requirements: |
+    Produce a settlement recommendation using the EXACT numbers from
+    the settlement_calculation step output (the calculate_settlement
+    tool result). Do NOT recompute any amounts yourself.
+
+    The tool output contains:
+      - category_totals: verified amounts per category (after coinsurance)
+      - total_verified: sum of all verified amounts
+      - deductible_applied: the deductible amount subtracted
+      - net_payable: final amount payable
+      - coinsurance_applied: whether a coinsurance penalty was applied
+      - coinsurance_ratio: the penalty ratio (if applied)
+
+    Copy these numbers exactly into your settlement JSON. If
+    coinsurance_applied is true, use the adjusted BI amount from
+    category_totals, NOT the original claimed amount.
+
+    Also include:
+    - Subrogation recommendation (from subrogation_evaluation step)
+    - Field inspection details (if scheduled by delegation)
+    - Notes explaining any adjustments, coinsurance penalty, etc.
+
+    If compliance_check previously found violations, fix EXACTLY
+    those issues without changing the tool-computed amounts.
+  format: |
+    {
+      "claim_id": "<from intake>",
+      "policyholder": "<name>",
+      "policy_number": "<number>",
+      "loss_categories": [
+        {
+          "category": "<property_damage|business_interruption|...>",
+          "claimed_amount": 0,
+          "verified_amount": 0,
+          "adjustment_reason": "<if adjusted, why>"
+        }
+      ],
+      "total_verified": 0,
+      "deductible": 0,
+      "net_payable": 0,
+      "subrogation": {
+        "recommended": true|false,
+        "target": "<if applicable>",
+        "expected_recovery": 0,
+        "strategy": "<if applicable>"
+      },
+      "field_inspection": {
+        "scheduled": true|false,
+        "adjuster": "<if scheduled>",
+        "date": "<if scheduled>"
+      },
+      "notes": ["<any relevant notes>"]
+    }
+
+  constraints: |
+    Net payable must not exceed policy limit.
+    All amounts must trace to verified sources (intake data, forensic
+    review, or adjuster estimate). Do not invent or round amounts.
+    If forensic review adjusted an amount, cite the adjustment.
+    If subrogation is recommended, include expected recovery.
+
+# ─── Compliance Check ────────────────────────────────────────────
+
+compliance_check:
+  rules: |
+    Verify the settlement recommendation meets compliance requirements:
+
+    1. Net payable does not exceed policy limit
+    2. All loss categories have verified amounts (not just claimed)
+    3. BI claims over $100K have forensic review documentation
+    4. Subrogation referral prepared if recovery recommended
+    5. Deductible correctly applied
+    6. No regulatory hold applies for this state/amount
+    7. Settlement recommendation includes all required fields
+
+    8. COINSURANCE PENALTY (CRITICAL CHECK):
+       If the policy has a business_income.coinsurance clause < 100%:
+       a. The settlement MUST show coinsurance was applied
+       b. The BI verified_amount should be LESS than the BI claimed_amount
+          when the insured is underinsured (carrying limit < required limit)
+       c. If the BI verified_amount equals the full BI claimed_amount
+          despite a coinsurance clause existing, this is a VIOLATION —
+          the calculate_settlement tool was likely not called with
+          the coinsurance parameter
+       d. In your violation message, state: "BI coinsurance penalty
+          not applied. Policy has X% coinsurance on BI. The settlement
+          must call calculate_settlement with the coinsurance parameter:
+          {required_pct: X, carried_limit: <BI limit>, annual_revenue:
+          <daily revenue × 365>}."
+
+    If any rule fails, set conforms=false and list each violation
+    with enough detail for settlement_recommendation to fix it.
+    The workflow will loop back to regenerate — make your violation
+    messages actionable.
+
+# ─── Dispatch Optimization (Spec v1.1 Section 13) ────────────────
+
+optimization:
+  archetype: assignment
+  physics: claims_assignment
+  objectives:
+    minimize_cost: 0.2
+    minimize_wait_time: 0.4
+    minimize_sla_risk: 0.3
+    minimize_travel: 0.1
+  constraints:
+    max_caseload_pct: 0.85
+    require_certification: true
+  solver_time_budget: 5s
+  greedy_fallback: true
+  exploration:
+    enabled: true
+    maturity_threshold: 10
+    base_epsilon: 0.10
+    max_exploration_pct: 0.15

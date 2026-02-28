@@ -90,6 +90,7 @@ class InstanceState:
 class WorkOrderStatus(str, enum.Enum):
     """Lifecycle states for a work order."""
     CREATED = "created"
+    QUEUED = "queued"          # waiting for resource capacity (backpressure)
     DISPATCHED = "dispatched"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -178,6 +179,8 @@ class Suspension:
     state_snapshot: dict[str, Any]  # serialized WorkflowState
     unresolved_needs: list[dict[str, Any]] = field(default_factory=list)
     work_order_ids: list[str] = field(default_factory=list)
+    deferred_needs: list[dict[str, Any]] = field(default_factory=list)
+    wo_need_map: dict[str, str] = field(default_factory=dict)  # wo_id → need_name
     resume_nonce: str = ""
     suspended_at: float = 0.0
 

@@ -1,0 +1,69 @@
+{
+    "_description": "Scripted human task responses for batch test auto-completion. In production these come from human specialists.",
+
+    "forensic_accounting_review": {
+        "medium": {
+            "reviewer": "Sarah Chen, CPA, CFE",
+            "review_date": "2025-02-10",
+            "bi_analysis": {
+                "claimed_lost_revenue": 118000,
+                "verified_daily_revenue": 11800,
+                "verified_loss_days": 10,
+                "verified_lost_revenue": 118000,
+                "expediting_costs_verified": 9500,
+                "temporary_hosting_verified": 6200,
+                "total_bi_verified": 133700,
+                "annual_revenue_estimate": 4307000,
+                "coinsurance_required": 0.50,
+                "coinsurance_carried_limit": 200000,
+                "coinsurance_required_limit": 2153500,
+                "coinsurance_ratio": 0.093,
+                "coinsurance_penalty_applies": true,
+                "bi_after_coinsurance": 10974,
+                "methodology": "Verified against tax returns, QuickBooks P&L, and client invoices."
+            },
+            "property_analysis": {
+                "total_property_verified": 127200,
+                "notes": "All property amounts verified against vendor invoices and market pricing."
+            },
+            "finding": "BI coinsurance penalty applies. Insured carrying $200K BI limit with 50% coinsurance against ~$4.3M annual revenue. Ratio: 9.3%. Net BI payable after penalty: $10,974."
+        },
+        "hard": {
+            "reviewer": "Michael Torres, CPA, CFE",
+            "review_date": "2025-02-15",
+            "bi_analysis": {
+                "claimed_lost_revenue": 156000,
+                "verified_daily_revenue": 8857,
+                "verified_loss_days": 21,
+                "verified_lost_revenue": 186000,
+                "expediting_costs_verified": 0,
+                "temporary_facility_verified": 0,
+                "total_bi_verified": 186000,
+                "annual_revenue_estimate": 2697000,
+                "coinsurance_required": 0.50,
+                "coinsurance_carried_limit": 250000,
+                "coinsurance_required_limit": 1348500,
+                "coinsurance_ratio": 0.185,
+                "coinsurance_penalty_applies": true,
+                "bi_after_coinsurance": 34444,
+                "methodology": "Revenue verified against tax returns. BI days verified against temporary facility records. Expediting costs and temp facility rental excluded — timeline inconsistency noted."
+            },
+            "property_analysis": {
+                "steel_inventory_verified": 45000,
+                "notes": "Handwritten inventory records cross-referenced with supplier invoices. $67K claimed, $45K verifiable."
+            },
+            "finding": "BI coinsurance penalty applies. Steel inventory adjusted downward. Expediting costs and temp facility excluded due to timeline inconsistency."
+        }
+    },
+
+    "coverage_specialist_review": {
+        "hard": {
+            "reviewer": "Patricia Williams, CPCU, ARM",
+            "review_date": "2025-02-18",
+            "fire_suppression_ruling": "Coverage NOT excluded. While fire suppression inspection was overdue, the single non-functional sprinkler head was a maintenance failure, not a systemic failure to maintain the system. The system otherwise activated. The exclusion requires complete failure to maintain, not a single deficiency.",
+            "cnc_coverage_ruling": "CNC plasma cutter (Hypertherm XPR300) is NOT on the equipment schedule. Unscheduled equipment cap of $25,000 applies per EB-100 endorsement.",
+            "building_repair_ruling": "Use lower estimate ($38,500 from Allied Restoration) for base repair. Ordinance/Law endorsement covers code upgrade difference up to 10% of building limit ($50,000).",
+            "finding": "Coverage applies with modifications: CNC capped at $25K unscheduled, base repair at $38.5K + O&L for code upgrade."
+        }
+    }
+}

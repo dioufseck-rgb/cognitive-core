@@ -6,7 +6,33 @@ These define the interface between primitives in a composition chain.
 All primitives share a common base; each adds primitive-specific fields.
 """
 
-from pydantic import BaseModel, Field, model_validator
+try:
+    from pydantic import BaseModel, Field, model_validator
+except ImportError:
+    # Minimal shim for pydantic-free environments.
+    # Schemas won't validate, but structural code (imports, primitives registry)
+    # will work for simulated execution.
+    class Field:  # type: ignore[no-redef]
+        def __init__(self, **kwargs): pass
+        def __call__(self, **kwargs): return self
+
+    def model_validator(**kwargs):  # type: ignore[no-redef]
+        def decorator(fn): return fn
+        return decorator
+
+    class _BaseModelMeta(type):
+        def __new__(mcs, name, bases, namespace):
+            cls = super().__new__(mcs, name, bases, namespace)
+            return cls
+
+    class BaseModel(metaclass=_BaseModelMeta):  # type: ignore[no-redef]
+        def __init__(self, **kwargs):
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+        def model_dump(self):
+            return {k: v for k, v in self.__dict__.items() if not k.startswith('_')}
+        def dict(self):
+            return self.model_dump()
 from typing import Any, Optional
 from enum import Enum
 
@@ -19,6 +45,68 @@ class EvidenceItem(BaseModel):
     """A piece of evidence used or needed by a primitive."""
     source: str = Field(description="Where this evidence came from or would come from")
     description: str = Field(description="What this evidence shows or would show")
+
+
+class ResourceRequest(BaseModel):
+    """
+    A request from an agent to the coordinator for a resource
+    it needs to proceed.
+
+    This is the general mechanism for demand-driven delegation.
+    An agent that can't do its job without some upstream decision,
+    analysis, data, authorization, or specialist input expresses
+    that need as a ResourceRequest. The coordinator matches the
+    need to a capability provider and dispatches it.
+
+    The agent doesn't know WHO will fulfill it — only WHAT it needs,
+    described via a contract the coordinator can match.
+    """
+    need: str = Field(
+        description=(
+            "What is needed, expressed as a capability name. "
+            "Examples: 'eligibility_constraints', 'intake_packet', "
+            "'fraud_clearance', 'path_recommendation', 'credit_review'"
+        )
+    )
+    contract: str = Field(
+        default="",
+        description=(
+            "Contract name for the expected response format. "
+            "If empty, coordinator infers from capability registry."
+        )
+    )
+    reason: str = Field(
+        description="Why this resource is needed to proceed"
+    )
+    blocking: bool = Field(
+        default=True,
+        description=(
+            "If true, agent cannot proceed without this resource. "
+            "Coordinator will suspend the agent until fulfilled. "
+            "If false, dispatched as fire-and-forget."
+        )
+    )
+    context: dict[str, Any] = Field(
+        default_factory=dict,
+        description=(
+            "Relevant state to pass to whoever fulfills this request. "
+            "Should contain everything the provider needs to do its work."
+        )
+    )
+    urgency: str = Field(
+        default="routine",
+        description="Priority: 'routine', 'elevated', or 'critical'"
+    )
+    depends_on: list[str] = Field(
+        default_factory=list,
+        description=(
+            "List of other need names that must be fulfilled before "
+            "this one can be dispatched. Empty means no dependencies — "
+            "can run in parallel with other requests. Example: if "
+            "'reserve_impact' depends on 'settlement_calculation', "
+            "set depends_on=['settlement_calculation']."
+        )
+    )
 
 
 class BaseOutput(BaseModel):
@@ -37,6 +125,16 @@ class BaseOutput(BaseModel):
     evidence_missing: list[EvidenceItem] = Field(
         default_factory=list,
         description="Evidence that would improve confidence if available"
+    )
+    resource_requests: list[ResourceRequest] = Field(
+        default_factory=list,
+        description=(
+            "Resources this agent needs from the coordinator to proceed. "
+            "Each request describes WHAT is needed (not WHO provides it). "
+            "Blocking requests will suspend this workflow until fulfilled. "
+            "Only produce these when the required resource is genuinely "
+            "absent from the available input and context."
+        )
     )
 
 

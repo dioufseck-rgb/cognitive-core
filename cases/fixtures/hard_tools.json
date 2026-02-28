@@ -1,0 +1,249 @@
+{
+    "_case_id": "CLM-2025-88431",
+    "_description": "MCP tool response fixtures for hard claim case",
+
+    "get_claim": {
+        "claim_id": "CLM-2025-88431",
+        "policy_number": "BOP-3319472",
+        "claimant": "Coastal Fabrication & Welding, LLC",
+        "claimant_contact": "Derek Okonkwo, Managing Partner",
+        "date_of_loss": "2025-01-14",
+        "date_filed": "2025-02-03",
+        "claim_type": "property_damage_business_interruption",
+        "filing_delay_days": 20,
+        "claimed_amounts": {
+            "property_damage": {
+                "cnc_plasma_cutter": 189000,
+                "structural_steel_inventory": 67000,
+                "building_repairs": 42000,
+                "total_property": 298000
+            },
+            "business_interruption": {
+                "lost_revenue_3_weeks": 156000,
+                "expediting_costs": 23000,
+                "temporary_facility_rental": 18500,
+                "total_bi": 197500
+            },
+            "total_claimed": 495500
+        },
+        "adjuster_notes": [
+            "20-day filing delay — claimant states was dealing with emergency repairs before filing",
+            "CNC plasma cutter claim of $189K seems high — similar models list $120K-$145K new",
+            "Claimant submitted TWO repair estimates from different contractors, amounts differ by $31K",
+            "Steel inventory loss hard to verify — claimant's inventory records are handwritten",
+            "Temporary facility rental started Jan 16 (2 days after loss) but claimant says production halted for 3 weeks — timeline inconsistent"
+        ]
+    },
+
+    "get_policy": {
+        "policy_number": "BOP-3319472",
+        "policyholder": "Coastal Fabrication & Welding, LLC",
+        "policy_type": "Business Owners Policy",
+        "effective_date": "2024-07-01",
+        "expiration_date": "2025-07-01",
+        "status": "active",
+        "property_coverage": {
+            "building_limit": 500000,
+            "bpp_limit": 350000,
+            "deductible": 5000,
+            "coinsurance": 80,
+            "valuation": "replacement_cost"
+        },
+        "endorsements": [
+            {
+                "name": "Equipment Breakdown",
+                "form": "EB-100",
+                "description": "Covers sudden and accidental breakdown of covered equipment. Subject to scheduled equipment list. Sublimits apply per scheduled item.",
+                "sublimit_note": "See equipment schedule for item-specific sublimits. Unscheduled equipment capped at $25,000 per occurrence."
+            },
+            {
+                "name": "Ordinance or Law",
+                "form": "OL-200",
+                "description": "Covers increased cost of construction due to enforcement of building codes. 10% of building limit."
+            }
+        ],
+        "business_income": {
+            "limit": 250000,
+            "waiting_period_hours": 72,
+            "period_of_restoration_months": 12,
+            "extended_period_days": 30,
+            "coinsurance": 50,
+            "exclusions": [
+                "Losses during planned shutdowns or seasonal closures",
+                "Revenue from contracts signed after date of loss"
+            ]
+        },
+        "exclusions": [
+            "Pollution and contamination (standard)",
+            "Faulty workmanship — applies to work performed by or for the insured",
+            "Mechanical breakdown of equipment NOT on the scheduled equipment list (see EB-100)",
+            "Losses arising from failure to maintain fire suppression systems as required by local code"
+        ],
+        "conditions": {
+            "filing_deadline_days": 30,
+            "cooperation_clause": "Insured must cooperate fully with investigation including providing access to financial records",
+            "subrogation_rights": "Insurer reserves subrogation rights against responsible third parties",
+            "fire_suppression_maintenance": "Insured must maintain fire suppression per NFPA 10 and local code. Annual inspection required."
+        }
+    },
+
+    "get_incident_report": {
+        "source": "Bayshore Fire Department Report #2025-0142",
+        "incident_date": "2025-01-14",
+        "response_time_minutes": 8,
+        "origin": "Southwest corner of fabrication shop, near HVAC ducting",
+        "cause_determination": "Under investigation — preliminary: accidental, electrical in origin. Fire investigator notes presence of welding equipment AND contractor HVAC tools near origin point. Cannot definitively attribute to contractor work vs. insured's own welding operations.",
+        "fire_investigator_notes": [
+            "Origin area shows signs of both welding splatter and electrical arc damage",
+            "HVAC contractor (TempFlow Mechanical) had been working in origin area earlier that day",
+            "Insured's employees were also welding structural steel in adjacent bay — 15 feet from origin",
+            "Fire suppression system (sprinklers) activated but ONE head in origin zone found non-functional",
+            "Annual fire suppression inspection was 4 months overdue per building maintenance records",
+            "Security camera footage from adjacent bay is inconclusive — timestamp shows 2:47 PM, origin obscured by steel racks"
+        ],
+        "damage_assessment_preliminary": {
+            "structure": "Moderate — southwest wall and roof section, HVAC ducting destroyed",
+            "equipment": "CNC plasma cutter heavily damaged — manufacturer assessment recommended. Two welding stations destroyed.",
+            "inventory": "Unknown quantity of structural steel affected by heat/smoke. Some material may be salvageable after cleaning.",
+            "fire_suppression": "One sprinkler head non-functional at origin. System otherwise operational."
+        },
+        "repair_estimates": [
+            {
+                "contractor": "Allied Restoration",
+                "estimate": 38500,
+                "scope": "Building repairs — wall, roof, HVAC ducting",
+                "date": "2025-01-28"
+            },
+            {
+                "contractor": "Pinnacle Construction",
+                "estimate": 69500,
+                "scope": "Building repairs — wall, roof, HVAC ducting, electrical panel replacement, code upgrades",
+                "date": "2025-02-01"
+            }
+        ],
+        "police_report": "None filed"
+    },
+
+    "get_claimant_history": {
+        "policyholder": "Coastal Fabrication & Welding, LLC",
+        "years_insured": 6,
+        "prior_claims": [
+            {
+                "claim_id": "CLM-2022-41102",
+                "date": "2022-08-15",
+                "type": "property_damage",
+                "description": "Theft of welding equipment from locked storage",
+                "amount_claimed": 28000,
+                "amount_paid": 22500,
+                "status": "closed",
+                "notes": "Equipment was not on scheduled list. Paid under BPP general limit minus deductible."
+            },
+            {
+                "claim_id": "CLM-2023-59903",
+                "date": "2023-11-02",
+                "type": "liability",
+                "description": "Customer alleges defective welding on structural beam caused damage at construction site",
+                "amount_claimed": 145000,
+                "amount_paid": 0,
+                "status": "denied",
+                "notes": "Denied — falls under products/completed operations exclusion. Claimant disputed, settled outside insurance."
+            }
+        ],
+        "fraud_indicators": {
+            "siu_referrals": 0,
+            "pattern_flags": [
+                "Prior claim also involved unscheduled equipment — possible underinsurance pattern",
+                "Financial stress indicators: 3 liens filed against business in 2024 per public records"
+            ],
+            "overall_risk": "moderate"
+        }
+    },
+
+    "equipment": {
+        "query": "CNC plasma cutting table, Hypertherm XPR300, Serial: HPT-2019-44821",
+        "equipment_schedule": [
+            {
+                "line": 1,
+                "description": "Hypertherm HPR260XD Plasma Cutting System",
+                "serial": "HPT-2015-22190",
+                "scheduled_value": 95000,
+                "sublimit": 95000,
+                "deductible": 2500,
+                "status": "active",
+                "added_date": "2019-07-01"
+            },
+            {
+                "line": 2,
+                "description": "Lincoln Electric Ranger 305D Welder/Generator",
+                "serial": "LN-2020-08844",
+                "scheduled_value": 12000,
+                "sublimit": 12000,
+                "deductible": 1000,
+                "status": "active",
+                "added_date": "2020-09-15"
+            },
+            {
+                "line": 3,
+                "description": "Trumpf TruBend 5170 Press Brake",
+                "serial": "TR-2018-33102",
+                "scheduled_value": 210000,
+                "sublimit": 175000,
+                "deductible": 5000,
+                "status": "active",
+                "added_date": "2019-07-01"
+            }
+        ],
+        "notes": "Schedule last updated 2022-03-15. The claimed Hypertherm XPR300 (serial HPT-2019-44821) does NOT appear on the schedule. Line 1 lists an older Hypertherm HPR260XD with a different serial number."
+    },
+
+    "contractor": {
+        "name": "TempFlow Mechanical, Inc.",
+        "vendor_profile": {
+            "vendor_id": "VND-2021-0447",
+            "registered_since": "2021-03-10",
+            "status": "active",
+            "contact": "Maria Chen, Operations Manager",
+            "address": "4200 Industrial Blvd, Suite C, Bayshore, TX 77520",
+            "license": "TACLA089221C",
+            "license_status": "active"
+        },
+        "coi_on_file": {
+            "carrier": "Patriot Mutual Insurance",
+            "policy_number": "GL-PM-2023-8891",
+            "gl_per_occurrence": 500000,
+            "gl_aggregate": 1000000,
+            "effective_date": "2024-01-01",
+            "expiration_date": "2024-12-31",
+            "status": "EXPIRED",
+            "days_expired_at_loss": 14,
+            "additional_insured_endorsement": false,
+            "insured_entity": "TempFlow Mechanical, Inc.",
+            "notes": "COI on file is EXPIRED as of 2024-12-31 — 14 days before the January 14 loss date. No renewal documentation received."
+        }
+    },
+
+    "contractor_gl_limits": {
+        "status": "EXPIRED",
+        "carrier": "Patriot Mutual Insurance",
+        "policy_number": "GL-PM-2023-8891",
+        "gl_per_occurrence": 500000,
+        "gl_aggregate": 1000000,
+        "expiration_date": "2024-12-31",
+        "days_expired": 14,
+        "additional_insured": false,
+        "notes": "Policy expired 14 days before loss date. Contractor was working without valid GL coverage."
+    },
+
+    "estimated_legal_costs": {
+        "demand_letter": 2500,
+        "mediation": 15000,
+        "litigation_contractor_direct": 45000,
+        "litigation_insurer_subrogation": 65000,
+        "notes": "Recovery against uninsured contractor significantly more expensive and uncertain."
+    },
+
+    "calculate_settlement": {
+        "_type": "deterministic_tool",
+        "_description": "Settlement arithmetic calculator MCP mock."
+    }
+}

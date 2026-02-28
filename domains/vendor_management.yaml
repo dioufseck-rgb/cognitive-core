@@ -1,0 +1,30 @@
+# Vendor Management — Domain Specification
+domain_name: vendor_management
+workflow: vendor_coi_lookup
+governance: auto
+
+lookup_coi:
+  specification: |
+    Query vendor management system for the contractor's COI:
+      - get_vendor_coi: Certificate of Insurance on file
+      - get_vendor_profile: Vendor registration and status
+
+report_coi:
+  requirements: |
+    Report the COI details: found, carrier, policy number,
+    limits, status, and whether the policyholder is listed
+    as additional insured.
+  format: |
+    {
+      "coi_found": true|false,
+      "carrier": "",
+      "policy_number": "",
+      "gl_limit": 0,
+      "aggregate_limit": 0,
+      "status": "active|expired|cancelled",
+      "additional_insured": true|false,
+      "expiration_date": ""
+    }
+  constraints: |
+    Report exactly what is on file. If no COI found, set
+    coi_found to false and leave other fields empty.

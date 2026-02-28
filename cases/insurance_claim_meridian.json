@@ -1,0 +1,109 @@
+{
+  "claim_id": "CLM-2026-08834",
+  "policy_number": "BOP-7742918",
+  "policyholder": "Meridian Manufacturing LLC",
+  "claim_type": "property_damage",
+  "date_of_loss": "2026-02-18",
+  "date_filed": "2026-02-20",
+  "description": "Electrical fire originating from panel work performed by contracted electrician. CNC milling machine destroyed. Production line down. Business interruption losses claimed.",
+
+  "get_claim": {
+    "claim_id": "CLM-2026-08834",
+    "date_of_loss": "2026-02-18",
+    "date_filed": "2026-02-20",
+    "policyholder": "Meridian Manufacturing LLC",
+    "contact": "James Okafor, VP Operations",
+    "claimed_amounts": {
+      "property_damage": 47000,
+      "business_interruption": 180000,
+      "total_claimed": 227000
+    },
+    "description": "Electrical fire originating from panel work performed by contracted electrician (Sparks Electric Inc.). Fire started in newly installed panel, spread to adjacent CNC milling machine area. CNC machine (Haas VF-2) destroyed. Production line 3 shut down. Business interruption from lost manufacturing capacity.",
+    "contractor": {
+      "name": "Sparks Electric Inc.",
+      "was_performing": "Panel upgrade and circuit installation",
+      "date_of_work": "2026-02-18",
+      "work_order_number": "SE-2026-0447"
+    }
+  },
+
+  "get_policy": {
+    "policy_number": "BOP-7742918",
+    "type": "Business Owner's Policy",
+    "policyholder": "Meridian Manufacturing LLC",
+    "effective_date": "2025-07-01",
+    "expiration_date": "2026-07-01",
+    "status": "active",
+    "premium_current": true,
+    "property_coverage": {
+      "building_limit": 500000,
+      "bpp_limit": 250000,
+      "deductible": 2500
+    },
+    "endorsements": [
+      {
+        "name": "Equipment Breakdown",
+        "code": "EB-100",
+        "active": true,
+        "note": "Sublimit per item based on scheduled equipment list. See endorsement schedule for specific limits and deductibles."
+      },
+      {
+        "name": "Business Income",
+        "code": "BI-200",
+        "active": true,
+        "period_months": 12,
+        "waiting_period_hours": 72
+      }
+    ],
+    "exclusions": [
+      "Intentional acts",
+      "War/terrorism",
+      "Nuclear hazard"
+    ],
+    "policy_limit": 1000000
+  },
+
+  "get_incident_report": {
+    "report_number": "IR-2026-08834",
+    "fire_department_responded": true,
+    "fire_department_report": "FD-POR-20260218-0094",
+    "cause_determination": "Electrical — improper panel wiring",
+    "origin": "Electrical panel installed by Sparks Electric Inc.",
+    "spread": "Fire traveled along conduit to CNC machine area",
+    "damage_extent": "CNC milling machine (Haas VF-2) — total loss. Adjacent wall and flooring — moderate damage. No injuries.",
+    "photos_submitted": 14,
+    "repair_estimate": {
+      "provided": true,
+      "source": "Allied Industrial Repair",
+      "amount": 47000,
+      "scope": "CNC machine replacement, wall/floor repair"
+    }
+  },
+
+  "get_claimant_history": {
+    "prior_claims": [
+      {
+        "claim_id": "CLM-2023-04221",
+        "date": "2023-09-15",
+        "type": "property_damage",
+        "amount": 8500,
+        "status": "paid",
+        "description": "Water damage from burst pipe"
+      }
+    ],
+    "claim_frequency": "low",
+    "fraud_indicators": "none"
+  },
+
+  "_meta": {
+    "scenario": "complex_property_claim",
+    "expected_interrupts": 3,
+    "expected_resources": [
+      "scheduled_equipment_verification",
+      "forensic_accounting_review",
+      "third_party_coi_retrieval",
+      "adjuster_scheduling",
+      "subrogation_recovery_analysis"
+    ]
+  }
+}

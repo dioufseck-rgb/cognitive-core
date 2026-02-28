@@ -1,0 +1,105 @@
+# ═══════════════════════════════════════════════════════════════════
+# Insurance Claim Adjudication Workflow
+#
+# Front office agent. Moves forward through adjudication steps.
+# When a step can't proceed without external input (equipment
+# schedule, forensic review, COI, scheduling, recovery analysis),
+# it produces a ResourceRequest. The coordinator dispatches back
+# office skill agents. The workflow resumes when results arrive.
+#
+# The same workflow handles a $5K simple claim (straight through)
+# and a $227K complex claim (3 interrupts, 5 back office agents,
+# days elapsed). Complexity is demand-driven.
+# ═══════════════════════════════════════════════════════════════════
+
+name: claim_adjudication
+description: >
+  Adjudicate an insurance claim from intake through settlement
+  recommendation. Retrieves claim and policy data, analyzes coverage,
+  assesses damage, evaluates subrogation potential, and generates
+  a settlement recommendation with compliance verification.
+
+steps:
+  # ── Step 1: Intake ──────────────────────────────────────────
+  - name: intake
+    primitive: retrieve
+    params:
+      specification: "${domain.intake.specification}"
+      strategy: deterministic
+    transitions:
+      - default: coverage_analysis
+
+  # ── Step 2: Coverage Analysis ───────────────────────────────
+  # This step may produce ResourceRequests if it needs:
+  #   - scheduled_equipment_verification
+  #   - coverage_specialist_review
+  - name: coverage_analysis
+    primitive: think
+    params:
+      instruction: "${domain.coverage_analysis.instruction}"
+      focus: "${domain.coverage_analysis.focus}"
+    transitions:
+      - default: damage_assessment
+
+  # ── Step 3: Damage Assessment ───────────────────────────────
+  # This step may produce ResourceRequests if it needs:
+  #   - forensic_accounting_review (when BI exceeds threshold)
+  #   - third_party_coi_retrieval (when subrogation indicators)
+  #   - independent_appraisal (when property value disputed)
+  - name: damage_assessment
+    primitive: think
+    params:
+      instruction: "${domain.damage_assessment.instruction}"
+      focus: "${domain.damage_assessment.focus}"
+    transitions:
+      - default: subrogation_evaluation
+
+  # ── Step 4: Subrogation Evaluation ──────────────────────────
+  # May produce ResourceRequests with dependencies:
+  #   - adjuster_scheduling (no deps)
+  #   - subrogation_recovery_analysis (depends_on: adjuster_scheduling)
+  - name: subrogation_evaluation
+    primitive: think
+    params:
+      instruction: "${domain.subrogation_evaluation.instruction}"
+      focus: "${domain.subrogation_evaluation.focus}"
+    transitions:
+      - default: settlement_calculation
+
+  # ── Step 5: Settlement Calculation (deterministic) ──────────
+  # Calls calculate_settlement tool with policy data, claim amounts,
+  # deductibles, sublimits, and coinsurance parameters.
+  # ALL arithmetic happens here — the LLM never computes amounts.
+  - name: settlement_calculation
+    primitive: retrieve
+    params:
+      specification: "${domain.settlement_calculation.specification}"
+      strategy: deterministic
+    transitions:
+      - default: settlement_recommendation
+
+  # ── Step 6: Settlement Recommendation ───────────────────────
+  - name: settlement_recommendation
+    primitive: generate
+    temperature: 0.2
+    params:
+      requirements: "${domain.settlement_recommendation.requirements}"
+      format: "${domain.settlement_recommendation.format}"
+      constraints: "${domain.settlement_recommendation.constraints}"
+    transitions:
+      - default: compliance_check
+
+  # ── Step 7: Compliance Check ────────────────────────────────
+  - name: compliance_check
+    primitive: verify
+    temperature: 0.0
+    max_loops: 3
+    loop_fallback: __end__
+    params:
+      subject: "${settlement_recommendation.artifact}"
+      rules: "${domain.compliance_check.rules}"
+    transitions:
+      - when: "output.conforms == true"
+        goto: __end__
+      - when: "output.conforms == false"
+        goto: settlement_recommendation

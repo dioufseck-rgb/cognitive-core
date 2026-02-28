@@ -1,17 +1,17 @@
 """
 Cognitive Core — Coordinator State Store
 
-SQLite-backed persistence for workflow instances, work orders,
-suspensions, and the action ledger. Supports checkpoint/resume
+Database-backed persistence for workflow instances, work orders,
+suspensions, and the action ledger. Uses engine.db.DatabaseBackend
+for portable SQLite (dev) and PostgreSQL (prod) support. Supports checkpoint/resume
 across process restarts.
 
-Phase 1: single-file SQLite. Phase 4: swap for Postgres/Cosmos.
+Backend auto-selected via CC_DB_BACKEND env var (default: sqlite).
 """
 
 from __future__ import annotations
 
 import json
-import sqlite3
 import time
 from pathlib import Path
 from typing import Any
@@ -28,45 +28,49 @@ from coordinator.types import (
 
 class _Transaction:
     """
-    SQLite transaction context manager.
+    Transaction context manager.
 
     While active, individual save_*/commit() calls become no-ops.
     The real COMMIT happens when the context manager exits cleanly.
+    Works with both SQLite and Postgres via DatabaseBackend.
     """
-    def __init__(self, conn, store):
-        self.conn = conn
+    def __init__(self, db, store):
+        self.db = db
         self.store = store
+        self._ctx = None
 
     def __enter__(self):
-        self.conn.execute("BEGIN IMMEDIATE")
+        self._ctx = self.db.transaction()
+        self._ctx.__enter__()
         self.store._in_transaction = True
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.store._in_transaction = False
-        if exc_type is None:
-            self.conn.commit()
-        else:
-            self.conn.rollback()
-        return False
+        return self._ctx.__exit__(exc_type, exc_val, exc_tb)
 
 
 class CoordinatorStore:
-    """SQLite-backed store for coordinator state."""
+    """Database-backed store for coordinator state.
+    
+    Uses engine.db.DatabaseBackend for portable SQLite/Postgres support.
+    Backend is selected via CC_DB_BACKEND env var (default: sqlite).
+    """
 
-    def __init__(self, db_path: str | Path = "coordinator.db"):
+    def __init__(self, db_path: str | Path = "coordinator.db", db_backend=None):
         self.db_path = str(db_path)
-        self.conn = sqlite3.connect(self.db_path)
-        self.conn.row_factory = sqlite3.Row
-        self.conn.execute("PRAGMA journal_mode=WAL")
-        self.conn.execute("PRAGMA busy_timeout=5000")
+        if db_backend is not None:
+            self.db = db_backend
+        else:
+            from engine.db import create_backend
+            self.db = create_backend(path=str(db_path))
         self._in_transaction = False
         self._create_tables()
 
     def _commit(self):
         """Commit unless inside an explicit transaction block."""
         if not self._in_transaction:
-            self.conn.commit()
+            self.db.commit()
 
     def transaction(self):
         """
@@ -81,10 +85,10 @@ class CoordinatorStore:
         Without this, each save_instance/save_work_order commits
         independently. A crash between two saves leaves corrupt state.
         """
-        return _Transaction(self.conn, self)
+        return _Transaction(self.db, self)
 
     def _create_tables(self):
-        self.conn.executescript("""
+        self.db.executescript("""
             CREATE TABLE IF NOT EXISTS instances (
                 instance_id TEXT PRIMARY KEY,
                 workflow_type TEXT NOT NULL,
@@ -154,7 +158,7 @@ class CoordinatorStore:
     # ─── Instance CRUD ───────────────────────────────────────────────
 
     def save_instance(self, inst: InstanceState):
-        self.conn.execute("""
+        self.db.fetchall("""
             INSERT OR REPLACE INTO instances
             (instance_id, workflow_type, domain, status, governance_tier,
              created_at, updated_at, lineage, correlation_id,
@@ -174,9 +178,7 @@ class CoordinatorStore:
         self._commit()
 
     def get_instance(self, instance_id: str) -> InstanceState | None:
-        row = self.conn.execute(
-            "SELECT * FROM instances WHERE instance_id = ?", (instance_id,)
-        ).fetchone()
+        row = self.db.fetchone("SELECT * FROM instances WHERE instance_id = ?", (instance_id,))
         if not row:
             return None
         return self._row_to_instance(row)
@@ -197,7 +199,7 @@ class CoordinatorStore:
             params.append(correlation_id)
         query += " ORDER BY created_at DESC LIMIT ?"
         params.append(limit)
-        rows = self.conn.execute(query, params).fetchall()
+        rows = self.db.execute(query, params).fetchall()
         return [self._row_to_instance(r) for r in rows]
 
     def _row_to_instance(self, row) -> InstanceState:
@@ -232,7 +234,7 @@ class CoordinatorStore:
                 "error": wo.result.error,
                 "completed_at": wo.result.completed_at,
             })
-        self.conn.execute("""
+        self.db.execute("""
             INSERT OR REPLACE INTO work_orders
             (work_order_id, requester_instance_id, correlation_id,
              contract_name, contract_version, inputs,
@@ -251,26 +253,18 @@ class CoordinatorStore:
         self._commit()
 
     def get_work_order(self, work_order_id: str) -> WorkOrder | None:
-        row = self.conn.execute(
-            "SELECT * FROM work_orders WHERE work_order_id = ?", (work_order_id,)
-        ).fetchone()
+        row = self.db.fetchone("SELECT * FROM work_orders WHERE work_order_id = ?", (work_order_id,))
         if not row:
             return None
         return self._row_to_work_order(row)
 
     def get_work_orders_for_instance(self, instance_id: str) -> list[WorkOrder]:
-        rows = self.conn.execute(
-            "SELECT * FROM work_orders WHERE requester_instance_id = ? ORDER BY created_at",
-            (instance_id,)
-        ).fetchall()
+        rows = self.db.fetchall("SELECT * FROM work_orders WHERE requester_instance_id = ? ORDER BY created_at", (instance_id,))
         return [self._row_to_work_order(r) for r in rows]
 
     def get_work_orders_for_requester_or_handler(self, instance_id: str) -> list[WorkOrder]:
         """Find work orders where instance_id is either requester or handler."""
-        rows = self.conn.execute(
-            "SELECT * FROM work_orders WHERE requester_instance_id = ? OR handler_instance_id = ? ORDER BY created_at",
-            (instance_id, instance_id)
-        ).fetchall()
+        rows = self.db.fetchall("SELECT * FROM work_orders WHERE requester_instance_id = ? OR handler_instance_id = ? ORDER BY created_at", (instance_id, instance_id))
         return [self._row_to_work_order(r) for r in rows]
 
     def _row_to_work_order(self, row) -> WorkOrder:
@@ -321,7 +315,7 @@ class CoordinatorStore:
         else:
             snapshot_json = json.dumps(sus.state_snapshot, default=str)
 
-        self.conn.execute("""
+        self.db.execute("""
             INSERT OR REPLACE INTO suspensions
             (instance_id, suspended_at_step, state_snapshot,
              unresolved_needs, work_order_ids, resume_nonce, suspended_at)
@@ -330,29 +324,44 @@ class CoordinatorStore:
             sus.instance_id, sus.suspended_at_step,
             snapshot_json,
             json.dumps(sus.unresolved_needs),
-            json.dumps(sus.work_order_ids),
+            json.dumps({
+                "work_order_ids": sus.work_order_ids,
+                "wo_need_map": sus.wo_need_map,
+                "deferred_needs": sus.deferred_needs,
+            }),
             sus.resume_nonce, sus.suspended_at,
         ))
         self._commit()
 
     def get_suspension(self, instance_id: str) -> Suspension | None:
-        row = self.conn.execute(
-            "SELECT * FROM suspensions WHERE instance_id = ?", (instance_id,)
-        ).fetchone()
+        row = self.db.fetchone("SELECT * FROM suspensions WHERE instance_id = ?", (instance_id,))
         if not row:
             return None
+        # work_order_ids column now contains a dict with wo_need_map and deferred_needs
+        wo_data_raw = json.loads(row["work_order_ids"])
+        if isinstance(wo_data_raw, dict):
+            wo_ids = wo_data_raw.get("work_order_ids", [])
+            wo_need_map = wo_data_raw.get("wo_need_map", {})
+            deferred_needs = wo_data_raw.get("deferred_needs", [])
+        else:
+            # Backward compat: old format was just a list
+            wo_ids = wo_data_raw
+            wo_need_map = {}
+            deferred_needs = []
         return Suspension(
             instance_id=row["instance_id"],
             suspended_at_step=row["suspended_at_step"],
             state_snapshot=json.loads(row["state_snapshot"]),
             unresolved_needs=json.loads(row["unresolved_needs"]),
-            work_order_ids=json.loads(row["work_order_ids"]),
+            work_order_ids=wo_ids,
+            wo_need_map=wo_need_map,
+            deferred_needs=deferred_needs,
             resume_nonce=row["resume_nonce"],
             suspended_at=row["suspended_at"],
         )
 
     def delete_suspension(self, instance_id: str):
-        self.conn.execute(
+        self.db.execute(
             "DELETE FROM suspensions WHERE instance_id = ?", (instance_id,)
         )
         self._commit()
@@ -372,7 +381,7 @@ class CoordinatorStore:
         key already exists (preventing duplicate execution).
         """
         try:
-            self.conn.execute("""
+            self.db.execute("""
                 INSERT INTO action_ledger
                 (instance_id, correlation_id, action_type, details,
                  idempotency_key, created_at)
@@ -384,7 +393,7 @@ class CoordinatorStore:
             ))
             self._commit()
             return True
-        except sqlite3.IntegrityError:
+        except Exception:  # IntegrityError (SQLite) or UniqueViolation (Postgres)
             # Idempotency key already exists
             return False
 
@@ -402,7 +411,7 @@ class CoordinatorStore:
             query += " AND correlation_id = ?"
             params.append(correlation_id)
         query += " ORDER BY created_at"
-        rows = self.conn.execute(query, params).fetchall()
+        rows = self.db.execute(query, params).fetchall()
         return [
             {
                 "id": r["id"],
@@ -420,15 +429,13 @@ class CoordinatorStore:
 
     def stats(self) -> dict[str, Any]:
         """Return summary statistics for the coordinator."""
-        instances = self.conn.execute(
+        instances = self.db.execute(
             "SELECT status, COUNT(*) as cnt FROM instances GROUP BY status"
         ).fetchall()
-        work_orders = self.conn.execute(
+        work_orders = self.db.execute(
             "SELECT status, COUNT(*) as cnt FROM work_orders GROUP BY status"
         ).fetchall()
-        ledger_count = self.conn.execute(
-            "SELECT COUNT(*) as cnt FROM action_ledger"
-        ).fetchone()["cnt"]
+        ledger_count = self.db.fetchone("SELECT COUNT(*) as cnt FROM action_ledger")["cnt"]
 
         return {
             "instances": {r["status"]: r["cnt"] for r in instances},
@@ -437,7 +444,7 @@ class CoordinatorStore:
         }
 
     def close(self):
-        self.conn.close()
+        self.db.close()
 
     # ─── Reliability Checks ─────────────────────────────────────────
 
@@ -450,10 +457,7 @@ class CoordinatorStore:
         likely crashed mid-execution.
         """
         cutoff = time.time() - max_running_seconds
-        rows = self.conn.execute(
-            "SELECT * FROM instances WHERE status = 'running' AND updated_at < ?",
-            (cutoff,)
-        ).fetchall()
+        rows = self.db.fetchall("SELECT * FROM instances WHERE status = 'running' AND updated_at < ?", (cutoff,))
         return [self._row_to_instance(r) for r in rows]
 
     def find_orphaned_suspensions(self) -> list[dict[str, Any]]:
@@ -461,12 +465,12 @@ class CoordinatorStore:
         Find suspensions whose work orders are all COMPLETED or FAILED
         but the instance is still SUSPENDED (resume never happened).
         """
-        rows = self.conn.execute("""
+        rows = self.db.execute("""
             SELECT s.instance_id, s.suspended_at_step, s.work_order_ids
             FROM suspensions s
             JOIN instances i ON s.instance_id = i.instance_id
             WHERE i.status = 'suspended'
-        """).fetchall()
+        """)
 
         orphans = []
         for r in rows:

@@ -165,25 +165,37 @@ def create_case_registry(case_data: dict[str, Any]) -> ToolRegistry:
     """
     Create a ToolRegistry that serves data from a case JSON.
 
-    In dev/test, the case file IS the data source. Each top-level key
-    in the case JSON becomes a tool that returns that key's value.
+    Two modes:
+    1. Legacy: case_data contains get_* keys with embedded tool data
+    2. Fixture-based: case_data has only identity fields (claim_id, etc.)
+       and tool data is loaded from cases/fixtures/<case>_tools.json
 
-    This means existing case files work unchanged — the Retrieve step
-    just formalizes what was previously implicit (everything loaded upfront).
-
-    Example case JSON:
-        {
-            "member_profile": {...},
-            "transaction_detail": {...},
-            "fraud_score": {...}
-        }
-
-    Produces tools: member_profile, transaction_detail, fraud_score
+    In production, tools are MCP endpoints. This mock simulates MCP
+    responses using fixture data, maintaining the same contract.
     """
     registry = ToolRegistry()
 
-    for key, value in case_data.items():
-        # Capture key/value in closure
+    # Check if this is a fixture-based case (no get_* keys in case_data)
+    has_embedded_tools = any(
+        k.startswith("get_") for k in case_data.keys()
+    )
+
+    if not has_embedded_tools:
+        # Load from fixtures
+        tool_data = _load_fixtures_for_case(case_data)
+    else:
+        # Legacy: use embedded data
+        tool_data = case_data
+
+    for key, value in tool_data.items():
+        if key.startswith("_"):
+            continue  # skip metadata keys
+
+        # Check if this is a deterministic tool that needs a real implementation
+        if isinstance(value, dict) and value.get("_type") == "deterministic_tool":
+            _register_deterministic_tool(registry, key)
+            continue
+
         _key = key
         _value = value
 
@@ -197,10 +209,145 @@ def create_case_registry(case_data: dict[str, Any]) -> ToolRegistry:
         registry.register(
             name=_key,
             fn=make_fn(_key, _value),
-            description=f"Case data: {_key}",
+            description=f"MCP mock: {_key}",
         )
 
+    # Always register identity fields from case_data as tools
+    for key in ("claim_id", "policy_number", "policyholder"):
+        if key in case_data and key not in tool_data:
+            _k, _v = key, case_data[key]
+            registry.register(
+                name=_k,
+                fn=lambda ctx, v=_v: {"value": v},
+                description=f"Case identity: {_k}",
+            )
+
+    # Always register deterministic function tools.
+    # These perform exact arithmetic that LLMs must never approximate.
+    for tool_name in _DETERMINISTIC_TOOL_MAP:
+        if tool_name not in registry.list_tools():
+            _register_deterministic_tool(registry, tool_name)
+
     return registry
+
+
+def _load_fixtures_for_case(case_data: dict[str, Any]) -> dict[str, Any]:
+    """
+    Load tool fixtures for a case. Scans cases/fixtures/ for a matching
+    file based on claim_id metadata inside each fixture file, or by
+    naming convention.
+    """
+    from pathlib import Path
+
+    fixtures_dir = Path("cases/fixtures")
+    if not fixtures_dir.exists():
+        return case_data  # fallback to embedded
+
+    claim_id = case_data.get("claim_id", "")
+
+    # Scan all fixture files for a matching _case_id or _claim_id
+    for f in sorted(fixtures_dir.glob("*_tools.json")):
+        try:
+            with open(f) as fp:
+                data = json.load(fp)
+            case_id = data.get("_case_id") or data.get("_claim_id", "")
+            if case_id == claim_id:
+                return data
+        except (json.JSONDecodeError, OSError):
+            continue
+
+    return case_data  # fallback
+
+
+# ---------------------------------------------------------------------------
+# Deterministic tool imports — real implementations without MCP
+# ---------------------------------------------------------------------------
+
+# Maps tool names to (module_path, function_name) for lazy import.
+# These are tools that must produce exact results (no LLM approximation).
+_DETERMINISTIC_TOOL_MAP: dict[str, tuple[str, str]] = {
+    "calculate_settlement": ("engine.settlement", "calculate_settlement_from_context"),
+}
+
+
+def _register_deterministic_tool(registry: ToolRegistry, tool_name: str) -> None:
+    """
+    Register a deterministic tool by importing its real implementation.
+
+    When running without MCP, fixture files mark deterministic tools with
+    {"_type": "deterministic_tool"}. This function imports the actual
+    implementation and wraps it as a tool.
+
+    Uses spec_from_file_location to avoid triggering engine/__init__.py
+    which pulls heavy dependencies (pydantic, langgraph, etc).
+    """
+    if tool_name not in _DETERMINISTIC_TOOL_MAP:
+        registry.register(
+            name=tool_name,
+            fn=lambda ctx: {"error": f"Deterministic tool '{tool_name}' has no registered implementation"},
+            description=f"Unimplemented deterministic tool: {tool_name}",
+        )
+        return
+
+    module_path, fn_name = _DETERMINISTIC_TOOL_MAP[tool_name]
+
+    try:
+        import importlib.util
+        from pathlib import Path
+
+        # Convert dotted module path to file path
+        # e.g. "engine.settlement" → "engine/settlement.py"
+        parts = module_path.split(".")
+        file_path = Path(*parts).with_suffix(".py")
+        if not file_path.is_absolute():
+            # Try relative to this file's parent (project root)
+            project_root = Path(__file__).parent.parent
+            file_path = project_root / file_path
+
+        spec = importlib.util.spec_from_file_location(module_path, str(file_path))
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        real_fn = getattr(mod, fn_name)
+    except (ImportError, AttributeError, FileNotFoundError, OSError) as e:
+        registry.register(
+            name=tool_name,
+            fn=lambda ctx, err=str(e): {"error": f"Failed to import {tool_name}: {err}"},
+            description=f"Failed import: {tool_name}",
+        )
+        return
+
+    def wrapper(context: dict[str, Any], _fn=real_fn) -> dict[str, Any]:
+        """
+        Adapt the tool to ToolRegistry's (dict → dict) signature.
+
+        Context-aware tools (name ends with _from_context) receive the
+        full context dict. Raw tools receive keyword arguments from
+        context["tool_input"] or the full context.
+        """
+        if fn_name.endswith("_from_context"):
+            # Context-aware: pass entire context dict
+            result = _fn(context)
+            if isinstance(result, str):
+                try:
+                    return json.loads(result)
+                except (json.JSONDecodeError, TypeError):
+                    return {"raw_result": result}
+            return result if isinstance(result, dict) else {"raw_result": result}
+
+        # Raw tool: pass as kwargs
+        tool_input = context.get("tool_input", context)
+        result_str = _fn(**tool_input)
+
+        try:
+            return json.loads(result_str) if isinstance(result_str, str) else result_str
+        except (json.JSONDecodeError, TypeError):
+            return {"raw_result": result_str}
+
+    registry.register(
+        name=tool_name,
+        fn=wrapper,
+        description=f"Deterministic tool: {tool_name}",
+    )
 
 
 # ---------------------------------------------------------------------------

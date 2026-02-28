@@ -1,0 +1,189 @@
+{
+  "claim_id": "CLM-2025-91207",
+  "policy_number": "BOP-6629134",
+  "policyholder": "Greenfield Data Solutions, LLC",
+  "claim_type": "property_damage_business_interruption",
+  "date_of_loss": "2025-02-01",
+  "date_filed": "2025-02-05",
+  "description": "Water damage from burst pipe installed by plumbing contractor 3 weeks prior. Server room flooded. Multiple servers destroyed, 10 days downtime for data recovery and hardware replacement.",
+
+  "get_claim": {
+    "claim_id": "CLM-2025-91207",
+    "policy_number": "BOP-6629134",
+    "claimant": "Greenfield Data Solutions, LLC",
+    "claimant_contact": "James Park, CEO",
+    "date_of_loss": "2025-02-01",
+    "date_filed": "2025-02-05",
+    "claim_type": "property_damage_business_interruption",
+    "filing_delay_days": 4,
+    "claimed_amounts": {
+      "property_damage": {
+        "server_hardware": 82000,
+        "networking_equipment": 14500,
+        "office_furniture_carpet": 8700,
+        "data_recovery_service": 22000,
+        "total_property": 127200
+      },
+      "business_interruption": {
+        "lost_revenue_10_days": 118000,
+        "expediting_costs_hardware": 9500,
+        "temporary_cloud_hosting": 6200,
+        "total_bi": 133700
+      },
+      "total_claimed": 260900
+    },
+    "adjuster_notes": [
+      "Contractor (Apex Plumbing) installed new water line 3 weeks before failure",
+      "Pipe joint failed at connection point — likely installation defect",
+      "Server hardware amounts appear reasonable per market pricing",
+      "BI claim: 10 days at ~$11,800/day revenue. Company is a small MSP with 45 clients.",
+      "Data recovery costs documented with vendor invoice"
+    ]
+  },
+
+  "get_policy": {
+    "policy_number": "BOP-6629134",
+    "policyholder": "Greenfield Data Solutions, LLC",
+    "policy_type": "Business Owners Policy",
+    "effective_date": "2024-06-01",
+    "expiration_date": "2025-06-01",
+    "status": "active",
+    "property_coverage": {
+      "building_limit": 400000,
+      "bpp_limit": 250000,
+      "deductible": 5000,
+      "coinsurance": 80,
+      "valuation": "replacement_cost"
+    },
+    "endorsements": [
+      {
+        "name": "Electronic Data Processing",
+        "form": "EDP-100",
+        "description": "Covers EDP equipment and media at replacement cost. No scheduled list required. Subject to BPP limit."
+      }
+    ],
+    "business_income": {
+      "limit": 200000,
+      "waiting_period_hours": 72,
+      "period_of_restoration_months": 12,
+      "extended_period_days": 60,
+      "coinsurance": 50,
+      "exclusions": []
+    },
+    "exclusions": [
+      "Flood (standard) — note: internal plumbing failure is NOT flood",
+      "Faulty workmanship — applies to work performed BY the insured, not by contractors",
+      "Pollution and contamination (standard)"
+    ],
+    "conditions": {
+      "filing_deadline_days": 30,
+      "subrogation_rights": "Insurer reserves subrogation rights against responsible third parties"
+    }
+  },
+
+  "get_incident_report": {
+    "source": "Policyholder incident report with photos and plumber assessment",
+    "incident_date": "2025-02-01",
+    "origin": "Server room, ceiling level — pipe joint failure at new connection",
+    "cause_determination": "Defective installation by Apex Plumbing. Joint was improperly soldered. Licensed plumber (independent) confirmed installation defect in written assessment.",
+    "damage_assessment_preliminary": {
+      "structure": "Minor — ceiling tiles and drywall. No structural damage.",
+      "equipment": "3 rack-mounted servers destroyed. 1 network switch, 2 UPS units damaged. All in server room directly below pipe.",
+      "inventory": "No physical inventory. Data recovery from backup required."
+    },
+    "repair_estimates": [
+      {
+        "contractor": "DataVault Recovery Services",
+        "estimate": 22000,
+        "scope": "Emergency data recovery from water-damaged drives",
+        "date": "2025-02-03"
+      },
+      {
+        "contractor": "TechRestore IT Services",
+        "estimate": 96500,
+        "scope": "Server replacement, network equipment, rack, cabling, installation",
+        "date": "2025-02-04"
+      }
+    ]
+  },
+
+  "get_claimant_history": {
+    "policyholder": "Greenfield Data Solutions, LLC",
+    "years_insured": 3,
+    "prior_claims": [],
+    "fraud_indicators": {
+      "siu_referrals": 0,
+      "pattern_flags": [],
+      "overall_risk": "low"
+    }
+  },
+
+  "_meta": {
+    "scenario": "medium_clear_subrogation",
+    "difficulty": "medium",
+    "design_notes": [
+      "CLEAR CAUSATION: Independent plumber confirmed installation defect. No ambiguity.",
+      "CLEAR COVERAGE: EDP endorsement covers servers. No scheduled list needed.",
+      "CLEAR SUBROGATION: Contractor clearly at fault. Need their COI.",
+      "BI TRAP: $133,700 claimed BI exceeds $100K forensic threshold.",
+      "COINSURANCE TRAP: $11,800/day × 365 = ~$4.3M annual revenue. BI limit $200K, coinsurance 50%. Required: 50% of $4.3M = $2.15M. Carrying $200K. Ratio: 9.3%. Massive penalty.",
+      "EXPECTED: 2 interrupts — forensic_accounting_review (BI over $100K) and third_party_coi_retrieval (clear subrogation target)",
+      "Should NOT request: scheduled_equipment_verification (EDP endorsement has no schedule), coverage_specialist_review (coverage is clear)"
+    ],
+    "ground_truth": {
+      "property_verified": 127200,
+      "bi_pre_coinsurance": 118000,
+      "bi_coinsurance_ratio": 0.093,
+      "bi_after_coinsurance": 10974,
+      "total_verified": 138174,
+      "deductible": 5000,
+      "net_payable": 133174,
+      "subrogation": "pursue",
+      "subrogation_target": "Apex Plumbing",
+      "expected_interrupts": 2,
+      "expected_resources": ["forensic_accounting_review", "third_party_coi_retrieval"],
+      "notes": "The coinsurance penalty is the key test. The LLM must recognize that $200K BI limit with 50% coinsurance against ~$4.3M annual revenue means the insured is drastically underinsured. Most LLMs will miss this and pay full BI."
+    }
+  },
+
+  "equipment": "N/A — EDP endorsement covers all electronic data processing equipment without scheduled list",
+
+  "contractor": {
+    "name": "Apex Plumbing Solutions",
+    "vendor_profile": {
+      "vendor_id": "VND-2024-0891",
+      "registered_since": "2024-01-15",
+      "status": "active",
+      "contact": "Robert Tran, Owner",
+      "license": "PLB-2024-44210",
+      "license_status": "active"
+    },
+    "coi_on_file": {
+      "carrier": "Hartford Commercial Insurance",
+      "policy_number": "GL-HC-2024-3317",
+      "gl_per_occurrence": 1000000,
+      "gl_aggregate": 2000000,
+      "effective_date": "2024-01-15",
+      "expiration_date": "2025-01-15",
+      "status": "active",
+      "days_until_expiration": 349,
+      "additional_insured_endorsement": true,
+      "insured_entity": "Apex Plumbing Solutions",
+      "notes": "COI active and valid at time of loss. Greenfield Data Solutions listed as additional insured. Strong subrogation target."
+    }
+  },
+
+  "net_payable_amount": 133174,
+  "contractor_gl_limits": {
+    "status": "active",
+    "gl_per_occurrence": 1000000,
+    "gl_aggregate": 2000000,
+    "carrier": "Hartford Commercial Insurance"
+  },
+  "estimated_legal_costs": {
+    "demand_letter": 1500,
+    "mediation": 8000,
+    "litigation": 35000,
+    "notes": "Strong case — clear causation, active COI, additional insured endorsement. Demand letter likely sufficient."
+  }
+}

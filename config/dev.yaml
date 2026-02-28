@@ -1,9 +1,0 @@
-# Dev environment overlay
-# Overrides llm_config.yaml defaults for development
-rate_limits:
-  google:
-    max_concurrent: 5
-    requests_per_minute: 30
-  azure:
-    max_concurrent: 5
-    requests_per_minute: 30

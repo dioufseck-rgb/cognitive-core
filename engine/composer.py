@@ -11,16 +11,48 @@ import yaml
 import re
 import json
 import copy
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from pathlib import Path
 
-from langgraph.graph import StateGraph, END
-
-from registry.primitives import validate_use_case_step
 from engine.state import WorkflowState, get_step_output, get_loop_count
-from engine.nodes import create_node, create_retrieve_node, create_act_node, create_agent_router, get_trace
 from engine.tools import ToolRegistry, create_case_registry
 from engine.actions import ActionRegistry
+
+# ---------------------------------------------------------------------------
+# Heavy dependencies (langgraph, langchain, pydantic-backed registry) are
+# imported lazily inside the functions that need them.  This allows
+# load_three_layer, merge_workflow_domain, and other YAML-only helpers to
+# be called without installing the full ML/AI stack.
+# ---------------------------------------------------------------------------
+if TYPE_CHECKING:
+    from langgraph.graph import StateGraph, END
+    from registry.primitives import validate_use_case_step
+    from engine.nodes import (
+        create_node, create_retrieve_node, create_act_node,
+        create_agent_router, get_trace,
+    )
+
+
+def _import_langgraph():
+    """Lazy import of LangGraph symbols."""
+    from langgraph.graph import StateGraph, END  # noqa: F811
+    return StateGraph, END
+
+
+def _import_nodes():
+    """Lazy import of node factory symbols."""
+    from engine.nodes import (  # noqa: F811
+        create_node, create_retrieve_node, create_act_node,
+        create_agent_router,
+    )
+    from engine.trace import get_trace  # noqa: F811
+    return create_node, create_retrieve_node, create_act_node, create_agent_router, get_trace
+
+
+def _import_validate():
+    """Lazy import of registry validation."""
+    from registry.primitives import validate_use_case_step  # noqa: F811
+    return validate_use_case_step
 
 
 # ---------------------------------------------------------------------------
@@ -181,6 +213,8 @@ def _resolve_domain_refs(value: str, domain: dict[str, Any], step_name: str) -> 
 # ---------------------------------------------------------------------------
 
 def validate_use_case(config: dict[str, Any]) -> list[str]:
+    validate_use_case_step = _import_validate()
+
     errors = []
     if "name" not in config:
         errors.append("Missing 'name'")
@@ -282,7 +316,9 @@ def compose_workflow(
     temperature: float = 0.1,
     tool_registry: ToolRegistry | None = None,
     action_registry: ActionRegistry | None = None,
-) -> StateGraph:
+) -> "StateGraph":
+    StateGraph, END = _import_langgraph()
+    create_node, create_retrieve_node, create_act_node, create_agent_router, get_trace = _import_nodes()
 
     errors = validate_use_case(config)
     if errors:
@@ -359,6 +395,9 @@ def compose_workflow(
 
 
 def _add_transitions(graph, step_name, transitions, default_next, max_loops, loop_fallback, model):
+    _, END = _import_langgraph()
+    _, _, _, create_agent_router, get_trace = _import_nodes()
+
     det_routes = []
     agent_config = None
     explicit_default = None
@@ -417,4 +456,192 @@ def run_workflow(config, workflow_input, model="default", temperature=0.1, tool_
         "loop_counts": {},
         "routing_log": [],
     }
+    return compiled.invoke(initial)
+
+
+# ---------------------------------------------------------------------------
+# Mid-graph resume (for blocking delegations)
+# ---------------------------------------------------------------------------
+
+def compose_subgraph(
+    config: dict[str, Any],
+    resume_step: str,
+    model: str = "default",
+    temperature: float = 0.1,
+    tool_registry: ToolRegistry | None = None,
+    action_registry: ActionRegistry | None = None,
+) -> "StateGraph":
+    """
+    Build a subgraph that starts at `resume_step` and includes all
+    reachable steps from that point forward.
+
+    This enables mid-graph re-entry: after a blocking delegation
+    completes, the source workflow resumes at the designated step
+    with its prior state intact and delegation results injected.
+
+    The subgraph contains:
+      - All steps from resume_step to the end of the step list
+      - All steps reachable via transitions (including backward jumps
+        like verify → generate retry loops)
+      - All edges and conditional routing from those steps
+
+    The entry point is set to resume_step.
+    """
+    StateGraph, END = _import_langgraph()
+    create_node, create_retrieve_node, create_act_node, _, _ = _import_nodes()
+    from engine.resume import collect_reachable_steps, clamp_transitions
+
+    steps = config.get("steps", [])
+    step_names = [s["name"] for s in steps]
+
+    if resume_step not in step_names:
+        raise ValueError(
+            f"Resume step '{resume_step}' not found in workflow. "
+            f"Available steps: {step_names}"
+        )
+
+    # Collect all reachable steps from resume_step.
+    resume_idx = step_names.index(resume_step)
+    reachable = collect_reachable_steps(steps, step_names, resume_idx)
+
+    # Build subgraph with only reachable steps
+    graph = StateGraph(WorkflowState)
+    included_steps = [s for s in steps if s["name"] in reachable]
+
+    for step in included_steps:
+        if step["primitive"] == "retrieve":
+            if tool_registry is None:
+                raise ValueError(
+                    f"Step '{step['name']}' uses retrieve primitive but no "
+                    f"tool_registry was provided."
+                )
+            node = create_retrieve_node(
+                step_name=step["name"],
+                params=step.get("params", {}),
+                tool_registry=tool_registry,
+                model=step.get("model", model),
+                temperature=step.get("temperature", temperature),
+            )
+        elif step["primitive"] == "act":
+            if action_registry is None:
+                raise ValueError(
+                    f"Step '{step['name']}' uses act primitive but no "
+                    f"action_registry was provided."
+                )
+            node = create_act_node(
+                step_name=step["name"],
+                params=step.get("params", {}),
+                action_registry=action_registry,
+                model=step.get("model", model),
+                temperature=step.get("temperature", temperature),
+                dry_run=step.get("dry_run", True),
+            )
+        else:
+            node = create_node(
+                step_name=step["name"],
+                primitive_name=step["primitive"],
+                params=step.get("params", {}),
+                model=step.get("model", model),
+                temperature=step.get("temperature", temperature),
+            )
+        graph.add_node(step["name"], node)
+
+    # Entry point is the resume step
+    graph.set_entry_point(resume_step)
+
+    # Wire edges for included steps only
+    for step in included_steps:
+        step_idx = step_names.index(step["name"])
+        transitions = step.get("transitions", [])
+        default_next = step_names[step_idx + 1] if step_idx + 1 < len(step_names) else "__end__"
+
+        # If default_next points to a step not in the subgraph, route to END
+        if default_next != "__end__" and default_next not in reachable:
+            default_next = "__end__"
+
+        if not transitions:
+            graph.add_edge(step["name"], END if default_next == "__end__" else default_next)
+        else:
+            has_conditions = any("when" in t or "agent_decide" in t for t in transitions)
+            if not has_conditions:
+                explicit_default = None
+                for t in transitions:
+                    if "default" in t:
+                        explicit_default = t["default"]
+                target = explicit_default or default_next
+                # Clamp to reachable
+                if target != "__end__" and target not in reachable:
+                    target = "__end__"
+                graph.add_edge(step["name"], END if target == "__end__" else target)
+            else:
+                # Filter transitions to only reference reachable steps
+                clamped_transitions = clamp_transitions(transitions, reachable)
+                _add_transitions(
+                    graph, step["name"], clamped_transitions, default_next,
+                    step.get("max_loops"), step.get("loop_fallback", "__end__"), model
+                )
+
+    return graph
+
+
+def compile_subgraph(
+    config: dict[str, Any],
+    resume_step: str,
+    model: str = "default",
+    temperature: float = 0.1,
+    tool_registry: ToolRegistry | None = None,
+    action_registry: ActionRegistry | None = None,
+):
+    """Compile a subgraph for mid-graph resume."""
+    return compose_subgraph(
+        config, resume_step, model, temperature,
+        tool_registry, action_registry,
+    ).compile()
+
+
+def run_workflow_from_step(
+    config: dict[str, Any],
+    state_snapshot: dict[str, Any],
+    resume_step: str,
+    model: str = "default",
+    temperature: float = 0.1,
+    tool_registry: ToolRegistry | None = None,
+    action_registry: ActionRegistry | None = None,
+) -> dict[str, Any]:
+    """
+    Resume a workflow from a saved state snapshot at the given step.
+
+    Builds a subgraph from resume_step forward, pre-populates state
+    with prior step outputs, and invokes the subgraph. The LangGraph
+    reducer (operator.add on steps) ensures prior step outputs are
+    preserved while new step outputs are appended.
+
+    The state_snapshot must contain:
+      - input: original case input (for tool registry and param refs)
+      - steps: list of prior StepResults (used by build_context_from_state)
+      - metadata, loop_counts, routing_log
+
+    Delegation results can be injected via state_snapshot["delegation_results"],
+    which are available to nodes via ${delegation.<work_order_id>.<field>}.
+
+    Args:
+        config: Merged workflow+domain config
+        state_snapshot: Saved state from suspension (compacted)
+        resume_step: Step name to resume execution at
+        model: LLM model identifier
+        temperature: LLM temperature
+        tool_registry: Tool registry for retrieve steps
+        action_registry: Action registry for act steps
+
+    Returns:
+        Final workflow state after execution completes
+    """
+    from engine.resume import prepare_resume_state
+
+    compiled = compile_subgraph(
+        config, resume_step, model, temperature,
+        tool_registry, action_registry,
+    )
+
+    initial = prepare_resume_state(config, state_snapshot, resume_step)
     return compiled.invoke(initial)

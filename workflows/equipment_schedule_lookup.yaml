@@ -1,0 +1,38 @@
+# Equipment Schedule Lookup — Back Office Skill Agent
+#
+# Provider workflow. Dispatched when front office agent needs
+# to verify equipment against a policy's scheduled equipment list.
+# Simple retrieve + verify pattern.
+
+name: equipment_schedule_lookup
+description: >
+  Look up the scheduled equipment list for a policy endorsement
+  and verify whether a specific piece of equipment is listed.
+
+steps:
+  - name: lookup_schedule
+    primitive: retrieve
+    params:
+      specification: "${domain.lookup_schedule.specification}"
+      strategy: deterministic
+    transitions:
+      - default: verify_listing
+
+  - name: verify_listing
+    primitive: verify
+    temperature: 0.0
+    params:
+      subject: "${lookup_schedule.data}"
+      rules: "${domain.verify_listing.rules}"
+    transitions:
+      - default: report_finding
+
+  - name: report_finding
+    primitive: generate
+    temperature: 0.1
+    params:
+      requirements: "${domain.report_finding.requirements}"
+      format: "${domain.report_finding.format}"
+      constraints: "${domain.report_finding.constraints}"
+    transitions:
+      - default: __end__

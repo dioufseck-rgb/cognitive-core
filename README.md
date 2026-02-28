@@ -1,200 +1,209 @@
 # Cognitive Core
 
-Composable AI workflows from eight cognitive primitives.
-Four-layer architecture: **Workflow** × **Domain** × **Case** × **Coordinator**.
-Platform-agnostic — runs on Google, Azure, OpenAI, or Bedrock.
+AI Application Factory — composable cognitive workflows from YAML configuration with demand-driven multi-agent coordination.
+
+Cognitive Core lets you define AI workflows as YAML specifications that are merged at runtime from three layers (workflow structure, domain expertise, case data), executed step-by-step through eight cognitive primitives, and coordinated across agents through a demand-driven delegation protocol where agents describe what they need and the coordinator finds providers.
 
 ## Quick Start
 
 ```bash
-pip install -r requirements.txt --break-system-packages
+# Clone and install core dependencies
+pip install -r requirements.txt
 
-# Install ONE provider:
-pip install langchain-google-genai     # Google Gemini
-pip install langchain-openai           # Azure OpenAI / OpenAI
-pip install langchain-aws              # Amazon Bedrock
+# Run the interactive insurance claim demo (no LLM required)
+python demo_insurance_claim.py
 
-# Set provider and credentials:
-export LLM_PROVIDER=google
-export GOOGLE_API_KEY=your_key
+# Run the live coordinator demo (real state machine, simulated LLM)
+python demo_live_coordinator.py
 
-# Validate (no LLM calls)
-python3 engine/validate.py --root .
-python3 -m unittest discover -s tests   # 1,097 tests
-
-# Run a workflow
-LLM_PROVIDER=google python -m engine.runner \
-  -w workflows/product_return.yaml \
-  -d domains/electronics_return.yaml \
-  -c cases/laptop_return_suspicious.json
-
-# Run via coordinator (governance + delegation)
-LLM_PROVIDER=google python -m coordinator.cli run \
-  -w product_return -d electronics_return \
-  -c cases/laptop_return_suspicious.json
-
-# Run eval pack (live LLM)
-LLM_PROVIDER=google python -m evals.runner \
-  --pack evals/packs/product_return.yaml --project-root .
+# Run the batch test (uses LLM if configured, simulation fallback otherwise)
+python run_batch_test.py --case simple --n 5
 ```
 
-## API Server
+### With LLM Execution
 
 ```bash
-pip install fastapi uvicorn arq redis
+# Copy and configure environment
+cp .env.example .env
+# Edit .env with your provider credentials
 
-# Dev mode (in-process, no Redis)
-CC_WORKER_MODE=inline uvicorn api.server:app --port 8080
-
-# Production (arq + Redis worker)
-uvicorn api.server:app --host 0.0.0.0 --port 8080  # API
-python -m api.arq_worker                             # Worker
-
-# Submit a case
-curl -X POST http://localhost:8080/v1/cases \
-  -H "Content-Type: application/json" \
-  -d '{"workflow":"product_return","domain":"electronics_return","case_input":{"member_id":"M123","complaint":"broken laptop"}}'
-
-# Poll status
-curl http://localhost:8080/v1/cases/{instance_id}
-
-# List pending approvals
-curl http://localhost:8080/v1/approvals
+# Run with real LLM
+python run_batch_test.py --case simple --n 5
+python run_batch_test.py --case simple medium hard --n 5
 ```
 
-## Container Deployment
+## How It Works
 
-```bash
-docker build -f Dockerfile.api -t cognitive-core-api .
-docker build -f Dockerfile.worker -t cognitive-core-worker .
+Every workflow is assembled from three YAML layers merged at load time:
 
-# Run
-docker run -p 8080:8080 -e LLM_PROVIDER=google -e GOOGLE_API_KEY=... cognitive-core-api
+```
+workflows/claim_adjudication.yaml   →  Structure: steps, transitions, loop limits
+domains/claims_processing.yaml      →  Expertise: prompts, thresholds, tools, capabilities
+cases/insurance_claim_simple.json   →  Data: identity and inputs for this execution
 ```
 
-## Architecture
+The engine merges these, builds a state graph, and executes step by step. Each step uses one of eight cognitive primitives (retrieve, think, generate, verify, decide, act, reflect, delegate). When a step encounters something it cannot resolve, it emits a `ResourceRequest`. The coordinator matches the need to a registered capability, dispatches a provider (another workflow, a human task, a solver), suspends the source workflow, and resumes it when results arrive.
 
-| Layer | Purpose | Owner | Artifact |
-|-------|---------|-------|----------|
-| **Workflow** | Primitive sequence, transitions, routing | AI Engineers | `workflows/*.yaml` |
-| **Domain** | Natural-language policy: what to look for, how to handle it | SMEs + Engineers | `domains/*.yaml` |
-| **Case** | Runtime input (member ID, complaint, alert) | Production APIs | `cases/*.json` |
-| **Coordinator** | Governance tiers, A2A delegation, HITL | Risk / Compliance | `coordinator/config.yaml` |
-
-## Primitives
-
-| # | Primitive | Question | Boundary |
-|---|-----------|----------|----------|
-| 1 | Retrieve | What data exists? | Read |
-| 2 | Classify | What is this? | Read |
-| 3 | Investigate | What's true here? | Read |
-| 4 | Think | What should we do? | Read |
-| 5 | Verify | Does this conform? | Read |
-| 6 | Generate | Write this properly | Read |
-| 7 | Challenge | Can this survive? | Read |
-| 8 | Act | Execute this action | **Write** |
-
-## Enterprise Modules (1,097 tests)
-
-| Module | File | Purpose | Tests |
-|--------|------|---------|-------|
-| Retry + Fallback | `engine/retry.py` | Backoff, same-provider fallback, circuit breaker | 30 |
-| Structured Logging | `engine/logging.py` | JSON lines, OTel-compatible trace_id/span_id | 26 |
-| PII Redaction | `engine/pii.py` | Regex + case-entity hybrid at LLM chokepoint | 30 |
-| Rate Limiting | `engine/rate_limit.py` | Per-provider semaphore + token bucket | 13 |
-| Health Checks | `engine/health.py` | /health, /ready, /startup for K8s | 16 |
-| Audit Trail | `engine/audit.py` | Append-only SHA-256 hash chain + tiered payload | 27 |
-| Eval-Gated Deploy | `engine/eval_gate.py` | Absolute + regression check, CI/CD exit codes | 13 |
-| Cost Tracking | `engine/cost.py` | Budget caps, conservative unknown pricing | 21 |
-| API Server | `api/server.py` | FastAPI REST endpoints for case submission | 37 |
-| Worker Backends | `api/worker.py` | Inline, ThreadPool, arq+Redis | — |
-| Config Loader | `engine/config_loader.py` | Azure App Config → overlay → env vars | 35 |
-| Secrets | `engine/secrets.py` | Key Vault + Managed Identity, env var fallback | 21 |
-| Kill Switches | `engine/kill_switch.py` | Runtime disable per domain/workflow/primitive | 30 |
-| Spec-Locking | `engine/manifest.py` | SHA-256 manifest with full YAML snapshots | 28 |
-| Guardrails | `engine/guardrails.py` | Prompt injection: regex + LLM hybrid | 36 |
-| Logic Breakers | `engine/logic_breaker.py` | Sliding window quality monitor + tier upgrade | 30 |
-| State Replay | `engine/replay.py` | Checkpoint snapshots + replay from any step | 18 |
-| Webhooks | `engine/webhooks.py` | Suspension notifications (Teams, Slack, generic) | 17 |
-| Semantic Cache | `engine/semantic_cache.py` | Exact-match + vector similarity, on/off config | 35 |
-| HITL Routing | `engine/hitl_routing.py` | Capability-based approval queue routing | 28 |
-
-## Environment Configuration
-
-```bash
-CC_ENV=dev|staging|prod     # Active profile (loads config/{env}.yaml overlay)
-CC_WORKER_MODE=inline|thread|arq   # Worker backend
-CC_PROJECT_ROOT=.           # Project root for YAML resolution
-
-# Azure (optional — falls back to env vars)
-AZURE_APP_CONFIG_ENDPOINT=  # Azure App Configuration endpoint
-AZURE_KEY_VAULT_URL=        # Key Vault for secrets
-
-# LLM Provider
-LLM_PROVIDER=google|azure|azure_foundry|openai|bedrock
-GOOGLE_API_KEY=             # Google Gemini
-AZURE_OPENAI_ENDPOINT=      # Azure OpenAI
-AZURE_OPENAI_API_KEY=
-OPENAI_API_KEY=
 ```
+Agent runs forward through steps
+  ↓
+Step 2: "I need the equipment schedule"     →  ResourceRequest
+  ↓
+Coordinator matches need → dispatches provider workflow
+  ↓
+Provider completes → Coordinator resumes agent at Step 2
+  ↓
+Agent continues with new data
+```
+
+The complexity of any execution is determined by what the case actually requires, not by what was anticipated at design time. A simple claim runs straight through. A complex claim triggers three interrupt/dispatch/resume cycles across five back-office agents.
+
+## Project Structure
+
+```
+cognitive-core/
+├── coordinator/              # Orchestration layer
+│   ├── runtime.py            #   Coordinator (start/suspend/resume/complete)
+│   ├── policy.py             #   Governance tiers, capability matching
+│   ├── store.py              #   SQLite persistence
+│   ├── tasks.py              #   Human task queue
+│   ├── types.py              #   Core types (InstanceState, WorkOrder, Suspension)
+│   ├── contracts.py          #   Schema validation for delegation contracts
+│   ├── escalation.py         #   Escalation briefs for human review
+│   ├── cli.py                #   Coordinator CLI
+│   └── config.yaml           #   Governance tiers, capabilities, delegation rules
+│
+├── engine/                   # Execution engine
+│   ├── composer.py           #   Three-layer merge, graph compilation
+│   ├── nodes.py              #   Node factories for each primitive
+│   ├── stepper.py            #   Step-by-step executor with interrupt detection
+│   ├── state.py              #   WorkflowState, StepResult types
+│   ├── tools.py              #   Tool registry (case fixtures + MCP)
+│   ├── actions.py            #   Action registry for side effects
+│   ├── llm.py                #   Multi-provider LLM factory
+│   ├── resume.py             #   Mid-graph resume (subgraph compilation)
+│   ├── trace.py              #   Lightweight execution tracing
+│   ├── settlement.py         #   Deterministic settlement calculator
+│   ├── governance.py         #   Governance pipeline (guardrails + all gates)
+│   ├── guardrails.py         #   Input validation, prompt injection detection
+│   ├── pii.py                #   PII redaction
+│   ├── cost.py               #   Token and cost accounting
+│   ├── kill_switch.py        #   Runtime emergency stop
+│   ├── audit.py              #   Audit trail
+│   ├── db.py                 #   Database backends (SQLite, Postgres)
+│   ├── providers.py          #   MCP, API, vector tool providers
+│   ├── retry.py              #   Retry policies with backoff
+│   ├── validate.py           #   Config validation
+│   └── ...                   #   (30+ modules total)
+│
+├── registry/                 # Primitive catalog
+│   ├── primitives.py         #   Eight primitives: config, prompts, schemas
+│   ├── schemas.py            #   Pydantic output schemas per primitive
+│   └── prompts/              #   Prompt templates per primitive
+│
+├── langgraph/                # Local LangGraph shim for offline execution
+│   └── graph.py              #   Minimal StateGraph/CompiledGraph
+│
+├── mcp_servers/              # MCP tool servers
+│   └── claims_services.py    #   Claims data + settlement calculator
+│
+├── workflows/                # Workflow definitions (26 workflows)
+├── domains/                  # Domain configurations (27 domains)
+├── cases/                    # Test cases with fixture data
+│   ├── fixtures/             #   MCP mock responses per case
+│   └── *.json                #   Case files (simple, medium, hard, meridian)
+│
+├── tests/                    # Test suite
+│   └── test_demand_driven.py #   Demand-driven delegation tests
+│
+├── demo_insurance_claim.py   # Interactive CLI demo (no deps)
+├── demo_live_coordinator.py  # Live coordinator state machine demo
+├── smoke_test.py             # Single-case smoke test
+├── run_batch_test.py         # Multi-case batch test harness
+├── llm_config.yaml           # LLM provider/model configuration
+├── requirements.txt          # Python dependencies
+├── pyproject.toml            # Package configuration
+├── Dockerfile                # Container build
+├── Makefile                  # Development commands
+└── .env.example              # Environment variable template
+```
+
+## Eight Cognitive Primitives
+
+Every step in every workflow uses exactly one primitive:
+
+| Primitive | Purpose | Output Contract |
+|-----------|---------|-----------------|
+| **retrieve** | Pull structured data from tools/APIs | `{data: {...}, sources: [...]}` |
+| **think** | Analyze, reason, assess | `{analysis: str, confidence: float, resource_requests?: [...]}` |
+| **generate** | Produce structured output | `{artifact: {...}}` |
+| **verify** | Validate against criteria | `{conforms: bool, findings: [...]}` |
+| **decide** | Binary or categorical branch | `{decision: str, reasoning: str}` |
+| **act** | Execute side effects | `{action_taken: bool, result: {...}}` |
+| **reflect** | Self-evaluate prior output | `{assessment: str, revisions: [...]}` |
+| **delegate** | Explicit external handoff | `{need: str, context: {...}}` |
+
+## Coordination Protocol
+
+The demand-driven delegation protocol operates through five phases:
+
+1. **Interrupt** — Agent produces a ResourceRequest; stepper pauses; workflow suspends
+2. **Match** — Coordinator maps each need to a registered capability
+3. **Dispatch** — Work orders created; providers started (workflows, human tasks, solvers)
+4. **Wait** — Workflow stays suspended; providers may themselves delegate (nested chains)
+5. **Resume** — All providers complete; results injected; workflow resumes at interrupted step
+
+Three dispatch patterns: **sequential** (single need), **parallel** (independent needs dispatched simultaneously), **staged** (dependent needs dispatched in waves).
 
 ## Governance Tiers
 
-| Tier | HITL | Example |
-|------|------|---------|
-| auto | None | Spending advisor |
-| spot_check | 10% sampled | Card disputes |
-| gate | Pre-action review | Complaint resolution |
-| hold | Expert sign-off | SAR investigation |
+| Tier | Behavior | Use Case |
+|------|----------|----------|
+| `auto` | No human review | Low-risk lookups, data retrieval |
+| `log` | Record but don't gate | Medium-risk, audit trail |
+| `spot_check` | Random sampling | Quality monitoring |
+| `gate` | Human approval required | High-stakes decisions (claims, loans) |
 
-## Escalation Briefs
+Tiers are configured per domain in `coordinator/config.yaml`. The logic breaker module auto-escalates tiers when quality metrics degrade.
 
-When a workflow suspends (governance gate or quality gate), the coordinator
-builds a structured escalation brief for the human reviewer:
+## Environment Variables
 
-| Section | Purpose |
-|---------|---------|
-| Case Summary | What case this is (ID, amount, description) |
-| Determinations | What automation decided at each step, with confidence |
-| Uncertainties | Where automation was unsure (low confidence, conflicting signals) |
-| Focus Questions | Specific questions for the reviewer to answer |
-| Evidence | All data gathered — reviewer doesn't re-investigate |
-| Priority | High/medium/standard based on uncertainty count |
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `LLM_PROVIDER` | For LLM execution | `azure_foundry`, `azure`, `openai`, `google`, `bedrock` |
+| `AZURE_AI_FOUNDRY_ENDPOINT` | If using Azure Foundry | Project endpoint URL |
+| `AZURE_AI_FOUNDRY_KEY` | If using Azure Foundry | API key |
+| `OPENAI_API_KEY` | If using OpenAI | API key |
+| `GOOGLE_API_KEY` | If using Google | API key |
+| `CLAIMS_MCP_CMD` | For MCP (dev) | `python mcp_servers/claims_services.py` |
+| `CLAIMS_MCP_URL` | For MCP (prod) | HTTP endpoint URL |
+| `DATABASE_URL` | For Postgres | Connection string |
 
-The brief makes the human faster: legwork is done, ambiguity is identified,
-and the reviewer has a checklist instead of a blank slate.
+See `.env.example` for the full list.
 
-## Domain Philosophy
-
-Domain specs are **natural-language policy documents**, not pseudo-code.
-Write them like you're training a smart new hire:
-
-```yaml
-classify_fraud_risk:
-  categories: |
-    - low_risk: No fraud flags on the claim.
-    - medium_risk: One or two fraud flags.
-    - high_risk: Three or more fraud flags.
-```
-
-The LLM reads the policy and applies judgment. The framework handles routing,
-artifact validation, audit trails, and escalation. More precise specs get
-higher automation rates (85% → 95%). When the LLM is unsure, it escalates
-with a structured brief.
-
-## Live Eval Harness
+## Development
 
 ```bash
-# Run all synthetic cases with live LLM
-python scripts/eval_live.py --all --auto-approve
+# Install with dev dependencies
+pip install -e ".[dev,azure]"
 
-# Run specific workflow
-python scripts/eval_live.py --workflow fraud_screening --auto-approve
+# Run all checks
+make check
 
-# Run single case with verbose output
-python scripts/eval_live.py --case sc_001_simple_approve --auto-approve -v
+# Run tests
+make test
+
+# Run batch validation
+make batch-all
+
+# Build container
+make docker
 ```
 
-The eval harness validates structural invariants (routing correctness,
-artifact schemas, parse reliability) and reports semantic checks as advisory.
+## Architecture Documentation
 
+Detailed technical documentation is in `output/`:
+
+- `output/ARCHITECTURE.md` — Full system architecture with component details
+- `output/SYSTEM.md` — System-level design decisions and constraints
+- `CHANGES.md` — Session-by-session change log

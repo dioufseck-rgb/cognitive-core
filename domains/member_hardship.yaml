@@ -625,3 +625,19 @@ generate_rejection:
   constraints: |
     - Be specific about which gate failed and why.
     - Include the escalation path so the specialist knows what to do.
+
+# ─── Dispatch Optimization ────────────────────────────────────────
+
+optimization:
+  archetype: assignment
+  physics: default
+  objectives:
+    minimize_cost: 0.2
+    minimize_wait_time: 0.6
+    minimize_sla_risk: 0.2
+  solver_time_budget: 3s
+  greedy_fallback: true
+  exploration:
+    enabled: true
+    maturity_threshold: 10
+    base_epsilon: 0.10

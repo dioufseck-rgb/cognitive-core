@@ -75,7 +75,13 @@ quality_gates:
 
   # Skip quality gate checks for these domains
   # (e.g., domains already at hold tier don't need further escalation)
-  exempt_domains: []
+  # Provider/back-office domains are exempt: they use simulated tool data
+  # so low retrieve confidence is expected and not meaningful for gating.
+  exempt_domains:
+    - underwriting_records
+    - vendor_management
+    - field_operations
+    - subrogation
 
 # ─── Delegation Policies ─────────────────────────────────────────
 # Rules that trigger cross-workflow delegation. The coordinator
@@ -632,37 +638,182 @@ contracts:
         type: string
         required: false
 
+  # ── Insurance Claim Adjudication Contracts ─────────────────────
+
+  equipment_schedule_v1:
+    version: 1
+    request:
+      - name: policy_number
+        type: string
+        required: true
+      - name: equipment
+        type: string
+        required: true
+    response:
+      - name: asset_listed
+        type: bool
+        required: true
+      - name: sublimit
+        type: float
+        required: false
+      - name: deductible
+        type: float
+        required: false
+
+  forensic_review_v1:
+    version: 1
+    request:
+      - name: claim_id
+        type: string
+        required: true
+      - name: claimed_bi
+        type: float
+        required: true
+    response:
+      - name: verified_bi
+        type: float
+        required: true
+      - name: adjustment
+        type: float
+        required: false
+
+  coi_retrieval_v1:
+    version: 1
+    request:
+      - name: contractor
+        type: string
+        required: true
+    response:
+      - name: coi_found
+        type: bool
+        required: true
+      - name: gl_limit
+        type: float
+        required: false
+
+  scheduling_v1:
+    version: 1
+    request:
+      - name: location
+        type: string
+        required: true
+    response:
+      - name: assigned_adjuster
+        type: string
+        required: true
+      - name: scheduled_date
+        type: string
+        required: true
+
+  recovery_analysis_v1:
+    version: 1
+    request:
+      - name: net_payable
+        type: float
+        required: true
+    response:
+      - name: recommended
+        type: string
+        required: true
+      - name: expected_net_recovery
+        type: float
+        required: true
+
+  coverage_review_v1:
+    version: 1
+    request:
+      - name: policy_clause
+        type: string
+        required: true
+    response:
+      - name: determination
+        type: string
+        required: true
+
+  appraisal_v1:
+    version: 1
+    request:
+      - name: claim_id
+        type: string
+        required: true
+    response:
+      - name: appraised_value
+        type: float
+        required: true
+
 # ─── Capability Catalog ──────────────────────────────────────────
 # Maps need types to providers. Workflows report needs;
 # the coordinator matches them here.
 
 capabilities:
 
-  - need: industry_benchmarks
-    type: workflow
-    workflow: data_enrichment
-    domain: industry_analysis
-    contract: benchmarks_v1
-
   - need: member_communication
     type: human_task
     queue: member_outreach
     contract: member_inquiry_v1
 
-  - need: prior_case_lookup
-    type: workflow
-    workflow: case_lookup
-    domain: bsa_case_history
-    contract: case_query_v1
+  # ── Insurance claim adjudication capabilities (demand-driven) ──
 
-  - need: enhanced_due_diligence
+  - need: scheduled_equipment_verification
     type: workflow
-    workflow: edd_investigation
-    domain: enhanced_dd
-    contract: edd_request_v1
+    workflow: equipment_schedule_lookup
+    domain: underwriting_records
+    contract: equipment_schedule_v1
 
-  - need: property_valuation
+  - need: forensic_accounting_review
+    type: human_task
+    queue: specialist_forensic_accounting
+    contract: forensic_review_v1
+
+  - need: third_party_coi_retrieval
     type: workflow
-    workflow: property_valuation
-    domain: avm_valuation
-    contract: valuation_request_v1
+    workflow: vendor_coi_lookup
+    domain: vendor_management
+    contract: coi_retrieval_v1
+
+  - need: adjuster_scheduling
+    type: workflow
+    workflow: field_scheduling_optimizer
+    domain: field_operations
+    contract: scheduling_v1
+
+  - need: subrogation_recovery_analysis
+    type: workflow
+    workflow: recovery_optimizer
+    domain: subrogation
+    contract: recovery_analysis_v1
+
+  - need: coverage_specialist_review
+    type: human_task
+    queue: coverage_specialist
+    contract: coverage_review_v1
+
+  - need: independent_appraisal
+    type: human_task
+    queue: independent_appraiser
+    contract: appraisal_v1
+
+
+# ═══════════════════════════════════════════════════════════════════
+# Dispatch Optimization Defaults (Spec v1.1)
+# ═══════════════════════════════════════════════════════════════════
+# These apply when a domain YAML does not have its own `optimization:` section.
+
+optimization_defaults:
+  archetype: assignment
+  physics: default
+  objectives:
+    minimize_cost: 0.3
+    minimize_wait_time: 0.5
+    minimize_sla_risk: 0.2
+  solver_time_budget: 5s
+  greedy_fallback: true
+  exploration:
+    enabled: true
+    maturity_threshold: 10
+    base_epsilon: 0.10
+    novelty_bonus: 0.05
+    max_exploration_pct: 0.15
+    sla_gate:
+      - routine
+      - high

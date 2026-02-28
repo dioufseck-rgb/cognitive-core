@@ -1,0 +1,88 @@
+{
+  "human_task_responses": {
+    "forensic_accounting_review": {
+      "description": "Forensic accountant verifies BI claim amounts",
+      "variants": {
+        "standard": {
+          "findings": "Forensic review of business interruption claim for Coastal Fabrication & Welding, LLC (CLM-2025-88431). Revenue verified at approximately $52,000/week based on 2024 tax returns and bank deposits. Three-week claim of $156,000 is CONSISTENT with documented revenue. However, temporary facility rental of $18,500 is inconsistent with timeline — facility was rented 2 days after loss, suggesting partial operations resumed earlier than claimed. Adjusted BI: lost revenue $156,000 (verified), expediting $18,000 (adjusted from $23,000 — $5,000 unsupported), temporary facility $12,000 (adjusted for actual usage period). Total verified BI: $186,000 pre-coinsurance.",
+          "verified_amounts": {
+            "lost_revenue": 156000,
+            "expediting_costs": 18000,
+            "temporary_facility": 12000,
+            "total_verified_bi": 186000
+          },
+          "adjustments": [
+            "Expediting reduced $5,000 — vendor invoice covers only $18,000 of documented costs",
+            "Temporary facility reduced $6,500 — rental period exceeds actual downtime by ~4 days"
+          ],
+          "flags": [
+            "Annual revenue approximately $2.7M based on weekly figure",
+            "BI coinsurance 50% — insured carries $250K against ~$2.7M annual revenue",
+            "Coinsurance penalty applies: ratio 250K/1.35M = 18.5%"
+          ]
+        },
+        "greenfield_standard": {
+          "findings": "Forensic review of BI claim for Greenfield Data Solutions (CLM-2025-91207). Revenue verified at approximately $11,800/day based on monthly recurring revenue from 45 MSP clients. Ten-day outage documented by client communications and cloud hosting invoices. Lost revenue of $118,000 is CONSISTENT. Expediting costs of $9,500 verified via hardware vendor rush shipping invoices. Temporary cloud hosting of $6,200 verified via AWS invoice. Total verified BI: $133,700.",
+          "verified_amounts": {
+            "lost_revenue": 118000,
+            "expediting_costs": 9500,
+            "temporary_cloud_hosting": 6200,
+            "total_verified_bi": 133700
+          },
+          "adjustments": [],
+          "flags": [
+            "Annual revenue approximately $4.3M based on daily figure",
+            "BI coinsurance 50% — insured carries $200K against ~$4.3M annual revenue",
+            "SEVERE coinsurance penalty: ratio 200K/2.15M = 9.3%",
+            "Effective BI payout after coinsurance: approximately $12,434"
+          ]
+        }
+      }
+    },
+
+    "coverage_specialist_review": {
+      "description": "Coverage specialist rules on fire suppression exclusion applicability",
+      "variants": {
+        "exclusion_partial": {
+          "ruling": "The fire suppression maintenance exclusion applies PARTIALLY. The overdue inspection and non-functional sprinkler head at the origin point contributed to the extent of loss but did not cause the fire itself. Coverage applies to losses that would have occurred regardless of sprinkler status (initial equipment damage from fire origin). Coverage is REDUCED for losses attributable to fire spread that functioning sprinklers would have prevented (building damage beyond origin area, smoke damage to steel inventory). Recommended reduction: 35% of building damage and 50% of inventory damage attributable to suppression failure.",
+          "coverage_impact": {
+            "cnc_plasma_cutter": "fully_covered_up_to_applicable_limit",
+            "building_repairs_reduction_pct": 35,
+            "steel_inventory_reduction_pct": 50,
+            "bi_impact": "no_direct_reduction_but_shorter_period_if_sprinklers_worked"
+          },
+          "rationale": "NFPA 10 maintenance requirement is a policy condition, not an exclusion of peril. The fire was caused by electrical/welding activity, not by sprinkler failure. However, the extent of loss was materially increased by the non-functional sprinkler head. Apportionment is appropriate under the concurrent causation doctrine applicable in this jurisdiction."
+        },
+        "exclusion_full": {
+          "ruling": "The fire suppression maintenance exclusion applies IN FULL. Policy condition requires maintenance per NFPA 10 and local code. Inspection was 4 months overdue. Non-functional sprinkler head at the origin point is a material breach of the policy condition. Entire claim is subject to denial or significant reduction at insurer's discretion.",
+          "coverage_impact": {
+            "recommendation": "deny_or_reduce_all_categories",
+            "reduction_range_pct": "50-100"
+          }
+        },
+        "exclusion_none": {
+          "ruling": "The fire suppression maintenance condition does NOT void coverage. While the inspection was overdue, the non-functional sprinkler head was limited to one unit in the origin zone. The remaining system activated normally. The overdue inspection is a breach of condition but not a material breach sufficient to void coverage under the doctrine of substantial compliance. Recommend: proceed with full coverage analysis, note condition breach for renewal underwriting.",
+          "coverage_impact": {
+            "recommendation": "no_coverage_reduction",
+            "underwriting_note": "Flag for renewal — require proof of fire suppression inspection before policy renewal"
+          }
+        }
+      }
+    },
+
+    "independent_appraisal": {
+      "description": "Independent appraiser assesses equipment value",
+      "variants": {
+        "standard": {
+          "findings": "Independent appraisal of Hypertherm XPR300 CNC Plasma Cutting Table (Serial HPT-2019-44821). Machine purchased 2019, approximately 6 years old at time of loss. Replacement cost new: $135,000-$145,000 (current market). Actual cash value considering depreciation: $85,000-$95,000. Policy provides replacement cost coverage, so replacement cost applies: $140,000. Note: this machine is NOT on the equipment schedule. Unscheduled equipment cap of $25,000 per EB-100 endorsement applies regardless of appraised value.",
+          "appraised_value": {
+            "replacement_cost": 140000,
+            "actual_cash_value": 90000,
+            "applicable_limit": 25000,
+            "reason": "unscheduled_equipment_cap"
+          }
+        }
+      }
+    }
+  }
+}

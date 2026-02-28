@@ -142,3 +142,19 @@ escalate_to_human:
     - Must include all context so specialist doesn't re-investigate
     - State what the automation could and could not determine
     - Flag time-sensitive regulatory deadlines
+
+# ─── Dispatch Optimization ────────────────────────────────────────
+
+optimization:
+  archetype: assignment
+  physics: default
+  objectives:
+    minimize_cost: 0.3
+    minimize_wait_time: 0.5
+    minimize_sla_risk: 0.2
+  solver_time_budget: 3s
+  greedy_fallback: true
+  exploration:
+    enabled: true
+    maturity_threshold: 10
+    base_epsilon: 0.08

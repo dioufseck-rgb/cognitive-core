@@ -40,7 +40,18 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from langchain_core.language_models.chat_models import BaseChatModel
+try:
+    from langchain_core.language_models.chat_models import BaseChatModel
+except ImportError:
+    # Shim for environments without langchain_core.
+    # BaseChatModel is only used as a return type annotation.
+    class BaseChatModel:  # type: ignore[no-redef]
+        """Minimal BaseChatModel shim for langchain-free operation."""
+        def invoke(self, messages, **kwargs):
+            raise NotImplementedError(
+                "Real LLM calls require langchain_core. "
+                "Install: pip install langchain-core"
+            )
 
 
 # ═══════════════════════════════════════════════════════════════════════

@@ -1,0 +1,26 @@
+# Field Operations — Domain Specification
+domain_name: field_operations
+workflow: field_scheduling_optimizer
+governance: auto
+
+gather_constraints:
+  specification: |
+    Retrieve scheduling inputs:
+      - get_inspection_request: Location, certification needs, urgency
+      - get_adjuster_availability: Available adjusters with certs and locations
+      - get_open_inspections: Current queue for optimization context
+
+format_schedule:
+  requirements: |
+    Report the optimal adjuster assignment from the scheduling solver.
+  format: |
+    {
+      "assigned_adjuster": "",
+      "certification": "",
+      "scheduled_date": "",
+      "estimated_arrival": "",
+      "travel_time_minutes": 0
+    }
+  constraints: |
+    Assignment must match required certifications.
+    Date must be within the requested window.

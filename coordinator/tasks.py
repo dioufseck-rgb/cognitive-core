@@ -36,6 +36,7 @@ class TaskType:
     WORK_ORDER = "work_order"
     ESCALATION = "escalation"
     NOTIFICATION = "notification"
+    RESOURCE_REQUEST = "resource_request"
 
 
 class TaskStatus:
@@ -255,15 +256,15 @@ class InMemoryTaskQueue(TaskQueue):
 # ─── SQLite Implementation ───────────────────────────────────────────
 
 class SQLiteTaskQueue(TaskQueue):
-    """SQLite-backed task queue. Polling-based for Phase 2."""
+    """Database-backed task queue. Uses engine.db.DatabaseBackend."""
 
-    def __init__(self, conn):
-        """Takes a sqlite3 connection (shared with CoordinatorStore)."""
-        self.conn = conn
+    def __init__(self, db):
+        """Takes a DatabaseBackend (shared with CoordinatorStore)."""
+        self.db = db
         self._create_table()
 
     def _create_table(self):
-        self.conn.executescript("""
+        self.db.executescript("""
             CREATE TABLE IF NOT EXISTS task_queue (
                 task_id TEXT PRIMARY KEY,
                 task_type TEXT NOT NULL,
@@ -288,10 +289,10 @@ class SQLiteTaskQueue(TaskQueue):
             CREATE INDEX IF NOT EXISTS idx_taskq_instance
                 ON task_queue(instance_id);
         """)
-        self.conn.commit()
+        self.db.commit()
 
     def publish(self, task: Task) -> str:
-        self.conn.execute("""
+        self.db.fetchone("""
             INSERT INTO task_queue
             (task_id, task_type, queue, instance_id, correlation_id,
              workflow_type, domain, payload, callback, status, priority,
@@ -312,50 +313,50 @@ class SQLiteTaskQueue(TaskQueue):
             task.status, task.priority,
             task.created_at, task.sla_seconds, task.expires_at,
         ))
-        self.conn.commit()
+        self.db.commit()
         return task.task_id
 
     def claim(self, queue: str, claimed_by: str = "") -> Task | None:
-        row = self.conn.execute("""
+        row = self.db.fetchone("""
             SELECT * FROM task_queue
             WHERE queue = ? AND status = 'pending'
             ORDER BY priority DESC, created_at ASC
             LIMIT 1
-        """, (queue,)).fetchone()
+        """, (queue,))
         if not row:
             return None
         task = self._row_to_task(row)
         now = time.time()
-        self.conn.execute("""
+        self.db.execute("""
             UPDATE task_queue SET status = 'claimed',
                 claimed_at = ?, claimed_by = ?
             WHERE task_id = ?
         """, (now, claimed_by, task.task_id))
-        self.conn.commit()
+        self.db.commit()
         task.status = TaskStatus.CLAIMED
         task.claimed_at = now
         task.claimed_by = claimed_by
         return task
 
     def resolve(self, task_id: str, resolution: TaskResolution) -> bool:
-        row = self.conn.execute(
+        row = self.db.fetchone(
             "SELECT status FROM task_queue WHERE task_id = ?", (task_id,)
-        ).fetchone()
+        )
         if not row or row["status"] != "claimed":
             return False
         status = TaskStatus.COMPLETED if resolution.action in ("approve", "complete") else TaskStatus.REJECTED
         now = resolution.resolved_at or time.time()
-        self.conn.execute("""
+        self.db.execute("""
             UPDATE task_queue SET status = ?, resolved_at = ?
             WHERE task_id = ?
         """, (status, now, task_id))
-        self.conn.commit()
+        self.db.commit()
         return True
 
     def get_task(self, task_id: str) -> Task | None:
-        row = self.conn.execute(
+        row = self.db.fetchone(
             "SELECT * FROM task_queue WHERE task_id = ?", (task_id,)
-        ).fetchone()
+        )
         return self._row_to_task(row) if row else None
 
     def list_tasks(
@@ -376,16 +377,16 @@ class SQLiteTaskQueue(TaskQueue):
             query += " AND instance_id = ?"
             params.append(instance_id)
         query += " ORDER BY priority DESC, created_at ASC"
-        rows = self.conn.execute(query, params).fetchall()
+        rows = self.db.fetchall(query, tuple(params))
         return [self._row_to_task(r) for r in rows]
 
     def expire_overdue(self) -> int:
         now = time.time()
-        cursor = self.conn.execute("""
+        cursor = self.db.execute("""
             UPDATE task_queue SET status = 'expired'
             WHERE status = 'pending' AND expires_at IS NOT NULL AND expires_at < ?
         """, (now,))
-        self.conn.commit()
+        self.db.commit()
         return cursor.rowcount
 
     def _row_to_task(self, row) -> Task:

@@ -1,0 +1,38 @@
+# Underwriting Records — Domain Specification
+# Paired with equipment_schedule_lookup workflow.
+
+domain_name: underwriting_records
+workflow: equipment_schedule_lookup
+governance: auto
+
+lookup_schedule:
+  specification: |
+    Query the underwriting system for the equipment schedule:
+      - get_equipment_schedule: Full scheduled equipment list for the policy
+      - get_policy_endorsement: The equipment breakdown endorsement details
+
+verify_listing:
+  rules: |
+    Check whether the requested equipment is listed on the schedule:
+    1. Equipment description matches (by type, model, or serial)
+    2. Entry is active (not previously removed or expired)
+    3. Sublimit and deductible are specified for the entry
+    If not found, note that the equipment is NOT on the schedule.
+
+report_finding:
+  requirements: |
+    Report whether the equipment is on the scheduled list.
+    Include: listed (bool), line number, model, serial, scheduled
+    value, sublimit, and deductible.
+  format: |
+    {
+      "asset_listed": true|false,
+      "line_number": null,
+      "model": "",
+      "serial": "",
+      "scheduled_value": 0,
+      "sublimit": 0,
+      "deductible": 0
+    }
+  constraints: |
+    All values from the underwriting system. Do not estimate.

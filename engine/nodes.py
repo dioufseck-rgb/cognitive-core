@@ -12,10 +12,28 @@ import sys
 import time
 from typing import Any, Callable, Protocol
 
-from langchain_core.messages import HumanMessage
+try:
+    from langchain_core.messages import HumanMessage
+except ImportError:
+    # Shim for environments without langchain_core.
+    # HumanMessage is a simple container used to pass prompts to LLMs.
+    class HumanMessage:  # type: ignore[no-redef]
+        """Minimal HumanMessage shim for langchain-free operation."""
+        def __init__(self, content: str):
+            self.content = content
+        def __repr__(self):
+            return f"HumanMessage(content='{self.content[:60]}...')"
 from engine.llm import create_llm
 
-from registry.primitives import render_prompt, get_schema_class
+try:
+    from registry.primitives import render_prompt, get_schema_class
+except ImportError:
+    # Shim when pydantic is not installed (registry.schemas needs it)
+    def render_prompt(primitive_name: str, params: dict) -> str:
+        return f"[{primitive_name}] " + " | ".join(f"{k}={v}" for k, v in params.items())
+    def get_schema_class(primitive_name: str):
+        return None
+
 from engine.state import (
     WorkflowState,
     StepResult,
@@ -26,43 +44,14 @@ from engine.state import (
 
 
 # ---------------------------------------------------------------------------
-# Trace callback protocol
+# Trace callback protocol — imported from lightweight trace module
+# (no langchain/pydantic dependency) so callers can set/get traces
+# without importing the full nodes.py
 # ---------------------------------------------------------------------------
 
-class TraceCallback(Protocol):
-    def on_step_start(self, step_name: str, primitive: str, loop_iteration: int) -> None: ...
-    def on_llm_start(self, step_name: str, prompt_chars: int) -> None: ...
-    def on_llm_end(self, step_name: str, response_chars: int, elapsed: float) -> None: ...
-    def on_parse_result(self, step_name: str, primitive: str, output: dict) -> None: ...
-    def on_parse_error(self, step_name: str, error: str) -> None: ...
-    def on_route_decision(self, from_step: str, to_step: str, decision_type: str, reason: str) -> None: ...
-    def on_retrieve_start(self, step_name: str, source_name: str) -> None: ...
-    def on_retrieve_end(self, step_name: str, source_name: str, status: str, latency_ms: float) -> None: ...
-
-
-class NullTrace:
-    """No-op tracer when tracing is disabled."""
-    def on_step_start(self, *a, **kw): pass
-    def on_llm_start(self, *a, **kw): pass
-    def on_llm_end(self, *a, **kw): pass
-    def on_parse_result(self, *a, **kw): pass
-    def on_parse_error(self, *a, **kw): pass
-    def on_route_decision(self, *a, **kw): pass
-    def on_retrieve_start(self, *a, **kw): pass
-    def on_retrieve_end(self, *a, **kw): pass
-
-
-# Global trace callback — set by the runner before execution
-_trace: TraceCallback = NullTrace()
-
-
-def set_trace(callback: TraceCallback):
-    global _trace
-    _trace = callback
-
-
-def get_trace() -> TraceCallback:
-    return _trace
+from engine.trace import (  # noqa: F401 — re-exported
+    TraceCallback, NullTrace, set_trace, get_trace,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -319,7 +308,7 @@ def create_node(
         iteration = current_counts.get(step_name, 0) + 1
         current_counts[step_name] = iteration
 
-        _trace.on_step_start(step_name, primitive_name, iteration)
+        get_trace().on_step_start(step_name, primitive_name, iteration)
 
         # Resolve params
         resolved_params = {}
@@ -360,7 +349,7 @@ def create_node(
         rendered_prompt = render_prompt(primitive_name, resolved_params)
 
         # LLM call with tracing
-        _trace.on_llm_start(step_name, len(rendered_prompt))
+        get_trace().on_llm_start(step_name, len(rendered_prompt))
         t0 = time.time()
 
         messages = [HumanMessage(content=rendered_prompt)]
@@ -368,15 +357,46 @@ def create_node(
         raw_response = response.content
 
         elapsed = time.time() - t0
-        _trace.on_llm_end(step_name, len(raw_response), elapsed)
+        get_trace().on_llm_end(step_name, len(raw_response), elapsed)
 
         # Parse
+        parsed = None
+        output = None
         try:
             parsed = extract_json(raw_response)
-            validated = schema_cls.model_validate(parsed)
-            output = validated.model_dump()
-            _trace.on_parse_result(step_name, primitive_name, output)
+            try:
+                validated = schema_cls.model_validate(parsed)
+            except Exception as e_val:
+                raise ValueError(f"model_validate failed: {type(e_val).__name__}: {e_val}") from e_val
+            try:
+                output = validated.model_dump()
+            except Exception as e_dump:
+                raise ValueError(f"model_dump failed: {type(e_dump).__name__}: {e_dump}") from e_dump
         except Exception as e:
+            import traceback
+            get_trace().on_parse_error(step_name,
+                f"{type(e).__name__}: {e}")
+            get_trace().on_parse_error(step_name,
+                f"PARSED_KEYS: {list(parsed.keys()) if parsed and isinstance(parsed, dict) else 'N/A'}")
+            # Try to salvage resource_requests even if full validation fails
+            salvaged_rr = []
+            try:
+                if parsed and isinstance(parsed, dict):
+                    raw_rr = parsed.get("resource_requests", [])
+                    if raw_rr and isinstance(raw_rr, list):
+                        for rr in raw_rr:
+                            if isinstance(rr, dict) and rr.get("need"):
+                                salvaged_rr.append({
+                                    "need": rr.get("need", ""),
+                                    "blocking": rr.get("blocking", True),
+                                    "reason": rr.get("reason", ""),
+                                    "context": rr.get("context", {}),
+                                    "depends_on": rr.get("depends_on", []),
+                                    "urgency": rr.get("urgency", "routine"),
+                                })
+            except Exception:
+                pass
+
             output = {
                 "error": str(e),
                 "raw_response": raw_response[:500],
@@ -384,8 +404,18 @@ def create_node(
                 "reasoning": f"Failed to parse LLM response: {e}",
                 "evidence_used": [],
                 "evidence_missing": [],
+                "resource_requests": salvaged_rr,
             }
-            _trace.on_parse_error(step_name, str(e))
+            get_trace().on_parse_error(step_name, str(e))
+            if salvaged_rr:
+                get_trace().on_parse_error(step_name,
+                    f"  → salvaged {len(salvaged_rr)} resource_request(s) from failed parse")
+        else:
+            # Parse succeeded — log the result (outside try so trace errors don't trigger salvage)
+            try:
+                get_trace().on_parse_result(step_name, primitive_name, output)
+            except Exception as trace_err:
+                get_trace().on_parse_error(step_name, f"trace error (non-fatal): {trace_err}")
 
         step_result: StepResult = {
             "step_name": step_name,
@@ -439,14 +469,14 @@ Respond with JSON: {{"chosen_step": "step_name", "reasoning": "why"}}
 You MUST choose one of: {valid_steps}
 Respond ONLY with JSON."""
 
-        _trace.on_llm_start(f"agent_router({from_step})", len(prompt))
+        get_trace().on_llm_start(f"agent_router({from_step})", len(prompt))
         t0 = time.time()
 
         messages = [HumanMessage(content=prompt)]
         response = llm.invoke(messages)
 
         elapsed = time.time() - t0
-        _trace.on_llm_end(f"agent_router({from_step})", len(response.content), elapsed)
+        get_trace().on_llm_end(f"agent_router({from_step})", len(response.content), elapsed)
 
         try:
             parsed = extract_json(response.content)
@@ -459,7 +489,7 @@ Respond ONLY with JSON."""
             chosen = valid_steps[0]
             reasoning = f"Parse failed: {e}"
 
-        _trace.on_route_decision(from_step, chosen, "agent", reasoning)
+        get_trace().on_route_decision(from_step, chosen, "agent", reasoning)
         return chosen
 
     router_fn.__name__ = f"agent_router_{from_step}"
@@ -498,7 +528,7 @@ def create_retrieve_node(
         iteration = current_counts.get(step_name, 0) + 1
         current_counts[step_name] = iteration
 
-        _trace.on_step_start(step_name, "retrieve", iteration)
+        get_trace().on_step_start(step_name, "retrieve", iteration)
 
         # Resolve params
         resolved = {}
@@ -538,14 +568,14 @@ def create_retrieve_node(
         assembled_data = {}
 
         for source_name in sources_to_fetch:
-            _trace.on_retrieve_start(step_name, source_name)
+            get_trace().on_retrieve_start(step_name, source_name)
             t0 = time.time()
 
             result = tool_registry.call(source_name, query_context)
             results.append(result)
 
             elapsed_ms = (time.time() - t0) * 1000
-            _trace.on_retrieve_end(
+            get_trace().on_retrieve_end(
                 step_name, source_name,
                 result.status, elapsed_ms,
             )
@@ -615,12 +645,12 @@ def create_retrieve_node(
 
         rendered_prompt = render_prompt("retrieve", resolved)
 
-        _trace.on_llm_start(step_name, len(rendered_prompt))
+        get_trace().on_llm_start(step_name, len(rendered_prompt))
         t0 = time.time()
         response = llm.invoke([HumanMessage(content=rendered_prompt)])
         raw_response = response.content
         elapsed = time.time() - t0
-        _trace.on_llm_end(step_name, len(raw_response), elapsed)
+        get_trace().on_llm_end(step_name, len(raw_response), elapsed)
 
         # Parse LLM assessment
         try:
@@ -643,7 +673,7 @@ def create_retrieve_node(
             parsed["sources_skipped"] = skipped
             validated = schema_cls.model_validate(parsed)
             output = validated.model_dump()
-            _trace.on_parse_result(step_name, "retrieve", output)
+            get_trace().on_parse_result(step_name, "retrieve", output)
         except Exception as e:
             # Even if LLM assessment fails, the data is still valid
             # and downstream steps can use it. Mark confidence based on
@@ -670,9 +700,9 @@ def create_retrieve_node(
                 "evidence_missing": [],
             }
             if has_data:
-                _trace.on_parse_result(step_name, "retrieve", output)
+                get_trace().on_parse_result(step_name, "retrieve", output)
             else:
-                _trace.on_parse_error(step_name, str(e))
+                get_trace().on_parse_error(step_name, str(e))
 
         step_result: StepResult = {
             "step_name": step_name,
@@ -726,7 +756,7 @@ def create_act_node(
         iteration = current_counts.get(step_name, 0) + 1
         current_counts[step_name] = iteration
 
-        _trace.on_step_start(step_name, "act", iteration)
+        get_trace().on_step_start(step_name, "act", iteration)
 
         # Resolve params
         resolved = {}
@@ -759,12 +789,12 @@ def create_act_node(
 
         # LLM call: decide what actions to take and document them
         rendered_prompt = render_prompt("act", resolved)
-        _trace.on_llm_start(step_name, len(rendered_prompt))
+        get_trace().on_llm_start(step_name, len(rendered_prompt))
         t0 = time.time()
         response = llm.invoke([HumanMessage(content=rendered_prompt)])
         raw_response = response.content
         elapsed = time.time() - t0
-        _trace.on_llm_end(step_name, len(raw_response), elapsed)
+        get_trace().on_llm_end(step_name, len(raw_response), elapsed)
 
         # Parse LLM response
         try:
@@ -854,7 +884,7 @@ def create_act_node(
 
             validated = schema_cls.model_validate(parsed)
             output = validated.model_dump()
-            _trace.on_parse_result(step_name, "act", output)
+            get_trace().on_parse_result(step_name, "act", output)
 
         except Exception as e:
             output = {
@@ -871,7 +901,7 @@ def create_act_node(
                 "evidence_used": [],
                 "evidence_missing": [],
             }
-            _trace.on_parse_error(step_name, str(e))
+            get_trace().on_parse_error(step_name, str(e))
 
         step_result: StepResult = {
             "step_name": step_name,
@@ -946,11 +976,11 @@ Respond with JSON: {{"sources": ["source_name1", "source_name2"], "plan": "expla
 You may only choose from: {available_tools}
 Respond ONLY with JSON."""
 
-    _trace.on_llm_start(f"retrieval_planner({step_name})", len(prompt))
+    get_trace().on_llm_start(f"retrieval_planner({step_name})", len(prompt))
     t0 = time.time()
     response = llm.invoke([HumanMessage(content=prompt)])
     elapsed = time.time() - t0
-    _trace.on_llm_end(f"retrieval_planner({step_name})", len(response.content), elapsed)
+    get_trace().on_llm_end(f"retrieval_planner({step_name})", len(response.content), elapsed)
 
     try:
         parsed = extract_json(response.content)

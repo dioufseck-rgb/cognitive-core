@@ -48,8 +48,45 @@ Respond with a JSON object matching this structure:
   ],
   "evidence_missing": [
     {{"source": "where to find it", "description": "how it would change your reasoning"}}
-  ]
+  ],
+  "resource_requests": []
 }}
+
+RESOURCE REQUESTS (important):
+If the instruction tells you that certain information is required and
+you do not have that information available in the context, you should
+add a resource_request to the resource_requests array. Each request
+describes WHAT you need — not who provides it or how to get it. The
+coordinator will match your need to a capable provider.
+
+A resource request looks like:
+{{
+  "need": "name_of_what_you_need",
+  "blocking": true,
+  "reason": "why you cannot proceed without this",
+  "context": {{"key": "value pairs the provider will need"}},
+  "depends_on": []
+}}
+
+Rules for resource requests:
+- Only request resources that are GENUINELY ABSENT from your context.
+  If the data is already available in the input or prior steps, use it.
+- If delegation results are present (from a prior request that was
+  fulfilled), USE THEM rather than requesting again.
+- Set blocking to true if you cannot produce a meaningful output without
+  the resource. Set to false for nice-to-have enrichment.
+- The "need" field should match the capability names specified in the
+  domain instructions (e.g., "scheduled_equipment_verification",
+  "forensic_accounting_review").
+- If two requests are independent, leave depends_on empty for both.
+  They can run in parallel.
+- If request B needs the result of request A, set
+  depends_on: ["<need_name_of_A>"] on request B.
+- When you produce blocking resource_requests, your confidence should
+  reflect the uncertainty — it will typically be low because you're
+  acknowledging you can't fully evaluate without the missing data.
+
+If you have everything you need, leave resource_requests as an empty array.
 
 IMPORTANT: If the instruction asks you to compute a risk_score, return it as
 an integer in the "risk_score" field. If the instruction asks for a recommendation

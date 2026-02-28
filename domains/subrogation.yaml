@@ -1,0 +1,29 @@
+# Subrogation — Domain Specification
+domain_name: subrogation
+workflow: recovery_optimizer
+governance: auto
+
+gather_inputs:
+  specification: |
+    Retrieve recovery analysis inputs:
+      - get_settlement: Net payable amount and loss breakdown
+      - get_third_party_coverage: Contractor/vendor GL limits
+      - get_legal_cost_estimates: Estimated legal costs for recovery
+
+format_analysis:
+  requirements: |
+    Report the recovery optimization results.
+  format: |
+    {
+      "recommended": "pursue|decline",
+      "expected_net_recovery": 0,
+      "probability_of_liability": 0.0,
+      "probability_of_full_recovery": 0.0,
+      "break_even_probability": 0.0,
+      "estimated_legal_costs": 0,
+      "strategy": "demand_letter|mediation|litigation|decline"
+    }
+  constraints: |
+    Expected recovery must account for legal costs.
+    Recommend decline if break-even probability exceeds
+    probability of liability.
