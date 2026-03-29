@@ -1,0 +1,120 @@
+# Loan Application Review — Domain Specification
+#
+# A regulated decision workflow. Shows all six epistemic primitives
+# (retrieve, classify, investigate, deliberate, verify, govern) in one
+# cohesive use case.
+
+domain_name: consumer_lending
+workflow: loan_application_review
+governance: gate
+
+gather_application:
+  specification: |
+    Pull all required data for this application:
+      - get_credit: Credit report — score, history, derogatory marks, utilisation
+      - get_financials: Income verification, DTI ratio, existing obligations
+      - get_employment: Employment status, tenure, employer verification
+      - get_banking: Banking history, average balance, NSF events (last 12 months)
+      - get_identity: Identity verification status, fraud flags
+
+classify_risk:
+  categories: |
+    - prime: Strong credit profile. Score 720+, DTI under 36%, stable employment
+      2+ years, no derogatory marks in 24 months. Standard approval path.
+    - near_prime: Acceptable profile with minor concerns. Score 660-719, or
+      DTI 36-43%, or employment gap under 6 months. Enhanced review required.
+    - high_risk: Significant concerns. Score below 660, or DTI over 43%, or
+      derogatory marks in 12 months, or unstable employment. Specialist review.
+    - ineligible: Hard disqualifiers present — active bankruptcy, fraud flag,
+      identity verification failed, or DTI above 50%. Cannot proceed.
+  criteria: |
+    Evaluate in this order:
+    1. Check for any hard disqualifiers first → ineligible
+    2. Score and DTI together are the primary drivers
+    3. Employment stability modifies risk up or down
+    4. Banking history is a signal, not a primary factor
+    When near_prime and high_risk are both plausible, choose high_risk.
+    Do not average — the worst qualifying factor sets the tier.
+
+investigate_risk_factors:
+  scope: |
+    1. What is driving the high-risk classification specifically?
+       Be precise: which metric, how far outside acceptable range?
+    2. Are there mitigating factors? (long tenure offsetting income gap,
+       prior excellent history before recent event, etc.)
+    3. What is the trajectory? Is the risk picture improving or worsening?
+    4. Are there income sources not captured in standard verification?
+    5. What is the probability of default given the full picture?
+    6. Would a different loan structure (smaller amount, shorter term,
+       secured) change the risk assessment?
+    7. Are there any fraud or identity concerns that need flagging?
+
+deliberate_recommendation:
+  instruction: |
+    Review the complete application picture and produce a warranted
+    lending recommendation. Your options are:
+      - approve: Approve at requested terms
+      - approve_modified: Approve at different terms (specify in warrant)
+      - approve_with_conditions: Approve pending additional documentation
+      - decline: Decline with specific reason (regulatory requirement)
+      - refer_specialist: Refer to specialist underwriter
+
+    The recommended_action must be one of the above codes.
+    The warrant must explain the logical connection between the
+    applicant's financial picture and your recommendation.
+    Every claim in the warrant must be traceable to the data.
+  focus: |
+    Evaluate against these criteria:
+    - Ability to repay: income, DTI, stability
+    - Willingness to repay: credit history, banking behaviour
+    - Collateral (if secured): asset value vs loan amount
+    - Risk-adjusted return: is this a good risk at the requested terms?
+
+    Fair lending: would a similarly-situated applicant receive the same
+    recommendation? Do not consider factors outside the credit file.
+
+verify_compliance:
+  rules: |
+    The recommendation must satisfy ALL of the following:
+    1. ECOA: Decision cannot be based on age, sex, race, national origin,
+       religion, marital status, or receipt of public assistance.
+    2. FCRA: If declining, adverse action reason must be specific and
+       traceable to a reportable item in the credit file.
+    3. DTI hard cap: Recommendation cannot be approve or approve_modified
+       if DTI exceeds 50% — regulatory maximum.
+    4. Ability-to-repay: Approval must be supportable by verified income,
+       not stated income. If income unverified, conditions apply.
+    5. Adverse action: decline recommendation must include the top 4
+       reasons from the credit file in the warrant.
+    6. Amount limits: loan amount must be within product parameters
+       (min $1,000, max $50,000 for unsecured personal).
+
+govern_decision:
+  governance_context: |
+    Determine governance tier based on the following:
+
+    AUTO (proceed) — when:
+    - Risk tier is prime, recommendation is approve, compliance conforms,
+      loan amount is under $15,000, and confidence >= 0.85
+
+    SPOT_CHECK (proceed, sample for review) — when:
+    - Risk tier is prime or near_prime, recommendation is approve or
+      approve_modified, compliance conforms, amount under $25,000
+
+    GATE (suspend, underwriter review) — when:
+    - Risk tier is high_risk with recommendation to approve or approve_modified
+    - Loan amount is $25,000 or above
+    - Compliance check found violations that need human resolution
+    - Recommendation is refer_specialist
+    - Confidence in recommendation is below 0.70
+
+    HOLD (compliance hold) — when:
+    - Compliance violations are critical (DTI cap, ECOA, FCRA)
+    - Fraud flag is present in the identity or banking data
+    - Adverse action documentation is incomplete
+
+    Work order for underwriter must include:
+    - The specific risk factors that triggered review
+    - The deliberate step's warrant (the reasoning)
+    - All compliance findings
+    - Recommended decision for the underwriter to accept or override

@@ -1,0 +1,49 @@
+domain_name: card_fraud
+governance: gate
+
+investigate_activity:
+  scope: |
+    TRANSACTION PATTERN ANALYSIS:
+    - Velocity of suspicious transactions (count per hour)?
+    - Merchants consistent with member's known shopping behavior?
+    - Geographic spread? Transactions from multiple countries?
+    - Geographic impossibility (local chip use followed by foreign CNP)?
+    - Time of day vs member's typical patterns?
+    - Test transactions (small amounts) before larger charges?
+    
+    COMPROMISE VECTOR ASSESSMENT:
+    - What card data was used? (PAN only, PAN+CVV, PAN+CVV+AVS)?
+    - CVV match with AVS mismatch suggests CNP theft, not physical loss.
+    - Was 3D Secure challenged or bypassed?
+    - Last legitimate chip/contactless transaction?
+    - Known data breach involvement?
+    
+    AUTHORIZATION ANALYSIS:
+    - Which transactions approved vs declined?
+    - Any merchant reversals?
+    
+    MERCHANT ANALYSIS:
+    - Merchants known for fraud targeting (electronics, gift cards)?
+    - Shipping addresses different from billing?
+
+deliberate_determination:
+  framework: |
+    CONFIRMED UNAUTHORIZED (high confidence):
+    - Multiple CNP at unfamiliar merchants
+    - Geographic impossibility with recent local use
+    - Atypical hours, foreign IPs, no travel history
+    - CVV match + AVS mismatch = data theft not physical card
+    - Member confirms card in possession
+    
+    LIKELY UNAUTHORIZED (moderate confidence):
+    - Some suspicious mixed with potentially legitimate
+    - Member not yet contacted
+    
+    POTENTIALLY AUTHORIZED / FIRST-PARTY:
+    - Transactions from member's typical area
+    - Merchants consistent with patterns
+    - No clear compromise vector
+    
+    LOSS: Total unauthorized approved, declined (ongoing compromise indicator),
+    chargeback probability by merchant/MCC. Reg E: provisional credit within
+    10 business days. Member liability: $0 if reported within 2 business days.

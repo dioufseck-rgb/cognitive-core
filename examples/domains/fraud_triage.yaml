@@ -1,0 +1,120 @@
+domain_name: fraud_triage
+workflow: fraud_triage
+description: >
+  Multi-specialty fraud domain covering check fraud, card fraud (CNP),
+  and authorized push payment (APP) scams for retail banking.
+
+check_fraud:
+  investigation_scope: |
+    1. DUPLICATE DETECTION: Compare check images — hash match, MICR line,
+       endorsement signatures, check number. Are they the same physical check?
+    2. DEPOSIT CHANNEL ANALYSIS: Was the check deposited via mobile AND branch?
+       Same check, same member, multiple channels = duplicate submission.
+    3. MAKER VERIFICATION: Has the check cleared the maker's bank? Against which
+       deposit? Is the maker account legitimate?
+    4. TIMING ANALYSIS: How many hours between deposits? Deliberate spacing
+       suggests intent vs. honest mistake (e.g., forgot mobile deposit).
+    5. MEMBER HISTORY: First-time offense? Pattern of duplicate deposits?
+       Regular business deposits or unusual behavior?
+    6. FINANCIAL EXPOSURE: What's the net exposure if both deposits clear?
+       Is the hold sufficient to cover the duplicate?
+    7. INTENT ASSESSMENT: Deliberate fraud vs. honest mistake? Consider member
+       tenure, prior history, and whether mobile deposit confirmation was shown.
+
+card_fraud:
+  investigation_scope: |
+    1. VELOCITY ANALYSIS: How many transactions in what time window?
+       Normal shopping behavior or automated burst?
+    2. DEVICE/IP ANALYSIS: Do the device fingerprints match member's known
+       devices? IP geolocation vs. member's home location? Multiple IPs
+       suggest proxy rotation or distributed attack.
+    3. MERCHANT PATTERN: Are merchants consistent with member's spending
+       history? Electronics/high-value items from new merchants = classic
+       card testing escalation pattern.
+    4. AUTHENTICATION SIGNALS: AVS mismatch, CVV mismatch, 3DS challenge
+       failures — these are strong unauthorized indicators.
+    5. MEMBER CONFIRMATION: Has the member reported the card compromised?
+       When did they notice? Was card in their possession?
+    6. CARD COMPROMISE VECTOR: How was card data likely obtained? Data
+       breach, skimming, phishing, malware?
+    7. TRANSACTION-LEVEL ANALYSIS: Which transactions are clearly
+       unauthorized? Any that might be legitimate? The last transaction
+       may have been declined by the fraud system.
+
+app_scam:
+  investigation_scope: |
+    1. SCAM TYPOLOGY: What type of social engineering is this?
+       - Romance scam: New online relationship, emotional manipulation,
+         urgent financial requests
+       - Investment scam: Too-good-to-be-true returns, fake platforms
+       - Tech support scam: Fake virus alerts, remote access requested
+       - Impersonation: Pretending to be government, bank, or family
+    2. BEHAVIORAL INDICATORS: Escalating amounts, urgency language,
+       coaching indicators (receiving texts during transactions),
+       nervousness, atypical vocabulary in wire purposes.
+    3. BENEFICIARY ANALYSIS: Is the beneficiary account new? In a
+       high-risk jurisdiction? Corporate entity receiving personal funds?
+       Multiple members sending to same beneficiary?
+    4. MEMBER VULNERABILITY: Age, life events (recent bereavement,
+       isolation), military status, prior international experience.
+       These are NOT judgments — they are risk factors that scammers
+       deliberately target.
+    5. SAVINGS DRAWDOWN: Is the member liquidating savings to fund
+       transfers? This is a critical escalation indicator.
+    6. RECOVERY POTENTIAL: How quickly were funds sent? Wire recall
+       window? Beneficiary jurisdiction cooperation likelihood?
+    7. ONGOING RISK: Is the scam likely to continue? Is the member
+       still in contact with the scammer? Are there additional
+       planned transfers?
+
+regulatory:
+  verification_rules: |
+    CHECK FRAUD (Reg CC — 12 CFR 229):
+    - Funds availability: Next-day for first $225, 2 business days for
+      remainder on local checks, 5 days for non-local
+    - Exception holds: Reasonable cause to doubt collectibility allows
+      extended hold (up to 7 business days additional)
+    - Large deposit exception: Over $5,525 can extend hold
+    - Redeposited check exception: Previously returned checks
+    - New account exception: Account less than 30 days old
+    - Notice requirement: Written notice to member if hold exceeds
+      standard period
+
+    CARD FRAUD (Reg E — 12 CFR 1005):
+    - Member must report within 60 days of statement
+    - Max liability $0 if reported before unauthorized use
+    - Max liability $50 if reported within 2 business days
+    - Max liability $500 if reported within 60 days
+    - Provisional credit: Within 10 business days of report
+      (20 days for new accounts)
+    - Investigation deadline: 45 calendar days (90 for POS/foreign/new)
+    - Written determination required at conclusion
+
+    APP/SCAM FRAUD:
+    - No Reg E protection for authorized transactions
+    - SAR filing required if $5,000+ and suspected fraud/scheme
+    - Wire recall: SWIFT gpi recall request within 24 hours optimal
+    - Member notification: Immediate scam awareness education
+    - Elder financial exploitation: Enhanced reporting obligations
+      if member is 65+ or vulnerable adult
+
+resolution:
+  challenge_threat_model: |
+    1. FALSE POSITIVE: Could this be legitimate member activity?
+       - Check fraud: Honest mistake depositing twice?
+       - Card fraud: Family member or authorized user?
+       - APP scam: Legitimate overseas investment?
+    2. EVIDENCE SUFFICIENCY: Is there enough to support the determination?
+       - Would this hold up to member dispute?
+       - Are there gaps that need filling?
+    3. MEMBER IMPACT: What's the impact of getting this wrong?
+       - False positive: Damaged member relationship, blocked access
+       - False negative: Financial loss to member or institution
+    4. REGULATORY COMPLIANCE: Have all required timelines been met?
+       - Provisional credit deadlines
+       - Notice requirements
+       - Filing obligations
+    5. RECOVERY: Is the recommended recovery approach realistic?
+       - Wire recall timelines and success rates
+       - Chargeback likelihood for card transactions
+       - Check return mechanics

@@ -1,0 +1,23 @@
+# Ephemeral runtime state — regenerated fresh on each container start
+coordinator.db
+fraud_demo/fraud_data.db
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Development artifacts
+.git/
+.gitignore
+.env
+*.env
+.venv/
+venv/
+
+# Test output / temp files
+*.log
+*.tmp
+cases/

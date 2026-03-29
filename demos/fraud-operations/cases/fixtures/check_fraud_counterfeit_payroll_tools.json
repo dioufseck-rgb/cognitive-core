@@ -1,0 +1,161 @@
+{
+  "_case_id": "FRD-2026-01128",
+  "get_alert": {
+    "alert_id": "ALT-2026-7511",
+    "generated_at": "2026-02-28T09:45:00Z",
+    "alert_type": "counterfeit_check",
+    "alert_source": "check_return_processing",
+    "monitoring_rule": "RULE-CHK-022: Check returned \u2014 account closed or does not exist, amount exceeding $1,000",
+    "risk_score": 0.92,
+    "priority": "high",
+    "sla_deadline": "2026-03-01T09:45:00Z"
+  },
+  "get_member": {
+    "member_id": "M-40401928",
+    "full_name": "Danielle Reeves",
+    "date_of_birth": "2001-05-09",
+    "ssn_masked": "***-**-1144",
+    "address": "14 Osprey Lane, Pensacola, FL 32514",
+    "phone": "(850) 555-0341",
+    "email": "danielle.reeves2001@outlook.com",
+    "member_since": "2023-01-12",
+    "member_type": "military_family",
+    "branch_affiliation": "Air Force",
+    "relationship": "dependent_child",
+    "employer": "seeking_employment",
+    "annual_pay": 12000,
+    "risk_rating": "low",
+    "notes": "Recent high school graduate, first checking account, no prior check fraud exposure"
+  },
+  "get_account": {
+    "account_number_masked": "****9981",
+    "account_type": "checking",
+    "product": "Campus Checking",
+    "opened": "2023-01-12",
+    "status": "active",
+    "average_balance_6mo": 820,
+    "avg_deposits_6mo": 700,
+    "avg_withdrawals_6mo": 680,
+    "primary_deposit_source": "part_time_job_cash",
+    "check_deposit_history": "1-2 checks per year, all from family members",
+    "current_balance_before_deposit": 412.5
+  },
+  "get_triggering_activity": {
+    "check_number": "10044",
+    "maker_name_on_check": "Atlantic Defense Systems LLC",
+    "maker_bank_on_check": "First Horizon Bank Nashville TN",
+    "routing_number": "084000026",
+    "account_number_on_check": "8841122990",
+    "payable_to": "Danielle Reeves",
+    "memo": "First Week Advance \u2014 Employment Agreement",
+    "amount": 3285.0,
+    "deposit_method": "mobile_deposit",
+    "deposit_date": "2026-02-22",
+    "return_received": "2026-02-28",
+    "return_code": "R02 \u2014 Account Closed",
+    "check_forensics": {
+      "routing_number_valid": true,
+      "account_number_status": "closed \u2014 account belonged to 'Atlantic Marine Repair Inc' closed 2024-08-15",
+      "check_paper": "commercially available blank check stock \u2014 not authentic First Horizon security paper",
+      "printing_quality": "high-quality inkjet printing, passes visual inspection but lacks UV security features",
+      "micr_line": "MICR line printed with toner instead of magnetic ink \u2014 bank sorter flagged"
+    },
+    "employment_scam_details": {
+      "job_posting": "Indeed listing for 'Remote Quality Control Inspector \u2014 $3,285 biweekly'",
+      "company_website": "atlanticdefensesystems.io \u2014 registered 2026-01-14, no physical address",
+      "recruiter_name": "Kevin Morrison",
+      "contact_email": "k.morrison@atlanticdefensesystems.io",
+      "instructions_given": "Received check by mail for 'first week advance plus supplies allowance.' Told to deposit, keep $585 for supplies, and wire remaining $2,700 to a 'supply vendor' immediately.",
+      "wire_attempted": false,
+      "member_action": "Deposited check 2/22. Spent $1,890 before return. Came to branch on 2/28 when account showed negative balance."
+    },
+    "amount_spent_before_return": 1890.0
+  },
+  "get_transactions": {
+    "transactions": [
+      {
+        "txn_id": "TXN-45900100",
+        "date": "2026-02-22",
+        "type": "mobile_deposit",
+        "amount": 3285.0,
+        "description": "CHECK #10044 ATLANTIC DEFENSE SYSTEMS",
+        "running_balance": 3697.5
+      },
+      {
+        "txn_id": "TXN-45910100",
+        "date": "2026-02-23",
+        "type": "debit_card",
+        "amount": -450.0,
+        "description": "WALMART SUPERCENTER PENSACOLA",
+        "running_balance": 3247.5
+      },
+      {
+        "txn_id": "TXN-45912200",
+        "date": "2026-02-23",
+        "type": "debit_card",
+        "amount": -380.0,
+        "description": "TARGET PENSACOLA FL",
+        "running_balance": 2867.5
+      },
+      {
+        "txn_id": "TXN-45920100",
+        "date": "2026-02-24",
+        "type": "atm_withdrawal",
+        "amount": -300.0,
+        "description": "ATM WD NAS PENSACOLA",
+        "running_balance": 2567.5
+      },
+      {
+        "txn_id": "TXN-45925100",
+        "date": "2026-02-25",
+        "type": "debit_card",
+        "amount": -760.0,
+        "description": "ROOMS TO GO PENSACOLA",
+        "running_balance": 1807.5
+      },
+      {
+        "txn_id": "TXN-45928200",
+        "date": "2026-02-26",
+        "type": "debit_card",
+        "amount": -200.0,
+        "description": "AMAZON.COM",
+        "running_balance": 1607.5
+      },
+      {
+        "txn_id": "TXN-45932100",
+        "date": "2026-02-28",
+        "type": "check_return_chargeback",
+        "amount": -3285.0,
+        "description": "RETURNED ITEM CHK #10044",
+        "running_balance": -1677.5
+      }
+    ]
+  },
+  "get_maker_verification": {
+    "maker_name": "Atlantic Defense Systems LLC",
+    "relationship_to_member": "supposed_employer",
+    "maker_bank": "First Horizon Bank",
+    "account_number_on_check": "8841122990",
+    "account_status": "closed \u2014 belonged to Atlantic Marine Repair Inc, closed August 2024",
+    "atlantic_defense_systems_llc": "No entity found in Florida or Tennessee business registries. Website domain 4 weeks old.",
+    "check_cleared_status": "returned_unpaid",
+    "return_reason": "Account Closed (R02)",
+    "duplicate_presentment_flag": false,
+    "maker_contacted": false,
+    "scam_type_confirmed": "fake_payroll_employment_scam"
+  },
+  "get_prior_alerts": {
+    "prior_alerts": [],
+    "prior_fraud_claims": []
+  },
+  "get_reg_cc_info": {
+    "mobile_deposit_hold": "None applied \u2014 new member exception waived under $2,500, remainder made available under existing member standing",
+    "exposure_amount": 3285.0,
+    "amount_already_withdrawn": 1890.0,
+    "account_current_balance": -1677.5,
+    "account_overdrawn": true,
+    "recoverable_amount": 0,
+    "reg_cc_exception_applicable": "Reasonable cause to doubt collectibility exception \u2014 NFCU may recoup funds if case warrants",
+    "collection_options": "NFCU may seek repayment from member for overdrawn balance caused by deposited returned item"
+  }
+}

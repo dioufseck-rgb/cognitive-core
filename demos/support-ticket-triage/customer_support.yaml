@@ -1,0 +1,57 @@
+# Support Ticket Triage — Domain Specification
+#
+# A general-purpose customer support domain.
+# Shows the simplest possible domain pack: three steps, plain language.
+
+domain_name: customer_support
+workflow: support_ticket_triage
+governance: spot_check
+
+classify_severity:
+  categories: |
+    - critical: Complete service outage, data loss, security breach,
+      payment failure affecting all users. Requires immediate response.
+    - high: Core feature broken, significant customer impact, workaround
+      not available. Same-day resolution required.
+    - medium: Feature degraded but workaround exists. Customer is frustrated
+      but operational. Resolution within 24-48 hours.
+    - low: Question, minor inconvenience, feature request, documentation gap.
+      Resolution within standard SLA.
+  criteria: |
+    Classify based on customer impact and business risk.
+    Enterprise/premium tier customers escalate one level by default.
+    When in doubt between critical and high, choose critical.
+    Keywords that signal critical: "down", "all users", "data", "payment",
+    "breach", "can't access", "production".
+
+investigate_issue:
+  scope: |
+    1. What is the specific technical failure or gap? Be precise.
+    2. What is the likely root cause based on the description?
+    3. Is this a known issue or pattern? What does the history suggest?
+    4. What is the fastest resolution path for this customer?
+    5. Are there workarounds the customer can use immediately?
+    6. Is escalation to engineering or a specialist required?
+
+generate_response:
+  requirements: |
+    Write a support response that:
+    1. Acknowledges the specific issue — do not use generic language
+    2. States clearly what happens next and who owns it
+    3. Provides any immediate workaround if available
+    4. Gives a realistic timeline based on severity
+    5. Closes with a direct invitation to reply with questions
+  format: |
+    {
+      "subject": "Re: <original subject>",
+      "body": "<response text>",
+      "internal_note": "<what the support agent should do next>",
+      "escalate_to": "<team or null>",
+      "sla_hours": <number>
+    }
+  constraints: |
+    - Never promise specific resolution times you cannot guarantee
+    - Never say "we apologize for the inconvenience" — be specific
+    - Match tone to severity: direct and urgent for critical, warm for low
+    - internal_note must include concrete next action, not just "investigate"
+    - escalate_to must be one of: engineering, billing, security, account_mgmt, null

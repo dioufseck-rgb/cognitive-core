@@ -1,0 +1,45 @@
+domain_name: fraud_regulatory
+governance: gate
+
+verify_regulatory_compliance:
+  rules: |
+    REG E (12 CFR 1005):
+    - Unauthorized EFT notification: within 1 business day of determining unauthorized
+    - Investigation: 10 business days from member notice, extendable to 45 with provisional credit
+    - Provisional credit: required within 10 business days if investigation not complete
+    - Member liability: $0 if reported within 2 business days, up to $50 within 60 days
+    - Written confirmation of provisional credit within 2 business days
+    - Final determination notification within 3 business days of completing investigation
+    
+    REG CC (12 CFR 229):
+    - Funds availability schedules must be followed
+    - Next-day availability for certain check types
+    - Exception holds: allowed for reasonable cause, must notify member
+    - Large deposit exception: deposits over $5,525 may have extended hold
+    
+    BSA/AML:
+    - SAR filing: required for $5,000+ where suspicious activity suspected
+    - SAR deadline: 30 calendar days from initial detection
+    - No tipping off: must not inform member of SAR filing
+    - Record retention: 5 years
+    
+    AUTHORIZED PUSH PAYMENT:
+    - Reg E does NOT apply — member authorized the transaction
+    - Wire recalls are voluntary courtesy, not regulatory requirement
+    - Zelle payments generally irrevocable
+    - SAR filing still required if recipient activity suspicious
+
+generate_compliance_package:
+  requirements: |
+    Generate compliance documentation:
+    - Regulatory timeline calculation with specific dates
+    - Provisional credit determination and amount (if applicable)
+    - SAR filing recommendation with rationale
+    - Member notification requirements and deadlines
+    - Required disclosures and forms
+    - Regulatory citations for all determinations
+  constraints: |
+    - Cite specific regulation sections (12 CFR 1005, 12 CFR 229)
+    - Calculate exact dates based on business day rules
+    - Distinguish mandatory vs voluntary courtesy actions
+    - Flag deadlines within 48 hours as urgent

@@ -1,0 +1,61 @@
+domain_name: fraud_case_resolution
+governance: gate
+
+challenge_determination:
+  perspective: |
+    You are simultaneously:
+    1. A defense advocate for the member
+    2. A fraud operations quality reviewer
+    3. An adversary testing for gaps
+  threat_model: |
+    CHALLENGE DIMENSIONS:
+    1. EVIDENCE SUFFICIENCY: Enough to support determination? Alternative explanations?
+    2. REGULATORY COMPLIANCE: All timelines met? Correct framework applied?
+    3. MEMBER IMPACT: Actions proportionate? Appropriate empathy for victims?
+    4. INSTITUTIONAL RISK: Regulatory penalties? Accurate loss calculation?
+    5. PATTERN DETECTION: Broader pattern? Other members at risk?
+
+generate_member_notification:
+  requirements: |
+    Generate member-facing notification. Tone varies by fraud type:
+    
+    UNAUTHORIZED FRAUD (card, check by third party):
+    - Reassure member they are protected
+    - Explain actions taken (card blocked, credit issued)
+    - Timeline for investigation
+    - Reg E rights summary
+    
+    SCAM VICTIMS (APP/romance/tech support):
+    - Lead with empathy — member is a victim
+    - Do NOT blame member
+    - Honest recovery options and likelihood
+    - Why Reg E may not apply (authorized payments)
+    - Fraud prevention resources
+    - Law enforcement referral info
+    
+    FIRST-PARTY FRAUD (member committed fraud):
+    - Factual professional tone
+    - State determination and evidence
+    - Account actions taken
+    - Appeal/dispute rights
+  constraints: |
+    - Never include SAR filing info (no tipping off)
+    - Never include internal investigation details
+    - Plain language appropriate for member
+    - Include all required regulatory disclosures
+
+generate_case_summary:
+  requirements: |
+    Generate internal case summary for fraud operations record:
+    - Case ID, alert source, fraud type
+    - Investigation summary with key findings
+    - Determination with confidence level
+    - All actions taken with timestamps
+    - Regulatory compliance status
+    - Recovery status and outlook
+    - Recommendations for ongoing monitoring
+  constraints: |
+    - Objective factual tone for audit review
+    - Include all evidence references
+    - Document analyst overrides of AI recommendations
+    - Flag cross-case patterns

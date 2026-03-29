@@ -1,0 +1,138 @@
+{
+  "case_id": "FRD-2026-00871",
+  "alert_id": "ALT-2026-7102",
+  "alert_type": "mobile_deposit_duplicate",
+  "fraud_type": "check_fraud",
+  "risk_score": 0.87,
+  "description": "Same check deposited via mobile deposit on 2/20 and presented at branch teller on 2/24.",
+
+  "get_alert": {
+    "alert_id": "ALT-2026-7102",
+    "generated_at": "2026-02-24T06:32:00Z",
+    "alert_type": "mobile_deposit_duplicate",
+    "alert_source": "transaction_monitoring",
+    "monitoring_rule": "RULE-CHK-012: Duplicate check image detected across deposit channels within 5 business days",
+    "risk_score": 0.87,
+    "priority": "high",
+    "sla_deadline": "2026-02-25T06:32:00Z"
+  },
+
+  "get_member": {
+    "member_id": "M-40229871",
+    "full_name": "Derek Lawson",
+    "date_of_birth": "1991-03-22",
+    "ssn_masked": "***-**-4418",
+    "address": "3847 Ridgewood Terrace, Apt 204, Virginia Beach, VA 23452",
+    "phone": "(757) 555-0193",
+    "email": "dlawson1991@gmail.com",
+    "member_since": "2016-08-10",
+    "member_type": "active_duty",
+    "branch_affiliation": "Navy",
+    "rank": "E-6 / Petty Officer First Class",
+    "employer": "United States Navy",
+    "title": "Aviation Electronics Technician",
+    "annual_pay": 52000,
+    "risk_rating": "low"
+  },
+
+  "get_account": {
+    "account_number_masked": "****3290",
+    "account_type": "checking",
+    "product": "Active Duty Checking",
+    "opened": "2016-08-10",
+    "status": "active",
+    "average_balance_6mo": 3420,
+    "avg_deposits_6mo": 4800,
+    "avg_withdrawals_6mo": 4650,
+    "primary_deposit_source": "direct_deposit_dfas",
+    "mobile_deposit_frequency": "1-2 per month"
+  },
+
+  "get_triggering_activity": {
+    "check_number": "1847",
+    "maker_name": "Patricia Lawson",
+    "maker_bank": "Wells Fargo",
+    "payable_to": "Derek Lawson",
+    "amount": 2850.00,
+    "memo": "car repair",
+    "deposit_1": {
+      "txn_id": "TXN-44710281",
+      "date": "2026-02-20",
+      "time": "19:42",
+      "channel": "mobile_deposit",
+      "device": "iPhone 15 — app v12.4.1",
+      "amount": 2850.00,
+      "hold_status": "standard_hold",
+      "funds_available": "2026-02-23",
+      "image_quality_score": 0.94,
+      "status": "posted"
+    },
+    "deposit_2": {
+      "txn_id": "TXN-44738102",
+      "date": "2026-02-24",
+      "time": "09:15",
+      "channel": "branch_teller",
+      "branch": "Branch 47 — Virginia Beach Blvd",
+      "teller_id": "T-8841",
+      "amount": 2850.00,
+      "hold_status": "no_hold_existing_member",
+      "funds_available": "immediate",
+      "status": "posted"
+    },
+    "image_comparison": {
+      "similarity_score": 0.997,
+      "micr_match": true,
+      "check_number_match": true,
+      "amount_match": true,
+      "front_image_match": "near_identical",
+      "back_image_match": "different_endorsement_stamps"
+    }
+  },
+
+  "get_transactions": {
+    "transactions": [
+      {"txn_id": "TXN-44680112", "date": "2026-02-15", "type": "direct_deposit", "amount": 2487.60, "description": "DFAS-CL ACTIVE DUTY PAY", "running_balance": 2890.15},
+      {"txn_id": "TXN-44692001", "date": "2026-02-16", "type": "debit_card", "amount": -67.42, "description": "COMMISSARY NAS NORFOLK", "running_balance": 2822.73},
+      {"txn_id": "TXN-44695110", "date": "2026-02-17", "type": "ach_debit", "amount": -1200.00, "description": "RENT PMT ATLANTIC PROP MGMT", "running_balance": 1622.73},
+      {"txn_id": "TXN-44710281", "date": "2026-02-20", "type": "mobile_deposit", "amount": 2850.00, "description": "CHECK #1847 PATRICIA LAWSON", "running_balance": 4430.55},
+      {"txn_id": "TXN-44720445", "date": "2026-02-21", "type": "debit_card", "amount": -189.99, "description": "AUTOZONE VA BEACH", "running_balance": 4240.56},
+      {"txn_id": "TXN-44725501", "date": "2026-02-22", "type": "venmo_transfer", "amount": -500.00, "description": "VENMO PAYMENT TO J.MARTINEZ", "running_balance": 3740.56},
+      {"txn_id": "TXN-44738102", "date": "2026-02-24", "type": "branch_deposit", "amount": 2850.00, "description": "CHECK #1847 PATRICIA LAWSON", "running_balance": 6590.56},
+      {"txn_id": "TXN-44739800", "date": "2026-02-24", "type": "atm_withdrawal", "amount": -500.00, "description": "ATM WD BRANCH 47 VA BCH", "running_balance": 6090.56},
+      {"txn_id": "TXN-44740100", "date": "2026-02-24", "type": "debit_card", "amount": -350.00, "description": "WALMART SUPERCENTER VA BCH", "running_balance": 5740.56}
+    ]
+  },
+
+  "get_maker_verification": {
+    "maker_name": "Patricia Lawson",
+    "relationship_to_member": "mother",
+    "maker_bank": "Wells Fargo",
+    "account_status": "active",
+    "check_cleared_status": "cleared_once",
+    "duplicate_presentment_flag": true,
+    "maker_contacted": false
+  },
+
+  "get_prior_alerts": {
+    "prior_alerts": [],
+    "prior_fraud_claims": []
+  },
+
+  "get_reg_cc_info": {
+    "mobile_deposit_hold": "2-day standard hold applied",
+    "branch_deposit_hold": "immediate availability — existing member exception",
+    "exposure_amount": 2850.00,
+    "recovery_window": "within 24 hours if action taken immediately"
+  },
+
+  "_meta": {
+    "scenario": "check_fraud_mobile_deposit_duplicate",
+    "difficulty": "medium",
+    "design_notes": "Ambiguous intent — could be honest mistake or deliberate exploitation of hold differences. Key signal: ATM withdrawal + Walmart purchase immediately after branch deposit.",
+    "ground_truth": {
+      "fraud_type": "check_fraud",
+      "determination": "fraud_confirmed",
+      "loss_exposure": 2850.00
+    }
+  }
+}

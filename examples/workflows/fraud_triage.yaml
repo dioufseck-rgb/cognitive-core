@@ -1,0 +1,219 @@
+name: fraud_triage
+description: >
+  Multi-agent fraud triage orchestrator. Classifies incoming fraud alerts,
+  delegates to the appropriate specialty agent (check_fraud, card_fraud,
+  app_scam), and routes results through regulatory check and case resolution.
+  Uses A2A demand-driven delegation — routing emerges from alert characteristics.
+
+agents:
+  triage:
+    role: Fraud Alert Triage
+    primitives: [classify, retrieve]
+    description: Classifies incoming alerts and delegates to the correct specialty agent.
+
+  check_fraud:
+    role: Check Fraud Specialist
+    primitives: [retrieve, investigate, think]
+    description: Investigates check fraud — duplicates, altered checks, counterfeits.
+
+  card_fraud:
+    role: Card Fraud Specialist
+    primitives: [retrieve, investigate, think]
+    description: Investigates card-not-present fraud, velocity bursts, device anomalies.
+
+  app_scam:
+    role: APP/Scam Specialist
+    primitives: [retrieve, investigate, think]
+    description: Investigates authorized push payment fraud — romance scams, social engineering.
+
+  regulatory:
+    role: Regulatory Compliance
+    primitives: [verify, generate]
+    description: Checks regulatory requirements (Reg E, Reg CC) and generates filing drafts.
+    mcp_tools:
+      - name: check_reg_e_timeline
+        description: Verify Reg E provisional credit and investigation timeline requirements
+      - name: check_reg_cc_hold
+        description: Verify Reg CC check hold requirements and exceptions
+      - name: assess_sar_threshold
+        description: Assess whether activity meets SAR filing threshold
+
+  resolution:
+    role: Case Resolution
+    primitives: [challenge, act]
+    description: Challenges the determination, recommends actions, and queues for HITL approval.
+    mcp_tools:
+      - name: block_card
+        description: Block a compromised card
+      - name: place_hold
+        description: Place a hold on an account or transaction
+      - name: issue_provisional_credit
+        description: Issue provisional credit to member
+      - name: generate_member_notification
+        description: Generate member-facing communication
+
+steps:
+  # ═══ TRIAGE AGENT ═══
+  - name: triage_classify
+    agent: triage
+    primitive: classify
+    params:
+      categories: |
+        - check_fraud: Check-related fraud including mobile deposit duplicates,
+          altered checks, counterfeit checks, forged endorsements.
+        - card_fraud: Card-not-present or card-present unauthorized transactions,
+          velocity bursts, device/IP anomalies, compromised credentials.
+        - app_scam: Authorized push payment fraud where the member initiated
+          the transaction under social engineering — romance scams, tech support
+          scams, investment scams, impersonation.
+      criteria: |
+        Analyze the alert type, transaction patterns, and available signals to
+        determine which fraud specialty should investigate this case.
+        Consider:
+        - Transaction channel (mobile, branch, card, wire)
+        - Whether the member authorized the transactions
+        - The nature of the suspicious indicators
+        - Whether there are third-party beneficiaries
+    transitions:
+      - when: output.category == 'check_fraud'
+        goto: check_investigate
+      - when: output.category == 'card_fraud'
+        goto: card_investigate
+      - when: output.category == 'app_scam'
+        goto: app_investigate
+      - default: check_investigate
+    temperature: 0.0
+
+  # ═══ CHECK FRAUD AGENT ═══
+  - name: check_investigate
+    agent: check_fraud
+    primitive: investigate
+    max_loops: 2
+    loop_fallback: regulatory_check
+    params:
+      question: |
+        Alert: ${triage_classify.category}
+        Investigate this check fraud case. Determine:
+        1. Is this a duplicate deposit, altered check, or counterfeit?
+        2. What is the evidence strength?
+        3. What is the financial exposure?
+      scope: ${domain.check_fraud.investigation_scope}
+      available_evidence: |
+        Transactions: ${input.transactions}
+        Check analysis: ${input.check_analysis}
+        Member profile: ${input.member}
+        Account: ${input.account}
+      effort_level: deep
+    transitions:
+      - default: regulatory_check
+
+  # ═══ CARD FRAUD AGENT ═══
+  - name: card_investigate
+    agent: card_fraud
+    primitive: investigate
+    max_loops: 2
+    loop_fallback: regulatory_check
+    params:
+      question: |
+        Alert: ${triage_classify.category}
+        Investigate this card fraud case. Determine:
+        1. Are these unauthorized transactions?
+        2. What device/IP/geolocation evidence supports fraud?
+        3. What is the total exposure and which transactions to dispute?
+      scope: ${domain.card_fraud.investigation_scope}
+      available_evidence: |
+        Transactions: ${input.transactions}
+        Device analysis: ${input.device_analysis}
+        Member profile: ${input.member}
+        Card details: ${input.card}
+        Member contact: ${input.member_contact_log}
+      effort_level: deep
+    transitions:
+      - default: regulatory_check
+
+  # ═══ APP/SCAM AGENT ═══
+  - name: app_investigate
+    agent: app_scam
+    primitive: investigate
+    max_loops: 2
+    loop_fallback: regulatory_check
+    params:
+      question: |
+        Alert: ${triage_classify.category}
+        Investigate this potential APP/scam case. Determine:
+        1. What type of scam is likely? (romance, investment, tech support, impersonation)
+        2. What behavioral and coaching indicators are present?
+        3. Is there potential for fund recovery?
+        4. What is the member's vulnerability profile?
+      scope: ${domain.app_scam.investigation_scope}
+      available_evidence: |
+        Transactions: ${input.transactions}
+        Behavioral signals: ${input.behavioral_signals}
+        Member profile: ${input.member}
+        Account: ${input.account}
+        Profile notes: ${input.member_profile_notes}
+      effort_level: deep
+    transitions:
+      - default: regulatory_check
+
+  # ═══ REGULATORY AGENT ═══
+  - name: regulatory_check
+    agent: regulatory
+    primitive: verify
+    params:
+      input: |
+        Case type: ${triage_classify.category}
+        Investigation finding: ${_previous_investigation.finding}
+        Investigation confidence: ${_previous_investigation.confidence}
+        Member: ${input.member}
+        Transactions: ${input.transactions}
+      rules: ${domain.regulatory.verification_rules}
+    transitions:
+      - default: resolution_challenge
+    temperature: 0.0
+
+  # ═══ RESOLUTION AGENT ═══
+  - name: resolution_challenge
+    agent: resolution
+    primitive: challenge
+    params:
+      input: |
+        Case: ${input.case_id}
+        Classification: ${triage_classify.category}
+        Investigation: ${_previous_investigation.finding}
+        Regulatory check: ${regulatory_check.conforms}
+      perspective: |
+        Challenge from three perspectives:
+        1. MEMBER ADVOCATE: Could there be a legitimate explanation?
+        2. FRAUD ANALYST: Is the evidence sufficient for the determination?
+        3. COMPLIANCE: Are all regulatory requirements met?
+      threat_model: ${domain.resolution.challenge_threat_model}
+    transitions:
+      - default: resolution_recommend
+
+  - name: resolution_recommend
+    agent: resolution
+    primitive: generate
+    params:
+      requirements: |
+        Generate a case resolution recommendation including:
+        1. Fraud determination (confirmed/suspected/unconfirmed)
+        2. Recommended immediate actions (card block, hold, provisional credit)
+        3. Member communication plan
+        4. Regulatory filing requirements
+        5. Recovery potential assessment
+
+        Case context:
+        - Type: ${triage_classify.category}
+        - Investigation: ${_previous_investigation.finding}
+        - Challenge result: ${resolution_challenge.survives}
+        - Regulatory: ${regulatory_check.conforms}
+        - Member: ${input.member.full_name}
+      format: case_resolution_recommendation
+      constraints: |
+        - Be specific about dollar amounts and timelines
+        - Reference Reg E or Reg CC timelines where applicable
+        - Identify which actions require HITL approval
+        - Include member vulnerability considerations for APP/scam cases
+    transitions:
+      - default: __end__

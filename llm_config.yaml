@@ -1,96 +1,136 @@
-# ═══════════════════════════════════════════════════════════════════════
-# Cognitive Core — LLM Provider Configuration
-# ═══════════════════════════════════════════════════════════════════════
+# ─────────────────────────────────────────────────────────────────────────────
+# Cognitive Core — LLM Configuration
 #
-# This file externalizes all provider/model mappings from Python code.
-# To switch providers: change `default_provider` or set LLM_PROVIDER env var.
-# To change models: update the alias table below.
-# No Python code changes required.
+# This file is the single source of truth for model names and provider settings.
+# Edit this file when models are deprecated or you want to use different models.
+# Never hardcode model names in application code.
 #
-# Environment variable overrides (highest priority):
-#   LLM_PROVIDER       — overrides default_provider
-#   LLM_DEFAULT_MODEL  — overrides the "default" alias for the active provider
-# ═══════════════════════════════════════════════════════════════════════
+# Override any value without editing this file:
+#   LLM_DEFAULT_MODEL=<model>     override the default model
+#   LLM_PROVIDER=<provider>       override the provider
+#   LLM_CONFIG_PATH=<path>        load a different config file entirely
+# ─────────────────────────────────────────────────────────────────────────────
 
-# Which provider to use when no env var or CLI flag is set.
-# Values: google | azure | azure_foundry | openai | bedrock
-default_provider: azure_foundry
+# ── Provider ──────────────────────────────────────────────────────────────────
+# Leave null to auto-detect from API key environment variables.
+# Set explicitly to force a specific provider.
+#
+#   null        → auto-detect (recommended)
+#   google      → requires GOOGLE_API_KEY
+#   openai      → requires OPENAI_API_KEY
+#   azure       → requires AZURE_OPENAI_ENDPOINT + AZURE_OPENAI_API_KEY
+#   bedrock     → requires AWS credentials
+#
+default_provider: null
 
-# ── Model Alias Table ────────────────────────────────────────────────
-# Workflow YAML uses logical names (default, fast, standard, strong).
-# This table maps them to provider-specific model IDs.
-# Add new tiers (e.g., "reasoning", "vision") as needed.
 
+# ── Model aliases ─────────────────────────────────────────────────────────────
+# Maps logical alias → provider → model name.
+# Workflows reference aliases ("default", "fast", "standard", "strong").
+# Changing a model here updates all workflows that use that alias.
+#
+# IMPORTANT: Model availability varies by API key tier and region.
+# If you get a 404 error, replace the model name here with one from:
+#   python -m cognitive_core.engine.llm --list-models
+#
 aliases:
+  # Default: used when no model is specified. Should be fast and cheap.
   default:
-    google:         gemini-2.0-flash
-    azure:          gpt-4o-mini
-    azure_foundry:  gpt-4o-mini
-    openai:         gpt-4o-mini
-    bedrock:        anthropic.claude-3-5-haiku-20241022-v1:0
+    google:       gemini-3.1-flash-lite-preview        # update if deprecated for your key
+    openai:       gpt-4o-mini
+    azure:        gpt-4o-mini
+    azure_foundry: gpt-4o-mini
+    bedrock:      anthropic.claude-3-5-haiku-20241022-v1:0
 
+  # Fast: same as default — used for low-latency, high-volume steps.
   fast:
-    google:         gemini-2.0-flash
-    azure:          gpt-4o-mini
-    azure_foundry:  gpt-4o-mini
-    openai:         gpt-4o-mini
-    bedrock:        anthropic.claude-3-5-haiku-20241022-v1:0
+    google:       gemini-2.0-flash
+    openai:       gpt-4o-mini
+    azure:        gpt-4o-mini
+    azure_foundry: gpt-4o-mini
+    bedrock:      anthropic.claude-3-5-haiku-20241022-v1:0
 
+  # Standard: used for steps requiring more reasoning depth.
   standard:
-    google:         gemini-2.5-pro
-    azure:          gpt-4o
-    azure_foundry:  gpt-4o
-    openai:         gpt-4o
-    bedrock:        anthropic.claude-3-5-sonnet-20241022-v2:0
+    google:       gemini-2.5-pro
+    openai:       gpt-4o
+    azure:        gpt-4o
+    azure_foundry: gpt-4o
+    bedrock:      anthropic.claude-3-5-sonnet-20241022-v2:0
 
+  # Strong: used for the most complex reasoning steps.
   strong:
-    google:         gemini-2.5-pro
-    azure:          gpt-4o
-    azure_foundry:  gpt-4o
-    openai:         gpt-4o
-    bedrock:        anthropic.claude-3-5-sonnet-20241022-v2:0
+    google:       gemini-2.5-pro
+    openai:       gpt-4o
+    azure:        gpt-4o
+    azure_foundry: gpt-4o
+    bedrock:      anthropic.claude-3-5-sonnet-20241022-v2:0
 
-# ── Reverse Lookup ───────────────────────────────────────────────────
-# Maps provider-specific model names → provider.
-# Used when CLI passes a raw model name (e.g., --model gpt-4o).
 
+# ── Model → provider lookup ───────────────────────────────────────────────────
+# Used to infer the provider when a workflow specifies a model name directly.
+# Add entries here when using models not listed above.
+#
 model_to_provider:
   # Google
-  gemini-2.0-flash:   google
-  gemini-2.5-pro:     google
-  gemini-1.5-pro:     google
-  gemini-1.5-flash:   google
-  # OpenAI / Azure
-  gpt-4o:             openai
-  gpt-4o-mini:        openai
-  gpt-4.1:            openai
-  gpt-4.1-mini:       openai
-  gpt-4.1-nano:       openai
-  o3:                 openai
-  o3-mini:            openai
-  o4-mini:            openai
-  # Anthropic / Bedrock
-  claude-3-5-sonnet:  bedrock
-  claude-3-5-haiku:   bedrock
-  claude-sonnet-4:    bedrock
+  gemini-2.0-flash:             google
+  gemini-2.0-flash-lite:        google
+  gemini-2.5-flash-preview-04-17: google
+  gemini-2.5-pro:               google
+  gemini-3.1-flash-lite-preview: google
+  gemini-3.1-pro-preview-customtools: google
+  # OpenAI
+  gpt-4o:                       openai
+  gpt-4o-mini:                  openai
+  gpt-4.1:                      openai
+  gpt-4.1-mini:                 openai
+  o3:                           openai
+  o4-mini:                      openai
+  # Anthropic via Bedrock
+  anthropic.claude-3-5-haiku-20241022-v1:0:   bedrock
+  anthropic.claude-3-5-sonnet-20241022-v2:0:  bedrock
+  anthropic.claude-3-7-sonnet-20250219-v1:0:  bedrock
 
-# ── Provider Defaults ────────────────────────────────────────────────
-# Fallback model when alias resolution produces nothing.
 
+# ── Provider-level defaults ───────────────────────────────────────────────────
+# Fallback model per provider when no alias matches.
+#
 provider_defaults:
-  google:         gemini-2.0-flash
-  azure:          gpt-4o
-  azure_foundry:  gpt-4o
-  openai:         gpt-4o
-  bedrock:        anthropic.claude-3-5-sonnet-20241022-v2:0
+  google:       gemini-2.0-flash
+  openai:       gpt-4o-mini
+  azure:        gpt-4o
+  azure_foundry: gpt-4o
+  bedrock:      anthropic.claude-3-5-haiku-20241022-v1:0
 
-# ── Provider-Specific Settings ───────────────────────────────────────
-# Optional per-provider config. Env vars always override these.
 
+# ── Pricing (cost tracking) ───────────────────────────────────────────────────
+# USD per million tokens. Used for cost tracking — not required for operation.
+# Set to null to disable cost tracking for a model.
+#
+pricing:
+  gemini-2.0-flash:
+    input_per_million:  0.10
+    output_per_million: 0.40
+  gemini-2.5-pro:
+    input_per_million:  1.25
+    output_per_million: 10.00
+  gpt-4o-mini:
+    input_per_million:  0.15
+    output_per_million: 0.60
+  gpt-4o:
+    input_per_million:  2.50
+    output_per_million: 10.00
+
+
+# ── Provider settings ─────────────────────────────────────────────────────────
+# Provider-specific configuration. Uncomment and edit as needed.
+#
 provider_settings:
+  google:
+    # temperature: 0.7
+    # top_p: 0.95
+    # max_output_tokens: 8192
+  openai:
+    # timeout: 60
   azure:
-    api_version: "2024-12-01-preview"
-  azure_foundry:
-    api_version: "2024-12-01-preview"
-  bedrock:
-    region: us-east-1
+    # api_version: "2024-08-01-preview"

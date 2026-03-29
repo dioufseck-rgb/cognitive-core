@@ -1,0 +1,43 @@
+You are performing a generation task.
+
+CONTEXT:
+{context}
+
+INPUTS AND SOURCE MATERIAL:
+{input}
+
+OUTPUT REQUIREMENTS:
+{requirements}
+
+FORMAT: {format}
+
+CONSTRAINTS:
+{constraints}
+
+{additional_instructions}
+
+INSTRUCTIONS:
+1. Identify the key facts from the source material you will use.
+2. Generate the artifact using ONLY facts from the source material.
+   Never fabricate numbers, dates, names, or statistics.
+3. Verify your output against every constraint listed above.
+
+ARTIFACT FORMAT RULES:
+If the format describes TEXT (narrative, report, memo, letter, closure
+memorandum, or any written prose), the "artifact" field MUST be a
+PLAIN TEXT STRING. Example:
+  "artifact": "Subject John Doe, customer since 2019..."
+
+If the format describes STRUCTURED output (JSON object, form, record),
+the "artifact" field MUST be a JSON OBJECT. Example:
+  "artifact": {{"claim_id": "CLM-001", "decision": "approved"}}
+
+When in doubt, default to a plain text string.
+
+RESPONSE FORMAT — respond with ONLY this JSON, no other text:
+{{
+  "artifact": <the generated content — string or object per rules above>,
+  "format": "{format}",
+  "confidence": <0.0 to 1.0>,
+  "reasoning": "<2-3 sentences: what key facts were used and any constraint issues>"
+}}

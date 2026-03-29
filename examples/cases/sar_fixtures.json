@@ -1,0 +1,903 @@
+{
+  "institution": {
+    "name": "First Atlantic Bank",
+    "charter_type": "commercial_bank",
+    "regulator": "OCC",
+    "bsa_officer": "Catherine Marsh, CAMS",
+    "fincen_id": "31000047821"
+  },
+  "cases": [
+    {
+      "alert": {
+        "alert_id": "ALT-2026-4471",
+        "generated_at": "2026-02-21T08:14:00Z",
+        "alert_type": "structuring",
+        "risk_score": 0.82,
+        "monitoring_rule": "RULE-STR-003: Multiple cash deposits below CTR threshold within 30-day window",
+        "disposition": "pending_review"
+      },
+      "subject": {
+        "customer_id": "C-20190088421",
+        "full_name": "Andre Simmons",
+        "date_of_birth": "1984-06-17",
+        "ssn_masked": "***-**-7241",
+        "address": "1940 Ridgeview Dr, Unit B, Lakewood, CO 80215",
+        "phone": "(720) 555-0148",
+        "email": "asimmons@primedetailing.com",
+        "employment": {
+          "employer": "Self-employed",
+          "business_name": "Prime Auto Detailing LLC",
+          "title": "Owner/Operator",
+          "since": "2018-09-01",
+          "naics_code": "811192",
+          "state_of_incorporation": "CO",
+          "ein_masked": "**-***4782"
+        },
+        "income": {
+          "stated_annual": 85000,
+          "source": "business_revenue",
+          "verified": true,
+          "verification_date": "2024-01-15"
+        },
+        "risk_rating": {
+          "current": "medium",
+          "prior": "low",
+          "last_review": "2025-08-20"
+        },
+        "relationship_since": "2019-03-14"
+      },
+      "account": {
+        "account_number_masked": "****7712",
+        "account_type": "business_checking",
+        "product": "Business Advantage Checking",
+        "opened": "2019-03-14",
+        "status": "active",
+        "average_balance_6mo": 14200,
+        "monthly_activity_summary": {
+          "avg_deposits_6mo": 22400,
+          "avg_withdrawals_6mo": 21100,
+          "avg_cash_deposits_6mo": 18200,
+          "typical_deposit_range": [
+            2000,
+            8000
+          ],
+          "typical_counterparties": [
+            "card_processing_merchant_services",
+            "cash"
+          ],
+          "notes": "Cash-intensive business consistent with auto detailing. Prior 6 months stable."
+        }
+      },
+      "transactions": [
+        {
+          "txn_id": "TXN-90281401",
+          "date": "2026-02-03",
+          "time": "10:22",
+          "type": "cash_deposit",
+          "amount": 8400,
+          "branch": "Branch 14 - Lakewood",
+          "teller_id": "T-4421",
+          "atm_id": null,
+          "running_balance": 22600,
+          "ref": "DEP-90281401"
+        },
+        {
+          "txn_id": "TXN-90281855",
+          "date": "2026-02-04",
+          "time": "14:05",
+          "type": "cash_deposit",
+          "amount": 9200,
+          "branch": "Branch 7 - Arvada",
+          "teller_id": "T-2287",
+          "atm_id": null,
+          "running_balance": 31800,
+          "ref": "DEP-90281855"
+        },
+        {
+          "txn_id": "TXN-90282104",
+          "date": "2026-02-06",
+          "time": "09:41",
+          "type": "cash_deposit",
+          "amount": 7800,
+          "branch": "Branch 22 - Westminster",
+          "teller_id": "T-5510",
+          "atm_id": null,
+          "running_balance": 39600,
+          "ref": "DEP-90282104"
+        },
+        {
+          "txn_id": "TXN-90282387",
+          "date": "2026-02-07",
+          "time": "15:33",
+          "type": "cash_deposit",
+          "amount": 4200,
+          "branch": "Branch 14 - Lakewood",
+          "teller_id": "T-4421",
+          "atm_id": null,
+          "running_balance": 43800,
+          "ref": "DEP-90282387"
+        },
+        {
+          "txn_id": "TXN-90282901",
+          "date": "2026-02-10",
+          "time": "11:17",
+          "type": "cash_deposit",
+          "amount": 9800,
+          "branch": "Branch 3 - Downtown",
+          "teller_id": "T-1104",
+          "atm_id": null,
+          "running_balance": 53600,
+          "ref": "DEP-90282901"
+        },
+        {
+          "txn_id": "TXN-90283244",
+          "date": "2026-02-11",
+          "time": "13:48",
+          "type": "cash_deposit",
+          "amount": 6500,
+          "branch": "Branch 18 - Thornton",
+          "teller_id": "T-3378",
+          "atm_id": null,
+          "running_balance": 60100,
+          "ref": "DEP-90283244"
+        },
+        {
+          "txn_id": "TXN-90283501",
+          "date": "2026-02-12",
+          "time": "10:02",
+          "type": "cash_deposit",
+          "amount": 8900,
+          "branch": "Branch 11 - Aurora",
+          "teller_id": "T-6692",
+          "atm_id": null,
+          "running_balance": 69000,
+          "ref": "DEP-90283501"
+        },
+        {
+          "txn_id": "TXN-90283899",
+          "date": "2026-02-14",
+          "time": "16:20",
+          "type": "cash_deposit",
+          "amount": 5600,
+          "branch": "Branch 9 - Englewood",
+          "teller_id": "T-2901",
+          "atm_id": null,
+          "running_balance": 74600,
+          "ref": "DEP-90283899"
+        },
+        {
+          "txn_id": "TXN-90284102",
+          "date": "2026-02-17",
+          "time": "09:55",
+          "type": "cash_deposit",
+          "amount": 7400,
+          "branch": "Branch 3 - Downtown",
+          "teller_id": "T-1108",
+          "atm_id": null,
+          "running_balance": 82000,
+          "ref": "DEP-90284102"
+        },
+        {
+          "txn_id": "TXN-90284388",
+          "date": "2026-02-18",
+          "time": "14:30",
+          "type": "cash_deposit",
+          "amount": 9600,
+          "branch": "Branch 27 - Broomfield",
+          "teller_id": "T-7104",
+          "atm_id": null,
+          "running_balance": 91600,
+          "ref": "DEP-90284388"
+        },
+        {
+          "txn_id": "TXN-90284701",
+          "date": "2026-02-19",
+          "time": "11:42",
+          "type": "cash_deposit",
+          "amount": 5800,
+          "branch": "Branch 22 - Westminster",
+          "teller_id": "T-5510",
+          "atm_id": null,
+          "running_balance": 97400,
+          "ref": "DEP-90284701"
+        },
+        {
+          "txn_id": "TXN-90284990",
+          "date": "2026-02-20",
+          "time": "15:10",
+          "type": "cash_deposit",
+          "amount": 4200,
+          "branch": "Branch 14 - Lakewood",
+          "teller_id": "T-4425",
+          "atm_id": null,
+          "running_balance": 101600,
+          "ref": "DEP-90284990"
+        }
+      ],
+      "prior_alerts": [
+        {
+          "alert_id": "ALT-2023-1192",
+          "date": "2023-07-14",
+          "type": "fraud_referral",
+          "disposition": "cleared",
+          "analyst": "K. Novak",
+          "notes": "Referral from fraud ops re: disputed mobile deposit. Investigation found legitimate business check deposited via mobile. No further action."
+        }
+      ],
+      "prior_sars": [],
+      "ctr_history": {
+        "filings_12mo": 0,
+        "expected_filings": "3-4 based on cash volume",
+        "notes": "Despite $87,400 in cash deposits across multiple reporting periods, no CTR filings triggered. All individual deposits remained below $10,000 threshold."
+      },
+      "entity_lookups": [],
+      "ofac_screening": {
+        "screening_id": "SCR-2026-88421",
+        "entity_screened": "Andre Simmons / Prime Auto Detailing LLC",
+        "lists_checked": [
+          "SDN",
+          "Consolidated Non-SDN",
+          "Sectoral Sanctions"
+        ],
+        "result": "no_match",
+        "timestamp": "2026-02-21T08:14:22Z"
+      }
+    },
+    {
+      "alert": {
+        "alert_id": "ALT-2026-4488",
+        "generated_at": "2026-02-22T06:30:00Z",
+        "alert_type": "unusual_wire_activity",
+        "risk_score": 0.71,
+        "monitoring_rule": "RULE-WIR-007: International wire from high-risk jurisdiction to personal account with no prior international activity",
+        "disposition": "pending_review"
+      },
+      "subject": {
+        "customer_id": "C-20150077209",
+        "full_name": "Helen Fournier",
+        "date_of_birth": "1958-11-03",
+        "ssn_masked": "***-**-3847",
+        "address": "442 Maple Ct, Greenville, SC 29607",
+        "phone": "(864) 555-0231",
+        "email": "hfournier58@gmail.com",
+        "employment": {
+          "employer": "Retired",
+          "business_name": null,
+          "title": "Former teacher, Greenville County Schools",
+          "since": "2020-06-01",
+          "naics_code": null,
+          "state_of_incorporation": null,
+          "ein_masked": null
+        },
+        "income": {
+          "stated_annual": 45600,
+          "source": "pension_social_security",
+          "verified": true,
+          "verification_date": "2023-09-01"
+        },
+        "risk_rating": {
+          "current": "low",
+          "prior": "low",
+          "last_review": "2024-12-01"
+        },
+        "relationship_since": "2015-07-22"
+      },
+      "account": {
+        "account_number_masked": "****3390",
+        "account_type": "personal_checking",
+        "product": "Essential Checking",
+        "opened": "2015-07-22",
+        "status": "active",
+        "average_balance_6mo": 8400,
+        "monthly_activity_summary": {
+          "avg_deposits_6mo": 4200,
+          "avg_withdrawals_6mo": 3800,
+          "avg_cash_deposits_6mo": 0,
+          "typical_deposit_range": [
+            3800,
+            4600
+          ],
+          "typical_counterparties": [
+            "pension_direct_deposit",
+            "social_security_direct_deposit"
+          ],
+          "notes": "Highly predictable pattern. Pension + SS deposits monthly. Standard bill pay and debit card usage. No prior wire activity of any kind."
+        }
+      },
+      "transactions": [
+        {
+          "txn_id": "TXN-90290112",
+          "date": "2026-02-10",
+          "time": "09:01",
+          "type": "wire_in",
+          "amount": 15000,
+          "branch": null,
+          "teller_id": null,
+          "atm_id": null,
+          "running_balance": 23400,
+          "ref": "WIRE-IN-78441",
+          "wire_detail": {
+            "originator_name": "Reef Capital Partners Ltd",
+            "originator_account": "KY-4420-8871-001",
+            "originator_bank": "Cayman National Bank Ltd",
+            "originator_country": "KY",
+            "purpose": "Investment distribution",
+            "swift_ref": "CNAT-2026-02-10-78441"
+          }
+        },
+        {
+          "txn_id": "TXN-90290288",
+          "date": "2026-02-11",
+          "time": "14:22",
+          "type": "wire_out",
+          "amount": 14800,
+          "branch": null,
+          "teller_id": null,
+          "atm_id": null,
+          "running_balance": 8600,
+          "ref": "WIRE-OUT-78442",
+          "wire_detail": {
+            "beneficiary_name": "Fournier Investment Account",
+            "beneficiary_account": "****8821",
+            "beneficiary_bank": "Merrill Edge",
+            "beneficiary_country": "US",
+            "purpose": "Account transfer",
+            "swift_ref": null
+          }
+        },
+        {
+          "txn_id": "TXN-90291455",
+          "date": "2026-02-14",
+          "time": "10:15",
+          "type": "wire_in",
+          "amount": 14500,
+          "branch": null,
+          "teller_id": null,
+          "atm_id": null,
+          "running_balance": 23100,
+          "ref": "WIRE-IN-78502",
+          "wire_detail": {
+            "originator_name": "Reef Capital Partners Ltd",
+            "originator_account": "KY-4420-8871-001",
+            "originator_bank": "Cayman National Bank Ltd",
+            "originator_country": "KY",
+            "purpose": "Investment distribution",
+            "swift_ref": "CNAT-2026-02-14-78502"
+          }
+        },
+        {
+          "txn_id": "TXN-90291601",
+          "date": "2026-02-15",
+          "time": "11:30",
+          "type": "wire_out",
+          "amount": 14200,
+          "branch": null,
+          "teller_id": null,
+          "atm_id": null,
+          "running_balance": 8900,
+          "ref": "WIRE-OUT-78503",
+          "wire_detail": {
+            "beneficiary_name": "Fournier Investment Account",
+            "beneficiary_account": "****8821",
+            "beneficiary_bank": "Merrill Edge",
+            "beneficiary_country": "US",
+            "purpose": "Account transfer",
+            "swift_ref": null
+          }
+        },
+        {
+          "txn_id": "TXN-90292710",
+          "date": "2026-02-19",
+          "time": "08:45",
+          "type": "wire_in",
+          "amount": 14000,
+          "branch": null,
+          "teller_id": null,
+          "atm_id": null,
+          "running_balance": 22900,
+          "ref": "WIRE-IN-78588",
+          "wire_detail": {
+            "originator_name": "Reef Capital Partners Ltd",
+            "originator_account": "KY-4420-8871-001",
+            "originator_bank": "Cayman National Bank Ltd",
+            "originator_country": "KY",
+            "purpose": "Investment distribution",
+            "swift_ref": "CNAT-2026-02-19-78588"
+          }
+        },
+        {
+          "txn_id": "TXN-90292844",
+          "date": "2026-02-20",
+          "time": "13:10",
+          "type": "wire_out",
+          "amount": 13700,
+          "branch": null,
+          "teller_id": null,
+          "atm_id": null,
+          "running_balance": 9200,
+          "ref": "WIRE-OUT-78589",
+          "wire_detail": {
+            "beneficiary_name": "Fournier Investment Account",
+            "beneficiary_account": "****8821",
+            "beneficiary_bank": "Merrill Edge",
+            "beneficiary_country": "US",
+            "purpose": "Account transfer",
+            "swift_ref": null
+          }
+        }
+      ],
+      "prior_alerts": [],
+      "prior_sars": [],
+      "ctr_history": {
+        "filings_12mo": 0,
+        "expected_filings": "0 \u2014 no cash transactions",
+        "notes": "Not applicable. Activity is wire-based."
+      },
+      "entity_lookups": [
+        {
+          "entity": "Reef Capital Partners Ltd",
+          "jurisdiction": "Cayman Islands",
+          "source": "Cayman Islands Monetary Authority (CIMA) registry",
+          "result": "no_public_record",
+          "details": "Cayman Islands does not maintain a publicly searchable corporate registry. Entity cannot be independently verified through public sources. CIMA-regulated entities are not disclosed publicly.",
+          "searched_at": "2026-02-22T06:31:00Z"
+        },
+        {
+          "entity": "Reef Capital Partners Ltd",
+          "jurisdiction": "international",
+          "source": "FinCEN 314(b) request",
+          "result": "pending",
+          "details": "314(b) information sharing request submitted 2026-02-22. Response pending.",
+          "searched_at": "2026-02-22T06:35:00Z"
+        }
+      ],
+      "ofac_screening": {
+        "screening_id": "SCR-2026-77209",
+        "entity_screened": "Helen Fournier / Reef Capital Partners Ltd",
+        "lists_checked": [
+          "SDN",
+          "Consolidated Non-SDN",
+          "Sectoral Sanctions",
+          "Non-Cooperative Countries"
+        ],
+        "result": "no_match",
+        "timestamp": "2026-02-22T06:30:15Z"
+      }
+    },
+    {
+      "alert": {
+        "alert_id": "ALT-2026-4502",
+        "generated_at": "2026-02-23T07:00:00Z",
+        "alert_type": "structuring",
+        "risk_score": 0.88,
+        "monitoring_rule": "RULE-STR-005: Repeated cash deposits at or near internal monitoring threshold with rapid outbound transfer",
+        "disposition": "pending_review"
+      },
+      "subject": {
+        "customer_id": "C-20210033810",
+        "full_name": "James and Natalie Corwin",
+        "date_of_birth": "1991-03-22 / 1993-08-10",
+        "ssn_masked": "***-**-5501 / ***-**-6218",
+        "address": "8817 Clearbrook Ln, Virginia Beach, VA 23452",
+        "phone": "(757) 555-0374",
+        "email": "jcorwin91@outlook.com",
+        "employment": {
+          "employer": "James: Federal contractor (BAE Systems) / Natalie: Norfolk Public Schools",
+          "business_name": null,
+          "title": "James: Systems analyst / Natalie: 4th grade teacher",
+          "since": "2020-01-15 / 2019-08-20",
+          "naics_code": null,
+          "state_of_incorporation": null,
+          "ein_masked": null
+        },
+        "income": {
+          "stated_annual": 142000,
+          "source": "employment_dual_income",
+          "verified": true,
+          "verification_date": "2024-03-01"
+        },
+        "risk_rating": {
+          "current": "low",
+          "prior": "low",
+          "last_review": "2025-06-15"
+        },
+        "relationship_since": "2021-11-08"
+      },
+      "account": {
+        "account_number_masked": "****5501",
+        "account_type": "joint_personal_checking",
+        "product": "Premium Checking",
+        "opened": "2021-11-08",
+        "status": "active",
+        "average_balance_6mo": 6800,
+        "monthly_activity_summary": {
+          "avg_deposits_6mo": 11200,
+          "avg_withdrawals_6mo": 10800,
+          "avg_cash_deposits_6mo": 0,
+          "typical_deposit_range": [
+            5200,
+            6400
+          ],
+          "typical_counterparties": [
+            "employer_direct_deposit_bae",
+            "employer_direct_deposit_nps",
+            "venmo",
+            "amazon"
+          ],
+          "notes": "Dual direct deposit household. Standard consumer spending pattern. Zero cash deposit history across full account lifetime."
+        }
+      },
+      "transactions": [
+        {
+          "txn_id": "TXN-90295001",
+          "date": "2026-02-17",
+          "time": "08:12",
+          "type": "cash_deposit",
+          "amount": 4999,
+          "branch": null,
+          "teller_id": null,
+          "atm_id": "ATM-VB-014",
+          "running_balance": 11799,
+          "ref": "DEP-ATM-95001"
+        },
+        {
+          "txn_id": "TXN-90295108",
+          "date": "2026-02-17",
+          "time": "17:44",
+          "type": "cash_deposit",
+          "amount": 4800,
+          "branch": null,
+          "teller_id": null,
+          "atm_id": "ATM-VB-022",
+          "running_balance": 16599,
+          "ref": "DEP-ATM-95108"
+        },
+        {
+          "txn_id": "TXN-90295302",
+          "date": "2026-02-18",
+          "time": "09:30",
+          "type": "cash_deposit",
+          "amount": 4999,
+          "branch": null,
+          "teller_id": null,
+          "atm_id": "ATM-VB-014",
+          "running_balance": 21598,
+          "ref": "DEP-ATM-95302"
+        },
+        {
+          "txn_id": "TXN-90295410",
+          "date": "2026-02-19",
+          "time": "12:15",
+          "type": "cash_deposit",
+          "amount": 4750,
+          "branch": null,
+          "teller_id": null,
+          "atm_id": "ATM-VB-007",
+          "running_balance": 26348,
+          "ref": "DEP-ATM-95410"
+        },
+        {
+          "txn_id": "TXN-90295588",
+          "date": "2026-02-19",
+          "time": "18:02",
+          "type": "cash_deposit",
+          "amount": 4999,
+          "branch": null,
+          "teller_id": null,
+          "atm_id": "ATM-NF-003",
+          "running_balance": 31347,
+          "ref": "DEP-ATM-95588"
+        },
+        {
+          "txn_id": "TXN-90295701",
+          "date": "2026-02-20",
+          "time": "08:55",
+          "type": "cash_deposit",
+          "amount": 4999,
+          "branch": null,
+          "teller_id": null,
+          "atm_id": "ATM-VB-014",
+          "running_balance": 36346,
+          "ref": "DEP-ATM-95701"
+        },
+        {
+          "txn_id": "TXN-90295820",
+          "date": "2026-02-21",
+          "time": "11:30",
+          "type": "cash_deposit",
+          "amount": 4999,
+          "branch": null,
+          "teller_id": null,
+          "atm_id": "ATM-VB-022",
+          "running_balance": 41345,
+          "ref": "DEP-ATM-95820"
+        },
+        {
+          "txn_id": "TXN-90296001",
+          "date": "2026-02-22",
+          "time": "10:00",
+          "type": "cashiers_check",
+          "amount": -30000,
+          "branch": "Branch 6 - Virginia Beach",
+          "teller_id": "T-8812",
+          "atm_id": null,
+          "running_balance": 11345,
+          "ref": "CHK-CASH-96001",
+          "payee": "Pacific Rim Imports LLC",
+          "check_number": "900447821"
+        }
+      ],
+      "prior_alerts": [],
+      "prior_sars": [],
+      "ctr_history": {
+        "filings_12mo": 0,
+        "expected_filings": "0 \u2014 no prior cash activity. Current activity structured below threshold.",
+        "notes": "Seven cash deposits totaling $34,545. All individual deposits below $5,000 internal monitoring trigger and below $10,000 CTR threshold. No CTRs generated."
+      },
+      "entity_lookups": [
+        {
+          "entity": "Pacific Rim Imports LLC",
+          "jurisdiction": "Virginia",
+          "source": "Virginia State Corporation Commission",
+          "result": "active",
+          "details": "Registered 2025-09-14. Registered agent: Global Business Services Inc, Richmond VA. Principal office: 1220 Commerce Park Dr, Suite 400, Virginia Beach VA 23462. Status: Active. No annual report on file (not yet due).",
+          "searched_at": "2026-02-23T07:01:00Z"
+        },
+        {
+          "entity": "Pacific Rim Imports LLC",
+          "jurisdiction": "federal",
+          "source": "FinCEN Beneficial Ownership Database",
+          "result": "filed",
+          "details": "BOI report filed 2025-10-01. Beneficial owner(s) redacted per FinCEN access controls. Law enforcement request required for disclosure.",
+          "searched_at": "2026-02-23T07:02:00Z"
+        },
+        {
+          "entity": "Pacific Rim Imports LLC",
+          "jurisdiction": "federal",
+          "source": "OFAC SDN List",
+          "result": "no_match",
+          "details": "No match on SDN, Consolidated, or Sectoral lists.",
+          "searched_at": "2026-02-23T07:01:30Z"
+        }
+      ],
+      "ofac_screening": {
+        "screening_id": "SCR-2026-33810",
+        "entity_screened": "James Corwin / Natalie Corwin / Pacific Rim Imports LLC",
+        "lists_checked": [
+          "SDN",
+          "Consolidated Non-SDN",
+          "Sectoral Sanctions"
+        ],
+        "result": "no_match",
+        "timestamp": "2026-02-23T07:00:20Z"
+      }
+    },
+    {
+      "alert": {
+        "alert_id": "ALT-2026-4515",
+        "generated_at": "2026-02-23T07:45:00Z",
+        "alert_type": "elevated_cash_activity",
+        "risk_score": 0.54,
+        "monitoring_rule": "RULE-CSH-012: Cash deposit volume exceeds 175% of 6-month average within 30-day window",
+        "disposition": "pending_review"
+      },
+      "subject": {
+        "customer_id": "C-20170044892",
+        "full_name": "Margaret Liu",
+        "date_of_birth": "1972-08-19",
+        "ssn_masked": "***-**-6104",
+        "address": "88 Pagoda St, Unit 2, San Francisco, CA 94108",
+        "phone": "(415) 555-0738",
+        "email": "mliu.golden@gmail.com",
+        "employment": {
+          "employer": "Self-employed",
+          "business_name": "Golden Dragon Restaurant LLC",
+          "title": "Owner / Operator",
+          "since": "2017-06-02",
+          "naics_code": "722511",
+          "state_of_incorporation": "CA",
+          "ein_masked": "**-***4891"
+        },
+        "income": {
+          "stated_annual": 340000,
+          "source": "business_revenue",
+          "verified": true,
+          "verification_date": "2025-04-15"
+        },
+        "risk_rating": {
+          "current": "medium",
+          "prior": "medium",
+          "last_review": "2025-06-01"
+        },
+        "relationship_since": "2017-06-02"
+      },
+      "account": {
+        "account_number_masked": "****8803",
+        "account_type": "business_checking",
+        "product": "Business Advantage Checking",
+        "opened": "2017-06-02",
+        "status": "active",
+        "average_balance_6mo": 42300,
+        "monthly_activity_summary": {
+          "avg_deposits_6mo": 58400,
+          "avg_withdrawals_6mo": 54100,
+          "avg_cash_deposits_6mo": 41200,
+          "typical_deposit_range": [
+            32000,
+            52000
+          ],
+          "typical_counterparties": [
+            "cash_restaurant_revenue",
+            "square_card_processing",
+            "doordash_settlements",
+            "ubereats_settlements"
+          ],
+          "notes": "Cash-heavy restaurant business. Regular daily/bi-daily deposits at home branch. Card processing settlements from Square, DoorDash, UberEats. Seasonal peaks around Lunar New Year and Mid-Autumn Festival."
+        }
+      },
+      "transactions": [
+        {
+          "txn_id": "TXN-90310401",
+          "date": "2026-02-03",
+          "time": "11:30",
+          "type": "cash_deposit",
+          "amount": 12400,
+          "branch": "Branch 9 \u2013 Chinatown",
+          "teller_id": "T-4421",
+          "atm_id": null,
+          "running_balance": 54700,
+          "ref": "DEP-90310401"
+        },
+        {
+          "txn_id": "TXN-90310555",
+          "date": "2026-02-05",
+          "time": "10:15",
+          "type": "cash_deposit",
+          "amount": 8900,
+          "branch": "Branch 9 \u2013 Chinatown",
+          "teller_id": "T-4421",
+          "atm_id": null,
+          "running_balance": 63600,
+          "ref": "DEP-90310555"
+        },
+        {
+          "txn_id": "TXN-90310708",
+          "date": "2026-02-07",
+          "time": "11:45",
+          "type": "cash_deposit",
+          "amount": 14200,
+          "branch": "Branch 9 \u2013 Chinatown",
+          "teller_id": "T-4490",
+          "atm_id": null,
+          "running_balance": 77800,
+          "ref": "DEP-90310708"
+        },
+        {
+          "txn_id": "TXN-90310901",
+          "date": "2026-02-10",
+          "time": "10:00",
+          "type": "cash_deposit",
+          "amount": 11800,
+          "branch": "Branch 9 \u2013 Chinatown",
+          "teller_id": "T-4490",
+          "atm_id": null,
+          "running_balance": 89600,
+          "ref": "DEP-90310901"
+        },
+        {
+          "txn_id": "TXN-90311044",
+          "date": "2026-02-12",
+          "time": "11:20",
+          "type": "cash_deposit",
+          "amount": 15600,
+          "branch": "Branch 9 \u2013 Chinatown",
+          "teller_id": "T-4490",
+          "atm_id": null,
+          "running_balance": 105200,
+          "ref": "DEP-90311044"
+        },
+        {
+          "txn_id": "TXN-90311188",
+          "date": "2026-02-14",
+          "time": "10:30",
+          "type": "cash_deposit",
+          "amount": 13100,
+          "branch": "Branch 9 \u2013 Chinatown",
+          "teller_id": "T-4490",
+          "atm_id": null,
+          "running_balance": 118300,
+          "ref": "DEP-90311188"
+        },
+        {
+          "txn_id": "TXN-90311340",
+          "date": "2026-02-17",
+          "time": "11:00",
+          "type": "cash_deposit",
+          "amount": 9400,
+          "branch": "Branch 9 \u2013 Chinatown",
+          "teller_id": "T-4421",
+          "atm_id": null,
+          "running_balance": 127700,
+          "ref": "DEP-90311340"
+        },
+        {
+          "txn_id": "TXN-90311502",
+          "date": "2026-02-19",
+          "time": "10:45",
+          "type": "cash_deposit",
+          "amount": 16200,
+          "branch": "Branch 9 \u2013 Chinatown",
+          "teller_id": "T-4490",
+          "atm_id": null,
+          "running_balance": 143900,
+          "ref": "DEP-90311502"
+        },
+        {
+          "txn_id": "TXN-90311644",
+          "date": "2026-02-21",
+          "time": "11:15",
+          "type": "cash_deposit",
+          "amount": 11700,
+          "branch": "Branch 9 \u2013 Chinatown",
+          "teller_id": "T-4421",
+          "atm_id": null,
+          "running_balance": 155600,
+          "ref": "DEP-90311644"
+        }
+      ],
+      "prior_alerts": [
+        {
+          "alert_id": "ALT-2024-3301",
+          "date": "2024-09-12",
+          "type": "elevated_cash_activity",
+          "disposition": "cleared",
+          "analyst": "R. Tanaka",
+          "notes": "Elevated cash flagged during post-COVID restaurant recovery. Revenue increase verified against 2023 tax filings. Cash-to-revenue ratio consistent with industry benchmarks. No action."
+        }
+      ],
+      "prior_sars": [],
+      "ctr_history": {
+        "filings_12mo": 3,
+        "expected_filings": "3-5 based on cash volume",
+        "notes": "Three CTR filings in prior 12 months for deposits exceeding $10,000. Filing history is consistent with reported cash-heavy business operations."
+      },
+      "entity_lookups": [],
+      "ofac_screening": {
+        "screening_id": "SCR-2026-44892",
+        "entity_screened": "Margaret Liu / Golden Dragon Restaurant LLC",
+        "lists_checked": [
+          "SDN",
+          "Consolidated Non-SDN",
+          "Sectoral Sanctions"
+        ],
+        "result": "no_match",
+        "timestamp": "2026-02-23T07:45:18Z"
+      }
+    }
+  ],
+  "regulatory_framework": {
+    "authority": "31 CFR 1020.320 \u2014 Reports by banks of suspicious transactions",
+    "filing_criteria": [
+      {
+        "code": "a",
+        "description": "The bank knows, suspects, or has reason to suspect that the transaction involves funds derived from illegal activity or is intended to hide or disguise funds derived from illegal activity"
+      },
+      {
+        "code": "b",
+        "description": "The transaction is designed to evade any requirements of the Bank Secrecy Act"
+      },
+      {
+        "code": "c",
+        "description": "The transaction has no business or apparent lawful purpose or is not the sort in which the particular customer would normally be expected to engage"
+      },
+      {
+        "code": "d",
+        "description": "The bank knows of no reasonable explanation for the transaction after examining the available facts"
+      }
+    ],
+    "threshold": "$5,000 in aggregate",
+    "filing_deadline_days": 30,
+    "deadline_start": "Date suspicious activity is first detected by the institution",
+    "retention_years": 5
+  }
+}

@@ -1,0 +1,98 @@
+# Analytics Artifact Registry — source of truth
+# All formal analytics artifacts available to the framework.
+# Loaded at startup; read-only at runtime.
+#
+# Required fields for every artifact:
+#   artifact_name, artifact_type, version, authored_by, eval_gate_passed
+
+artifacts:
+
+  - artifact_name: causal.fraud_dag_v1
+    artifact_type: causal_dag
+    version: "1.0"
+    authored_by: fraud-analytics-team
+    last_reviewed: "2026-01-15"
+    eval_gate_passed: "2026-01-20"
+    eligibility_predicates:
+      - field: domain
+        operator: in
+        value: [check_fraud, card_fraud, app_scam_fraud, fraud_triage]
+    dag_config:
+      structure_file: config/causal/fraud_dag.json
+      variable_scope:
+        - transaction_velocity
+        - geographic_anomaly
+        - new_payee
+        - member_initiated
+        - social_engineering_indicators
+        - confirmed_fraud
+      adjustment_set:
+        - transaction_velocity
+        - geographic_anomaly
+      primary_outcome: confirmed_fraud
+    data_derived:
+      enabled: false
+
+  - artifact_name: sda.fraud_policy_v1
+    artifact_type: sequential_decision
+    version: "1.0"
+    authored_by: fraud-analytics-team
+    eval_gate_passed: "2026-01-20"
+    eligibility_predicates:
+      - field: domain
+        operator: in
+        value: [check_fraud, card_fraud, app_scam_fraud]
+    sda_config:
+      policy_class: direct_lookahead
+      horizon: 3
+      reward_specification:
+        correct_decision: 1.0
+        incorrect_decision: -1.0
+        false_positive_member_impact: -0.5
+        regulatory_violation: -5.0
+
+  - artifact_name: constraints.bsa_v1
+    artifact_type: constraint_checker
+    version: "1.0"
+    authored_by: compliance-team
+    eval_gate_passed: "2026-02-01"
+    eligibility_predicates:
+      - field: domain
+        operator: eq
+        value: fraud_regulatory
+    rules:
+      - rule_id: bsa_sar_threshold
+        description: SAR required for transactions >= $5,000 with fraud indicators
+        variables: [transaction_amount, fraud_confirmed]
+      - rule_id: reg_e_timeline
+        description: Provisional credit within 10 business days for electronic fund transfer disputes
+        variables: [dispute_received_date, provisional_credit_date, is_eft_dispute]
+    mapping_guidance:
+      variables:
+        - name: transaction_amount
+          source: case_input.total_amount
+        - name: fraud_confirmed
+          source: prior_step.verify.conforms
+    ambiguity_escalation: gate
+
+  - artifact_name: constraints.reg_e_v1
+    artifact_type: constraint_checker
+    version: "1.0"
+    authored_by: compliance-team
+    eval_gate_passed: "2026-02-01"
+    eligibility_predicates:
+      - field: domain
+        operator: eq
+        value: fraud_regulatory
+    rules:
+      - rule_id: reg_e_10_day
+        description: Provisional credit required within 10 business days
+        variables: [dispute_date, credit_date]
+    mapping_guidance:
+      variables: []
+    ambiguity_escalation: hold
+
+# Artifact incompatibility declarations.
+# These pairs cannot be used together in the same workflow instance.
+incompatibilities:
+  - [constraints.bsa_v1, constraints.reg_e_v1]

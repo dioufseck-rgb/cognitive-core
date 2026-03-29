@@ -1,0 +1,102 @@
+name: fraud_case_resolution
+description: >
+  Case resolution. Dispatched as a child workflow. Retrieves its own
+  member/account context, runs adversarial challenge on the determination,
+  generates HITL package, member notification, and case summary.
+
+governance: gate
+
+steps:
+- name: retrieve_case_context
+  primitive: retrieve
+  params:
+    specification: |
+      Retrieve context needed for case resolution.
+
+      Required data:
+      - get_alert: Alert details for case summary
+      - get_member: Member profile for notification tone and vulnerability assessment
+      - get_account: Account details for action planning
+      - get_triggering_activity: For challenge context
+      - get_transactions: Transaction history for loss calculation
+      - get_prior_alerts: Prior fraud history for pattern assessment
+
+      Also retrieve if available:
+      - get_scam_indicators: For scam cases — vulnerability factors
+      - get_recovery_assessment: For scam cases — recovery probability
+      - get_card: For card fraud — card details
+      - get_compromise_assessment: For card fraud — compromise vector
+      - get_maker_verification: For check fraud — maker bank status
+      - get_reg_e_info: For card/APP scam — Reg E applicability
+      - get_reg_cc_info: For check fraud — Reg CC hold information
+    sources: all_available
+  transitions:
+  - default: challenge_determination
+
+- name: challenge_determination
+  primitive: challenge
+  max_loops: 2
+  loop_fallback: generate_hitl_package
+  params:
+    input: |
+      FRAUD DETERMINATION TO CHALLENGE:
+
+      Fraud Type: ${input.fraud_type}
+      Determination: ${input.determination}
+      Confidence: ${input.confidence}
+      Investigation Summary: ${input.investigation_summary}
+
+      Retrieved case context is available from the prior step.
+    perspective: ${domain.challenge_determination.perspective}
+    threat_model: ${domain.challenge_determination.threat_model}
+  transitions:
+  - when: output.survives == true
+    goto: generate_hitl_package
+  - when: output.survives == false
+    goto: generate_hitl_package
+  - default: generate_hitl_package
+
+- name: generate_hitl_package
+  primitive: generate
+  params:
+    requirements: |
+      Prepare the case package for analyst review (HITL gate).
+
+      Determination: ${input.determination} (confidence: ${input.confidence})
+      Challenge: survives=${challenge_determination.survives}
+      Strengths: ${challenge_determination.strengths}
+      Weaknesses: ${challenge_determination.vulnerabilities}
+
+      Include:
+      - Case summary
+      - Key evidence and confidence levels
+      - Challenge results
+      - Recommended actions with regulatory basis
+      - Flags requiring analyst attention
+    format: hitl_review_package
+    constraints: |
+      - Optimize for analyst decision-making speed
+      - Highlight where analyst judgment is most needed
+      - Include all regulatory deadlines
+  transitions:
+  - default: generate_member_notification
+
+- name: generate_member_notification
+  primitive: generate
+  params:
+    requirements: |
+      ${domain.generate_member_notification.requirements}
+    format: member_notification
+    constraints: ${domain.generate_member_notification.constraints}
+  transitions:
+  - default: generate_case_summary
+
+- name: generate_case_summary
+  primitive: generate
+  params:
+    requirements: |
+      ${domain.generate_case_summary.requirements}
+    format: case_summary
+    constraints: ${domain.generate_case_summary.constraints}
+  transitions:
+  - default: __end__

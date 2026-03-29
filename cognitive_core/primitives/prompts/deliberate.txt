@@ -1,0 +1,107 @@
+You are performing a deliberation task.
+
+CONTEXT:
+{context}
+
+INSTRUCTION:
+{instruction}
+
+EVALUATION FRAMEWORK:
+{focus}
+
+{additional_instructions}
+
+INSTRUCTIONS — FOLLOW THIS EXACT SEQUENCE:
+
+STEP 1: SITUATION SUMMARY
+Synthesize the findings from all prior steps into a clear, factual
+state-of-the-world. Do not introduce new claims. Do not speculate.
+This is a factual summary of what the evidence establishes.
+
+STEP 2: EVALUATION CRITERIA
+Extract the criteria you will use to evaluate options. These come from
+the domain framework in EVALUATION FRAMEWORK above. State them
+explicitly — they are the warrant for your recommendation.
+
+STEP 3: OPTIONS CONSIDERED
+Enumerate the available courses of action. For each option:
+- State the action clearly
+- Assess whether it is viable given the situation summary
+- Explain your rationale, citing specific evidence
+
+Consider at minimum: proceeding, suspending for more information,
+escalating, and any domain-specific options named in the instruction.
+
+STEP 4: RECOMMENDED ACTION
+State the warranted action — what should happen next. This must follow
+from the situation summary via the evaluation criteria. If no action
+is warranted with sufficient confidence, recommend SUSPEND and specify
+exactly what evidence is missing.
+
+STEP 5: WARRANT
+State the logical connection between your situation summary and your
+recommended action. This is the bridge between facts and conclusion —
+why these facts, under these criteria, lead to this action.
+
+STEP 6: CONFIDENCE BASIS
+Cite which specific upstream step outputs drove your confidence score.
+If confidence is low, explain what evidence gap is responsible.
+
+REQUIREMENTS:
+- Every claim in your situation summary must be traceable to prior
+  step outputs available in CONTEXT above.
+- If you recommend SUSPEND, populate evidence_missing with typed,
+  specific requests — not vague asks for "more data."
+- Your confidence score must reflect how well the evidence supports
+  the recommended action. Do not inflate it.
+- If the instruction names a required output field (e.g. a risk code,
+  a path enum), include it in recommended_action.
+
+Respond with a JSON object matching this structure:
+{{
+  "situation_summary": "factual synthesis of what the evidence establishes",
+  "evaluation_criteria": "criteria used to evaluate options, from domain framework",
+  "options_considered": [
+    {{
+      "action": "option description",
+      "viable": true,
+      "rationale": "why viable or not, citing evidence"
+    }}
+  ],
+  "recommended_action": "the warranted action, or SUSPEND if confidence threshold not met",
+  "warrant": "logical connection between situation and recommendation",
+  "confidence_basis": "which upstream outputs drove the confidence score",
+  "confidence": 0.0,
+  "reasoning": "brief summary of the deliberation approach",
+  "evidence_used": [
+    {{"source": "step name or input field", "description": "what it established"}}
+  ],
+  "evidence_missing": [
+    {{"source": "where to find it", "description": "what it would establish and why needed"}}
+  ],
+  "resource_requests": []
+}}
+
+RESOURCE REQUESTS:
+If you are recommending SUSPEND because a required resource is absent,
+populate resource_requests. Each request describes WHAT is needed —
+not who provides it. The coordinator matches needs to providers.
+
+{{
+  "need": "capability_name",
+  "blocking": true,
+  "reason": "why you cannot reach a warranted conclusion without this",
+  "context": {{"key": "value pairs the provider needs"}},
+  "depends_on": []
+}}
+
+Rules:
+- Only request resources genuinely absent from context.
+- If delegation results are already present, use them — do not re-request.
+- Set blocking: true if the workflow cannot proceed without this resource.
+- If two requests are independent, leave depends_on empty for both.
+- When blocking requests are present, confidence should be low (typically < 0.4).
+
+If you have everything needed, leave resource_requests as an empty array.
+
+Respond ONLY with the JSON object. No other text.

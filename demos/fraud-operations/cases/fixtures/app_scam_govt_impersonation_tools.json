@@ -1,0 +1,190 @@
+{
+  "_case_id": "FRD-2026-01071",
+  "get_alert": {
+    "alert_id": "ALT-2026-7412",
+    "generated_at": "2026-02-28T16:20:00Z",
+    "alert_type": "authorized_push_payment_scam",
+    "alert_source": "branch_staff_referral",
+    "monitoring_rule": "RULE-APP-009: Member attempted wire transfer following unusual gift card purchase pattern \u2014 branch teller escalation",
+    "risk_score": 0.89,
+    "priority": "critical",
+    "sla_deadline": "2026-03-01T16:20:00Z"
+  },
+  "get_member": {
+    "member_id": "M-40108871",
+    "full_name": "Evelyn Kowalski",
+    "date_of_birth": "1951-09-03",
+    "ssn_masked": "***-**-2209",
+    "address": "441 Bayview Court, Panama City Beach, FL 32407",
+    "phone": "(850) 555-0044",
+    "email": "ekowalski@bellsouth.net",
+    "member_since": "1987-04-10",
+    "member_type": "retired_military_spouse",
+    "branch_affiliation": "Army",
+    "spouse_name": "Gerald Kowalski",
+    "spouse_rank_retired": "E-8 / Master Sergeant",
+    "income_sources": [
+      "survivor_benefit_plan_monthly_2140",
+      "social_security_monthly_1780"
+    ],
+    "risk_rating": "low",
+    "cognitive_status_note": "Mild cognitive impairment noted in member file \u2014 designated POA is Gerald Kowalski"
+  },
+  "get_account": {
+    "account_number_masked": "****0044",
+    "account_type": "checking",
+    "product": "Survivor Benefit Checking",
+    "opened": "1987-04-10",
+    "status": "active",
+    "average_balance_6mo": 14200,
+    "avg_deposits_6mo": 3920,
+    "avg_withdrawals_6mo": 3100,
+    "primary_deposit_source": "direct_deposit_dfas_sbp",
+    "debit_card_pattern": "groceries, pharmacy, utility payments only",
+    "wire_history": "no wire transfers ever"
+  },
+  "get_triggering_activity": {
+    "scam_type": "government_impersonation",
+    "contact_method": "phone",
+    "first_contact_date": "2026-02-25",
+    "caller_claims": [
+      "IRS agent badge #4412, claimed her SSN used in drug trafficking case in Texas",
+      "Social Security Administration officer \u2014 threatened suspension of benefits",
+      "Told her she was under investigation and would be arrested if she didn't cooperate",
+      "Instructed her NOT to tell family \u2014 'active federal investigation, confidential'"
+    ],
+    "phone_numbers_used": [
+      {
+        "number": "(202) 555-0173",
+        "spoofed_as": "IRS Washington DC"
+      },
+      {
+        "number": "(800) 555-0041",
+        "spoofed_as": "Social Security Administration"
+      }
+    ],
+    "payments": [
+      {
+        "txn_id": "TXN-45505001",
+        "date": "2026-02-25",
+        "type": "debit_card",
+        "amount": -3000.0,
+        "merchant": "Walgreens #4481 Panama City Beach",
+        "description": "Google Play gift cards (15x $200)",
+        "status": "completed"
+      },
+      {
+        "txn_id": "TXN-45512200",
+        "date": "2026-02-26",
+        "type": "debit_card",
+        "amount": -3500.0,
+        "merchant": "CVS Pharmacy #7721 PCB",
+        "description": "Apple gift cards (7x $500)",
+        "status": "completed"
+      },
+      {
+        "txn_id": "TXN-45521001",
+        "date": "2026-02-27",
+        "type": "debit_card",
+        "amount": -3000.0,
+        "merchant": "Walgreens #4481 Panama City Beach",
+        "description": "Google Play gift cards (15x $200)",
+        "status": "completed"
+      },
+      {
+        "txn_id": "TXN-45530100",
+        "date": "2026-02-28",
+        "type": "domestic_wire_attempt",
+        "amount": 4000.0,
+        "description": "Attempted wire \u2014 branch teller stopped and escalated",
+        "status": "blocked"
+      }
+    ],
+    "gift_card_redemption": "Codes provided to scammers via phone immediately after purchase \u2014 all codes redeemed within minutes",
+    "total_lost": 9500.0,
+    "wire_blocked": 4000.0
+  },
+  "get_transactions": {
+    "transactions": [
+      {
+        "txn_id": "TXN-45480100",
+        "date": "2026-02-20",
+        "type": "direct_deposit",
+        "amount": 2140.0,
+        "description": "DFAS SBP PAYMENT",
+        "running_balance": 14887.32
+      },
+      {
+        "txn_id": "TXN-45482200",
+        "date": "2026-02-20",
+        "type": "direct_deposit",
+        "amount": 1780.0,
+        "description": "SOCIAL SECURITY",
+        "running_balance": 16667.32
+      },
+      {
+        "txn_id": "TXN-45505001",
+        "date": "2026-02-25",
+        "type": "debit_card",
+        "amount": -3000.0,
+        "description": "WALGREENS #4481",
+        "running_balance": 13667.32
+      },
+      {
+        "txn_id": "TXN-45512200",
+        "date": "2026-02-26",
+        "type": "debit_card",
+        "amount": -3500.0,
+        "description": "CVS PHARMACY #7721",
+        "running_balance": 10167.32
+      },
+      {
+        "txn_id": "TXN-45521001",
+        "date": "2026-02-27",
+        "type": "debit_card",
+        "amount": -3000.0,
+        "description": "WALGREENS #4481",
+        "running_balance": 7167.32
+      }
+    ]
+  },
+  "get_scam_indicators": {
+    "caller_id_spoofing": "Both numbers confirmed spoofed \u2014 actual origin traced to VoIP provider in Nigeria",
+    "gift_card_pattern": "Rapid sequential pharmacy purchases of high-denomination gift cards \u2014 government-impersonation scam signature",
+    "code_redemption": "All Google Play codes redeemed within 4 minutes of purchase; Apple codes within 7 minutes",
+    "vulnerability_factors": [
+      "Age 74 \u2014 elder fraud vulnerability",
+      "Mild cognitive impairment on file",
+      "Isolation tactic \u2014 told not to tell family",
+      "Authority exploitation \u2014 fake federal agents",
+      "Urgency and fear \u2014 threat of arrest, benefit suspension",
+      "39-year NFCU member \u2014 high trust, significant balance"
+    ],
+    "elder_fraud_indicators": "Meets Adult Protective Services referral criteria \u2014 cognitive impairment combined with financial exploitation"
+  },
+  "get_recovery_assessment": {
+    "gift_card_recovery": "none \u2014 codes were redeemed within minutes, gift card companies cannot reverse",
+    "wire_blocked": 4000.0,
+    "wire_recovery": "n/a \u2014 wire was successfully blocked by branch teller",
+    "total_lost": 9500.0,
+    "total_saved_by_intervention": 4000.0,
+    "recommended_actions": [
+      "File police report \u2014 financial exploitation of elderly",
+      "Refer to Adult Protective Services (Florida DCFS)",
+      "File FTC complaint at reportfraud.ftc.gov",
+      "File IC3 complaint",
+      "Notify POA (Gerald Kowalski) \u2014 he is designated",
+      "Consider enhanced account protections given cognitive impairment",
+      "SAR not required (below $5k threshold per transaction, but consider pattern SAR)"
+    ]
+  },
+  "get_prior_alerts": {
+    "prior_alerts": [],
+    "prior_fraud_claims": []
+  },
+  "get_reg_e_info": {
+    "applies": false,
+    "reason": "Gift card purchases are not EFTs covered by Reg E. Member voluntarily purchased and provided the codes. Wire was blocked before execution. No unauthorized EFT occurred.",
+    "elder_exploitation_note": "Florida Statutes \u00a7825.103 defines financial exploitation of elderly. APS referral is mandatory for financial institution employees when cognitive impairment is documented."
+  }
+}

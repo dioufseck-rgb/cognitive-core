@@ -1,0 +1,46 @@
+name: support_ticket_triage
+description: >
+  Classify ticket severity, investigate complex issues, and generate
+  a structured response. The simplest complete workflow in Cognitive Core.
+
+steps:
+  - name: classify_severity
+    primitive: classify
+    temperature: 0.0
+    params:
+      categories: "${domain.classify_severity.categories}"
+      criteria: |
+        Ticket subject: ${input.subject}
+        Ticket body: ${input.body}
+        Customer tier: ${input.customer_tier}
+        ${domain.classify_severity.criteria}
+    transitions:
+      - when: "output.category in ['critical', 'high']"
+        goto: investigate_issue
+      - default: generate_response
+
+  - name: investigate_issue
+    primitive: investigate
+    params:
+      question: |
+        What is the root cause of this issue and what is the best resolution path?
+      scope: "${domain.investigate_issue.scope}"
+      available_evidence: |
+        Subject: ${input.subject}
+        Body: ${input.body}
+        Customer tier: ${input.customer_tier}
+        Account history: ${input.account_history}
+      effort_level: moderate
+    transitions:
+      - default: generate_response
+
+  - name: generate_response
+    primitive: generate
+    params:
+      requirements: |
+        Customer: ${input.customer_name}
+        Severity: ${classify_severity.category}
+        ${input.investigation_summary}
+        ${domain.generate_response.requirements}
+      format: "${domain.generate_response.format}"
+      constraints: "${domain.generate_response.constraints}"

@@ -1,0 +1,40 @@
+name: fraud_triage
+description: >
+  Triage incoming fraud alert. Classify fraud type and priority.
+  Delegation policies route to specialist deterministically.
+
+steps:
+- name: retrieve_alert_context
+  primitive: retrieve
+  params:
+    specification: |
+      Retrieve core alert data needed to classify the fraud type and priority.
+      Required: get_alert, get_member, get_triggering_activity
+      Also retrieve if available: get_account, get_prior_alerts
+    sources: all_available
+  transitions:
+  - default: classify_fraud_type
+
+- name: classify_fraud_type
+  primitive: classify
+  params:
+    categories: ${domain.classify_alert_type.categories}
+    criteria: ${domain.classify_alert_type.criteria}
+    confidence_threshold: '0.8'
+  transitions:
+  - default: assess_priority
+  temperature: 0.0
+
+- name: assess_priority
+  primitive: classify
+  params:
+    categories: ${domain.assess_priority.categories}
+    criteria: |
+      Fraud type: ${classify_fraud_type.category} (confidence: ${classify_fraud_type.confidence})
+      Reasoning: ${classify_fraud_type.reasoning}
+
+      ${domain.assess_priority.criteria}
+    confidence_threshold: '0.7'
+  transitions:
+  - default: __end__
+  temperature: 0.0

@@ -1,0 +1,93 @@
+# Content Moderation — Domain Specification
+#
+# Shows governance tiers in action: auto-approve safe content,
+# challenge borderline content, gate anything requiring human review.
+
+domain_name: content_moderation
+workflow: content_moderation
+governance: auto
+
+classify_content:
+  categories: |
+    - safe: Content that clearly complies with community guidelines.
+      No policy concerns. Suitable for all audiences on the platform.
+    - borderline: Content that may violate guidelines depending on
+      context, intent, or audience. Requires careful review.
+      Examples: satire that could be mistaken for hate speech,
+      graphic medical content, strong political opinion.
+    - harassment: Targeted attacks, threats, or sustained hostile
+      behaviour directed at a specific individual or group.
+    - misinformation: Verifiably false claims about health, safety,
+      elections, or public figures presented as fact.
+    - explicit: Sexually explicit or graphically violent content
+      not permitted on this platform regardless of context.
+    - spam: Coordinated inauthentic behaviour, commercial spam,
+      or content that exists solely to game platform algorithms.
+  criteria: |
+    Base classification on content alone first, then adjust for context.
+    Author history can move borderline toward safe (established account,
+    no prior violations) or toward violation (repeat offender).
+    When satire and hate speech overlap, classify as borderline.
+    Platform context matters: professional network vs consumer social
+    have different thresholds — apply platform_context.
+
+verify_policy:
+  rules: |
+    The following must ALL be true to conform:
+    1. Content does not target a protected characteristic
+       (race, religion, gender, sexuality, disability, nationality)
+       with hostility or dehumanisation.
+    2. Content does not contain credible threats of physical harm.
+    3. Content does not make false factual claims about public health,
+       election integrity, or named real individuals.
+    4. Content does not include non-consensual intimate imagery.
+    5. Content does not promote or facilitate illegal activity.
+
+    For borderline content: conforms=true means the content passes
+    a minimalist reading; the challenge step will probe harder.
+
+challenge_decision:
+  perspective: |
+    You are three simultaneous reviewers with conflicting mandates:
+    1. A free-speech advocate: Is this removal justified? Is there
+       a charitable interpretation being ignored? Context matters.
+    2. A trust & safety lead: Would leaving this up cause measurable
+       harm? Is there a vulnerable population at risk?
+    3. A platform lawyer: What is the liability exposure either way?
+       Removal without cause, or harm enabled by inaction?
+  threat_model: |
+    - False negative: genuinely harmful content passes as safe
+    - False positive: legitimate speech removed incorrectly
+    - Context collapse: content taken out of intended context
+    - Dual use: educational content that could enable harm
+    - Coordinated reporting: mass-flagging of legitimate content
+    - Scale blind spots: content that is harmful only in aggregate
+
+govern_disposition:
+  governance_context: |
+    Determine the appropriate governance tier and disposition:
+
+    AUTO (proceed) — when:
+    - Classification is safe with confidence >= 0.85, OR
+    - Classification is spam/explicit with confidence >= 0.80
+      (high-confidence clear violations can be auto-removed)
+
+    SPOT_CHECK (proceed, flag for sampling) — when:
+    - Classification is safe but confidence is 0.65–0.84
+    - New author account with no history
+
+    GATE (suspend, human review) — when:
+    - Classification is borderline regardless of confidence
+    - Any classification with confidence < 0.65
+    - Policy violations that are context-dependent
+    - Challenge found significant vulnerabilities
+
+    HOLD (compliance hold) — when:
+    - Content involves a named public figure
+    - Content may have legal consequences (defamation, CSAM)
+    - Prior escalation on this author is open
+
+    Work order for human review must specify:
+    - Which policy rule is at issue
+    - What the challenge reviewers disagreed on
+    - Recommended outcome with rationale

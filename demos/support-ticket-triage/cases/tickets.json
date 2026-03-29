@@ -1,0 +1,29 @@
+[
+  {
+    "_id": "TKT-001",
+    "customer_name": "Sarah Chen",
+    "customer_tier": "standard",
+    "subject": "Can't find dark mode setting",
+    "body": "Hi, I've been looking everywhere in the settings for dark mode but can't find it. I thought it was added in the last update? Not urgent, just easier on the eyes for late-night work.",
+    "account_history": "Customer since 2023. 2 prior tickets, both resolved. No open issues.",
+    "investigation_summary": ""
+  },
+  {
+    "_id": "TKT-002",
+    "customer_name": "Marcus Okafor",
+    "customer_tier": "enterprise",
+    "subject": "API rate limits triggering unexpectedly on our batch jobs",
+    "body": "We've been running nightly batch jobs against your API for 6 months without issues. Starting two days ago, jobs are hitting rate limits at about 30% of our normal volume. Nothing changed on our end. Our SLA requires these jobs complete by 6am. This is now a business-critical issue for us.",
+    "account_history": "Enterprise customer since 2022. High-volume API user. Prior ticket about rate limits resolved with limit increase 8 months ago. Account manager: James W.",
+    "investigation_summary": ""
+  },
+  {
+    "_id": "TKT-003",
+    "customer_name": "DevOps Team",
+    "customer_tier": "enterprise",
+    "subject": "URGENT: Authentication service returning 500 errors for all users",
+    "body": "All users in our organization cannot log in. Authentication service is returning 500 errors. This started approximately 20 minutes ago at 9:14am PST. We have 400 employees completely locked out. Our incident commander is standing by. Need immediate escalation.",
+    "account_history": "Enterprise customer since 2021. 400 seats. Last incident: none in 18 months. Status page shows no active incidents.",
+    "investigation_summary": ""
+  }
+]

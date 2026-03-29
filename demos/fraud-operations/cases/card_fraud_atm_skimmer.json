@@ -1,0 +1,147 @@
+{
+  "case_id": "FRD-2026-01088",
+  "alert_id": "ALT-2026-7441",
+  "alert_type": "atm_withdrawal_anomaly",
+  "fraud_type": "card_fraud",
+  "risk_score": 0.94,
+  "description": "11 ATM withdrawals totaling $3,100 across ATMs in Cancún and Mexico City over 14 hours. Member is at home in Quantico, VA — confirmed by simultaneous mobile app login from Virginia IP. Physical card in member's possession. Classic ATM skimmer scenario.",
+
+  "get_alert": {
+    "alert_id": "ALT-2026-7441",
+    "generated_at": "2026-02-27T04:50:00Z",
+    "alert_type": "atm_withdrawal_anomaly",
+    "alert_source": "real_time_fraud_engine",
+    "monitoring_rule": "RULE-CRD-015: ATM withdrawals in foreign country while member device shows domestic location",
+    "risk_score": 0.94,
+    "priority": "critical",
+    "sla_deadline": "2026-02-27T16:50:00Z"
+  },
+
+  "get_member": {
+    "member_id": "M-40341117",
+    "full_name": "James Okonkwo",
+    "date_of_birth": "1988-04-28",
+    "ssn_masked": "***-**-3317",
+    "address": "18 Tyler Circle, Quantico, VA 22134",
+    "phone": "(571) 555-0229",
+    "email": "james.okonkwo@usmc.mil",
+    "member_since": "2009-06-15",
+    "member_type": "active_duty",
+    "branch_affiliation": "Marines",
+    "rank": "O-3 / Captain",
+    "employer": "United States Marine Corps",
+    "title": "Infantry Officer",
+    "annual_pay": 85000,
+    "risk_rating": "low"
+  },
+
+  "get_account": {
+    "account_number_masked": "****5521",
+    "account_type": "checking",
+    "product": "Active Duty Checking",
+    "opened": "2009-06-15",
+    "status": "active",
+    "average_balance_6mo": 8900,
+    "avg_deposits_6mo": 5600,
+    "avg_withdrawals_6mo": 5200,
+    "primary_deposit_source": "direct_deposit_dfas",
+    "atm_pattern": "1-2 domestic ATM withdrawals per month, max $500",
+    "international_travel_history": "No international transactions in past 18 months",
+    "daily_atm_limit": 1000.00
+  },
+
+  "get_card": {
+    "card_number_masked": "****7738",
+    "card_type": "visa_debit",
+    "product": "Visa Debit — Active Duty",
+    "issued": "2024-08-20",
+    "expiry": "2027-08-31",
+    "last_legitimate_use": {
+      "date": "2026-02-26",
+      "time": "17:35",
+      "merchant": "MCX Shell #4481 Quantico",
+      "location": "Quantico, VA",
+      "amount": 62.15,
+      "method": "chip_insert"
+    },
+    "card_status": "active",
+    "card_physical_location": "Member confirms card is in wallet — photographed wallet with card for branch"
+  },
+
+  "get_triggering_activity": {
+    "suspicious_transactions": [
+      {"txn_id": "TXN-45601001", "date": "2026-02-27", "time": "00:14", "atm": "Banamex ATM #1144", "location": "Cancún, Quintana Roo, Mexico", "amount": 300.00, "method": "magnetic_stripe_read", "pin_entered": true, "status": "approved"},
+      {"txn_id": "TXN-45601022", "date": "2026-02-27", "time": "00:31", "atm": "Banamex ATM #1144", "location": "Cancún, Quintana Roo, Mexico", "amount": 300.00, "method": "magnetic_stripe_read", "pin_entered": true, "status": "approved"},
+      {"txn_id": "TXN-45601040", "date": "2026-02-27", "time": "01:02", "atm": "HSBC ATM Cancún Centro", "location": "Cancún, Quintana Roo, Mexico", "amount": 300.00, "method": "magnetic_stripe_read", "pin_entered": true, "status": "approved"},
+      {"txn_id": "TXN-45601058", "date": "2026-02-27", "time": "01:44", "atm": "Santander ATM #2281", "location": "Cancún, Quintana Roo, Mexico", "amount": 300.00, "method": "magnetic_stripe_read", "pin_entered": true, "status": "approved"},
+      {"txn_id": "TXN-45602011", "date": "2026-02-27", "time": "03:22", "atm": "Scotiabank ATM Plaza Las Américas", "location": "Cancún, Quintana Roo, Mexico", "amount": 100.00, "method": "magnetic_stripe_read", "pin_entered": true, "status": "approved"},
+      {"txn_id": "TXN-45602030", "date": "2026-02-27", "time": "07:14", "atm": "BBVA ATM #0441", "location": "Mexico City, CDMX, Mexico", "amount": 300.00, "method": "magnetic_stripe_read", "pin_entered": true, "status": "approved"},
+      {"txn_id": "TXN-45602048", "date": "2026-02-27", "time": "07:31", "atm": "BBVA ATM #0441", "location": "Mexico City, CDMX, Mexico", "amount": 300.00, "method": "magnetic_stripe_read", "pin_entered": true, "status": "approved"},
+      {"txn_id": "TXN-45602066", "date": "2026-02-27", "time": "08:02", "atm": "Citibanamex ATM Mexico City", "location": "Mexico City, CDMX, Mexico", "amount": 300.00, "method": "magnetic_stripe_read", "pin_entered": true, "status": "approved"},
+      {"txn_id": "TXN-45602084", "date": "2026-02-27", "time": "08:45", "atm": "Santander ATM Mexico City", "location": "Mexico City, CDMX, Mexico", "amount": 300.00, "method": "magnetic_stripe_read", "pin_entered": true, "status": "approved"},
+      {"txn_id": "TXN-45602102", "date": "2026-02-27", "time": "10:30", "atm": "HSBC ATM Mexico City Centro", "location": "Mexico City, CDMX, Mexico", "amount": 300.00, "method": "magnetic_stripe_read", "pin_entered": true, "status": "approved"},
+      {"txn_id": "TXN-45602115", "date": "2026-02-27", "time": "14:47", "atm": "Banamex ATM Reforma", "location": "Mexico City, CDMX, Mexico", "amount": 100.00, "method": "magnetic_stripe_read", "pin_entered": true, "status": "approved"}
+    ],
+    "impossibility_evidence": "Member's NFCU mobile app showed active session from IP 71.215.88.44 (Verizon, Quantico VA) at 00:21 UTC — 7 minutes after first Mexico ATM withdrawal. Physical impossibility confirmed.",
+    "all_transactions_magnetic_stripe": true,
+    "note": "All 11 fraudulent transactions used magnetic stripe — not chip. Card is chip-enabled but fraudster used cloned magstripe data.",
+    "total_withdrawn": 3100.00
+  },
+
+  "get_transactions": {
+    "transactions": [
+      {"txn_id": "TXN-45580100", "date": "2026-02-15", "type": "direct_deposit", "amount": 3884.90, "description": "DFAS-CL ACTIVE DUTY PAY", "running_balance": 9211.45},
+      {"txn_id": "TXN-45590200", "date": "2026-02-20", "type": "ach_debit", "amount": -1800.00, "description": "RENT PMT MCB QUANTICO HOUSING", "running_balance": 7411.45},
+      {"txn_id": "TXN-45598100", "date": "2026-02-26", "type": "debit_card", "amount": -62.15, "description": "MCX SHELL #4481 QUANTICO", "running_balance": 7349.30},
+      {"txn_id": "TXN-45601001", "date": "2026-02-27", "type": "atm_withdrawal", "amount": -300.00, "description": "ATM BANAMEX CANCUN MX", "running_balance": 7049.30},
+      {"txn_id": "TXN-45601022", "date": "2026-02-27", "type": "atm_withdrawal", "amount": -300.00, "description": "ATM BANAMEX CANCUN MX", "running_balance": 6749.30},
+      {"txn_id": "TXN-45601040", "date": "2026-02-27", "type": "atm_withdrawal", "amount": -300.00, "description": "ATM HSBC CANCUN MX", "running_balance": 6449.30},
+      {"txn_id": "TXN-45601058", "date": "2026-02-27", "type": "atm_withdrawal", "amount": -300.00, "description": "ATM SANTANDER CANCUN MX", "running_balance": 6149.30},
+      {"txn_id": "TXN-45602011", "date": "2026-02-27", "type": "atm_withdrawal", "amount": -100.00, "description": "ATM SCOTIABANK CANCUN MX", "running_balance": 6049.30},
+      {"txn_id": "TXN-45602030", "date": "2026-02-27", "type": "atm_withdrawal", "amount": -300.00, "description": "ATM BBVA MEXICO CITY MX", "running_balance": 5749.30},
+      {"txn_id": "TXN-45602048", "date": "2026-02-27", "type": "atm_withdrawal", "amount": -300.00, "description": "ATM BBVA MEXICO CITY MX", "running_balance": 5449.30},
+      {"txn_id": "TXN-45602066", "date": "2026-02-27", "type": "atm_withdrawal", "amount": -300.00, "description": "ATM CITIBANAMEX MEXICO CITY MX", "running_balance": 5149.30},
+      {"txn_id": "TXN-45602084", "date": "2026-02-27", "type": "atm_withdrawal", "amount": -300.00, "description": "ATM SANTANDER MEXICO CITY MX", "running_balance": 4849.30},
+      {"txn_id": "TXN-45602102", "date": "2026-02-27", "type": "atm_withdrawal", "amount": -300.00, "description": "ATM HSBC MEXICO CITY MX", "running_balance": 4549.30},
+      {"txn_id": "TXN-45602115", "date": "2026-02-27", "type": "atm_withdrawal", "amount": -100.00, "description": "ATM BANAMEX MEXICO CITY MX", "running_balance": 4449.30}
+    ]
+  },
+
+  "get_compromise_assessment": {
+    "likely_vector": "atm_skimmer_with_pin_camera",
+    "evidence": "All fraud transactions used magnetic stripe (not chip) despite chip-enabled card. PIN was correct on every attempt. Last legitimate use was chip insert at MCX Shell Quantico — skimmer likely installed at a gas station or ATM used by member in past 30 days. Card physically present with member, confirming clone not theft.",
+    "skimmer_candidates": [
+      "MCX Shell #4481 Quantico — last chip use location",
+      "BOA ATM on Barnett Ave — member used Feb 10",
+      "Exxon #8812 on Fuller Road — member used Feb 18 (magstripe pump reader)"
+    ],
+    "member_contacted": true,
+    "card_on_person": true,
+    "recommend_card_block": true
+  },
+
+  "get_prior_alerts": {
+    "prior_alerts": [],
+    "prior_fraud_claims": []
+  },
+
+  "get_reg_e_info": {
+    "notification_deadline": "Within 1 business day of determining unauthorized EFT",
+    "provisional_credit_deadline": "10 business days from member notification",
+    "member_liability": "$0 — reported within 2 business days",
+    "total_unauthorized_amount": 3100.00,
+    "net_loss_exposure": 3100.00
+  },
+
+  "_meta": {
+    "scenario": "card_fraud_atm_skimmer_geographic_impossibility",
+    "difficulty": "easy",
+    "design_notes": "Geographic impossibility (simultaneous sessions in Mexico and Virginia), all magnetic stripe, PIN correct. Physical card confirmed with member. Strong skimmer evidence. Tests: ATM fraud vs CNP fraud, impossibility evidence, PIN compromise vector assessment, card block recommendation.",
+    "ground_truth": {
+      "fraud_type": "card_fraud",
+      "determination": "fraud_confirmed",
+      "loss_exposure": 3100.00,
+      "compromise_vector": "atm_skimmer"
+    }
+  }
+}

@@ -1,0 +1,472 @@
+{
+  "institution": {
+    "name": "Navy Federal Credit Union",
+    "charter_type": "federal_credit_union",
+    "regulator": "NCUA",
+    "fraud_ops_lead": "Rebecca Torres, CFE",
+    "member_services": "24/7 Fraud Hotline"
+  },
+  "cases": [
+    {
+      "case_id": "FRD-2026-0891",
+      "case_type": "check_fraud",
+      "priority": "high",
+      "created_at": "2026-02-28T09:15:00Z",
+      "alert": {
+        "alert_id": "CHK-2026-0891",
+        "alert_type": "check_fraud",
+        "alert_subtype": "mobile_deposit_duplicate",
+        "risk_score": 0.78,
+        "source": "Mobile Deposit Duplicate Detection Engine",
+        "monitoring_rule": "RULE-CHK-012: Same check image deposited via multiple channels within 7 days",
+        "summary": "Member deposited check #4417 ($3,850) via mobile on 2/24 and presented the same physical check at Branch 22 on 2/26. Image hash match confidence: 97.3%."
+      },
+      "member": {
+        "member_id": "M-20170443921",
+        "full_name": "David Park",
+        "date_of_birth": "1991-03-22",
+        "ssn_masked": "***-**-8834",
+        "address": "4210 Sycamore Ridge Ct, Virginia Beach, VA 23462",
+        "phone": "(757) 555-0312",
+        "email": "david.park.designs@gmail.com",
+        "employment": {
+          "employer": "Self-employed",
+          "business_name": "Park Design Studio",
+          "title": "Freelance Graphic Designer",
+          "since": "2021-06-01"
+        },
+        "income": {
+          "stated_annual": 62000,
+          "source": "freelance_income",
+          "verified": false
+        },
+        "membership_since": "2017-08-10",
+        "member_status": "active",
+        "risk_rating": "low"
+      },
+      "account": {
+        "account_number_masked": "****3309",
+        "account_type": "checking",
+        "product": "Flagship Checking",
+        "opened": "2017-08-10",
+        "status": "active",
+        "current_balance": 5420.33,
+        "average_balance_6mo": 4100,
+        "avg_deposits_monthly": 5200,
+        "avg_check_deposits_monthly": 2800,
+        "mobile_deposit_enabled": true,
+        "mobile_deposit_limit_daily": 5000
+      },
+      "transactions": [
+        {
+          "txn_id": "TXN-40221001",
+          "date": "2026-02-24",
+          "time": "19:42",
+          "type": "mobile_deposit",
+          "amount": 3850.00,
+          "channel": "mobile_app",
+          "device_id": "iPhone-DPark-0X8A",
+          "check_number": "4417",
+          "check_maker": "Tidewater Creative Partners LLC",
+          "check_maker_bank": "Truist Bank",
+          "check_routing": "051404260",
+          "image_hash": "SHA256:a4f2e8c1d9b3...7721",
+          "running_balance": 8070.33,
+          "status": "posted",
+          "hold_amount": 0
+        },
+        {
+          "txn_id": "TXN-40221445",
+          "date": "2026-02-26",
+          "time": "11:15",
+          "type": "branch_deposit",
+          "amount": 3850.00,
+          "channel": "branch",
+          "branch_id": "Branch 22 - Virginia Beach",
+          "teller_id": "T-7291",
+          "check_number": "4417",
+          "check_maker": "Tidewater Creative Partners LLC",
+          "check_maker_bank": "Truist Bank",
+          "check_routing": "051404260",
+          "image_hash": "SHA256:a4f2e8c1d9b3...7721",
+          "running_balance": 11920.33,
+          "status": "on_hold",
+          "hold_amount": 3850.00
+        },
+        {
+          "txn_id": "TXN-40220812",
+          "date": "2026-02-22",
+          "time": "14:30",
+          "type": "debit_card",
+          "amount": -145.00,
+          "merchant": "Home Depot #4421",
+          "running_balance": 4220.33
+        },
+        {
+          "txn_id": "TXN-40220199",
+          "date": "2026-02-20",
+          "time": "09:00",
+          "type": "ach_credit",
+          "amount": 1200.00,
+          "originator": "Tidewater Creative Partners LLC",
+          "description": "Invoice #TW-2026-018",
+          "running_balance": 4365.33
+        }
+      ],
+      "check_analysis": {
+        "image_match_confidence": 0.973,
+        "micr_line_match": true,
+        "endorsement_analysis": "Both deposits show same endorsement signature",
+        "maker_account_status": "Check cleared maker's account on 2/25 against mobile deposit",
+        "duplicate_window_hours": 39.55
+      },
+      "prior_fraud_history": [],
+      "prior_disputes": [
+        {
+          "dispute_id": "DSP-2024-1122",
+          "date": "2024-11-15",
+          "type": "unauthorized_debit_card",
+          "amount": 89.99,
+          "resolution": "credit_issued",
+          "notes": "Legitimate dispute — card skimming at gas station"
+        }
+      ]
+    },
+    {
+      "case_id": "FRD-2026-0894",
+      "case_type": "card_fraud",
+      "priority": "critical",
+      "created_at": "2026-02-28T14:33:00Z",
+      "alert": {
+        "alert_id": "CRD-2026-0894",
+        "alert_type": "card_fraud",
+        "alert_subtype": "cnp_velocity_burst",
+        "risk_score": 0.91,
+        "source": "Real-Time Card Fraud Detection Engine",
+        "monitoring_rule": "RULE-CRD-007: 5+ card-not-present transactions within 60 minutes across 3+ merchants",
+        "summary": "7 CNP transactions totaling $4,217 within 47 minutes across 5 different online merchants. Geographic dispersion: 3 states. Device fingerprint mismatch with member's known devices."
+      },
+      "member": {
+        "member_id": "M-20200891205",
+        "full_name": "Sarah Chen",
+        "date_of_birth": "1988-07-14",
+        "ssn_masked": "***-**-5519",
+        "address": "1825 Oakwood Lane, Apt 4B, Norfolk, VA 23507",
+        "phone": "(757) 555-0487",
+        "email": "sarah.chen.nfk@outlook.com",
+        "employment": {
+          "employer": "Naval Station Norfolk",
+          "title": "Logistics Specialist GS-9",
+          "since": "2020-03-15"
+        },
+        "income": {
+          "stated_annual": 58000,
+          "source": "federal_employment",
+          "verified": true,
+          "verification_date": "2025-09-01"
+        },
+        "membership_since": "2020-04-02",
+        "member_status": "active",
+        "risk_rating": "low",
+        "military_status": "active_duty_spouse"
+      },
+      "account": {
+        "account_number_masked": "****7821",
+        "account_type": "checking",
+        "product": "Active Duty Checking",
+        "opened": "2020-04-02",
+        "status": "active",
+        "current_balance": 3245.18,
+        "average_balance_6mo": 2800,
+        "avg_deposits_monthly": 4200
+      },
+      "card": {
+        "card_number_masked": "****4492",
+        "card_type": "Visa Signature",
+        "expiry": "08/2027",
+        "status": "active",
+        "credit_limit": 12000,
+        "current_balance": 2150.00,
+        "last_known_device": "iPhone-SChen-3K2M",
+        "enrolled_3d_secure": true,
+        "chip_enabled": true,
+        "contactless_enabled": true
+      },
+      "transactions": [
+        {
+          "txn_id": "TXN-CC-88210001",
+          "date": "2026-02-28",
+          "time": "13:44",
+          "type": "cnp_purchase",
+          "amount": -89.99,
+          "merchant": "BestBuy.com",
+          "merchant_category": "5732",
+          "merchant_state": "MN",
+          "device_fingerprint": "UNKNOWN-XR4421",
+          "ip_address": "198.51.100.42",
+          "ip_geolocation": "Chicago, IL",
+          "3ds_result": "not_challenged",
+          "avs_result": "N",
+          "cvv_result": "M"
+        },
+        {
+          "txn_id": "TXN-CC-88210002",
+          "date": "2026-02-28",
+          "time": "13:51",
+          "type": "cnp_purchase",
+          "amount": -449.00,
+          "merchant": "Amazon.com",
+          "merchant_category": "5942",
+          "merchant_state": "WA",
+          "device_fingerprint": "UNKNOWN-XR4421",
+          "ip_address": "198.51.100.42",
+          "ip_geolocation": "Chicago, IL",
+          "3ds_result": "not_challenged",
+          "avs_result": "N",
+          "cvv_result": "M"
+        },
+        {
+          "txn_id": "TXN-CC-88210003",
+          "date": "2026-02-28",
+          "time": "13:58",
+          "type": "cnp_purchase",
+          "amount": -1299.99,
+          "merchant": "Newegg.com",
+          "merchant_category": "5732",
+          "merchant_state": "CA",
+          "device_fingerprint": "UNKNOWN-XR4421",
+          "ip_address": "203.0.113.77",
+          "ip_geolocation": "Dallas, TX",
+          "3ds_result": "not_challenged",
+          "avs_result": "N",
+          "cvv_result": "M"
+        },
+        {
+          "txn_id": "TXN-CC-88210004",
+          "date": "2026-02-28",
+          "time": "14:02",
+          "type": "cnp_purchase",
+          "amount": -199.99,
+          "merchant": "Walmart.com",
+          "merchant_category": "5411",
+          "merchant_state": "AR",
+          "device_fingerprint": "UNKNOWN-XR4421",
+          "ip_address": "203.0.113.77",
+          "ip_geolocation": "Dallas, TX",
+          "3ds_result": "challenged_failed",
+          "avs_result": "N",
+          "cvv_result": "M"
+        },
+        {
+          "txn_id": "TXN-CC-88210005",
+          "date": "2026-02-28",
+          "time": "14:09",
+          "type": "cnp_purchase",
+          "amount": -749.00,
+          "merchant": "Target.com",
+          "merchant_category": "5311",
+          "merchant_state": "MN",
+          "device_fingerprint": "UNKNOWN-ZZ8812",
+          "ip_address": "203.0.113.99",
+          "ip_geolocation": "Houston, TX",
+          "3ds_result": "not_challenged",
+          "avs_result": "N",
+          "cvv_result": "M"
+        },
+        {
+          "txn_id": "TXN-CC-88210006",
+          "date": "2026-02-28",
+          "time": "14:18",
+          "type": "cnp_purchase",
+          "amount": -379.00,
+          "merchant": "Macys.com",
+          "merchant_category": "5311",
+          "merchant_state": "OH",
+          "device_fingerprint": "UNKNOWN-ZZ8812",
+          "ip_address": "203.0.113.99",
+          "ip_geolocation": "Houston, TX",
+          "3ds_result": "not_challenged",
+          "avs_result": "N",
+          "cvv_result": "N"
+        },
+        {
+          "txn_id": "TXN-CC-88210007",
+          "date": "2026-02-28",
+          "time": "14:31",
+          "type": "cnp_purchase",
+          "amount": -1050.00,
+          "merchant": "Apple.com",
+          "merchant_category": "5732",
+          "merchant_state": "CA",
+          "device_fingerprint": "UNKNOWN-ZZ8812",
+          "ip_address": "192.0.2.15",
+          "ip_geolocation": "Atlanta, GA",
+          "3ds_result": "declined",
+          "avs_result": "N",
+          "cvv_result": "N",
+          "status": "declined"
+        }
+      ],
+      "device_analysis": {
+        "known_devices": ["iPhone-SChen-3K2M", "MacBook-SChen-L1"],
+        "alert_devices": ["UNKNOWN-XR4421", "UNKNOWN-ZZ8812"],
+        "device_match": false,
+        "ip_mismatch": true,
+        "member_home_ip_range": "72.84.x.x (Cox Communications, Norfolk VA)",
+        "alert_ip_geolocations": ["Chicago, IL", "Dallas, TX", "Houston, TX", "Atlanta, GA"]
+      },
+      "prior_fraud_history": [],
+      "member_contact_log": [
+        {
+          "date": "2026-02-28",
+          "time": "14:45",
+          "channel": "inbound_call",
+          "notes": "Member called reporting card compromised. States she received text alerts for purchases she did not make. Card was in her possession at all times. Suspects online data breach."
+        }
+      ]
+    },
+    {
+      "case_id": "FRD-2026-0897",
+      "case_type": "app_scam",
+      "priority": "high",
+      "created_at": "2026-02-28T16:20:00Z",
+      "alert": {
+        "alert_id": "APP-2026-0897",
+        "alert_type": "app_scam",
+        "alert_subtype": "romance_scam_indicators",
+        "risk_score": 0.72,
+        "source": "Behavioral Analytics Engine",
+        "monitoring_rule": "RULE-APP-003: Multiple wire transfers to new foreign beneficiary from member with no prior international activity",
+        "summary": "Member initiated 3 outbound wire transfers totaling $18,500 over 12 days to a beneficiary in Kuala Lumpur, Malaysia. Member has zero prior international wire history. Amounts escalating. Beneficiary account is 14 days old."
+      },
+      "member": {
+        "member_id": "M-20110234817",
+        "full_name": "Robert Jennings",
+        "date_of_birth": "1962-11-08",
+        "ssn_masked": "***-**-3362",
+        "address": "8901 Chesapeake Blvd, Unit 210, Chesapeake, VA 23320",
+        "phone": "(757) 555-0193",
+        "email": "rjennings62@yahoo.com",
+        "employment": {
+          "employer": "Retired",
+          "title": "Retired Navy E-7 Chief Petty Officer",
+          "since": "2018-06-01",
+          "prior_employer": "United States Navy",
+          "years_of_service": 26
+        },
+        "income": {
+          "stated_annual": 42000,
+          "source": "military_retirement_pension",
+          "verified": true,
+          "va_disability": true,
+          "social_security": false
+        },
+        "membership_since": "2011-02-15",
+        "member_status": "active",
+        "risk_rating": "low",
+        "military_status": "retired",
+        "marital_status": "widowed_2022"
+      },
+      "account": {
+        "account_number_masked": "****5507",
+        "account_type": "checking",
+        "product": "Flagship Checking",
+        "opened": "2011-02-15",
+        "status": "active",
+        "current_balance": 12340.22,
+        "average_balance_6mo": 28500,
+        "avg_deposits_monthly": 3800,
+        "prior_international_wires": 0,
+        "savings_account": {
+          "account_masked": "****5508",
+          "balance": 45200.00,
+          "recent_transfer_to_checking": 15000.00,
+          "transfer_date": "2026-02-18"
+        }
+      },
+      "transactions": [
+        {
+          "txn_id": "TXN-WR-55070001",
+          "date": "2026-02-16",
+          "time": "10:30",
+          "type": "outbound_wire",
+          "amount": -3500.00,
+          "channel": "branch",
+          "branch_id": "Branch 9 - Chesapeake",
+          "teller_id": "T-4120",
+          "beneficiary_name": "Mei Ling Holdings Sdn Bhd",
+          "beneficiary_bank": "Maybank Berhad",
+          "beneficiary_country": "Malaysia",
+          "beneficiary_account_age_days": 2,
+          "wire_purpose_stated": "Investment in overseas property",
+          "running_balance": 24840.22
+        },
+        {
+          "txn_id": "TXN-WR-55070002",
+          "date": "2026-02-22",
+          "time": "11:15",
+          "type": "outbound_wire",
+          "amount": -5000.00,
+          "channel": "branch",
+          "branch_id": "Branch 9 - Chesapeake",
+          "teller_id": "T-4120",
+          "beneficiary_name": "Mei Ling Holdings Sdn Bhd",
+          "beneficiary_bank": "Maybank Berhad",
+          "beneficiary_country": "Malaysia",
+          "beneficiary_account_age_days": 8,
+          "wire_purpose_stated": "Additional investment deposit — property closing",
+          "running_balance": 19840.22
+        },
+        {
+          "txn_id": "TXN-WR-55070003",
+          "date": "2026-02-27",
+          "time": "14:00",
+          "type": "outbound_wire",
+          "amount": -10000.00,
+          "channel": "online_banking",
+          "beneficiary_name": "Mei Ling Holdings Sdn Bhd",
+          "beneficiary_bank": "Maybank Berhad",
+          "beneficiary_country": "Malaysia",
+          "beneficiary_account_age_days": 13,
+          "wire_purpose_stated": "Final payment — property transfer",
+          "running_balance": 12340.22
+        },
+        {
+          "txn_id": "TXN-INT-55070010",
+          "date": "2026-02-18",
+          "time": "09:00",
+          "type": "internal_transfer",
+          "amount": 15000.00,
+          "from_account": "Savings ****5508",
+          "description": "Transfer to checking — member initiated via online banking",
+          "running_balance": 28340.22
+        }
+      ],
+      "behavioral_signals": {
+        "prior_international_activity": "none",
+        "savings_drawdown": true,
+        "savings_drawdown_amount": 15000.00,
+        "escalating_amounts": true,
+        "amount_sequence": [3500, 5000, 10000],
+        "beneficiary_account_age": "14 days at last wire",
+        "beneficiary_type": "corporate_entity",
+        "urgency_language_detected": true,
+        "urgency_notes": "Member told teller on 2/22 that 'this needs to go out today or I lose the property deal'",
+        "coaching_indicators": [
+          "Member appeared to receive text messages during branch visit on 2/22",
+          "Teller noted member seemed nervous, double-checking phone between steps",
+          "Wire purpose description uses language inconsistent with member's typical vocabulary"
+        ]
+      },
+      "prior_fraud_history": [],
+      "prior_disputes": [],
+      "member_profile_notes": {
+        "relationship_tenure": "15 years",
+        "typical_activity": "Military pension deposits, grocery/utility payments, occasional Amazon",
+        "international_history": "Zero international transactions in membership history",
+        "life_event": "Wife passed away in October 2022",
+        "branch_relationship": "Known to Branch 9 staff for 10+ years"
+      }
+    }
+  ]
+}

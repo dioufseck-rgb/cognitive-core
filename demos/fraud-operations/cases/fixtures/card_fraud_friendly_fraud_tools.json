@@ -1,0 +1,186 @@
+{
+  "_case_id": "FRD-2026-01102",
+  "get_alert": {
+    "alert_id": "ALT-2026-7459",
+    "generated_at": "2026-02-25T13:22:00Z",
+    "alert_type": "member_dispute",
+    "alert_source": "member_reported",
+    "monitoring_rule": "RULE-CRD-021: Member dispute flagged for review \u2014 3+ prior disputes within 24 months",
+    "risk_score": 0.31,
+    "priority": "normal",
+    "sla_deadline": "2026-02-28T13:22:00Z"
+  },
+  "get_member": {
+    "member_id": "M-40287654",
+    "full_name": "Tyler Nguyen",
+    "date_of_birth": "1995-07-11",
+    "ssn_masked": "***-**-6612",
+    "address": "7801 Shore Drive, Apt 118, Norfolk, VA 23518",
+    "phone": "(757) 555-0988",
+    "email": "tyler.nguyen95@gmail.com",
+    "member_since": "2017-03-22",
+    "member_type": "veteran",
+    "branch_affiliation": "Navy",
+    "rank_separated": "E-5 / Petty Officer 2nd Class",
+    "employer": "Home Depot \u2014 Tool Department",
+    "annual_pay": 38000,
+    "risk_rating": "medium",
+    "fraud_risk_note": "Elevated risk \u2014 4 prior disputed charges in 18 months at electronics retailers. All previously credited. Pattern consistent with friendly fraud."
+  },
+  "get_account": {
+    "account_number_masked": "****1187",
+    "account_type": "checking",
+    "product": "Military Checking",
+    "opened": "2017-03-22",
+    "status": "active",
+    "average_balance_6mo": 1840,
+    "avg_deposits_6mo": 2900,
+    "avg_withdrawals_6mo": 2750,
+    "primary_deposit_source": "direct_deposit_employer",
+    "typical_merchants": [
+      "Home Depot",
+      "McDonald's",
+      "Shell",
+      "Amazon",
+      "GameStop"
+    ],
+    "best_buy_history": "Member has shopped Best Buy 7 times in past 12 months \u2014 all legitimate"
+  },
+  "get_card": {
+    "card_number_masked": "****4490",
+    "card_type": "visa_debit",
+    "product": "Visa Debit \u2014 Military",
+    "issued": "2025-07-10",
+    "expiry": "2028-07-31",
+    "last_legitimate_use_acknowledged": {
+      "date": "2026-02-22",
+      "time": "11:47",
+      "merchant": "McDonald's #3341 Norfolk",
+      "location": "Norfolk, VA",
+      "amount": 12.43,
+      "method": "tap_to_pay"
+    },
+    "disputed_transaction": {
+      "txn_id": "TXN-45701001",
+      "date": "2026-02-22",
+      "time": "14:22",
+      "merchant": "Best Buy #841 Norfolk",
+      "location": "2020 E Little Creek Rd, Norfolk, VA",
+      "amount": 847.5,
+      "method": "chip_insert",
+      "item_purchased": "Samsung 65-inch QLED TV \u2014 confirmed by merchant receipt",
+      "status": "posted"
+    },
+    "card_status": "active"
+  },
+  "get_triggering_activity": {
+    "disputed_transaction": {
+      "txn_id": "TXN-45701001",
+      "amount": 847.5,
+      "merchant": "Best Buy #841 Norfolk",
+      "date": "2026-02-22",
+      "time": "14:22"
+    },
+    "member_claim": "Member states he was at work at Home Depot from 1:00 PM to 9:00 PM on 2/22 and did not make this purchase. Claims card was in his wallet the entire time.",
+    "digital_evidence_against_claim": {
+      "device_fingerprint": "Mobile banking app open on member's iPhone at 14:18 (4 min before transaction) from IP 72.11.44.18 \u2014 geolocation Best Buy Norfolk area",
+      "bluetooth_beacon": "Member's phone Bluetooth MAC detected at Best Buy #841 Norfolk by store beacon network at 14:19 \u2014 3 minutes before transaction",
+      "apple_pay_activity": "Apple Pay notification sent to member's iPhone for $847.50 at 14:22:08 \u2014 push notification delivered to member's device",
+      "chip_read": "EMV chip used \u2014 requires physical card presence. Not CNP, not tap, not fallback."
+    },
+    "employer_check": "Home Depot punch records show member clocked out at 12:55 PM \u2014 87 minutes before disputed transaction. Member was not at work during transaction."
+  },
+  "get_transactions": {
+    "transactions": [
+      {
+        "txn_id": "TXN-45680100",
+        "date": "2026-02-21",
+        "type": "direct_deposit",
+        "amount": 1187.5,
+        "description": "HOME DEPOT BI-WEEKLY PAY",
+        "running_balance": 1980.22
+      },
+      {
+        "txn_id": "TXN-45690100",
+        "date": "2026-02-22",
+        "type": "debit_card",
+        "amount": -12.43,
+        "description": "MCDONALD'S #3341 NORFOLK",
+        "running_balance": 1967.79
+      },
+      {
+        "txn_id": "TXN-45701001",
+        "date": "2026-02-22",
+        "type": "debit_card",
+        "amount": -847.5,
+        "description": "BEST BUY #841 NORFOLK",
+        "running_balance": 1120.29
+      },
+      {
+        "txn_id": "TXN-45710100",
+        "date": "2026-02-23",
+        "type": "debit_card",
+        "amount": -48.2,
+        "description": "SHELL GAS STATION NORFOLK",
+        "running_balance": 1072.09
+      }
+    ]
+  },
+  "get_compromise_assessment": {
+    "likely_vector": "none \u2014 transaction is consistent with member presence",
+    "evidence": "EMV chip transaction requires physical card. Device fingerprint, Bluetooth beacon, Apple Pay notification, and employer records all contradict member's account. This pattern matches prior disputed transactions.",
+    "member_contacted": true,
+    "card_on_person": "Member claims yes, but digital evidence inconsistent with claim"
+  },
+  "get_prior_alerts": {
+    "prior_alerts": [
+      {
+        "alert_id": "ALT-2024-4411",
+        "date": "2024-09-12",
+        "type": "member_dispute",
+        "merchant": "Micro Center Fairfax",
+        "amount": 412.0,
+        "outcome": "credited_provisional",
+        "investigation_notes": "Credited without investigation \u2014 under threshold"
+      },
+      {
+        "alert_id": "ALT-2024-5882",
+        "date": "2024-11-28",
+        "type": "member_dispute",
+        "merchant": "GameStop Lynnhaven",
+        "amount": 289.0,
+        "outcome": "credited_provisional",
+        "investigation_notes": "Black Friday purchase, member insisted card not present"
+      },
+      {
+        "alert_id": "ALT-2025-2210",
+        "date": "2025-04-03",
+        "type": "member_dispute",
+        "merchant": "Best Buy Norfolk",
+        "amount": 1148.5,
+        "outcome": "credited_provisional",
+        "investigation_notes": "Same Best Buy location. Credited after 10-day provisional \u2014 member never returned to discuss"
+      },
+      {
+        "alert_id": "ALT-2025-6741",
+        "date": "2025-10-17",
+        "type": "member_dispute",
+        "merchant": "Adorama Camera NYC",
+        "amount": 1350.0,
+        "outcome": "denied_after_investigation",
+        "investigation_notes": "Device fingerprint matched \u2014 denied. Member did not appeal."
+      }
+    ],
+    "prior_fraud_claims": [],
+    "total_prior_credits_electronics": 1749.0,
+    "prior_denials": 1,
+    "pattern_note": "5 disputes in 18 months, all electronics retailers, all card-present transactions, amounts $289-$1,350"
+  },
+  "get_reg_e_info": {
+    "notification_deadline": "Within 1 business day of determining unauthorized EFT",
+    "provisional_credit_deadline": "10 business days from member notification (if determination incomplete)",
+    "member_liability_if_authorized": "Member is liable for authorized transactions \u2014 no credit due",
+    "total_disputed_amount": 847.5,
+    "investigation_note": "Evidence strongly suggests authorized transaction. Provisional credit should be withheld pending investigation. If denied, document clearly for potential appeal."
+  }
+}

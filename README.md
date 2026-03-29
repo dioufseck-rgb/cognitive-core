@@ -1,209 +1,320 @@
 # Cognitive Core
 
-AI Application Factory — composable cognitive workflows from YAML configuration with demand-driven multi-agent coordination.
+**An open-source framework for governed institutional AI workflows built from typed cognitive primitives.**
 
-Cognitive Core lets you define AI workflows as YAML specifications that are merged at runtime from three layers (workflow structure, domain expertise, case data), executed step-by-step through eight cognitive primitives, and coordinated across agents through a demand-driven delegation protocol where agents describe what they need and the coordinator finds providers.
+Most enterprise AI work embeds language models inside patterns inherited from earlier software: screens, request/response APIs, fixed pipelines. The intelligence is new; the surrounding architecture is old.
 
-## Quick Start
+Cognitive Core is built differently. It treats AI-native workflow design as a first-class architectural problem, with three commitments:
+
+- **Typed cognitive primitives** — eight epistemic operations that compose into any reasoning workflow
+- **Configuration-first** — a new use case is a YAML file, not an application
+- **Governance as a first-class concern** — escalation, audit trails, and human review are structural, not bolted on
+
+---
+
+## The eight primitives
+
+Every workflow is composed from eight typed epistemic operations. Each has a defined input contract, a structured output schema, and a prompt template.
+
+| Primitive | Epistemic function | Key output fields |
+|---|---|---|
+| `retrieve` | Acquire evidence from external sources | `data`, `sources_queried`, `confidence` |
+| `classify` | Categorical assignment under uncertainty | `category`, `alternative_categories`, `confidence` |
+| `investigate` | Goal-directed inquiry until threshold | `finding`, `hypotheses_tested`, `confidence` |
+| `challenge` | Adversarial examination of a conclusion | `survives`, `vulnerabilities`, `strengths` |
+| `verify` | Conformance check against a rule set | `conforms`, `violations`, `rules_checked` |
+| `deliberate` | Meta-cognitive synthesis → warranted action | `recommended_action`, `warrant`, `options_considered` |
+| `generate` | Render reasoning into a communicable artifact | `artifact`, `format`, `constraints_checked` |
+| `govern` | Determine governance tier and disposition | `tier_applied`, `disposition`, `work_order` |
+
+All outputs inherit from `CognitiveOutput`: `confidence`, `reasoning`, `evidence_used`, `evidence_missing`.
+
+---
+
+## The three-layer architecture
+
+Every workflow execution merges three independent configuration layers:
+
+```
+Workflow YAML      →  step sequence, transitions, loop bounds
+Domain YAML        →  expertise, governance tier, evaluation criteria  
+Case JSON          →  runtime data, served as typed tool calls
+```
+
+The merge is the framework's central insight: **a use case is a configuration, not an application.** No code is written per use case.
+
+---
+
+## Quickstart
+
+### Install
 
 ```bash
-# Clone and install core dependencies
-pip install -r requirements.txt
-
-# Run the interactive insurance claim demo (no LLM required)
-python demo_insurance_claim.py
-
-# Run the live coordinator demo (real state machine, simulated LLM)
-python demo_live_coordinator.py
-
-# Run the batch test (uses LLM if configured, simulation fallback otherwise)
-python run_batch_test.py --case simple --n 5
+pip install cognitive-core
+# or with full runtime:
+pip install cognitive-core[runtime]
 ```
 
-### With LLM Execution
+### Write a workflow
+
+```yaml
+# configs/workflows/ticket_triage.yaml
+name: ticket_triage
+
+steps:
+  - name: gather_ticket
+    primitive: retrieve
+    params:
+      specification: "${domain.gather_ticket.specification}"
+
+  - name: classify_severity
+    primitive: classify
+    temperature: 0.0
+    params:
+      categories: "${domain.classify_severity.categories}"
+      criteria: "${domain.classify_severity.criteria}"
+    transitions:
+      - when: "output.category == 'critical'"
+        goto: escalate
+      - default: generate_response
+
+  - name: generate_response
+    primitive: generate
+    params:
+      requirements: "${domain.generate_response.requirements}"
+      format: "${domain.generate_response.format}"
+      constraints: "${domain.generate_response.constraints}"
+    transitions:
+      - default: __end__
+
+  - name: escalate
+    primitive: govern
+    params:
+      workflow_state: "${context}"
+      governance_context: "${domain.escalate.governance_context}"
+```
+
+### Write a domain pack
+
+```yaml
+# configs/domains/customer_support.yaml
+domain_name: customer_support
+workflow: ticket_triage
+governance: spot_check
+
+gather_ticket:
+  specification: |
+    Pull the following:
+      - get_ticket: The support ticket (subject, body, metadata)
+      - get_customer: Customer account status and history
+      - get_prior_tickets: Prior tickets from this customer (last 90 days)
+
+classify_severity:
+  categories: |
+    - critical: Data loss, security breach, complete service outage.
+      Requires immediate human response.
+    - high: Core functionality broken, significant business impact.
+      Same-day resolution required.
+    - medium: Functionality degraded but workaround exists.
+    - low: Questions, minor issues, feature requests.
+  criteria: |
+    Classify based on customer impact and urgency.
+    When in doubt between critical and high, choose critical.
+    Account status and history inform urgency but don't change severity.
+
+generate_response:
+  requirements: |
+    Draft a response that acknowledges the issue, states next steps,
+    and provides a realistic resolution timeline.
+  format: json
+  constraints: |
+    - Never promise specific resolution times without escalation approval
+    - Always include a case reference number
+    - Match tone to severity: direct for critical, warm for low
+
+escalate:
+  governance_context: |
+    Critical ticket requires immediate human review before any response
+    is sent. Gate tier. Route to on-call queue.
+```
+
+### Run it
+
+```python
+from cognitive_core.coordinator import Coordinator
+
+coord = Coordinator("configs/coordinator.yaml")
+
+result = coord.start(
+    workflow_type="ticket_triage",
+    domain="customer_support",
+    case_input={
+        "ticket_id": "TKT-9821",
+        "get_ticket": {"subject": "All data gone after update", ...},
+        "get_customer": {"tier": "enterprise", ...},
+    }
+)
+```
+
+---
+
+## Demos
+
+Three demos cover the main architectural concepts, each runnable in simulated mode (no LLM key required) or with a live LLM.
+
+### 1. Support ticket triage — quickstart
+
+The simplest complete workflow. Two YAML files. Three primitives. Zero application code.
 
 ```bash
-# Copy and configure environment
-cp .env.example .env
-# Edit .env with your provider credentials
-
-# Run with real LLM
-python run_batch_test.py --case simple --n 5
-python run_batch_test.py --case simple medium hard --n 5
+python demos/support-ticket-triage/run.py
 ```
 
-## How It Works
+Shows: three-layer architecture, `classify` → conditional routing → `investigate` → `generate`.
 
-Every workflow is assembled from three YAML layers merged at load time:
+### 2. Content moderation — governance
 
-```
-workflows/claim_adjudication.yaml   →  Structure: steps, transitions, loop limits
-domains/claims_processing.yaml      →  Expertise: prompts, thresholds, tools, capabilities
-cases/insurance_claim_simple.json   →  Data: identity and inputs for this execution
-```
-
-The engine merges these, builds a state graph, and executes step by step. Each step uses one of eight cognitive primitives (retrieve, think, generate, verify, decide, act, reflect, delegate). When a step encounters something it cannot resolve, it emits a `ResourceRequest`. The coordinator matches the need to a registered capability, dispatches a provider (another workflow, a human task, a solver), suspends the source workflow, and resumes it when results arrive.
-
-```
-Agent runs forward through steps
-  ↓
-Step 2: "I need the equipment schedule"     →  ResourceRequest
-  ↓
-Coordinator matches need → dispatches provider workflow
-  ↓
-Provider completes → Coordinator resumes agent at Step 2
-  ↓
-Agent continues with new data
-```
-
-The complexity of any execution is determined by what the case actually requires, not by what was anticipated at design time. A simple claim runs straight through. A complex claim triggers three interrupt/dispatch/resume cycles across five back-office agents.
-
-## Project Structure
-
-```
-cognitive-core/
-├── coordinator/              # Orchestration layer
-│   ├── runtime.py            #   Coordinator (start/suspend/resume/complete)
-│   ├── policy.py             #   Governance tiers, capability matching
-│   ├── store.py              #   SQLite persistence
-│   ├── tasks.py              #   Human task queue
-│   ├── types.py              #   Core types (InstanceState, WorkOrder, Suspension)
-│   ├── contracts.py          #   Schema validation for delegation contracts
-│   ├── escalation.py         #   Escalation briefs for human review
-│   ├── cli.py                #   Coordinator CLI
-│   └── config.yaml           #   Governance tiers, capabilities, delegation rules
-│
-├── engine/                   # Execution engine
-│   ├── composer.py           #   Three-layer merge, graph compilation
-│   ├── nodes.py              #   Node factories for each primitive
-│   ├── stepper.py            #   Step-by-step executor with interrupt detection
-│   ├── state.py              #   WorkflowState, StepResult types
-│   ├── tools.py              #   Tool registry (case fixtures + MCP)
-│   ├── actions.py            #   Action registry for side effects
-│   ├── llm.py                #   Multi-provider LLM factory
-│   ├── resume.py             #   Mid-graph resume (subgraph compilation)
-│   ├── trace.py              #   Lightweight execution tracing
-│   ├── settlement.py         #   Deterministic settlement calculator
-│   ├── governance.py         #   Governance pipeline (guardrails + all gates)
-│   ├── guardrails.py         #   Input validation, prompt injection detection
-│   ├── pii.py                #   PII redaction
-│   ├── cost.py               #   Token and cost accounting
-│   ├── kill_switch.py        #   Runtime emergency stop
-│   ├── audit.py              #   Audit trail
-│   ├── db.py                 #   Database backends (SQLite, Postgres)
-│   ├── providers.py          #   MCP, API, vector tool providers
-│   ├── retry.py              #   Retry policies with backoff
-│   ├── validate.py           #   Config validation
-│   └── ...                   #   (30+ modules total)
-│
-├── registry/                 # Primitive catalog
-│   ├── primitives.py         #   Eight primitives: config, prompts, schemas
-│   ├── schemas.py            #   Pydantic output schemas per primitive
-│   └── prompts/              #   Prompt templates per primitive
-│
-├── langgraph/                # Local LangGraph shim for offline execution
-│   └── graph.py              #   Minimal StateGraph/CompiledGraph
-│
-├── mcp_servers/              # MCP tool servers
-│   └── claims_services.py    #   Claims data + settlement calculator
-│
-├── workflows/                # Workflow definitions (26 workflows)
-├── domains/                  # Domain configurations (27 domains)
-├── cases/                    # Test cases with fixture data
-│   ├── fixtures/             #   MCP mock responses per case
-│   └── *.json                #   Case files (simple, medium, hard, meridian)
-│
-├── tests/                    # Test suite
-│   └── test_demand_driven.py #   Demand-driven delegation tests
-│
-├── demo_insurance_claim.py   # Interactive CLI demo (no deps)
-├── demo_live_coordinator.py  # Live coordinator state machine demo
-├── smoke_test.py             # Single-case smoke test
-├── run_batch_test.py         # Multi-case batch test harness
-├── llm_config.yaml           # LLM provider/model configuration
-├── requirements.txt          # Python dependencies
-├── pyproject.toml            # Package configuration
-├── Dockerfile                # Container build
-├── Makefile                  # Development commands
-└── .env.example              # Environment variable template
-```
-
-## Eight Cognitive Primitives
-
-Every step in every workflow uses exactly one primitive:
-
-| Primitive | Purpose | Output Contract |
-|-----------|---------|-----------------|
-| **retrieve** | Pull structured data from tools/APIs | `{data: {...}, sources: [...]}` |
-| **think** | Analyze, reason, assess | `{analysis: str, confidence: float, resource_requests?: [...]}` |
-| **generate** | Produce structured output | `{artifact: {...}}` |
-| **verify** | Validate against criteria | `{conforms: bool, findings: [...]}` |
-| **decide** | Binary or categorical branch | `{decision: str, reasoning: str}` |
-| **act** | Execute side effects | `{action_taken: bool, result: {...}}` |
-| **reflect** | Self-evaluate prior output | `{assessment: str, revisions: [...]}` |
-| **delegate** | Explicit external handoff | `{need: str, context: {...}}` |
-
-## Coordination Protocol
-
-The demand-driven delegation protocol operates through five phases:
-
-1. **Interrupt** — Agent produces a ResourceRequest; stepper pauses; workflow suspends
-2. **Match** — Coordinator maps each need to a registered capability
-3. **Dispatch** — Work orders created; providers started (workflows, human tasks, solvers)
-4. **Wait** — Workflow stays suspended; providers may themselves delegate (nested chains)
-5. **Resume** — All providers complete; results injected; workflow resumes at interrupted step
-
-Three dispatch patterns: **sequential** (single need), **parallel** (independent needs dispatched simultaneously), **staged** (dependent needs dispatched in waves).
-
-## Governance Tiers
-
-| Tier | Behavior | Use Case |
-|------|----------|----------|
-| `auto` | No human review | Low-risk lookups, data retrieval |
-| `log` | Record but don't gate | Medium-risk, audit trail |
-| `spot_check` | Random sampling | Quality monitoring |
-| `gate` | Human approval required | High-stakes decisions (claims, loans) |
-
-Tiers are configured per domain in `coordinator/config.yaml`. The logic breaker module auto-escalates tiers when quality metrics degrade.
-
-## Environment Variables
-
-| Variable | Required | Purpose |
-|----------|----------|---------|
-| `LLM_PROVIDER` | For LLM execution | `azure_foundry`, `azure`, `openai`, `google`, `bedrock` |
-| `AZURE_AI_FOUNDRY_ENDPOINT` | If using Azure Foundry | Project endpoint URL |
-| `AZURE_AI_FOUNDRY_KEY` | If using Azure Foundry | API key |
-| `OPENAI_API_KEY` | If using OpenAI | API key |
-| `GOOGLE_API_KEY` | If using Google | API key |
-| `CLAIMS_MCP_CMD` | For MCP (dev) | `python mcp_servers/claims_services.py` |
-| `CLAIMS_MCP_URL` | For MCP (prod) | HTTP endpoint URL |
-| `DATABASE_URL` | For Postgres | Connection string |
-
-See `.env.example` for the full list.
-
-## Development
+Four posts, four governance outcomes. The `govern` primitive in action.
 
 ```bash
-# Install with dev dependencies
-pip install -e ".[dev,azure]"
-
-# Run all checks
-make check
-
-# Run tests
-make test
-
-# Run batch validation
-make batch-all
-
-# Build container
-make docker
+python demos/content-moderation/run.py
 ```
 
-## Architecture Documentation
+Shows: `classify` → `verify` → `challenge` → `govern` producing auto, spot-check, gate, and hold dispositions.
 
-Detailed technical documentation is in `output/`:
+### 3. Loan application review — full chain
 
-- `output/ARCHITECTURE.md` — Full system architecture with component details
-- `output/SYSTEM.md` — System-level design decisions and constraints
-- `CHANGES.md` — Session-by-session change log
+Six primitives, regulated decision logic, four applicant profiles.
+
+```bash
+python demos/loan-application-review/run.py
+```
+
+Shows: `retrieve` → `classify` → `investigate` → `deliberate` → `verify` → `govern`, with warranted recommendations and compliance checks.
+
+### Fraud operations console — serious example
+
+A complete multi-agent fraud investigation system with 9 cases, delegation chains, and a web UI.
+
+```bash
+# Mechanism validation (no LLM required)
+python demos/fraud-operations/test_mechanisms.py
+
+# Full demo with LLM + MCP data server
+cd demos/fraud-operations && python fraud_data_mcp.py &
+python -m cognitive_core.coordinator.cli --config coordinator_config.yaml run ...
+```
+
+---
+
+The `demos/fraud-operations/` directory contains a complete multi-agent fraud operations workflow used in production. It demonstrates:
+
+- **Multi-agent delegation** — a triage agent classifies alerts and routes to specialist agents (check fraud, card fraud, APP scam)
+- **Governed escalation** — specialists complete investigations then gate for analyst review before any action
+- **Typed delegation contracts** — investigation results flow into regulatory review and case resolution via typed work orders
+- **Inspectable execution** — every step produces structured output; every governance decision is recorded in an audit chain
+
+The fraud domain pack (`demos/fraud-operations/domains/check_fraud.yaml`) shows what institutional expertise looks like expressed as configuration:
+
+```yaml
+deliberate_determination:
+  framework: |
+    CONFIRMED FRAUD indicators:
+    - Deliberate deposits through different channels to exploit hold differences
+    - Rapid withdrawal of duplicate funds
+
+    REQUIRED OUTPUT: Set the decision field to exactly one of these codes:
+    - confirmed_fraud
+    - likely_fraud
+    - accidental_duplicate
+    - refer_siu
+```
+
+Run the demo (no LLM required for mechanism validation):
+
+```bash
+python demos/fraud-operations/test_mechanisms.py
+# 38 assertions, all pass, no LLM calls
+```
+
+---
+
+## Governance model
+
+Governance is not a compliance layer added after the fact. It is a structural primitive (`govern`) that every workflow can invoke. Four tiers:
+
+| Tier | Meaning | Behavior |
+|---|---|---|
+| `auto` | Fully automated | Proceeds without human involvement |
+| `spot_check` | Sampled review | Proceeds; flagged for post-completion sampling |
+| `gate` | Mandatory review | Suspends until a human approves |
+| `hold` | Compliance hold | Suspends pending compliance officer release |
+
+Tier escalation is strictly upward. A `gate` workflow cannot be de-escalated to `auto` by any downstream step.
+
+Every `govern` invocation produces an `AccountabilityChain` — an append-only record of every governance decision made during the instance's lifetime.
+
+---
+
+## Design principles
+
+**The primitive layer is purely epistemic.** No primitive touches the world. `generate` produces action specifications; `govern` determines governance conditions; downstream systems execute. The boundary between reasoning and execution is explicit and enforced.
+
+**Configuration is the product.** Application code is not written per use case. A new domain requires a workflow YAML and a domain YAML. The coordinator, engine, and governance pipeline are infrastructure.
+
+**Governance is load-bearing from the start.** In AI-native architecture for regulated domains, the conditions under which a judgment can be trusted are inseparable from how it is produced and recorded. Governance is not an afterthought.
+
+---
+
+## Project status
+
+Early open-source release. The primitive layer, three-layer architecture, coordinator, and governance pipeline are stable. The following are functional but marked experimental:
+
+- `coordinator/optimizer.py` — dispatch optimization (assignment, VRP archetypes)
+- `coordinator/federation.py` — multi-coordinator federation
+- `coordinator/hardening.py` — DDR audit trail, partial failure handling
+- `coordinator/resilience.py` — revalidation guards, staleness detection
+
+---
+
+## Repository layout
+
+```
+cognitive_core/        # installable package
+├── primitives/        # schemas, registry, prompt templates
+├── engine/            # execution engine, LLM providers, governance pipeline
+├── coordinator/       # orchestration state machine, delegation, policy
+├── analytics/         # artifact registry (causal DAGs, SDA policy models)
+└── api/               # FastAPI server
+
+configs/               # example workflows and domain packs
+demos/
+└── fraud-operations/  # complete fraud ops example with 9 cases
+examples/              # additional reference implementations
+tests/                 # unit and integration tests
+```
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). The most useful contributions right now:
+
+- New domain packs (healthcare triage, HR workflows, legal review)
+- Additional quickstart examples in `configs/`
+- LLM provider integrations beyond Google/OpenAI
+- Observability exporters (OpenTelemetry, Datadog)
+
+---
+
+## License
+
+Apache 2.0. See [LICENSE](LICENSE).
+
+---
+
+## Background
+
+Cognitive Core grew out of research on institutional AI architecture — the claim that systems operating on judgment and context require a different descriptive vocabulary than traditional software. The theoretical foundation is documented in [the position paper](docs/cognitive_core_position_paper.md) (forthcoming).
+
+The core thesis: a use case is a configuration, not an application. Every workflow is eight epistemic operations composed in sequence. Governance is a first-class primitive, not an infrastructure concern.

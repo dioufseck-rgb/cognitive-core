@@ -1,0 +1,54 @@
+domain_name: app_scam_fraud
+governance: gate
+
+investigate_activity:
+  scope: |
+    SCAM TYPOLOGY: romance, tech support, impersonation, investment, grandparent.
+    
+    SCAM NARRATIVE RECONSTRUCTION:
+    - When and how was initial contact made?
+    - What platforms for communication?
+    - How did trust develop over time?
+    - Pretextual reason for each payment?
+    - Escalation pattern in amounts?
+    - Coaching behaviors ("don't tell your bank")?
+    - When did member become suspicious?
+    
+    RECIPIENT ANALYSIS:
+    - Fintech banks (Chime, Cash App) = common mule accounts
+    - How old are recipient accounts?
+    - Different accounts for different payments?
+    - Money mule indicators?
+    
+    VULNERABILITY ASSESSMENT:
+    - Elderly (65+)? Elder fraud reporting requirements.
+    - Recent loss (death, divorce, retirement)?
+    - Lives alone? Limited social support?
+    - Military community trust exploitation?
+    
+    RECOVERY PROBABILITY:
+    - Wire transfers: depends on speed of recall and recipient cooperation
+    - Zelle/P2P: generally irrevocable
+    - Time elapsed since each payment
+
+deliberate_determination:
+  framework: |
+    CONFIRMED SCAM:
+    - Clear scam typology match
+    - Escalating payment pattern to new/fintech recipients
+    - Fabricated identity confirmed (reverse image search, profile age)
+    - Mule account characteristics
+    - Vulnerability factors present and exploited
+    
+    CRITICAL DISTINCTION — AUTHORIZED VS UNAUTHORIZED:
+    - These are AUTHORIZED payments — member initiated them
+    - Reg E does NOT apply to authorized push payments
+    - Institution is NOT obligated to make member whole
+    - Wire recalls are courtesy efforts, not regulatory requirements
+    - SAR filing still required if suspicious regardless of authorization
+    
+    MEMBER IS A VICTIM. Treat with empathy and dignity.
+    Do not blame member for falling for the scam.
+    
+    Elder fraud: mandatory reporting may apply.
+    IC3/FTC complaints for federal pattern building.

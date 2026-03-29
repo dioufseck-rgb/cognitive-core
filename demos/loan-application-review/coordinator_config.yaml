@@ -1,0 +1,37 @@
+workflow_dir: workflows
+domain_dir: .
+case_dir: cases
+
+governance_tiers:
+  auto:
+    hitl: none
+    sample_rate: 0.0
+  spot_check:
+    hitl: post_completion
+    sample_rate: 0.20
+    queue: credit_qa_review
+    sla: 7200
+  gate:
+    hitl: before_act
+    queue: underwriter_review
+    sla: 86400
+  hold:
+    hitl: before_finalize
+    queue: compliance_review
+    sla: 172800
+
+overrides: {}
+
+quality_gates:
+  min_confidence: 0.6
+  primitive_floors:
+    classify: 0.70
+    deliberate: 0.65
+    verify: 0.70
+  escalation_tier: gate
+  escalation_queue: quality_review
+  exempt_domains: []
+
+delegations: []
+contracts: {}
+capabilities: []

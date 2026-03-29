@@ -1,0 +1,34 @@
+[
+  {
+    "_id": "POST-001",
+    "content_type": "social_post",
+    "platform_context": "consumer social network, general audience",
+    "content": "Just finished reading 'The Uninhabitable Earth' — sobering book about climate projections. Highly recommend if you want to understand the science. It changed how I think about the next 50 years.",
+    "author_context": "Account 4 years old, 380 followers, no prior flags.",
+    "_expected": "safe — straightforward book recommendation"
+  },
+  {
+    "_id": "POST-002",
+    "content_type": "social_post",
+    "platform_context": "consumer social network, general audience",
+    "content": "These people flooding into our country are not like us. They don't share our values. They're changing who we are and nobody asked us if we wanted this. Wake up before it's too late.",
+    "author_context": "Account 6 months old, 42 followers, 1 prior warning for similar content.",
+    "_expected": "borderline to harassment — xenophobic framing, prior history"
+  },
+  {
+    "_id": "POST-003",
+    "content_type": "article_comment",
+    "platform_context": "news platform, article about vaccine policy",
+    "content": "The mRNA vaccines reprogram your DNA permanently. My cousin is a nurse and she told me they're seeing 40x normal cardiac events but being told to stay quiet. The media won't report this because pharma owns them.",
+    "author_context": "Account 2 years old, 15 followers, no prior flags.",
+    "_expected": "misinformation — specific false health claims"
+  },
+  {
+    "_id": "POST-004",
+    "content_type": "social_post",
+    "platform_context": "professional network",
+    "content": "Genuinely frustrated with the direction this industry is taking. AI companies are burning billions building products nobody asked for while laying off the people who actually understand the domain. At some point the money runs out and the hype doesn't.",
+    "author_context": "Account 3 years old, verified professional, 2,400 connections, no prior flags.",
+    "_expected": "safe — critical opinion, no policy violation"
+  }
+]

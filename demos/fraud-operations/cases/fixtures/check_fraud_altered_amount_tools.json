@@ -1,0 +1,151 @@
+{
+  "_case_id": "FRD-2026-01115",
+  "get_alert": {
+    "alert_id": "ALT-2026-7488",
+    "generated_at": "2026-02-26T11:02:00Z",
+    "alert_type": "check_alteration_suspected",
+    "alert_source": "maker_bank_dispute",
+    "monitoring_rule": "RULE-CHK-019: Maker bank returned item \u2014 amount disputes exceeding $1,000 with alteration flag",
+    "risk_score": 0.88,
+    "priority": "high",
+    "sla_deadline": "2026-02-27T11:02:00Z"
+  },
+  "get_member": {
+    "member_id": "M-40512209",
+    "full_name": "Marta Delgado-Torres",
+    "date_of_birth": "1988-02-14",
+    "ssn_masked": "***-**-8801",
+    "address": "902 Crescent Moon Drive, Apt 7B, Jacksonville, FL 32218",
+    "phone": "(904) 555-0712",
+    "email": "mdelgado.torres@gmail.com",
+    "member_since": "2022-07-15",
+    "member_type": "active_duty_spouse",
+    "branch_affiliation": "Navy",
+    "employer": "Bayview Medical Staffing LLC",
+    "title": "Licensed Practical Nurse \u2014 Contract",
+    "annual_pay": 52000,
+    "risk_rating": "low"
+  },
+  "get_account": {
+    "account_number_masked": "****7712",
+    "account_type": "checking",
+    "product": "Military Spouse Checking",
+    "opened": "2022-07-15",
+    "status": "active",
+    "average_balance_6mo": 2910,
+    "avg_deposits_6mo": 3800,
+    "avg_withdrawals_6mo": 3650,
+    "primary_deposit_source": "direct_deposit_employer",
+    "check_deposit_history": "3-4 paper checks per month \u2014 employer biweekly payroll",
+    "mobile_deposit_frequency": "primary deposit channel"
+  },
+  "get_triggering_activity": {
+    "check_number": "7741",
+    "maker_name": "Bayview Medical Staffing LLC",
+    "maker_bank": "Regions Bank",
+    "payable_to_on_check": "M Delgado-Torres",
+    "payable_to_per_maker_records": "Marta Delgado",
+    "amount_on_check": 4750.0,
+    "amount_per_maker_records": 475.0,
+    "deposit_method": "mobile_deposit",
+    "deposit_date": "2026-02-23",
+    "deposit_time": "08:14",
+    "device": "Samsung Galaxy S24 \u2014 NFCU app v13.1.0",
+    "funds_available_date": "2026-02-25",
+    "amount_withdrawn_since_deposit": 3920.0,
+    "alteration_forensics": {
+      "check_image_analysis": "Amount field shows ink layering \u2014 original numerals visible under UV: '475.00'",
+      "payee_field_analysis": "Payee line shows overwriting \u2014 original 'Marta Delgado' visible with enhanced contrast",
+      "micr_line": "MICR intact and unaltered \u2014 check number and routing authentic",
+      "paper_integrity": "No physical erasure marks, consistent with chemical wash and rewriting",
+      "image_quality_score": 0.91
+    },
+    "maker_statement": "Bayview Medical payroll shows check #7741 issued to Marta Delgado for $475.00 \u2014 one hour of overtime pay. CEO provided notarized payroll register."
+  },
+  "get_transactions": {
+    "transactions": [
+      {
+        "txn_id": "TXN-45780100",
+        "date": "2026-02-15",
+        "type": "direct_deposit",
+        "amount": 1974.62,
+        "description": "BAYVIEW MEDICAL STAFFING",
+        "running_balance": 3188.45
+      },
+      {
+        "txn_id": "TXN-45790100",
+        "date": "2026-02-17",
+        "type": "ach_debit",
+        "amount": -1250.0,
+        "description": "RENT PMT CRESCENT MOON APTS",
+        "running_balance": 1938.45
+      },
+      {
+        "txn_id": "TXN-45810200",
+        "date": "2026-02-23",
+        "type": "mobile_deposit",
+        "amount": 4750.0,
+        "description": "CHECK #7741 BAYVIEW MEDICAL",
+        "running_balance": 6688.45
+      },
+      {
+        "txn_id": "TXN-45820100",
+        "date": "2026-02-25",
+        "type": "atm_withdrawal",
+        "amount": -500.0,
+        "description": "ATM WD NAS JACKSONVILLE",
+        "running_balance": 6188.45
+      },
+      {
+        "txn_id": "TXN-45825200",
+        "date": "2026-02-25",
+        "type": "debit_card",
+        "amount": -1420.0,
+        "description": "ROOMS TO GO JACKSONVILLE",
+        "running_balance": 4768.45
+      },
+      {
+        "txn_id": "TXN-45831100",
+        "date": "2026-02-25",
+        "type": "debit_card",
+        "amount": -2000.0,
+        "description": "WALMART SUPERCENTER NAS JAX",
+        "running_balance": 2768.45
+      },
+      {
+        "txn_id": "TXN-45835500",
+        "date": "2026-02-26",
+        "type": "debit_card",
+        "amount": -312.0,
+        "description": "TARGET JACKSONVILLE FL",
+        "running_balance": 2456.45
+      }
+    ]
+  },
+  "get_maker_verification": {
+    "maker_name": "Bayview Medical Staffing LLC",
+    "relationship_to_member": "employer",
+    "maker_bank": "Regions Bank",
+    "account_status": "active",
+    "check_cleared_status": "returned_unpaid",
+    "return_reason": "Altered or Fictitious Item (Return Code R09 / UCC 3-407)",
+    "duplicate_presentment_flag": false,
+    "maker_contacted": true,
+    "maker_statement_verified": true,
+    "original_amount": 475.0,
+    "original_payee": "Marta Delgado",
+    "payroll_register_provided": true
+  },
+  "get_prior_alerts": {
+    "prior_alerts": [],
+    "prior_fraud_claims": []
+  },
+  "get_reg_cc_info": {
+    "mobile_deposit_hold": "2-day standard hold \u2014 funds released 2026-02-25",
+    "exposure_amount": 4750.0,
+    "amount_already_withdrawn": 3920.0,
+    "recoverable_amount": 830.0,
+    "return_item_charge_applicable": true,
+    "recovery_window": "24-hour hold placement possible on remaining balance"
+  }
+}

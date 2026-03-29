@@ -1,0 +1,152 @@
+{
+  "case_id": "FRD-2026-01044",
+  "alert_id": "ALT-2026-7388",
+  "alert_type": "authorized_push_payment_scam",
+  "fraud_type": "app_scam",
+  "risk_score": 0.83,
+  "description": "Member wired $47,200 over 9 weeks to a cryptocurrency 'investment platform' after being recruited via LinkedIn. Scammer posed as a portfolio manager at a legitimate-sounding firm. Member believed he was earning 22% monthly returns. Classic pig-butchering scheme.",
+
+  "get_alert": {
+    "alert_id": "ALT-2026-7388",
+    "generated_at": "2026-03-01T10:15:00Z",
+    "alert_type": "authorized_push_payment_scam",
+    "alert_source": "transaction_monitoring",
+    "monitoring_rule": "RULE-APP-007: Cumulative wire transfers to cryptocurrency-related entities exceeding $25,000 within 90 days",
+    "risk_score": 0.83,
+    "priority": "high",
+    "sla_deadline": "2026-03-02T10:15:00Z"
+  },
+
+  "get_member": {
+    "member_id": "M-40498812",
+    "full_name": "Marcus Webb",
+    "date_of_birth": "1979-06-14",
+    "ssn_masked": "***-**-7734",
+    "address": "2204 Sycamore Ridge Drive, Chesapeake, VA 23322",
+    "phone": "(757) 555-0812",
+    "email": "marcus.webb79@gmail.com",
+    "member_since": "2003-11-01",
+    "member_type": "active_duty",
+    "branch_affiliation": "Navy",
+    "rank": "O-4 / Lieutenant Commander",
+    "employer": "United States Navy",
+    "title": "Supply Corps Officer",
+    "annual_pay": 98000,
+    "risk_rating": "low"
+  },
+
+  "get_account": {
+    "account_number_masked": "****8801",
+    "account_type": "checking",
+    "product": "Flagship Checking",
+    "opened": "2003-11-01",
+    "status": "active",
+    "average_balance_6mo": 31400,
+    "avg_deposits_6mo": 8200,
+    "avg_withdrawals_6mo": 7100,
+    "primary_deposit_source": "direct_deposit_dfas",
+    "wire_history": "0 wires prior to January 2026",
+    "savings_balance": 62000
+  },
+
+  "get_triggering_activity": {
+    "scam_type": "investment_fraud_pig_butchering",
+    "contact_platform": "LinkedIn",
+    "first_contact_date": "2025-12-18",
+    "scammer_persona": {
+      "name_used": "David Huang",
+      "claimed_identity": "Senior Portfolio Manager at Apex Capital Ventures, Hong Kong",
+      "linkedin_profile": "polished profile, 500+ connections, 12 years experience listed",
+      "profile_indicators": "stock photo as headshot, connections are all newly created accounts"
+    },
+    "scheme_description": "Scammer introduced 'exclusive crypto arbitrage platform' (apex-capital-fx.com). Member was shown fabricated account dashboard showing $47,200 invested growing to $91,400. When member tried to withdraw, told he needed to pay 'tax release fee' of $8,000 first. Member refused and became suspicious.",
+    "escalation_timeline": [
+      {"date": "2025-12-18", "event": "LinkedIn connection request, casual investment discussion"},
+      {"date": "2025-12-28", "event": "Introduced apex-capital-fx.com platform"},
+      {"date": "2026-01-06", "event": "First wire: $5,000 — 'seed investment, watch it grow'"},
+      {"date": "2026-01-14", "event": "Dashboard shows $5,000 grew to $6,100 in 8 days"},
+      {"date": "2026-01-18", "event": "Second wire: $8,200 — growing confidence"},
+      {"date": "2026-02-02", "event": "Third wire: $12,000 — 'special allocation window closes Feb 5'"},
+      {"date": "2026-02-15", "event": "Fourth wire: $10,000 — 'leveraged position requires more capital'"},
+      {"date": "2026-02-22", "event": "Fifth wire: $12,000 — told he's 'almost at VIP tier'"},
+      {"date": "2026-03-01", "event": "Attempted withdrawal — told to pay $8,000 tax fee first"},
+      {"date": "2026-03-01", "event": "Member refuses, googles platform — finds scam reports, calls NFCU"}
+    ],
+    "payments": [
+      {"txn_id": "TXN-45001100", "date": "2026-01-06", "type": "domestic_wire", "amount": 5000.00, "recipient_name": "Apex Capital LLC", "recipient_bank": "Silvergate Bank (now defunct routing)", "status": "completed"},
+      {"txn_id": "TXN-45102200", "date": "2026-01-18", "type": "domestic_wire", "amount": 8200.00, "recipient_name": "ACF Holdings LLC", "recipient_bank": "Evolve Bank & Trust", "status": "completed"},
+      {"txn_id": "TXN-45201100", "date": "2026-02-02", "type": "domestic_wire", "amount": 12000.00, "recipient_name": "ACF Holdings LLC", "recipient_bank": "Evolve Bank & Trust", "status": "completed"},
+      {"txn_id": "TXN-45310200", "date": "2026-02-15", "type": "domestic_wire", "amount": 10000.00, "recipient_name": "Apex Capital FX LLC", "recipient_bank": "Lead Bank (Synapse)", "status": "completed"},
+      {"txn_id": "TXN-45401100", "date": "2026-02-22", "type": "domestic_wire", "amount": 12000.00, "recipient_name": "Apex Capital FX LLC", "recipient_bank": "Lead Bank (Synapse)", "status": "completed"}
+    ],
+    "total_loss": 47200.00
+  },
+
+  "get_transactions": {
+    "transactions": [
+      {"txn_id": "TXN-44980100", "date": "2026-01-01", "type": "direct_deposit", "amount": 4201.80, "description": "DFAS-CL ACTIVE DUTY PAY", "running_balance": 32840.10},
+      {"txn_id": "TXN-45001100", "date": "2026-01-06", "type": "domestic_wire", "amount": -5000.00, "description": "WIRE TO APEX CAPITAL LLC", "running_balance": 27817.43},
+      {"txn_id": "TXN-45050100", "date": "2026-01-15", "type": "direct_deposit", "amount": 4201.80, "description": "DFAS-CL ACTIVE DUTY PAY", "running_balance": 31997.43},
+      {"txn_id": "TXN-45102200", "date": "2026-01-18", "type": "domestic_wire", "amount": -8200.00, "description": "WIRE TO ACF HOLDINGS LLC", "running_balance": 23797.43},
+      {"txn_id": "TXN-45150100", "date": "2026-02-01", "type": "direct_deposit", "amount": 4201.80, "description": "DFAS-CL ACTIVE DUTY PAY", "running_balance": 27999.23},
+      {"txn_id": "TXN-45201100", "date": "2026-02-02", "type": "domestic_wire", "amount": -12000.00, "description": "WIRE TO ACF HOLDINGS LLC", "running_balance": 15999.23},
+      {"txn_id": "TXN-45310200", "date": "2026-02-15", "type": "domestic_wire", "amount": -10000.00, "description": "WIRE TO APEX CAPITAL FX LLC", "running_balance": 9999.23},
+      {"txn_id": "TXN-45350100", "date": "2026-02-15", "type": "direct_deposit", "amount": 4201.80, "description": "DFAS-CL ACTIVE DUTY PAY", "running_balance": 14201.03},
+      {"txn_id": "TXN-45401100", "date": "2026-02-22", "type": "domestic_wire", "amount": -12000.00, "description": "WIRE TO APEX CAPITAL FX LLC", "running_balance": 2201.03}
+    ]
+  },
+
+  "get_scam_indicators": {
+    "recipient_account_age": "ACF Holdings LLC — business account opened 2025-11-14, 53 days before first wire",
+    "recipient_pattern": "Receiving wires from multiple victims — confirmed mule network via FinCEN lookups",
+    "website_analysis": "apex-capital-fx.com registered 2025-09-22, hosted in Hong Kong, not registered with SEC or FINRA",
+    "social_media_analysis": "LinkedIn profile photo is AI-generated (ElevenLabs detection positive), connections are coordinated fake accounts",
+    "vulnerability_factors": [
+      "Financially sophisticated — makes scam more credible (member thought he was savvy)",
+      "FOMO exploitation — 'VIP tier' and 'special allocation window'",
+      "Gradual escalation — small initial success built trust over 11 weeks",
+      "Isolation — member did not discuss with spouse until March 1"
+    ],
+    "platform_indicators": "Fake trading dashboard shows fabricated gains — pig-butchering signature pattern"
+  },
+
+  "get_recovery_assessment": {
+    "wire_1_recovery": "none — Silvergate routing defunct, funds already moved",
+    "wire_2_and_3_recovery": "very_low — Evolve/Synapse accounts typically drained to overseas within 24 hours",
+    "wire_4_and_5_recovery": "very_low — Lead Bank account shows no balance",
+    "total_loss": 47200.00,
+    "sar_required": true,
+    "sar_threshold_basis": "Single scheme exceeds $5,000; aggregated wires to same scheme exceed $25,000",
+    "recommended_actions": [
+      "Initiate wire recalls (low probability but required)",
+      "File SAR — pig-butchering scheme, $47,200",
+      "File IC3 complaint (FBI Internet Crime Complaint Center)",
+      "Refer to FinCEN SAR coordination for mule account network",
+      "Notify member of recovery outlook honestly"
+    ]
+  },
+
+  "get_prior_alerts": {
+    "prior_alerts": [],
+    "prior_fraud_claims": []
+  },
+
+  "get_reg_e_info": {
+    "applies": false,
+    "reason": "All five wire transfers were member-authorized. Member initiated them himself via online banking and branch. Reg E does not cover authorized wire transfers regardless of deception.",
+    "voluntary_recovery_policy": "NFCU will initiate wire recall requests as courtesy. Member has no regulatory right to provisional credit or reimbursement."
+  },
+
+  "_meta": {
+    "scenario": "app_scam_investment_pig_butchering",
+    "difficulty": "medium",
+    "design_notes": "Pig-butchering scheme. Member is financially literate (supply officer, O-4) which makes denial harder — tests whether the system can handle a sophisticated victim. $47,200 loss guarantees SAR. Tests escalating wire pattern, fake platform, FinCEN reporting requirements.",
+    "ground_truth": {
+      "fraud_type": "app_scam",
+      "determination": "fraud_confirmed",
+      "loss_exposure": 47200.00,
+      "reg_e_applies": false,
+      "sar_required": true
+    }
+  }
+}

@@ -1,0 +1,57 @@
+domain_name: check_fraud
+governance: gate
+
+investigate_activity:
+  scope: |
+    DUPLICATE DETECTION:
+    - Were the same check images deposited through multiple channels?
+    - Do MICR lines match across deposits? Check numbers? Amounts?
+    - What is the image similarity score?
+    
+    TIMING AND BEHAVIOR:
+    - How much time elapsed between deposits?
+    - Did the member make withdrawals between or immediately after deposits?
+    - Was the second deposit method chosen to bypass holds?
+    
+    MEMBER INTENT ASSESSMENT:
+    - Is this plausibly an honest mistake (forgot about mobile deposit)?
+    - What is the member's history with mobile deposits?
+    - Is the amount consistent with normal check deposit activity?
+    
+    MAKER STATUS:
+    - Has the maker's bank honored or returned the check?
+    - Is the maker account still open and funded?
+    - What is the relationship between maker and member?
+    
+    CHECK INTEGRITY:
+    - Signs of alteration (payee, amount, date)?
+    - Security features present and intact?
+
+deliberate_determination:
+  framework: |
+    CONFIRMED FRAUD indicators:
+    - Deliberate deposits through different channels to exploit hold differences
+    - Rapid withdrawal of duplicate funds
+    - Altered check characteristics
+    - No plausible innocent explanation
+
+    LIKELY ACCIDENTAL DUPLICATE indicators:
+    - Single duplicate with no rapid withdrawal
+    - Member is elderly or infrequent mobile deposit user
+    - No history of check issues
+    - Amount is small relative to account balance
+
+    LOSS CALCULATION:
+    - Total exposure: check amount x number of duplicate deposits
+    - Subtract holds still in place
+    - Assess recovery probability from maker's bank
+
+    REGULATORY: Reg CC hold compliance, SAR if >$5,000 and fraud confirmed.
+
+    REQUIRED OUTPUT: Set the decision field to exactly one of these codes:
+    - confirmed_fraud: Evidence clearly establishes intentional fraud
+    - likely_fraud: Strong indicators but some ambiguity
+    - accidental_duplicate: Evidence supports honest mistake
+    - refer_siu: Complex or high-value case needing Special Investigations Unit
+    - deny_claim: Insufficient evidence of fraud; member responsibility
+    Do not use free-form text for decision. Use only the codes above.
