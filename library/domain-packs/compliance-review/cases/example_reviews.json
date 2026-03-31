@@ -1,0 +1,120 @@
+[
+  {
+    "_id": "COMP-001",
+    "_description": "Clean conformance — well-documented prime approval",
+    "_expected": "conforms → early exit → SPOT_CHECK",
+    "subject_description": "Consumer loan approval — APP-2026-4417",
+    "decision_type": "consumer_loan_approval",
+    "decision_date": "2026-03-10",
+    "entity_name": "Lending Operations — Branch 14",
+    "get_decision_record": {
+      "decision": "approve",
+      "loan_amount": 12000,
+      "risk_tier": "prime",
+      "credit_score": 748,
+      "dti_ratio": 0.28,
+      "underwriter_id": "UW-0442",
+      "approval_timestamp": "2026-03-10T14:22:00Z",
+      "audit_fields_complete": true,
+      "adverse_action_required": false
+    },
+    "get_applicant_data": {
+      "applicant_id": "APP-2026-4417",
+      "age": 34,
+      "income_verified": true,
+      "protected_class_flags": "none_detected"
+    },
+    "get_supporting_documentation": {
+      "credit_report_pulled": true,
+      "income_verification": "employer_verified",
+      "identity_verified": true,
+      "required_disclosures_issued": true
+    },
+    "get_policy_version": {
+      "policy_id": "LEND-POL-2026-01",
+      "effective_date": "2026-01-01",
+      "dti_cap": 0.50,
+      "min_score": 620
+    },
+    "get_prior_findings": []
+  },
+  {
+    "_id": "COMP-002",
+    "_description": "Material violation — adverse action without specific reasons",
+    "_expected": "material_violation → investigate → HOLD for compliance officer",
+    "subject_description": "Consumer loan denial — APP-2026-8821",
+    "decision_type": "consumer_loan_denial",
+    "decision_date": "2026-03-12",
+    "entity_name": "Lending Operations — Branch 7",
+    "get_decision_record": {
+      "decision": "decline",
+      "loan_amount": 18000,
+      "risk_tier": "high_risk",
+      "credit_score": 601,
+      "dti_ratio": 0.46,
+      "underwriter_id": "UW-0219",
+      "approval_timestamp": "2026-03-12T09:15:00Z",
+      "audit_fields_complete": true,
+      "adverse_action_required": true,
+      "adverse_action_notice_sent": false,
+      "adverse_action_reasons": []
+    },
+    "get_applicant_data": {
+      "applicant_id": "APP-2026-8821",
+      "age": 52,
+      "income_verified": true,
+      "protected_class_flags": "none_detected"
+    },
+    "get_supporting_documentation": {
+      "credit_report_pulled": true,
+      "income_verification": "pay_stubs",
+      "identity_verified": true,
+      "required_disclosures_issued": false
+    },
+    "get_policy_version": {
+      "policy_id": "LEND-POL-2026-01",
+      "effective_date": "2026-01-01",
+      "dti_cap": 0.50,
+      "adverse_action_deadline_days": 30
+    },
+    "get_prior_findings": []
+  },
+  {
+    "_id": "COMP-003",
+    "_description": "Minor violation — incomplete audit trail, low risk",
+    "_expected": "minor_violation → investigate → GATE for review",
+    "subject_description": "Policy self-assessment — Q1 2026 fair lending review",
+    "decision_type": "policy_self_assessment",
+    "decision_date": "2026-03-15",
+    "entity_name": "Consumer Lending Division",
+    "get_decision_record": {
+      "assessment_period": "Q1 2026",
+      "decisions_reviewed": 847,
+      "flagged_for_disparity": 3,
+      "disparity_investigations_completed": 1,
+      "disparity_investigations_pending": 2,
+      "documentation_complete": false,
+      "missing_fields": ["supervisor_signoff", "disparity_resolution_notes"]
+    },
+    "get_applicant_data": null,
+    "get_supporting_documentation": {
+      "sampling_methodology": "documented",
+      "statistical_analysis": "completed",
+      "peer_review": "not_completed"
+    },
+    "get_policy_version": {
+      "policy_id": "COMPLIANCE-POL-2025-03",
+      "fair_lending_review_frequency": "quarterly",
+      "disparity_resolution_deadline_days": 45
+    },
+    "get_prior_findings": [
+      {
+        "finding_id": "COMP-2025-Q3-007",
+        "finding": "minor_violation",
+        "issue": "late_completion_of_disparity_review",
+        "remediated": true,
+        "remediation_date": "2025-11-20"
+      }
+    ]
+  }
+]

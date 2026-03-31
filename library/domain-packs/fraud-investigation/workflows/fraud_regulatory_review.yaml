@@ -1,0 +1,57 @@
+name: fraud_regulatory_review
+description: >
+  Regulatory compliance review. Dispatched as a child workflow.
+  Retrieves its own evidence from the data layer, then verifies
+  compliance and generates the compliance package.
+
+governance: gate
+
+steps:
+- name: retrieve_regulatory_context
+  primitive: retrieve
+  params:
+    specification: |
+      Retrieve the regulatory context needed for compliance review.
+
+      Required data:
+      - get_alert: Alert details for timeline calculation
+      - get_member: Member profile for liability assessment
+      - get_account: Account details for regulatory analysis
+      - get_transactions: Transaction history for loss calculation
+      - get_triggering_activity: For understanding the activity type
+
+      Also retrieve if available (mutually exclusive by fraud type):
+      - get_reg_e_info: For card/APP scam — Reg E applicability and timelines
+      - get_reg_cc_info: For check fraud — Reg CC hold policy information
+    sources: all_available
+  transitions:
+  - default: verify_compliance
+
+- name: verify_compliance
+  primitive: verify
+  params:
+    input: |
+      Fraud type: ${input.fraud_type}
+      Determination: ${input.determination}
+      Confidence: ${input.confidence}
+      Investigation summary: ${input.investigation_summary}
+
+      Retrieved regulatory context is available from the prior step.
+    rules: ${domain.verify_regulatory_compliance.rules}
+  transitions:
+  - default: generate_compliance_package
+  temperature: 0.0
+
+- name: generate_compliance_package
+  primitive: generate
+  params:
+    requirements: |
+      Compliance verification result: conforms=${verify_compliance.conforms}
+      Rules checked: ${verify_compliance.rules_checked}
+      Findings: ${verify_compliance.findings}
+
+      ${domain.generate_compliance_package.requirements}
+    format: compliance_package
+    constraints: ${domain.generate_compliance_package.constraints}
+  transitions:
+  - default: __end__

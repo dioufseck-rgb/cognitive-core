@@ -1,0 +1,83 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern P04 — Adversarial Review
+#
+# Purpose: Test a conclusion, recommendation, or artifact from a skeptical
+# or opposing perspective before finalisation.
+#
+# Typical outcome: Conclusion survives, is weakened, is revised, or is rejected.
+#
+# When to use this pattern:
+#   - The primary objective of the workflow is adversarial testing, not producing
+#     a new determination. (If adversarial testing is a modifier applied to another
+#     objective, use the adversarial overlay on P02, P05, P07, or P08 instead.)
+#   - Decision stakes are high and a formal counter-position is required.
+#   - The cost of acting on a flawed conclusion is higher than the cost of delay.
+#
+# Domain scaffold supplies:
+#   - classify_content.categories and criteria (what is being classified)
+#   - verify_policy.rules (what rules govern the classification)
+#   - challenge_decision.perspective (who is challenging)
+#   - challenge_decision.threat_model (what would defeat the conclusion)
+#   - govern_disposition.governance_context (when each tier applies)
+#
+# Coordinator template: simple.yaml (default)
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: adversarial_review
+description: >
+  Classify the subject, verify against explicit policy rules, challenge
+  the conclusion adversarially from a defined perspective, then govern
+  the disposition based on whether the conclusion survives challenge.
+
+steps:
+  - name: classify_content
+    primitive: classify
+    temperature: 0.0
+    params:
+      categories: "${domain.classify_content.categories}"
+      criteria: |
+        ${domain.classify_content.input_context}
+        ${domain.classify_content.criteria}
+
+  - name: verify_policy
+    primitive: verify
+    temperature: 0.0
+    params:
+      rules: "${domain.verify_policy.rules}"
+      subject: |
+        Classification: ${classify_content.category}
+        Confidence: ${classify_content.confidence}
+        ${domain.verify_policy.subject_context}
+    transitions:
+      # Skip challenge when classification is high-confidence and policy conforms.
+      # Domain scaffold can tighten or loosen this threshold.
+      - when: "output.conforms == true and classify_content.confidence >= 0.85"
+        goto: govern_disposition
+      - default: challenge_decision
+
+  - name: challenge_decision
+    primitive: challenge
+    params:
+      perspective: "${domain.challenge_decision.perspective}"
+      threat_model: "${domain.challenge_decision.threat_model}"
+      subject: |
+        Classification: ${classify_content.category}
+        Confidence: ${classify_content.confidence}
+        Policy check: ${verify_policy.conforms}
+        Violations found: ${verify_policy.violations}
+        ${domain.challenge_decision.subject_context}
+    transitions:
+      - default: govern_disposition
+
+  - name: govern_disposition
+    primitive: govern
+    params:
+      workflow_state: |
+        classification: ${classify_content.category}
+        classification_confidence: ${classify_content.confidence}
+        policy_conforms: ${verify_policy.conforms}
+        violations: ${verify_policy.violations}
+        challenge_ran: ${challenge_decision.survives}
+        challenge_survives: ${challenge_decision.survives}
+        vulnerabilities_found: ${challenge_decision.vulnerabilities}
+      governance_context: "${domain.govern_disposition.governance_context}"

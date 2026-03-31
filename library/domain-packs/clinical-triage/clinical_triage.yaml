@@ -1,0 +1,206 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Edit this file to supply your domain knowledge.
+# Domain Pack: Clinical Triage
+# Pattern:     P06 — Triage and Escalation
+# Overlays:    human-review, governance
+# Coordinator: simple
+#
+# What this pack does:
+#   Assesses urgency and severity of a patient contact, classifies the
+#   clinical situation into a severity tier, investigates complex or
+#   high-acuity presentations, generates a triage disposition script,
+#   and governs escalation. Human review overlay ensures clinical sign-off
+#   is available for high-acuity cases.
+#
+# Scope:
+#   This pack supports clinical decision support — it produces a triage
+#   recommendation for clinical staff review. It does not make autonomous
+#   clinical decisions. The human review overlay is always declared.
+#   All GATE and HOLD tier cases require clinician sign-off before action.
+#
+# What you fill in:
+#   - classify_severity: your triage categories and assessment criteria
+#   - investigate_situation: what to analyse for complex presentations
+#   - generate_response: your response script format and required elements
+#   - govern_escalation: when each tier applies in your clinical setting
+#
+# Applicable to:
+#   Nurse triage, telehealth triage, urgent care routing, ED intake,
+#   mental health crisis triage, patient deterioration monitoring response
+# ─────────────────────────────────────────────────────────────────────────────
+
+domain_name: clinical_triage
+base_pattern: P06-triage-and-escalation
+overlays:
+  - human-review
+  - governance
+coordinator_template: simple
+
+# ─── Step: retrieve_context ──────────────────────────────────────────────────
+# Retrieve patient context if available.
+# Leave specification blank if no retrieval system is connected —
+# the triage will run on the presented symptoms alone.
+
+retrieve_context:
+  specification: |
+    Retrieve available patient context if a patient ID is provided:
+      - get_patient_record: Demographics, primary conditions, active medications
+      - get_recent_encounters: Encounters in the last 90 days
+      - get_active_alerts: Any active clinical alerts or flags
+
+    If no patient ID is provided, return empty context.
+    Triage proceeds on presented symptoms regardless.
+
+# ─── Step: classify_severity ─────────────────────────────────────────────────
+# Define your severity tiers. The investigate_condition determines when
+# deeper analysis is triggered before generating the response script.
+#
+# Standard triage frameworks (ESI, CTAS, MTS) can be mapped to these
+# categories. Adapt to your protocol.
+
+classify_severity:
+  categories: |
+    - emergent: Life-threatening or potentially life-threatening presentation.
+      Immediate response required. Examples: chest pain with diaphoresis,
+      difficulty breathing, signs of stroke (FAST), unresponsive, severe
+      allergic reaction, active suicidal ideation with plan and means.
+
+    - urgent: Significant symptoms requiring prompt evaluation within 2-4 hours.
+      Risk of deterioration without timely care. Examples: high fever in
+      infant, moderate abdominal pain, worsening shortness of breath,
+      head injury with loss of consciousness, psychiatric crisis without
+      immediate safety risk.
+
+    - semi-urgent: Symptoms that require care today but are not immediately
+      threatening. Examples: ear pain, urinary symptoms, skin rash, mild
+      to moderate pain, medication questions with clinical significance.
+
+    - non-urgent: Symptoms that can be managed with self-care guidance,
+      routine appointment, or pharmacy consultation. Examples: mild cold
+      symptoms, minor cuts, chronic condition stable check-in, prescription
+      refill without clinical complexity.
+
+  criteria: |
+    Assess based on:
+    1. Presenting symptoms and their acuity
+    2. Duration and trajectory (worsening vs stable)
+    3. Vital signs or reported vitals if available
+    4. Age and relevant comorbidities
+    5. Recent clinical context from patient record
+
+    When in doubt between adjacent tiers, classify upward.
+    Patient-reported pain scores inform but do not determine tier.
+
+  # Context injected into the classification input
+  input_context: |
+    Chief complaint: ${input.chief_complaint}
+    Symptoms: ${input.symptoms}
+    Duration: ${input.duration}
+    Patient age: ${input.patient_age}
+    Reported pain level: ${input.pain_level}
+    Relevant history: ${input.relevant_history}
+    Vital signs (if reported): ${input.vitals}
+
+  # Investigation fires for emergent and urgent presentations
+  investigate_condition: "output.category in ['emergent', 'urgent']"
+
+# ─── Step: investigate_situation ─────────────────────────────────────────────
+# Fires for emergent and urgent classifications.
+# Performs deeper clinical assessment before generating the response script.
+
+investigate_situation:
+  question: |
+    Conduct a deeper clinical assessment for this high-acuity presentation.
+
+  scope: |
+    1. What specific features of the presentation indicate emergent vs urgent?
+    2. Are there any red flag symptoms that require immediate 911 dispatch?
+    3. What is the likely clinical pathway (ED, urgent care, observation)?
+    4. Are there complicating factors (age, comorbidities, medications)?
+    5. What immediate actions should the patient take while awaiting care?
+    6. Are there any contraindications to the standard response pathway?
+    7. Is there a mental health component requiring specific protocol?
+
+  effort_level: moderate
+
+# ─── Step: generate_response ─────────────────────────────────────────────────
+# Generates the triage disposition and response script.
+# This is the artifact that clinical staff review and act on.
+
+generate_response:
+  format: triage_disposition
+
+  requirements: |
+    Generate a structured triage disposition for clinical review.
+
+    Required sections:
+    1. SEVERITY TIER — one of: emergent | urgent | semi-urgent | non-urgent
+    2. DISPOSITION — recommended action:
+       - emergent: Call 911 immediately / Direct to ED now
+       - urgent: Present to ED or urgent care within [timeframe]
+       - semi-urgent: Schedule same-day or next-day appointment
+       - non-urgent: Self-care guidance / Pharmacy / Routine appointment
+    3. RATIONALE — brief clinical reasoning (2-3 sentences)
+    4. IMMEDIATE INSTRUCTIONS — what the patient should do right now
+    5. RETURN PRECAUTIONS — symptoms that should prompt immediate escalation
+    6. CLINICIAN NOTE — any clinical concerns requiring sign-off
+
+    Language requirements:
+    - Use plain language for patient-facing sections
+    - Be specific about timeframes and destinations
+    - Do not diagnose — describe the presentation and recommended pathway
+    - Flag any uncertainty explicitly
+
+  constraints: |
+    - Do not make a diagnosis
+    - Do not prescribe or recommend specific medications
+    - Do not override established clinical protocols
+    - Always include return precautions
+    - Emergent cases: 911 dispatch instructions must be explicit
+
+# ─── Step: govern_escalation ─────────────────────────────────────────────────
+# Governance in clinical triage reflects the human review overlay:
+# GATE means clinician review required before disposition is communicated.
+
+govern_escalation:
+  governance_context: |
+    AUTO — Not used in clinical triage. No disposition is communicated
+    without at least spot-check review.
+
+    SPOT_CHECK — when:
+    - Non-urgent classification with confidence >= 0.85
+    - No red flag symptoms present
+    - Standard self-care pathway
+
+    GATE (clinician review before disposition communicated) — when:
+    - Urgent classification
+    - Semi-urgent with comorbidities or age flags
+    - Any classification with confidence < 0.75
+    - Patient expresses distress beyond physical symptoms
+    - Mental health component present
+
+    HOLD (senior clinician or protocol override) — when:
+    - Emergent classification
+    - Suicidal ideation or self-harm risk
+    - Paediatric patient under 2 years
+    - Pregnancy-related symptoms
+    - Any case where clinical judgment contradicts classification
+
+    Work order for clinician must include:
+    - Severity tier and classification confidence
+    - Key symptoms and duration
+    - The generated disposition script for review
+    - Specific clinical concerns flagged in the investigation
+
+# ─── Human review overlay parameters ─────────────────────────────────────────
+human_review:
+  brief_format: |
+    - Patient presentation summary (3-4 lines)
+    - Severity classification and confidence
+    - Key findings from investigation
+    - Proposed disposition script
+    - Open questions for clinician judgment
+
+  checkpoint_label: "Clinical Triage Review"
+  sla_hours: 0.25   # 15 minutes for urgent; adjust by tier in production
+  escalation_path: "Senior clinician on duty"

@@ -1,12 +1,42 @@
-# Loan Application Review — Domain Specification
+# ─────────────────────────────────────────────────────────────────────────────
+# Edit this file to supply your domain knowledge.
+# Domain Pack: Consumer Lending
+# Pattern:     P02 — Eligibility Determination
+# Overlays:    exception, governance
+# Coordinator: simple (wait-for-result when specialist review needed)
 #
-# A regulated decision workflow. Shows all six epistemic primitives
-# (retrieve, classify, investigate, deliberate, verify, govern) in one
-# cohesive use case.
+# What this pack does:
+#   Full-chain loan application review. Retrieves applicant data, classifies
+#   risk tier, investigates edge cases for high-risk profiles, deliberates
+#   on a warranted recommendation, verifies regulatory compliance (ECOA,
+#   FCRA, DTI caps), and governs disposition.
+#
+# What you fill in:
+#   - gather_application: what data sources to pull
+#   - classify_risk: your risk tier definitions and criteria
+#   - investigate_risk_factors: what to examine for high-risk profiles
+#   - deliberate_recommendation: your outcome space and decision criteria
+#   - verify_compliance: your regulatory and policy rules
+#   - govern_decision: when each governance tier applies
+#
+# Regulatory context:
+#   This pack implements the ECOA/FCRA adverse action requirement — every
+#   decline must cite specific, traceable reasons from the credit file.
+#   The verify_compliance step enforces this structurally.
+#   Do not remove or weaken the compliance rules without legal review.
+# ─────────────────────────────────────────────────────────────────────────────
 
 domain_name: consumer_lending
-workflow: loan_application_review
-governance: gate
+base_pattern: P02-eligibility-determination
+overlays:
+  - exception
+  - governance
+coordinator_template: simple
+
+# ─── Step: gather_application ────────────────────────────────────────────────
+# Specify what data to retrieve. Each item becomes a tool call.
+# The retrieved data is available in subsequent steps as
+# ${gather_application.data.get_credit}, etc.
 
 gather_application:
   specification: |
@@ -16,6 +46,21 @@ gather_application:
       - get_employment: Employment status, tenure, employer verification
       - get_banking: Banking history, average balance, NSF events (last 12 months)
       - get_identity: Identity verification status, fraud flags
+
+  # Context injected into the classify step input
+  input_context: |
+    Applicant: ${input.applicant_name}, age ${input.applicant_age}
+    Requested amount: ${input.loan_amount}
+    Purpose: ${input.loan_purpose}
+    Credit score: ${gather_application.data.get_credit.score}
+    DTI ratio: ${gather_application.data.get_financials.dti_ratio}
+    Employment: ${gather_application.data.get_employment.status}
+
+# ─── Step: classify_risk ─────────────────────────────────────────────────────
+# Define your risk tiers. The workflow routes based on classification:
+#   high_risk → investigate before deliberating
+#   ineligible → skip deliberation, go to compliance check
+#   all others → deliberate directly
 
 classify_risk:
   categories: |
@@ -27,6 +72,7 @@ classify_risk:
       derogatory marks in 12 months, or unstable employment. Specialist review.
     - ineligible: Hard disqualifiers present — active bankruptcy, fraud flag,
       identity verification failed, or DTI above 50%. Cannot proceed.
+
   criteria: |
     Evaluate in this order:
     1. Check for any hard disqualifiers first → ineligible
@@ -35,6 +81,14 @@ classify_risk:
     4. Banking history is a signal, not a primary factor
     When near_prime and high_risk are both plausible, choose high_risk.
     Do not average — the worst qualifying factor sets the tier.
+
+  # Transition conditions — adjust to match your category names above
+  high_risk_condition: "output.category == 'high_risk'"
+  ineligible_condition: "output.category == 'ineligible'"
+
+# ─── Step: investigate_risk_factors ──────────────────────────────────────────
+# Fires only for high_risk classifications.
+# Define the scope of investigation — what questions must be answered.
 
 investigate_risk_factors:
   scope: |
@@ -48,6 +102,12 @@ investigate_risk_factors:
     6. Would a different loan structure (smaller amount, shorter term,
        secured) change the risk assessment?
     7. Are there any fraud or identity concerns that need flagging?
+
+  effort_level: deep
+
+# ─── Step: deliberate_recommendation ─────────────────────────────────────────
+# Define your outcome space and the criteria for choosing between outcomes.
+# recommended_action must be one of the listed options (exact string match).
 
 deliberate_recommendation:
   instruction: |
@@ -63,6 +123,7 @@ deliberate_recommendation:
     The warrant must explain the logical connection between the
     applicant's financial picture and your recommendation.
     Every claim in the warrant must be traceable to the data.
+
   focus: |
     Evaluate against these criteria:
     - Ability to repay: income, DTI, stability
@@ -72,6 +133,10 @@ deliberate_recommendation:
 
     Fair lending: would a similarly-situated applicant receive the same
     recommendation? Do not consider factors outside the credit file.
+
+# ─── Step: verify_compliance ─────────────────────────────────────────────────
+# These rules are regulatory requirements. Do not weaken without legal review.
+# The compliance check fires for every case, including ineligible.
 
 verify_compliance:
   rules: |
@@ -88,6 +153,16 @@ verify_compliance:
        reasons from the credit file in the warrant.
     6. Amount limits: loan amount must be within product parameters
        (min $1,000, max $50,000 for unsecured personal).
+
+  # Context injected into the verification subject
+  subject_context: |
+    Risk tier: ${classify_risk.category}
+    Applicant age: ${input.applicant_age}
+    Loan amount: ${input.loan_amount}
+    DTI: ${gather_application.data.get_financials.dti_ratio}
+    Credit score: ${gather_application.data.get_credit.score}
+
+# ─── Step: govern_decision ───────────────────────────────────────────────────
 
 govern_decision:
   governance_context: |
@@ -118,3 +193,8 @@ govern_decision:
     - The deliberate step's warrant (the reasoning)
     - All compliance findings
     - Recommended decision for the underwriter to accept or override
+
+  # Additional state to include in governance assessment
+  additional_state: |
+    loan_amount: ${input.loan_amount}
+    fraud_flag: ${gather_application.data.get_identity.fraud_flag}

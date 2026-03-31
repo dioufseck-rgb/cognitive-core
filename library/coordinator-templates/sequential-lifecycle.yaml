@@ -1,0 +1,131 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Coordinator Template: sequential-lifecycle
+#
+# Structure: Stage A fires stage B on completion. Stage B fires stage C.
+#            Each stage is a complete independent workflow. Results flow
+#            forward — each stage receives the prior stage's output.
+#
+# Use when:
+#   - A decision process has distinct sequential stages, each building
+#     on the prior stage's output.
+#   - Stages must complete in order — no stage starts until the prior
+#     stage is complete and its result has been reviewed.
+#   - Common shapes: intake → eligibility → recommendation → contact
+#                    triage → investigation → resolution → follow-up
+#
+# Difference from wait-for-result:
+#   - wait-for-result: primary suspends mid-execution waiting for one handler
+#   - sequential-lifecycle: each stage completes fully before the next fires
+#
+# Failure modes:
+#   - Stage failure: if stage N fails, stage N+1 does not fire.
+#     Coordinator escalates to hold queue. Requires manual intervention.
+#   - Stage timeout: coordinator escalates to hold queue.
+#   - If a stage produces an output that makes continuation inappropriate
+#     (e.g. intake finds case is ineligible), configure a stop_condition
+#     on that stage's delegation to prevent downstream stages from firing.
+#
+# What to fill in:
+#   1. governance_tiers: queues and SLAs
+#   2. One delegation entry per stage transition (A→B, B→C, etc.)
+#      - trigger on the prior stage's completion
+#      - pass the prior stage's key outputs as inputs to the next stage
+#   3. One capability entry per stage workflow
+# ─────────────────────────────────────────────────────────────────────────────
+
+workflow_dir: workflows
+domain_dir: domains
+case_dir: cases
+
+# ─── Governance Tiers ────────────────────────────────────────────────────────
+governance_tiers:
+  auto:
+    hitl: none
+    sample_rate: 0.0
+
+  spot_check:
+    hitl: post_completion
+    sample_rate: 0.10
+    queue: qa_review            # [FILL IN]
+    sla: 7200
+
+  gate:
+    hitl: before_act
+    queue: human_review         # [FILL IN]
+    sla: 14400
+
+  hold:
+    hitl: before_finalize
+    queue: compliance_review    # [FILL IN]
+    sla: 172800
+
+overrides: {}
+
+quality_gates:
+  min_confidence: 0.5
+  primitive_floors:
+    classify: 0.6
+    investigate: 0.5
+    verify: 0.5
+  escalation_tier: gate
+  escalation_queue: quality_review   # [FILL IN]
+  exempt_domains: []
+
+# ─── Delegation — Stage A → Stage B ─────────────────────────────────────────
+delegations:
+
+  - name: stage_a_to_stage_b          # [FILL IN] e.g. intake_to_eligibility
+    mode: fire_and_forget             # stage A does not wait for stage B
+    governance_tier: auto
+    conditions:
+      - domain: stage_a_domain        # [FILL IN] stage A domain name
+        selector: last_govern
+        field: disposition
+        operator: exists
+        # [FILL IN] add stop_condition to prevent firing if stage A determines
+        # continuation is inappropriate:
+        # operator: not_in
+        # value: [ineligible, declined, closed]
+    target_workflow: stage_b_workflow # [FILL IN]
+    target_domain: stage_b_domain     # [FILL IN]
+    sla: 14400                        # [FILL IN]
+    inputs:
+      case_id: "${source.input.case_id}"
+      # Pass key outputs from stage A forward to stage B
+      stage_a_determination: "${source.last_deliberate.recommended_action}"
+      stage_a_tier: "${source.last_govern.tier_applied}"
+      # [FILL IN] add any other outputs stage B needs
+
+  - name: stage_b_to_stage_c          # [FILL IN] e.g. eligibility_to_recommendation
+    mode: fire_and_forget
+    governance_tier: auto
+    conditions:
+      - domain: stage_b_domain        # [FILL IN]
+        selector: last_govern
+        field: disposition
+        operator: exists
+    target_workflow: stage_c_workflow # [FILL IN]
+    target_domain: stage_c_domain     # [FILL IN]
+    sla: 14400                        # [FILL IN]
+    inputs:
+      case_id: "${source.input.case_id}"
+      stage_b_determination: "${source.last_deliberate.recommended_action}"
+      stage_b_tier: "${source.last_govern.tier_applied}"
+      # [FILL IN]
+
+# ─── Capabilities ────────────────────────────────────────────────────────────
+capabilities:
+
+  - need: stage_b_need                # [FILL IN]
+    type: workflow
+    workflow: stage_b_workflow        # [FILL IN]
+    domain: stage_b_domain            # [FILL IN]
+
+  - need: stage_c_need                # [FILL IN]
+    type: workflow
+    workflow: stage_c_workflow        # [FILL IN]
+    domain: stage_c_domain            # [FILL IN]
+
+  - need: human_review
+    type: human_task
+    queue: human_review               # [FILL IN]

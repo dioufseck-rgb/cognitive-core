@@ -1,0 +1,56 @@
+name: content_moderation
+description: >
+  Classify content category, verify against policy rules, challenge
+  borderline decisions adversarially, then govern disposition.
+  Demonstrates the governance tier system and the challenge primitive.
+
+steps:
+  - name: classify_content
+    primitive: classify
+    temperature: 0.0
+    params:
+      categories: "${domain.classify_content.categories}"
+      criteria: |
+        Content type: ${input.content_type}
+        Platform context: ${input.platform_context}
+        Content: ${input.content}
+        ${domain.classify_content.criteria}
+
+  - name: verify_policy
+    primitive: verify
+    temperature: 0.0
+    params:
+      rules: "${domain.verify_policy.rules}"
+      subject: |
+        Content category: ${classify_content.category}
+        Confidence: ${classify_content.confidence}
+        Content: ${input.content}
+        Author context: ${input.author_context}
+    transitions:
+      - when: "output.conforms == true and classify_content.confidence >= 0.85"
+        goto: govern_disposition
+      - default: challenge_decision
+
+  - name: challenge_decision
+    primitive: challenge
+    params:
+      perspective: "${domain.challenge_decision.perspective}"
+      threat_model: "${domain.challenge_decision.threat_model}"
+      subject: |
+        Classification: ${classify_content.category}
+        Policy check: ${verify_policy.conforms}
+        Violations: ${verify_policy.violations}
+        Content: ${input.content}
+    transitions:
+      - default: govern_disposition
+
+  - name: govern_disposition
+    primitive: govern
+    params:
+      workflow_state: |
+        classification: ${classify_content.category}
+        classification_confidence: ${classify_content.confidence}
+        policy_conforms: ${verify_policy.conforms}
+        violations: ${verify_policy.violations}
+        challenge_completed: ${challenge_decision.survives}
+      governance_context: "${domain.govern_disposition.governance_context}"

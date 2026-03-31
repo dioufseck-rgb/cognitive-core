@@ -1,0 +1,154 @@
+[
+  {
+    "_id": "APP-001",
+    "applicant_name": "Priya Sharma",
+    "applicant_age": 34,
+    "loan_amount": 12000,
+    "loan_purpose": "Home improvement — kitchen renovation",
+    "investigation_findings": "",
+    "get_credit": {
+      "score": 748,
+      "utilisation_pct": 18,
+      "derogatory_marks_24mo": 0,
+      "oldest_account_years": 11,
+      "payment_history": "100% on time last 36 months"
+    },
+    "get_financials": {
+      "annual_income_verified": 82000,
+      "dti_ratio": 0.28,
+      "monthly_obligations": 1915,
+      "requested_monthly_payment": 340
+    },
+    "get_employment": {
+      "status": "employed_full_time",
+      "employer": "Meridian Health Systems",
+      "tenure_years": 6.5,
+      "income_source": "salary",
+      "verification_status": "verified"
+    },
+    "get_banking": {
+      "avg_monthly_balance": 4200,
+      "nsf_events_12mo": 0,
+      "account_age_years": 8
+    },
+    "get_identity": {
+      "verification_status": "verified",
+      "fraud_flag": false
+    },
+    "_expected": "prime → approve → auto (clean profile, low amount)"
+  },
+  {
+    "_id": "APP-002",
+    "applicant_name": "Tomás Rivera",
+    "applicant_age": 29,
+    "loan_amount": 22000,
+    "loan_purpose": "Debt consolidation",
+    "investigation_findings": "",
+    "get_credit": {
+      "score": 681,
+      "utilisation_pct": 61,
+      "derogatory_marks_24mo": 1,
+      "oldest_account_years": 5,
+      "payment_history": "94% on time, 2 late payments 18 months ago"
+    },
+    "get_financials": {
+      "annual_income_verified": 58000,
+      "dti_ratio": 0.41,
+      "monthly_obligations": 1983,
+      "requested_monthly_payment": 520
+    },
+    "get_employment": {
+      "status": "employed_full_time",
+      "employer": "Cascade Logistics",
+      "tenure_years": 1.2,
+      "income_source": "salary",
+      "verification_status": "verified"
+    },
+    "get_banking": {
+      "avg_monthly_balance": 820,
+      "nsf_events_12mo": 2,
+      "account_age_years": 4
+    },
+    "get_identity": {
+      "verification_status": "verified",
+      "fraud_flag": false
+    },
+    "_expected": "near_prime → approve_modified or refer_specialist → gate (multiple concerns, higher amount)"
+  },
+  {
+    "_id": "APP-003",
+    "applicant_name": "Diane Whitfield",
+    "applicant_age": 52,
+    "loan_amount": 8500,
+    "loan_purpose": "Medical expenses",
+    "investigation_findings": "",
+    "get_credit": {
+      "score": 614,
+      "utilisation_pct": 84,
+      "derogatory_marks_24mo": 3,
+      "oldest_account_years": 18,
+      "payment_history": "78% on time, collection account opened 8 months ago"
+    },
+    "get_financials": {
+      "annual_income_verified": 41000,
+      "dti_ratio": 0.48,
+      "monthly_obligations": 1640,
+      "requested_monthly_payment": 245
+    },
+    "get_employment": {
+      "status": "employed_part_time",
+      "employer": "Retail — Greenway Foods",
+      "tenure_years": 0.8,
+      "income_source": "hourly",
+      "verification_status": "verified"
+    },
+    "get_banking": {
+      "avg_monthly_balance": 310,
+      "nsf_events_12mo": 6,
+      "account_age_years": 12
+    },
+    "get_identity": {
+      "verification_status": "verified",
+      "fraud_flag": false
+    },
+    "_expected": "high_risk → investigate → deliberate decline or refer_specialist → gate"
+  },
+  {
+    "_id": "APP-004",
+    "applicant_name": "Marcus Webb",
+    "applicant_age": 41,
+    "loan_amount": 15000,
+    "loan_purpose": "Business startup expenses",
+    "investigation_findings": "",
+    "get_credit": {
+      "score": 492,
+      "utilisation_pct": 97,
+      "derogatory_marks_24mo": 7,
+      "oldest_account_years": 14,
+      "payment_history": "54% on time, active collections, Chapter 13 filed 14 months ago"
+    },
+    "get_financials": {
+      "annual_income_verified": 0,
+      "dti_ratio": 0.61,
+      "monthly_obligations": 0,
+      "requested_monthly_payment": 420
+    },
+    "get_employment": {
+      "status": "self_employed",
+      "employer": "Self — Webb Consulting (unregistered)",
+      "tenure_years": 0.3,
+      "income_source": "self_employment",
+      "verification_status": "unverified"
+    },
+    "get_banking": {
+      "avg_monthly_balance": 45,
+      "nsf_events_12mo": 14,
+      "account_age_years": 2
+    },
+    "get_identity": {
+      "verification_status": "verified",
+      "fraud_flag": false
+    },
+    "_expected": "ineligible → decline → hold (active bankruptcy, unverified income, DTI > 50%)"
+  }
+]

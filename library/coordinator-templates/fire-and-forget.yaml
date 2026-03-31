@@ -1,0 +1,90 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Coordinator Template: fire-and-forget
+#
+# Structure: Primary completes independently.
+#            Handler fires on primary completion and runs in background.
+#            Primary does NOT wait for handler result.
+#
+# Use when:
+#   - The primary decision does not depend on the handler result.
+#   - The handler runs a downstream process: notification, reporting,
+#     a background investigation, a side-process audit.
+#   - You want the primary to close quickly and let the handler run async.
+#
+# Key difference from wait-for-result:
+#   - Primary reaches __end__ before handler completes.
+#   - Handler result is NOT injected into primary context.
+#   - Handler failure does not affect primary outcome.
+#
+# What to fill in:
+#   1. governance_tiers: queues and SLAs
+#   2. One delegation entry with mode: fire_and_forget
+#   3. One capability entry for the handler workflow
+# ─────────────────────────────────────────────────────────────────────────────
+
+workflow_dir: workflows
+domain_dir: domains
+case_dir: cases
+
+# ─── Governance Tiers ────────────────────────────────────────────────────────
+governance_tiers:
+  auto:
+    hitl: none
+    sample_rate: 0.0
+
+  spot_check:
+    hitl: post_completion
+    sample_rate: 0.10
+    queue: qa_review            # [FILL IN]
+    sla: 7200
+
+  gate:
+    hitl: before_act
+    queue: human_review         # [FILL IN]
+    sla: 14400
+
+  hold:
+    hitl: before_finalize
+    queue: compliance_review    # [FILL IN]
+    sla: 172800
+
+overrides: {}
+
+quality_gates:
+  min_confidence: 0.5
+  primitive_floors:
+    classify: 0.6
+    investigate: 0.5
+    verify: 0.5
+  escalation_tier: gate
+  escalation_queue: quality_review   # [FILL IN]
+  exempt_domains: []
+
+# ─── Delegation ──────────────────────────────────────────────────────────────
+delegations:
+
+  - name: background_handler            # [FILL IN] e.g. aml_referral, notification
+    mode: fire_and_forget
+    governance_tier: auto
+    conditions:
+      - domain: primary_domain_name     # [FILL IN]
+        selector: last_govern           # fires when primary governance step completes
+        field: disposition
+        operator: exists                # [FILL IN] or specific condition
+        # e.g. operator: in, value: [escalate, file_sar]
+    target_workflow: handler_workflow   # [FILL IN]
+    target_domain: handler_domain       # [FILL IN]
+    sla: 14400                          # [FILL IN] handler SLA (monitored but doesn't block primary)
+    inputs:
+      case_id: "${source.input.case_id}"
+      primary_determination: "${source.last_deliberate.recommended_action}"
+      primary_disposition: "${source.last_govern.disposition}"
+      # [FILL IN] what data does the handler need?
+
+# ─── Capabilities ────────────────────────────────────────────────────────────
+capabilities:
+
+  - need: background_handler_need       # [FILL IN]
+    type: workflow
+    workflow: handler_workflow          # [FILL IN]
+    domain: handler_domain              # [FILL IN]

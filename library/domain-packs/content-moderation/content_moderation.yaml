@@ -1,0 +1,164 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Edit this file to supply your domain knowledge.
+# Domain Pack: Content Moderation
+# Pattern:     P04 — Adversarial Review
+# Overlays:    governance
+# Coordinator: simple
+#
+# What this pack does:
+#   Classifies content against policy categories, verifies against explicit
+#   policy rules, adversarially challenges borderline decisions from multiple
+#   perspectives, and governs disposition — auto-proceed, spot-check, gate
+#   for human review, or hold.
+#
+# What you fill in:
+#   - classify_content: your platform's categories and classification criteria
+#   - verify_policy: your specific policy rules
+#   - challenge_decision: your adversarial perspectives and threat model
+#   - govern_disposition: when each governance tier applies on your platform
+#
+# What you do NOT change:
+#   - The workflow sequence (classify → verify → challenge → govern)
+#   - The transition logic (challenge fires when confidence < 0.85 or non-conform)
+#   - The governance tier definitions (AUTO / SPOT_CHECK / GATE / HOLD)
+#
+# Structural customisation needs (beyond scaffold):
+#   If you need a second challenge perspective in a separate step, or want
+#   to add a retrieve step for author history — that is pattern/overlay work.
+#   See library/patterns/P04-adversarial-review/ for the base pattern.
+# ─────────────────────────────────────────────────────────────────────────────
+
+domain_name: content_moderation
+base_pattern: P04-adversarial-review
+overlays:
+  - governance
+coordinator_template: simple
+
+# ─── Step: classify_content ──────────────────────────────────────────────────
+# Define your content categories. Each category should have a clear
+# description and distinguishing criteria. Categories are evaluated
+# top to bottom — order matters for borderline cases.
+# The workflow also injects: content_type, platform_context, content,
+# author_context from the case input.
+
+classify_content:
+  categories: |
+    - safe: Content that clearly complies with community guidelines.
+      No policy concerns. Suitable for all audiences on the platform.
+    - borderline: Content that may violate guidelines depending on
+      context, intent, or audience. Requires careful review.
+      Examples: satire that could be mistaken for hate speech,
+      graphic medical content, strong political opinion.
+    - harassment: Targeted attacks, threats, or sustained hostile
+      behaviour directed at a specific individual or group.
+    - misinformation: Verifiably false claims about health, safety,
+      elections, or public figures presented as fact.
+    - explicit: Sexually explicit or graphically violent content
+      not permitted on this platform regardless of context.
+    - spam: Coordinated inauthentic behaviour, commercial spam,
+      or content that exists solely to game platform algorithms.
+
+  # Additional context injected into the classification criteria.
+  # Use this to provide platform-specific guidance.
+  criteria: |
+    Base classification on content alone first, then adjust for context.
+    Author history can move borderline toward safe (established account,
+    no prior violations) or toward violation (repeat offender).
+    When satire and hate speech overlap, classify as borderline.
+    Platform context matters: professional network vs consumer social
+    have different thresholds — apply platform_context from the input.
+
+  # The workflow injects these fields from the case input automatically:
+  # ${input.content_type}, ${input.platform_context},
+  # ${input.content}, ${input.author_context}
+  input_context: |
+    Content type: ${input.content_type}
+    Platform context: ${input.platform_context}
+    Content: ${input.content}
+    Author context: ${input.author_context}
+
+# ─── Step: verify_policy ─────────────────────────────────────────────────────
+# List your explicit policy rules. Each rule must be checkable from the
+# classification and content alone. Number them — violations will reference
+# rule numbers in the output.
+
+verify_policy:
+  rules: |
+    The following must ALL be true to conform:
+    1. Content does not target a protected characteristic
+       (race, religion, gender, sexuality, disability, nationality)
+       with hostility or dehumanisation.
+    2. Content does not contain credible threats of physical harm.
+    3. Content does not make false factual claims about public health,
+       election integrity, or named real individuals.
+    4. Content does not include non-consensual intimate imagery.
+    5. Content does not promote or facilitate illegal activity.
+
+    For borderline content: conforms=true means the content passes
+    a minimalist reading; the challenge step will probe harder.
+
+  # Context injected into the verification subject.
+  subject_context: |
+    Content: ${input.content}
+    Author context: ${input.author_context}
+
+# ─── Step: challenge_decision ────────────────────────────────────────────────
+# Define who is challenging the classification and what they are looking for.
+# perspective: the adversarial role(s) challenging the conclusion
+# threat_model: specific failure modes to probe for
+
+challenge_decision:
+  perspective: |
+    You are three simultaneous reviewers with conflicting mandates:
+    1. A free-speech advocate: Is this removal justified? Is there
+       a charitable interpretation being ignored? Context matters.
+    2. A trust & safety lead: Would leaving this up cause measurable
+       harm? Is there a vulnerable population at risk?
+    3. A platform lawyer: What is the liability exposure either way?
+       Removal without cause, or harm enabled by inaction?
+
+  threat_model: |
+    - False negative: genuinely harmful content passes as safe
+    - False positive: legitimate speech removed incorrectly
+    - Context collapse: content taken out of intended context
+    - Dual use: educational content that could enable harm
+    - Coordinated reporting: mass-flagging of legitimate content
+    - Scale blind spots: content that is harmful only in aggregate
+
+  # Context injected into the challenge subject (in addition to
+  # classification and policy check results from prior steps).
+  subject_context: ""
+
+# ─── Step: govern_disposition ────────────────────────────────────────────────
+# Define when each governance tier applies.
+# Tiers: AUTO | SPOT_CHECK | GATE | HOLD
+# Work order instructions tell human reviewers what to act on.
+
+govern_disposition:
+  governance_context: |
+    Determine the appropriate governance tier and disposition:
+
+    AUTO (proceed) — when:
+    - Classification is safe with confidence >= 0.85, OR
+    - Classification is spam or explicit with confidence >= 0.80
+      (high-confidence clear violations can be auto-removed)
+
+    SPOT_CHECK (proceed, flag for sampling) — when:
+    - Classification is safe but confidence is 0.65–0.84
+    - New author account with no prior history
+
+    GATE (suspend, human review) — when:
+    - Classification is borderline regardless of confidence
+    - Any classification with confidence < 0.65
+    - Policy violations that are context-dependent
+    - Challenge found significant vulnerabilities
+
+    HOLD (compliance hold) — when:
+    - Content involves a named public figure
+    - Content may have legal consequences (defamation, CSAM)
+    - Prior open escalation on this author
+
+    Work order for human review must specify:
+    - Which policy rule is at issue
+    - What the challenge reviewers disagreed on
+    - Recommended outcome with rationale

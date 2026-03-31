@@ -1,0 +1,70 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Overlay: human-review
+#
+# Applied to: P02, P03, P05, P06, P11 (any pattern requiring structured
+# human decision at a defined checkpoint)
+#
+# What it injects:
+#   A Generate step that produces a structured decision brief, followed by
+#   a governance GATE that suspends execution and routes to the human
+#   reviewer queue. Execution resumes when the human decision is returned.
+#
+# This is distinct from the GATE tier in the governance overlay:
+#   - Governance GATE: triggered by the govern primitive based on case context.
+#     The tier is determined at runtime from evidence.
+#   - Human review overlay: structural checkpoint regardless of tier.
+#     Policy requires human review for this decision class unconditionally.
+#
+# When to apply:
+#   - Policy requires human approval for this decision class regardless of
+#     case characteristics (not just for high-risk cases)
+#   - Case ambiguity is structurally high — the workflow cannot resolve it
+#   - Institutional accountability requires documented human signoff
+#   - Regulatory requirements mandate human review (e.g. FMLA, ADA,
+#     clinical determination, large credit approval)
+#
+# Domain scaffold parameters required when this overlay is declared:
+#   human_review:
+#     brief_format: |
+#       [What sections must the decision brief contain?]
+#       e.g. case_summary, risk_factors, recommendation, warrant,
+#            supporting_evidence, open_questions
+#     checkpoint_label: |
+#       [Name for the human review step — appears in work orders and audit trail]
+#       e.g. "Underwriter Review", "Medical Director Approval", "HR Sign-off"
+#     sla_hours: 24  # How many hours before escalation
+#     escalation_path: |
+#       [Who receives the escalation if SLA is missed?]
+#
+# In v1 this overlay is declared in the domain scaffold and pre-composed
+# into patterns that support it. In v2 the composer injects it automatically.
+# ─────────────────────────────────────────────────────────────────────────────
+
+overlay: human-review
+version: "1.0"
+applies_to: [P02, P03, P05, P06, P11]
+injection: pre_composed
+
+inject_before: govern_decision  # or govern_outcome / govern_disposition
+
+step_template:
+  name: generate_decision_brief
+  primitive: generate
+  params:
+    requirements: |
+      Generate a structured decision brief for human review.
+
+      ${domain.human_review.brief_format}
+
+      The brief must be self-contained — the reviewer should be able to
+      make an informed decision without returning to source materials.
+    format: decision_brief
+  transitions:
+    - default: govern_decision  # govern will set GATE tier for human review
+
+description: >
+  Injects a structured brief generation step before the final govern step,
+  ensuring the human reviewer receives a prepared brief rather than raw
+  workflow output. The govern step sets GATE tier, suspending execution
+  until the human decision is returned. The brief format and checkpoint
+  label are domain-specific.

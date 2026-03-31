@@ -1,0 +1,283 @@
+# ═══════════════════════════════════════════════════════════════════
+# Cognitive Core — Fraud Operations Coordinator Config
+#
+# Single entry point: fraud_triage with any case JSON.
+# Delegation policies handle routing deterministically.
+#
+# Governance model:
+#   - Triage: auto (no HITL)
+#   - Specialist: gate (analyst reviews complete package)
+#   - Regulatory + Resolution: auto via delegation override
+#     (they run as part of the specialist pipeline, no separate approval)
+# ═══════════════════════════════════════════════════════════════════
+
+workflow_dir: workflows
+domain_dir: domains
+case_dir: cases
+
+# MCP data server — serves fraud case tool data from SQLite.
+# Seeded automatically from demos/fraud-operations/cases/fixtures/ on startup.
+# Remove this line (or unset DATA_MCP_CMD env var) to fall back to fixture files.
+#data_mcp_cmd: "python fraud_data_mcp.py --db fraud_data.db --fixtures cases/fixtures"
+
+# ─── Governance Tiers ────────────────────────────────────────────
+governance_tiers:
+  auto:
+    hitl: none
+    sample_rate: 0.0
+
+  spot_check:
+    hitl: post_completion
+    sample_rate: 0.10
+    queue: qa_review
+    sla: 7200
+
+  gate:
+    hitl: before_act
+    queue: fraud_analyst_review
+    sla: 14400
+
+  hold:
+    hitl: before_finalize
+    queue: bsa_officer_review
+    sla: 172800
+
+overrides: {}
+
+quality_gates:
+  min_confidence: 0.5
+  primitive_floors:
+    classify: 0.6
+    investigate: 0.5
+    verify: 0.5
+  escalation_tier: gate
+  escalation_queue: fraud_quality_review
+  exempt_domains: []
+
+# ─── Delegation Policies ─────────────────────────────────────────
+
+delegations:
+
+  # ── Triage → Specialist (fire_and_forget) ──────────────────────
+  # Uses step:classify_fraud_type selector to match the specific
+  # step by name, not the last classify step.
+
+  - name: triage_to_check_fraud
+    mode: fire_and_forget
+    conditions:
+      - domain: fraud_triage
+        selector: "step:classify_fraud_type"
+        field: category
+        operator: eq
+        value: check_fraud
+    target_workflow: fraud_specialty_investigation
+    target_domain: check_fraud
+    sla: 3600
+    inputs:
+      case_id: "${source.input.case_id}"
+      alert_id: "${source.input.alert_id}"
+      fraud_type: check_fraud
+      triage_classification: "${source.step:classify_fraud_type.category}"
+      triage_confidence: "${source.step:classify_fraud_type.confidence}"
+      triage_priority: "${source.step:assess_priority.category}"
+
+  - name: triage_to_card_fraud
+    mode: fire_and_forget
+    conditions:
+      - domain: fraud_triage
+        selector: "step:classify_fraud_type"
+        field: category
+        operator: eq
+        value: card_fraud
+    target_workflow: fraud_specialty_investigation
+    target_domain: card_fraud
+    sla: 3600
+    inputs:
+      case_id: "${source.input.case_id}"
+      alert_id: "${source.input.alert_id}"
+      fraud_type: card_fraud
+      triage_classification: "${source.step:classify_fraud_type.category}"
+      triage_confidence: "${source.step:classify_fraud_type.confidence}"
+      triage_priority: "${source.step:assess_priority.category}"
+
+  - name: triage_to_app_scam
+    mode: fire_and_forget
+    conditions:
+      - domain: fraud_triage
+        selector: "step:classify_fraud_type"
+        field: category
+        operator: eq
+        value: app_scam
+    target_workflow: fraud_specialty_investigation
+    target_domain: app_scam_fraud
+    sla: 3600
+    inputs:
+      case_id: "${source.input.case_id}"
+      alert_id: "${source.input.alert_id}"
+      fraud_type: app_scam
+      triage_classification: "${source.step:classify_fraud_type.category}"
+      triage_confidence: "${source.step:classify_fraud_type.confidence}"
+      triage_priority: "${source.step:assess_priority.category}"
+
+  # ── Specialist → Regulatory (wait_for_result, auto tier) ───────
+  # governance_tier: auto — no separate HITL gate for regulatory.
+  # The specialist's gate covers the complete package.
+
+  - name: check_fraud_to_regulatory
+    mode: wait_for_result
+    resume_at_step: generate_final_report
+    governance_tier: auto
+    conditions:
+      - domain: check_fraud
+        selector: last_deliberate
+        field: recommended_action
+        operator: exists
+    target_workflow: fraud_regulatory_review
+    target_domain: fraud_regulatory
+    sla: 7200
+    inputs:
+      case_id: "${source.input.case_id}"
+      alert_id: "${source.input.alert_id}"
+      fraud_type: "${source.input.fraud_type}"
+      determination: "${source.last_deliberate.recommended_action}"
+      confidence: "${source.last_deliberate.confidence}"
+      investigation_summary: "${source.last_investigate.finding}"
+
+  - name: card_fraud_to_regulatory
+    mode: wait_for_result
+    resume_at_step: generate_final_report
+    governance_tier: auto
+    conditions:
+      - domain: card_fraud
+        selector: last_deliberate
+        field: recommended_action
+        operator: exists
+    target_workflow: fraud_regulatory_review
+    target_domain: fraud_regulatory
+    sla: 7200
+    inputs:
+      case_id: "${source.input.case_id}"
+      alert_id: "${source.input.alert_id}"
+      fraud_type: "${source.input.fraud_type}"
+      determination: "${source.last_deliberate.recommended_action}"
+      confidence: "${source.last_deliberate.confidence}"
+      investigation_summary: "${source.last_investigate.finding}"
+
+  - name: app_scam_to_regulatory
+    mode: wait_for_result
+    resume_at_step: generate_final_report
+    governance_tier: auto
+    conditions:
+      - domain: app_scam_fraud
+        selector: last_deliberate
+        field: recommended_action
+        operator: exists
+    target_workflow: fraud_regulatory_review
+    target_domain: fraud_regulatory
+    sla: 7200
+    inputs:
+      case_id: "${source.input.case_id}"
+      alert_id: "${source.input.alert_id}"
+      fraud_type: "${source.input.fraud_type}"
+      determination: "${source.last_deliberate.recommended_action}"
+      confidence: "${source.last_deliberate.confidence}"
+      investigation_summary: "${source.last_investigate.finding}"
+
+  # ── Specialist → Resolution (wait_for_result, auto tier) ───────
+
+  - name: check_fraud_to_resolution
+    mode: wait_for_result
+    resume_at_step: generate_final_report
+    governance_tier: auto
+    conditions:
+      - domain: check_fraud
+        selector: last_deliberate
+        field: recommended_action
+        operator: exists
+    target_workflow: fraud_case_resolution
+    target_domain: fraud_case_resolution
+    sla: 14400
+    inputs:
+      case_id: "${source.input.case_id}"
+      alert_id: "${source.input.alert_id}"
+      fraud_type: "${source.input.fraud_type}"
+      determination: "${source.last_deliberate.recommended_action}"
+      confidence: "${source.last_deliberate.confidence}"
+      investigation_summary: "${source.last_investigate.finding}"
+
+  - name: card_fraud_to_resolution
+    mode: wait_for_result
+    resume_at_step: generate_final_report
+    governance_tier: auto
+    conditions:
+      - domain: card_fraud
+        selector: last_deliberate
+        field: recommended_action
+        operator: exists
+    target_workflow: fraud_case_resolution
+    target_domain: fraud_case_resolution
+    sla: 14400
+    inputs:
+      case_id: "${source.input.case_id}"
+      alert_id: "${source.input.alert_id}"
+      fraud_type: "${source.input.fraud_type}"
+      determination: "${source.last_deliberate.recommended_action}"
+      confidence: "${source.last_deliberate.confidence}"
+      investigation_summary: "${source.last_investigate.finding}"
+
+  - name: app_scam_to_resolution
+    mode: wait_for_result
+    resume_at_step: generate_final_report
+    governance_tier: auto
+    conditions:
+      - domain: app_scam_fraud
+        selector: last_deliberate
+        field: recommended_action
+        operator: exists
+    target_workflow: fraud_case_resolution
+    target_domain: fraud_case_resolution
+    sla: 14400
+    inputs:
+      case_id: "${source.input.case_id}"
+      alert_id: "${source.input.alert_id}"
+      fraud_type: "${source.input.fraud_type}"
+      determination: "${source.last_deliberate.recommended_action}"
+      confidence: "${source.last_deliberate.confidence}"
+      investigation_summary: "${source.last_investigate.finding}"
+
+# ─── Capabilities (DDD fallback) ─────────────────────────────────
+
+capabilities:
+
+  - need: check_fraud_investigation
+    type: workflow
+    workflow: fraud_specialty_investigation
+    domain: check_fraud
+
+  - need: card_fraud_investigation
+    type: workflow
+    workflow: fraud_specialty_investigation
+    domain: card_fraud
+
+  - need: app_scam_investigation
+    type: workflow
+    workflow: fraud_specialty_investigation
+    domain: app_scam_fraud
+
+  - need: regulatory_review
+    type: workflow
+    workflow: fraud_regulatory_review
+    domain: fraud_regulatory
+
+  - need: case_resolution
+    type: workflow
+    workflow: fraud_case_resolution
+    domain: fraud_case_resolution
+
+  - need: fraud_analyst_review
+    type: human_task
+    queue: fraud_analyst_review
+
+  - need: bsa_sar_approval
+    type: human_task
+    queue: bsa_officer_review

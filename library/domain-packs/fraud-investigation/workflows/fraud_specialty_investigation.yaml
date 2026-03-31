@@ -1,0 +1,114 @@
+name: fraud_specialty_investigation
+description: >
+  Fraud specialty investigation. Delegation policies dispatch
+  regulatory_review and case_resolution after completion.
+  Both are wait_for_result, resuming at generate_final_report
+  with results in ${input.delegation.<workflow_type>}.
+
+steps:
+- name: retrieve_evidence
+  primitive: retrieve
+  params:
+    specification: |
+      Retrieve all available evidence for this fraud case.
+
+      Required data:
+      - get_alert: Alert details and monitoring rule
+      - get_member: Member profile, demographics, employment
+      - get_account: Account history, balances, patterns
+      - get_triggering_activity: The specific activity that triggered the alert
+      - get_transactions: Recent transaction history
+      - get_prior_alerts: Prior fraud alerts and claims for this member
+
+      Also retrieve if available:
+      - get_maker_verification: For check fraud — maker bank status
+      - get_reg_cc_info: For check fraud — Reg CC hold information
+      - get_card: For card fraud — card details and last legitimate use
+      - get_compromise_assessment: For card fraud — compromise vector analysis
+      - get_reg_e_info: For card/unauthorized fraud — Reg E applicability
+      - get_scam_indicators: For APP/scam — social engineering indicators
+      - get_recovery_assessment: For APP/scam — recovery probability
+    sources: all_available
+  transitions:
+  - default: investigate_activity
+
+- name: investigate_activity
+  primitive: investigate
+  max_loops: 2
+  loop_fallback: deliberate_determination
+  params:
+    question: |
+      Investigate this fraud alert to determine if fraud occurred.
+      Assess severity, member impact, and required response.
+
+      ${domain.investigate_activity.scope}
+    scope: ${domain.investigate_activity.scope}
+    available_evidence: |
+      All evidence retrieved in the prior step is available in context.
+    effort_level: deep
+  transitions:
+  - agent_decide:
+      prompt: |
+        Finding: ${investigate_activity.finding}
+        Confidence: ${investigate_activity.confidence}
+
+        Proceed to determination if confidence >= 0.7.
+        Re-investigate only if confidence < 0.7 AND critical evidence gaps.
+      options:
+      - step: deliberate_determination
+        description: Confidence sufficient for determination.
+      - step: investigate_activity
+        description: Critical evidence gaps remain.
+
+- name: deliberate_determination
+  primitive: deliberate
+  params:
+    instruction: |
+      Make a fraud determination based on the investigation.
+
+      Investigation finding: ${investigate_activity.finding}
+      Investigation confidence: ${investigate_activity.confidence}
+      Evidence used: ${investigate_activity.evidence_used}
+
+      ${domain.deliberate_determination.framework}
+    focus: |
+      ${domain.deliberate_determination.framework}
+    additional_instructions: |
+      IMPORTANT: All case data has already been retrieved in the retrieve_evidence
+      step and fully analyzed in the investigate_activity step. The investigation
+      finding and evidence above is your complete basis for determination.
+      Do NOT emit resource_requests — set resource_requests to an empty array [].
+      Use only the evidence already present in context to make your determination.
+  transitions:
+  - default: generate_final_report
+
+- name: generate_final_report
+  primitive: generate
+  params:
+    requirements: |
+      Generate the final fraud investigation report.
+
+      INVESTIGATION RESULTS:
+      Finding: ${investigate_activity.finding}
+      Determination: ${deliberate_determination.recommended_action} (confidence: ${deliberate_determination.confidence})
+      Reasoning: ${deliberate_determination.reasoning}
+
+      REGULATORY REVIEW RESULTS (from delegation):
+      ${input.delegation.fraud_regulatory_review}
+
+      CASE RESOLUTION RESULTS (from delegation):
+      ${input.delegation.fraud_case_resolution}
+
+      Synthesize all results into a complete investigation report.
+      The regulatory review contains compliance verification and
+      the case resolution contains adversarial challenge results,
+      HITL package, member notification, and case summary.
+    format: investigation_report
+    constraints: |
+      - Specific dollar amounts, dates, transaction IDs
+      - Regulatory compliance findings and deadlines
+      - Adversarial challenge results — strengths and vulnerabilities
+      - Recommended actions with regulatory basis
+      - Member notification summary
+  transitions:
+  - default: __end__

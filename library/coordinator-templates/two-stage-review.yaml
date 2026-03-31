@@ -1,0 +1,149 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Coordinator Template: two-stage-review
+#
+# Structure: First-line workflow produces a draft determination.
+#            Second-line workflow reviews it and either confirms or
+#            returns it with findings. First-line resumes if returned.
+#
+# Use when:
+#   - A first-line / second-line review structure is required.
+#   - Appeals or peer review with a return path are needed.
+#   - The second-line reviewer can either confirm the determination
+#     or send it back with specific findings for revision.
+#   - Common shapes: staff recommendation → manager approval
+#                    first-line underwriting → second-line review
+#                    initial determination → appeal review
+#                    clinical assessment → peer review with return
+#
+# Difference from wait-for-result:
+#   - wait-for-result: primary suspends waiting for a specialist result
+#     that it then uses to finalise. No return path.
+#   - two-stage-review: second-line can confirm OR return to first-line.
+#     First-line revises and re-submits. The cycle can repeat.
+#
+# Failure modes:
+#   - Second-line timeout: escalates to hold queue.
+#   - Infinite revision loop: configure max_return_cycles to prevent.
+#     After N cycles, escalates to senior review.
+#   - Second-line confirms: case proceeds to final disposition.
+#   - Second-line returns: first-line receives findings and revises.
+#
+# What to fill in:
+#   1. governance_tiers: queues and SLAs
+#   2. first_to_second delegation: fires when first-line completes
+#   3. second_to_first delegation: fires when second-line returns (not confirms)
+#   4. max_return_cycles: how many revision cycles before senior escalation
+#   5. Capability entries for both workflows
+# ─────────────────────────────────────────────────────────────────────────────
+
+workflow_dir: workflows
+domain_dir: domains
+case_dir: cases
+
+# ─── Governance Tiers ────────────────────────────────────────────────────────
+governance_tiers:
+  auto:
+    hitl: none
+    sample_rate: 0.0
+
+  spot_check:
+    hitl: post_completion
+    sample_rate: 0.10
+    queue: qa_review            # [FILL IN]
+    sla: 7200
+
+  gate:
+    hitl: before_act
+    queue: human_review         # [FILL IN]
+    sla: 14400
+
+  hold:
+    hitl: before_finalize
+    queue: senior_review        # [FILL IN]
+    sla: 172800
+
+overrides: {}
+
+quality_gates:
+  min_confidence: 0.5
+  primitive_floors:
+    classify: 0.6
+    investigate: 0.5
+    verify: 0.5
+  escalation_tier: gate
+  escalation_queue: quality_review   # [FILL IN]
+  exempt_domains: []
+
+# ─── Two-Stage Review Configuration ─────────────────────────────────────────
+two_stage_review:
+  max_return_cycles: 2              # [FILL IN] max revision cycles before senior escalation
+  escalation_on_max: hold           # tier when max cycles exceeded
+
+# ─── Delegation — First-line → Second-line ───────────────────────────────────
+delegations:
+
+  - name: first_to_second             # [FILL IN] e.g. staff_to_manager
+    mode: wait_for_result             # first-line suspends waiting for second-line
+    resume_at_step: govern_decision   # [FILL IN] step first-line resumes at
+    governance_tier: auto             # second-line governs its own tier
+    conditions:
+      - domain: first_line_domain     # [FILL IN]
+        selector: last_deliberate
+        field: recommended_action
+        operator: exists
+    target_workflow: second_line_workflow  # [FILL IN]
+    target_domain: second_line_domain      # [FILL IN]
+    sla: 14400                             # [FILL IN]
+    inputs:
+      case_id: "${source.input.case_id}"
+      draft_determination: "${source.last_deliberate.recommended_action}"
+      draft_warrant: "${source.last_deliberate.warrant}"
+      draft_confidence: "${source.last_deliberate.confidence}"
+      compliance_result: "${source.last_verify.conforms}"
+      compliance_violations: "${source.last_verify.violations}"
+      return_cycle: "${source.input.return_cycle}"  # tracks revision count
+      # [FILL IN] any other context second-line needs
+
+  # ── If second-line RETURNS (does not confirm): ───────────────────────────
+  # The second-line workflow's govern step should set disposition='return'
+  # when sending the case back. The coordinator fires this delegation.
+
+  - name: second_to_first             # [FILL IN] e.g. manager_return_to_staff
+    mode: fire_and_forget
+    governance_tier: auto
+    conditions:
+      - domain: second_line_domain    # [FILL IN]
+        selector: last_govern
+        field: disposition
+        operator: eq
+        value: return                 # second-line set disposition=return
+    target_workflow: first_line_workflow   # [FILL IN] — first-line revises
+    target_domain: first_line_domain       # [FILL IN]
+    sla: 14400
+    inputs:
+      case_id: "${source.input.case_id}"
+      review_findings: "${source.last_deliberate.reasoning}"
+      required_revisions: "${source.last_govern.work_order}"
+      return_cycle: "${source.input.return_cycle}"  # increment this in domain
+      # [FILL IN]
+
+# ─── Capabilities ────────────────────────────────────────────────────────────
+capabilities:
+
+  - need: second_line_review          # [FILL IN]
+    type: workflow
+    workflow: second_line_workflow    # [FILL IN]
+    domain: second_line_domain        # [FILL IN]
+
+  - need: first_line_revision         # [FILL IN]
+    type: workflow
+    workflow: first_line_workflow     # [FILL IN]
+    domain: first_line_domain         # [FILL IN]
+
+  - need: human_review
+    type: human_task
+    queue: human_review               # [FILL IN]
+
+  - need: senior_review
+    type: human_task
+    queue: senior_review              # [FILL IN] — escalation when max cycles exceeded

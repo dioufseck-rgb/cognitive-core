@@ -1,0 +1,136 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Coordinator Template: parallel-handlers
+#
+# Structure: Primary fires N handlers simultaneously and suspends.
+#            Resumes when ALL handlers have returned.
+#            Handler results are injected into primary context.
+#
+# Use when: The primary decision requires parallel specialist input.
+#           Multiple independent assessments must all complete before
+#           the primary can finalise.
+#
+# Failure modes to understand before using this template:
+#   - Handler timeout: if a handler exceeds its SLA, the coordinator escalates
+#     to the hold queue. Primary remains suspended. Configure sla carefully.
+#   - Handler error: if a handler errors, the primary is notified via
+#     ${input.delegation.<handler_name>.error}. The generate step should
+#     handle missing handler results gracefully.
+#   - Partial completion: primary does not resume until ALL handlers complete.
+#     If one handler is fast and one is slow, the fast result waits.
+#     Use fire-and-forget if you don't need all results before resuming.
+#
+# What to fill in:
+#   1. governance_tiers: queues and SLAs for your org
+#   2. delegations: one entry per handler workflow
+#      - name: unique delegation name
+#      - mode: wait_for_result (always, for parallel-handlers)
+#      - resume_at_step: which step in the PRIMARY resumes when ALL handlers done
+#      - conditions: when does this delegation fire
+#      - target_workflow: handler workflow name
+#      - target_domain: handler domain file
+#      - sla: handler SLA in seconds
+#      - inputs: what data the handler receives from the primary context
+#   3. capabilities: handler workflow registrations
+# ─────────────────────────────────────────────────────────────────────────────
+
+workflow_dir: workflows
+domain_dir: domains
+case_dir: cases
+
+# ─── Governance Tiers ────────────────────────────────────────────────────────
+governance_tiers:
+  auto:
+    hitl: none
+    sample_rate: 0.0
+
+  spot_check:
+    hitl: post_completion
+    sample_rate: 0.10
+    queue: qa_review            # [FILL IN]
+    sla: 7200
+
+  gate:
+    hitl: before_act
+    queue: human_review         # [FILL IN]
+    sla: 14400
+
+  hold:
+    hitl: before_finalize
+    queue: compliance_review    # [FILL IN]
+    sla: 172800
+
+overrides: {}
+
+quality_gates:
+  min_confidence: 0.5
+  primitive_floors:
+    classify: 0.6
+    investigate: 0.5
+    verify: 0.5
+  escalation_tier: gate
+  escalation_queue: quality_review   # [FILL IN]
+  exempt_domains: []
+
+# ─── Delegation Policies ─────────────────────────────────────────────────────
+# Add one entry per parallel handler.
+# All wait_for_result handlers with the same resume_at_step fire in parallel.
+# Primary resumes at resume_at_step when ALL have completed.
+
+delegations:
+
+  - name: handler_a                       # [FILL IN] e.g. regulatory_review
+    mode: wait_for_result
+    resume_at_step: generate_report       # [FILL IN] step in primary that resumes
+    governance_tier: auto                 # handlers run at auto — primary gate covers package
+    conditions:
+      - domain: primary_domain_name       # [FILL IN] your primary domain name
+        selector: last_deliberate
+        field: recommended_action
+        operator: exists                  # fires when deliberation completes
+        # [FILL IN] tighten condition if handler should only fire in some cases
+        # e.g. operator: eq, value: escalate
+    target_workflow: handler_a_workflow   # [FILL IN]
+    target_domain: handler_a_domain       # [FILL IN]
+    sla: 7200                             # [FILL IN] seconds
+    inputs:
+      case_id: "${source.input.case_id}"
+      determination: "${source.last_deliberate.recommended_action}"
+      confidence: "${source.last_deliberate.confidence}"
+      investigation_summary: "${source.last_investigate.finding}"
+      # [FILL IN] add any additional inputs the handler needs
+
+  - name: handler_b                       # [FILL IN] e.g. case_resolution
+    mode: wait_for_result
+    resume_at_step: generate_report       # must match handler_a's resume_at_step
+    governance_tier: auto
+    conditions:
+      - domain: primary_domain_name       # [FILL IN]
+        selector: last_deliberate
+        field: recommended_action
+        operator: exists
+    target_workflow: handler_b_workflow   # [FILL IN]
+    target_domain: handler_b_domain       # [FILL IN]
+    sla: 14400                            # [FILL IN]
+    inputs:
+      case_id: "${source.input.case_id}"
+      determination: "${source.last_deliberate.recommended_action}"
+      confidence: "${source.last_deliberate.confidence}"
+      investigation_summary: "${source.last_investigate.finding}"
+      # [FILL IN]
+
+# ─── Capabilities ────────────────────────────────────────────────────────────
+capabilities:
+
+  - need: handler_a_need                  # [FILL IN]
+    type: workflow
+    workflow: handler_a_workflow          # [FILL IN]
+    domain: handler_a_domain             # [FILL IN]
+
+  - need: handler_b_need                  # [FILL IN]
+    type: workflow
+    workflow: handler_b_workflow          # [FILL IN]
+    domain: handler_b_domain             # [FILL IN]
+
+  - need: human_review
+    type: human_task
+    queue: human_review                   # [FILL IN]

@@ -36,7 +36,7 @@ default_provider: null
 aliases:
   # Default: used when no model is specified. Should be fast and cheap.
   default:
-    google:       gemini-3.1-flash-lite-preview        # update if deprecated for your key
+    google:       gemini-3.1-flash-lite-preview          # update if deprecated for your key
     openai:       gpt-4o-mini
     azure:        gpt-4o-mini
     azure_foundry: gpt-4o-mini

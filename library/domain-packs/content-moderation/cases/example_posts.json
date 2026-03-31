@@ -1,0 +1,38 @@
+[
+  {
+    "_id": "POST-001",
+    "_description": "Safe content — book recommendation on a serious topic",
+    "_expected": "safe → AUTO proceed",
+    "content_type": "social_post",
+    "platform_context": "consumer social network, general audience",
+    "content": "Just finished reading 'The Uninhabitable Earth' — sobering book about climate projections. Highly recommend if you want to understand the science. It changed how I think about the next 50 years.",
+    "author_context": "Account 4 years old, 380 followers, no prior flags."
+  },
+  {
+    "_id": "POST-002",
+    "_description": "Borderline content — xenophobic framing with prior warning",
+    "_expected": "borderline → challenge → GATE for human review",
+    "content_type": "social_post",
+    "platform_context": "consumer social network, general audience",
+    "content": "These people flooding into our country are not like us. They don't share our values. They're changing who we are and nobody asked us if we wanted this. Wake up before it's too late.",
+    "author_context": "Account 6 months old, 42 followers, 1 prior warning for similar content."
+  },
+  {
+    "_id": "POST-003",
+    "_description": "Clear misinformation — high confidence, auto-remove path",
+    "_expected": "misinformation → AUTO remove (high confidence clear violation)",
+    "content_type": "social_post",
+    "platform_context": "consumer social network, general audience",
+    "content": "BREAKING: mRNA vaccines permanently reprogram your DNA and have been shown to cause sterility in 73% of recipients. Share before they take this down. The government is hiding this.",
+    "author_context": "Account 2 years old, 1,200 followers, no prior flags."
+  },
+  {
+    "_id": "POST-004",
+    "_description": "Safe opinion — critical commentary on industry",
+    "_expected": "safe → AUTO proceed",
+    "content_type": "social_post",
+    "platform_context": "consumer social network, general audience",
+    "content": "Another week, another AI company burning billions on products nobody actually asked for. At what point do the investors start asking hard questions about whether any of this creates real value?",
+    "author_context": "Account 3 years old, 890 followers, no prior flags."
+  }
+]

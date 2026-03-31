@@ -1,0 +1,120 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern P05 — Investigation and Reporting
+#
+# Purpose: Investigate an open question, establish facts with confidence,
+# produce a formal report and recommended action.
+#
+# Typical outcome: Formal investigation report with finding, confidence
+# assessment, recommended next action, and governance disposition.
+#
+# When to use this pattern:
+#   - The workflow starts from an open question, not an application or request.
+#   - The output is always a formal report artifact.
+#   - The investigation may need to iterate (max_loops controls depth).
+#   - Add the adversarial overlay when causal hypotheses need to be tested —
+#     this covers root cause analysis without requiring a separate pattern.
+#
+# Domain scaffold supplies:
+#   - retrieve_evidence.specification (what evidence to gather)
+#   - investigate_activity.scope (what questions to answer)
+#   - investigate_activity.effort_level (shallow / moderate / deep)
+#   - deliberate_determination.framework (outcome space and decision criteria)
+#   - generate_report.format and requirements (report structure)
+#   - govern_outcome.governance_context (when each tier applies)
+#
+# Coordinator template: simple.yaml (default)
+#   parallel-handlers.yaml when parallel specialist workflows required
+#   wait-for-result.yaml when one specialist workflow required
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: investigation_and_reporting
+description: >
+  Retrieve evidence, investigate to a confidence threshold, deliberate
+  on a warranted determination, generate a formal report, and govern
+  the outcome. Add the adversarial overlay to test causal hypotheses
+  before deliberation (root cause analysis, fraud challenge, legal review).
+
+steps:
+  - name: retrieve_evidence
+    primitive: retrieve
+    params:
+      specification: "${domain.retrieve_evidence.specification}"
+      sources: all_available
+    transitions:
+      - default: investigate_activity
+
+  - name: investigate_activity
+    primitive: investigate
+    max_loops: "${domain.investigate_activity.max_loops}"
+    loop_fallback: deliberate_determination
+    params:
+      question: "${domain.investigate_activity.question}"
+      scope: "${domain.investigate_activity.scope}"
+      available_evidence: |
+        All evidence retrieved in the prior step is available in context.
+      effort_level: "${domain.investigate_activity.effort_level}"
+    transitions:
+      - agent_decide:
+          prompt: |
+            Finding: ${investigate_activity.finding}
+            Confidence: ${investigate_activity.confidence}
+
+            Proceed to determination if confidence >= ${domain.investigate_activity.confidence_threshold}.
+            Re-investigate only if confidence is below threshold AND critical evidence gaps exist.
+          options:
+            - step: deliberate_determination
+              description: Confidence sufficient for determination.
+            - step: investigate_activity
+              description: Critical evidence gaps remain — re-investigate.
+
+  - name: deliberate_determination
+    primitive: deliberate
+    params:
+      instruction: |
+        Make a determination based on the investigation.
+
+        Investigation finding: ${investigate_activity.finding}
+        Investigation confidence: ${investigate_activity.confidence}
+        Evidence used: ${investigate_activity.evidence_used}
+        Evidence missing: ${investigate_activity.evidence_missing}
+
+        ${domain.deliberate_determination.framework}
+      focus: "${domain.deliberate_determination.focus}"
+      additional_instructions: |
+        The investigation is complete. Do not request additional evidence.
+        Set resource_requests to an empty array [].
+        Base your determination solely on the evidence already in context.
+    transitions:
+      - default: generate_report
+
+  - name: generate_report
+    primitive: generate
+    params:
+      requirements: |
+        Generate the formal investigation report.
+
+        INVESTIGATION RESULTS:
+        Finding: ${investigate_activity.finding}
+        Determination: ${deliberate_determination.recommended_action}
+        Confidence: ${deliberate_determination.confidence}
+        Reasoning: ${deliberate_determination.reasoning}
+        Warrant: ${deliberate_determination.warrant}
+
+        ${domain.generate_report.delegation_results}
+
+        ${domain.generate_report.requirements}
+      format: "${domain.generate_report.format}"
+      constraints: "${domain.generate_report.constraints}"
+    transitions:
+      - default: govern_outcome
+
+  - name: govern_outcome
+    primitive: govern
+    params:
+      workflow_state: |
+        determination: ${deliberate_determination.recommended_action}
+        confidence: ${deliberate_determination.confidence}
+        warrant: ${deliberate_determination.warrant}
+        evidence_missing: ${investigate_activity.evidence_missing}
+        report_generated: true
+      governance_context: "${domain.govern_outcome.governance_context}"

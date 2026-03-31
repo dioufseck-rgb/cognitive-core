@@ -1,0 +1,125 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern P07 — Compliance and Conformance Review
+#
+# Purpose: Assess whether a case, action, artifact, or decision conforms
+# to policy, regulation, statute, or standard.
+#
+# Typical outcome: Conforms, violates, conditionally conforms, or requires
+# legal/compliance review — with violations documented and remediation
+# requirements specified.
+#
+# Key structural feature — verify-first:
+#   Unlike P02 (which retrieves then classifies then verifies), P07 runs
+#   verify immediately after retrieve. If rules are satisfied, the workflow
+#   can close early without investigation or deliberation.
+#   Investigation fires only when conformance is ambiguous or violations
+#   require deeper analysis.
+#
+# When to use this pattern:
+#   - The primary question is "does this conform?" not "should this be approved?"
+#   - The rules are explicit and can be checked before deeper analysis.
+#   - Violation findings must be documented with remediation requirements.
+#   - For decisions that require eligibility assessment first, use P02.
+#
+# Domain scaffold supplies:
+#   - gather_subject.specification (what to retrieve for review)
+#   - verify_conformance.rules (the explicit rules to check)
+#   - verify_conformance.subject_context (what the rules are checked against)
+#   - verify_conformance.early_exit_condition (when to skip investigate/deliberate)
+#   - investigate_violations.scope (what to analyse when rules fail)
+#   - deliberate_finding.instruction and focus (finding criteria)
+#   - generate_memo.format and requirements (compliance memo format)
+#   - govern_outcome.governance_context (when each tier applies)
+#
+# Coordinator template: simple.yaml (default)
+#   wait-for-result.yaml when legal review required on complex violations
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: compliance_and_conformance
+description: >
+  Retrieve the subject, verify against explicit rules immediately,
+  investigate violations when conformance is ambiguous, deliberate on
+  a compliance finding, generate a memo with remediation requirements,
+  and govern the outcome. Verify-first design enables early exit for
+  clear conformance.
+
+steps:
+  - name: gather_subject
+    primitive: retrieve
+    params:
+      specification: "${domain.gather_subject.specification}"
+      strategy: deterministic
+    transitions:
+      - default: verify_conformance
+
+  - name: verify_conformance
+    primitive: verify
+    temperature: 0.0
+    params:
+      rules: "${domain.verify_conformance.rules}"
+      subject: |
+        ${domain.verify_conformance.subject_context}
+        Retrieved data: ${gather_subject.data}
+    transitions:
+      # Early exit: full conformance with no ambiguity — skip investigation
+      - when: "${domain.verify_conformance.early_exit_condition}"
+        goto: generate_memo
+      - default: investigate_violations
+
+  - name: investigate_violations
+    primitive: investigate
+    params:
+      question: |
+        Analyse the compliance violations or ambiguities identified.
+      scope: "${domain.investigate_violations.scope}"
+      available_evidence: |
+        Conformance result: ${verify_conformance.conforms}
+        Violations found: ${verify_conformance.violations}
+        Rules checked: ${verify_conformance.rules_checked}
+        Subject data: ${gather_subject.data}
+      effort_level: "${domain.investigate_violations.effort_level}"
+    transitions:
+      - default: deliberate_finding
+
+  - name: deliberate_finding
+    primitive: deliberate
+    params:
+      instruction: |
+        Produce a compliance finding based on the verification and investigation.
+
+        Conformance result: ${verify_conformance.conforms}
+        Violations: ${verify_conformance.violations}
+        Investigation: ${investigate_violations.finding}
+
+        ${domain.deliberate_finding.instruction}
+      focus: "${domain.deliberate_finding.focus}"
+    transitions:
+      - default: generate_memo
+
+  - name: generate_memo
+    primitive: generate
+    params:
+      requirements: |
+        Generate the compliance memo.
+
+        CONFORMANCE RESULT: ${verify_conformance.conforms}
+        VIOLATIONS: ${verify_conformance.violations}
+        INVESTIGATION FINDING: ${investigate_violations.finding}
+        COMPLIANCE DETERMINATION: ${deliberate_finding.recommended_action}
+        WARRANT: ${deliberate_finding.warrant}
+
+        ${domain.generate_memo.requirements}
+      format: "${domain.generate_memo.format}"
+      constraints: "${domain.generate_memo.constraints}"
+    transitions:
+      - default: govern_outcome
+
+  - name: govern_outcome
+    primitive: govern
+    params:
+      workflow_state: |
+        conforms: ${verify_conformance.conforms}
+        violations: ${verify_conformance.violations}
+        finding: ${deliberate_finding.recommended_action}
+        warrant: ${deliberate_finding.warrant}
+      governance_context: "${domain.govern_outcome.governance_context}"

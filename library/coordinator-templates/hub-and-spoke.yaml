@@ -1,0 +1,157 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Coordinator Template: hub-and-spoke
+#
+# Structure: An orchestrator workflow coordinates N parallel specialist
+#            workflows. Specialists are independent — none knows the others
+#            exist. Orchestrator suspends until all specialists return.
+#            Orchestrator then integrates all results and produces the
+#            final determination.
+#
+# Use when:
+#   - The decision requires integration of multiple independent specialist
+#     assessments, none of which depend on each other's results.
+#   - Specialists must not influence each other (independence is required
+#     for regulatory or evidentiary reasons).
+#   - The orchestrator's job is integration and synthesis, not primary analysis.
+#   - Common shapes: clinical case management (specialty + pharmacy + social work)
+#                    complex regulatory docket (multiple agency reviews)
+#                    complex M&A (legal + tax + finance + HR in parallel)
+#                    insurance adjudication (medical + legal + fraud + reserves)
+#
+# Difference from parallel-handlers:
+#   - parallel-handlers: a primary workflow does its own analysis THEN
+#     fires handlers for specialist input. Primary is a participant.
+#   - hub-and-spoke: the orchestrator's primary role IS coordination and
+#     integration. It fires all spokes at the start, waits, then integrates.
+#
+# Failure modes:
+#   - Spoke timeout: orchestrator escalates to hold queue.
+#     All other spokes continue. Orchestrator waits for timeout resolution.
+#   - Spoke error: orchestrator receives error in ${input.delegation.<n>.error}.
+#     Integration step must handle missing spoke results gracefully.
+#   - Spoke disagreement: orchestrator's deliberate step resolves conflicts.
+#     Configure deliberate focus to specify how conflicts are weighed.
+#
+# What to fill in:
+#   1. governance_tiers: queues and SLAs
+#   2. One delegation entry per spoke workflow
+#      All spokes should share the same resume_at_step in the orchestrator
+#   3. One capability entry per spoke workflow
+# ─────────────────────────────────────────────────────────────────────────────
+
+workflow_dir: workflows
+domain_dir: domains
+case_dir: cases
+
+# ─── Governance Tiers ────────────────────────────────────────────────────────
+governance_tiers:
+  auto:
+    hitl: none
+    sample_rate: 0.0
+
+  spot_check:
+    hitl: post_completion
+    sample_rate: 0.10
+    queue: qa_review            # [FILL IN]
+    sla: 7200
+
+  gate:
+    hitl: before_act
+    queue: human_review         # [FILL IN]
+    sla: 14400
+
+  hold:
+    hitl: before_finalize
+    queue: senior_review        # [FILL IN]
+    sla: 172800
+
+overrides: {}
+
+quality_gates:
+  min_confidence: 0.5
+  primitive_floors:
+    classify: 0.6
+    investigate: 0.5
+    verify: 0.5
+  escalation_tier: gate
+  escalation_queue: quality_review   # [FILL IN]
+  exempt_domains: []
+
+# ─── Spoke Delegations ───────────────────────────────────────────────────────
+# All spokes use wait_for_result with the same resume_at_step.
+# Orchestrator resumes when ALL spokes have returned.
+
+delegations:
+
+  - name: spoke_a                      # [FILL IN] e.g. medical_review
+    mode: wait_for_result
+    resume_at_step: integrate_results  # [FILL IN] must match all spokes
+    governance_tier: auto
+    conditions:
+      - domain: orchestrator_domain    # [FILL IN] orchestrator domain name
+        selector: last_classify        # [FILL IN] or last_retrieve — fires early
+        field: category
+        operator: exists
+    target_workflow: spoke_a_workflow  # [FILL IN]
+    target_domain: spoke_a_domain      # [FILL IN]
+    sla: 7200                          # [FILL IN] — set per spoke's typical duration
+    inputs:
+      case_id: "${source.input.case_id}"
+      case_summary: "${source.last_classify.reasoning}"
+      # [FILL IN] what each spoke needs from the orchestrator context
+
+  - name: spoke_b                      # [FILL IN] e.g. legal_review
+    mode: wait_for_result
+    resume_at_step: integrate_results  # must match spoke_a
+    governance_tier: auto
+    conditions:
+      - domain: orchestrator_domain    # [FILL IN]
+        selector: last_classify
+        field: category
+        operator: exists
+    target_workflow: spoke_b_workflow  # [FILL IN]
+    target_domain: spoke_b_domain      # [FILL IN]
+    sla: 14400                         # [FILL IN]
+    inputs:
+      case_id: "${source.input.case_id}"
+      case_summary: "${source.last_classify.reasoning}"
+      # [FILL IN]
+
+  - name: spoke_c                      # [FILL IN] e.g. financial_review
+    mode: wait_for_result
+    resume_at_step: integrate_results  # must match spoke_a
+    governance_tier: auto
+    conditions:
+      - domain: orchestrator_domain    # [FILL IN]
+        selector: last_classify
+        field: category
+        operator: exists
+    target_workflow: spoke_c_workflow  # [FILL IN]
+    target_domain: spoke_c_domain      # [FILL IN]
+    sla: 14400                         # [FILL IN]
+    inputs:
+      case_id: "${source.input.case_id}"
+      case_summary: "${source.last_classify.reasoning}"
+      # [FILL IN]
+
+# ─── Capabilities ────────────────────────────────────────────────────────────
+capabilities:
+
+  - need: spoke_a_need                 # [FILL IN]
+    type: workflow
+    workflow: spoke_a_workflow         # [FILL IN]
+    domain: spoke_a_domain             # [FILL IN]
+
+  - need: spoke_b_need                 # [FILL IN]
+    type: workflow
+    workflow: spoke_b_workflow         # [FILL IN]
+    domain: spoke_b_domain             # [FILL IN]
+
+  - need: spoke_c_need                 # [FILL IN]
+    type: workflow
+    workflow: spoke_c_workflow         # [FILL IN]
+    domain: spoke_c_domain             # [FILL IN]
+
+  - need: human_review
+    type: human_task
+    queue: human_review                # [FILL IN]

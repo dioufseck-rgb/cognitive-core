@@ -10,6 +10,10 @@ Cognitive Core is built differently. It treats AI-native workflow design as a fi
 - **Configuration-first** — a new use case is a YAML file, not an application
 - **Governance as a first-class concern** — escalation, audit trails, and human review are structural, not bolted on
 
+→ **[Quickstart — run a governed workflow in five minutes](QUICKSTART.md)**  
+→ **[Domain library — five ready-to-run institutional decision packs](library/README.md)**  
+→ **[Position paper — the institutional AI design language](docs/institutional-intelligence.md)**
+
 ---
 
 ## The eight primitives
@@ -287,9 +291,21 @@ cognitive_core/        # installable package
 ├── analytics/         # artifact registry (causal DAGs, SDA policy models)
 └── api/               # FastAPI server
 
-configs/               # example workflows and domain packs
+library/               # domain library — patterns, overlays, coordinator templates
+├── domain-packs/      # five ready-to-run packs (fraud, lending, moderation, triage, compliance)
+├── patterns/          # five canonical workflow patterns (P02, P04, P05, P06, P07)
+├── overlays/          # five composable modifiers
+├── coordinator-templates/  # seven structural templates
+└── README.md          # library entry point
+
 demos/
-└── fraud-operations/  # complete fraud ops example with 9 cases
+├── fraud-operations/  # complete fraud ops example with 9 cases, 38 mechanism tests
+├── content-moderation/
+├── loan-application-review/
+└── support-ticket-triage/
+
+configs/               # example workflows and domain configs
+docs/                  # position papers and design documents
 examples/              # additional reference implementations
 tests/                 # unit and integration tests
 ```
@@ -300,9 +316,10 @@ tests/                 # unit and integration tests
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). The most useful contributions right now:
 
-- New domain packs (healthcare triage, HR workflows, legal review)
-- Additional quickstart examples in `configs/`
-- LLM provider integrations beyond Google/OpenAI
+- New domain packs — see [library/README.md](library/README.md) for the pattern taxonomy and how to build a pack
+- New canonical patterns (P01, P03, P08–P13 are on the roadmap)
+- Additional coordinator templates
+- LLM provider integrations beyond Anthropic/Google/OpenAI
 - Observability exporters (OpenTelemetry, Datadog)
 
 ---

@@ -1,0 +1,128 @@
+{
+  "case_id": "FRD-2026-00884",
+  "alert_id": "ALT-2026-7155",
+  "alert_type": "card_not_present_burst",
+  "fraud_type": "card_fraud",
+  "risk_score": 0.91,
+  "description": "7 card-not-present transactions totaling $4,287.92 across 6 merchants within 97 minutes starting at 1:41 AM EST from IPs in Germany, Romania, Russia, and Indonesia.",
+
+  "get_alert": {
+    "alert_id": "ALT-2026-7155",
+    "generated_at": "2026-02-25T02:14:00Z",
+    "alert_type": "card_not_present_burst",
+    "alert_source": "real_time_fraud_engine",
+    "monitoring_rule": "RULE-CRD-007: 5+ card-not-present transactions within 2 hours from new merchants",
+    "risk_score": 0.91,
+    "priority": "critical",
+    "sla_deadline": "2026-02-25T14:14:00Z"
+  },
+
+  "get_member": {
+    "member_id": "M-40115643",
+    "full_name": "Lisa Okafor-Chen",
+    "date_of_birth": "1985-09-14",
+    "ssn_masked": "***-**-8832",
+    "address": "12204 Fairfax Station Road, Fairfax Station, VA 22039",
+    "phone": "(703) 555-0277",
+    "email": "lisa.okafor.chen@outlook.com",
+    "member_since": "2013-05-20",
+    "member_type": "dod_civilian",
+    "employer": "Department of Defense — OUSD(R&E)",
+    "title": "Senior Program Analyst, GS-14",
+    "annual_pay": 142000,
+    "clearance": "TS/SCI",
+    "risk_rating": "low"
+  },
+
+  "get_account": {
+    "account_number_masked": "****6714",
+    "account_type": "checking",
+    "product": "Flagship Checking",
+    "opened": "2013-05-20",
+    "status": "active",
+    "average_balance_6mo": 18750,
+    "avg_deposits_6mo": 9200,
+    "avg_withdrawals_6mo": 8800,
+    "primary_deposit_source": "direct_deposit_dfas_civilian",
+    "typical_merchants": ["Amazon", "Whole Foods", "Target", "Costco", "Shell", "Starbucks"],
+    "typical_transaction_range": [5, 350],
+    "geographic_pattern": "Northern Virginia / DC metro exclusively"
+  },
+
+  "get_card": {
+    "card_number_masked": "****4821",
+    "card_type": "visa_debit",
+    "product": "Visa Debit — Flagship",
+    "issued": "2025-01-15",
+    "expiry": "2028-01-31",
+    "last_legitimate_use": {
+      "date": "2026-02-24",
+      "time": "18:22",
+      "merchant": "Whole Foods Market #10422",
+      "location": "Fairfax, VA",
+      "amount": 87.34,
+      "method": "chip_insert"
+    },
+    "card_status": "active"
+  },
+
+  "get_triggering_activity": {
+    "suspicious_transactions": [
+      {"txn_id": "TXN-44801221", "date": "2026-02-25", "time": "01:41", "merchant": "GAMESTOP.COM", "amount": 299.99, "method": "card_not_present", "ip_geolocation": "Frankfurt, Germany", "avs_result": "partial_match", "cvv_result": "match", "3ds_result": "not_enrolled", "status": "approved"},
+      {"txn_id": "TXN-44801244", "date": "2026-02-25", "time": "01:48", "merchant": "STOCKX.COM", "amount": 489.00, "method": "card_not_present", "ip_geolocation": "Bucharest, Romania", "avs_result": "no_match", "cvv_result": "match", "3ds_result": "not_enrolled", "status": "approved"},
+      {"txn_id": "TXN-44801258", "date": "2026-02-25", "time": "01:55", "merchant": "BESTBUY.COM", "amount": 1049.99, "method": "card_not_present", "ip_geolocation": "Moscow, Russia", "avs_result": "partial_match", "cvv_result": "match", "3ds_result": "not_enrolled", "status": "approved"},
+      {"txn_id": "TXN-44801267", "date": "2026-02-25", "time": "02:03", "merchant": "NIKE.COM", "amount": 379.95, "method": "card_not_present", "ip_geolocation": "Frankfurt, Germany", "avs_result": "no_match", "cvv_result": "match", "3ds_result": "not_enrolled", "status": "approved"},
+      {"txn_id": "TXN-44801278", "date": "2026-02-25", "time": "02:11", "merchant": "SEPHORA.COM", "amount": 224.97, "method": "card_not_present", "ip_geolocation": "Jakarta, Indonesia", "avs_result": "no_match", "cvv_result": "match", "3ds_result": "not_enrolled", "status": "approved"},
+      {"txn_id": "TXN-44801289", "date": "2026-02-25", "time": "02:24", "merchant": "APPLE.COM/STORE", "amount": 1299.00, "method": "card_not_present", "ip_geolocation": "Bucharest, Romania", "avs_result": "partial_match", "cvv_result": "match", "3ds_result": "challenged_failed", "status": "declined"},
+      {"txn_id": "TXN-44801295", "date": "2026-02-25", "time": "02:28", "merchant": "WALMART.COM", "amount": 544.02, "method": "card_not_present", "ip_geolocation": "Moscow, Russia", "avs_result": "no_match", "cvv_result": "not_provided", "3ds_result": "not_enrolled", "status": "declined"}
+    ],
+    "total_approved": 2443.90,
+    "total_declined": 1843.02
+  },
+
+  "get_transactions": {
+    "transactions": [
+      {"txn_id": "TXN-44762100", "date": "2026-02-22", "type": "direct_deposit", "amount": 5461.54, "description": "DFAS-CL CIVILIAN PAY", "running_balance": 19215.88},
+      {"txn_id": "TXN-44774100", "date": "2026-02-23", "type": "debit_card", "amount": -312.47, "description": "COSTCO WHOLESALE #232", "running_balance": 18858.19},
+      {"txn_id": "TXN-44778900", "date": "2026-02-23", "type": "ach_debit", "amount": -2100.00, "description": "MORTGAGE PMT NFCU LOAN", "running_balance": 16758.19},
+      {"txn_id": "TXN-44790100", "date": "2026-02-24", "type": "debit_card", "amount": -87.34, "description": "WHOLE FOODS #10422 FAIRFAX", "running_balance": 16670.85},
+      {"txn_id": "TXN-44801221", "date": "2026-02-25", "type": "debit_card", "amount": -299.99, "description": "GAMESTOP.COM", "running_balance": 16370.86},
+      {"txn_id": "TXN-44801244", "date": "2026-02-25", "type": "debit_card", "amount": -489.00, "description": "STOCKX.COM", "running_balance": 15881.86},
+      {"txn_id": "TXN-44801258", "date": "2026-02-25", "type": "debit_card", "amount": -1049.99, "description": "BESTBUY.COM", "running_balance": 14831.87},
+      {"txn_id": "TXN-44801267", "date": "2026-02-25", "type": "debit_card", "amount": -379.95, "description": "NIKE.COM", "running_balance": 14451.92},
+      {"txn_id": "TXN-44801278", "date": "2026-02-25", "type": "debit_card", "amount": -224.97, "description": "SEPHORA.COM", "running_balance": 14226.95}
+    ]
+  },
+
+  "get_compromise_assessment": {
+    "likely_vector": "card_number_theft",
+    "evidence": "CVV matches on all attempts suggest full card data compromised (PAN + expiry + CVV). Last legit use was chip insert — physical card not stolen. Likely source: online merchant breach, phishing, or skimmer with CVV camera.",
+    "member_contacted": false,
+    "card_on_person": "unknown"
+  },
+
+  "get_prior_alerts": {
+    "prior_alerts": [],
+    "prior_fraud_claims": []
+  },
+
+  "get_reg_e_info": {
+    "notification_deadline": "Within 1 business day of determining unauthorized EFT",
+    "provisional_credit_deadline": "10 business days from member notification",
+    "member_liability": "$0 if reported within 2 business days of learning of loss",
+    "total_unauthorized_amount": 2443.90,
+    "total_declined_amount": 1843.02,
+    "net_loss_exposure": 2443.90
+  },
+
+  "_meta": {
+    "scenario": "card_fraud_cnp_burst",
+    "difficulty": "easy",
+    "design_notes": "Clear-cut unauthorized CNP burst. Geographic impossibility, foreign IPs, CVV match + AVS fail, 2 AM activity. Tests efficient handling of high-confidence cases.",
+    "ground_truth": {
+      "fraud_type": "card_fraud",
+      "determination": "fraud_confirmed",
+      "loss_exposure": 2443.90
+    }
+  }
+}

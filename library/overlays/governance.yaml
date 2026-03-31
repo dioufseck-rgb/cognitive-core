@@ -1,0 +1,49 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Overlay: governance
+#
+# Applied to: every pattern (declared automatically)
+#
+# What it does: Ensures every workflow produces a governed disposition —
+# a tier assignment (AUTO / SPOT_CHECK / GATE / HOLD), a typed work order
+# for the appropriate human or automated handler, and an accountability chain.
+#
+# In v1 this overlay is pre-composed into every pattern's govern step.
+# The domain scaffold supplies the governance_context parameter that
+# determines tier logic. In v2 the composer will inject this as a
+# declared overlay rather than a pre-composed step.
+#
+# Domain scaffold parameter:
+#   govern_<step_name>.governance_context: |
+#     AUTO when: <condition>
+#     SPOT_CHECK when: <condition>
+#     GATE when: <condition>
+#     HOLD when: <condition>
+#
+# Governance tiers:
+#   AUTO        Fully automated. No human review. Suitable for routine,
+#               high-confidence, low-consequence decisions.
+#
+#   SPOT_CHECK  Automated with sampled post-completion review. Suitable
+#               for standard decisions where quality monitoring is
+#               required but per-case review is not.
+#
+#   GATE        Mandatory human review before any action executes.
+#               Suitable for high-risk, regulated, or ambiguous decisions.
+#
+#   HOLD        Compliance hold before finalisation. Suitable for decisions
+#               with active regulatory exposure, litigation risk, or
+#               mandatory reporting requirements.
+#
+# Tier escalation is strictly upward. A tier set by the govern primitive
+# cannot be de-escalated by the coordinator. Once established, the tier
+# is locked for the life of the decision instance.
+# ─────────────────────────────────────────────────────────────────────────────
+
+overlay: governance
+version: "1.0"
+applies_to: all_patterns
+injection: pre_composed  # v1: baked into pattern govern step. v2: injected by composer.
+
+description: >
+  Ensures every workflow produces a governed disposition with tier assignment,
+  typed work order, and accountability chain. Always applied.

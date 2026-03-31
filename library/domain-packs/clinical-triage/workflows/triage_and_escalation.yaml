@@ -1,0 +1,108 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern P06 — Triage and Escalation
+#
+# Purpose: Assess urgency and severity, prioritise the case, produce a
+# response or briefing artifact, and govern escalation.
+#
+# Typical outcome: A prioritised case with severity tier, next-owner
+# assignment, and a communication or briefing artifact (script, response,
+# routing notification).
+#
+# When to use this pattern:
+#   - The institution must produce a response or briefing in every case.
+#   - Most cases take a simple path; investigation fires only for
+#     high-severity classifications.
+#   - The output is a communication to a person, not just a routing decision.
+#     (For pure routing with no communication artifact, use P01 instead.)
+#
+# Key structural feature — conditional investigation:
+#   The investigate step fires only when the classification meets the
+#   severity condition defined in domain.classify_severity.investigate_condition.
+#   Simple cases: classify → generate → govern
+#   Complex cases: classify → investigate → generate → govern
+#
+# Domain scaffold supplies:
+#   - retrieve_context.specification (optional — leave blank if no retrieval)
+#   - classify_severity.categories and criteria (severity tiers)
+#   - classify_severity.investigate_condition (when to trigger investigation)
+#   - investigate_situation.scope and effort_level (what to analyse)
+#   - generate_response.format and requirements (output artifact format)
+#   - govern_escalation.governance_context (when each tier applies)
+#
+# Coordinator template: simple.yaml (default)
+#   fire-and-forget.yaml when escalation triggers an independent handler
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: triage_and_escalation
+description: >
+  Retrieve context if needed, classify severity, investigate complex cases,
+  generate a response or briefing artifact, and govern escalation routing.
+  Investigation is conditional on severity classification — most cases
+  proceed directly from classify to generate.
+
+steps:
+  - name: retrieve_context
+    primitive: retrieve
+    params:
+      specification: "${domain.retrieve_context.specification}"
+      strategy: deterministic
+    transitions:
+      - default: classify_severity
+    # Skip this step entirely if retrieve_context.specification is blank.
+    # In v2 the composer will handle skip_if_blank. In v1, leave the
+    # specification empty and the retrieve primitive returns an empty result.
+
+  - name: classify_severity
+    primitive: classify
+    temperature: 0.0
+    params:
+      categories: "${domain.classify_severity.categories}"
+      criteria: |
+        ${domain.classify_severity.input_context}
+        ${domain.classify_severity.criteria}
+    transitions:
+      # Investigate fires only when severity meets the condition.
+      # All other classifications go directly to response generation.
+      - when: "${domain.classify_severity.investigate_condition}"
+        goto: investigate_situation
+      - default: generate_response
+
+  - name: investigate_situation
+    primitive: investigate
+    params:
+      question: "${domain.investigate_situation.question}"
+      scope: "${domain.investigate_situation.scope}"
+      available_evidence: |
+        Severity classification: ${classify_severity.category}
+        Classification reasoning: ${classify_severity.reasoning}
+        Context: ${retrieve_context.data}
+        Input: ${input}
+      effort_level: "${domain.investigate_situation.effort_level}"
+    transitions:
+      - default: generate_response
+
+  - name: generate_response
+    primitive: generate
+    params:
+      requirements: |
+        Generate the appropriate response or briefing for this case.
+
+        Severity: ${classify_severity.category}
+        Confidence: ${classify_severity.confidence}
+        Investigation findings: ${investigate_situation.finding}
+
+        ${domain.generate_response.requirements}
+      format: "${domain.generate_response.format}"
+      constraints: "${domain.generate_response.constraints}"
+    transitions:
+      - default: govern_escalation
+
+  - name: govern_escalation
+    primitive: govern
+    params:
+      workflow_state: |
+        severity_tier: ${classify_severity.category}
+        severity_confidence: ${classify_severity.confidence}
+        investigation_ran: ${investigate_situation.finding}
+        response_generated: true
+      governance_context: "${domain.govern_escalation.governance_context}"

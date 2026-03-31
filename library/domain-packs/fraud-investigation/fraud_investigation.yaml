@@ -1,0 +1,77 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Edit this file to supply your domain knowledge.
+# Domain Pack: Fraud Investigation
+# Pattern:     P05 — Investigation and Reporting
+# Overlays:    adversarial (via case resolution workflow), governance
+# Coordinator: parallel-handlers
+#              (specialist investigation fires regulatory review +
+#               case resolution in parallel, resumes at generate_final_report)
+#
+# What this pack does:
+#   Structured investigation of a fraud case. A triage workflow classifies
+#   fraud type and routes to a specialty investigation. The specialty
+#   investigation retrieves evidence, investigates the fraud pattern,
+#   deliberates on the determination, and fires two parallel handlers:
+#   regulatory review (SAR/compliance) and case resolution (adversarial
+#   challenge, member notification, case summary). Resumes at report generation
+#   when both handlers return.
+#
+# Workflow structure:
+#   fraud_triage          → classifies fraud type, routes to specialist
+#   fraud_specialty_investigation  → P05 core, fires parallel handlers
+#   fraud_regulatory_review        → handler: SAR determination
+#   fraud_case_resolution          → handler: challenge + notification + summary
+#
+# What you fill in per fraud type (check_fraud, card_fraud, app_scam_fraud):
+#   - investigate_activity.scope: fraud-type-specific investigation questions
+#   - deliberate_determination.framework: determination criteria for this type
+#
+# This pack ships with three domain variants already filled in for a
+# financial institution context (NFCU-style). Adapt category definitions,
+# regulatory references, and member terminology to your institution.
+# ─────────────────────────────────────────────────────────────────────────────
+
+domain_name: fraud_investigation
+base_pattern: P05-investigation-and-reporting
+overlays:
+  - governance
+coordinator_template: parallel-handlers
+
+# ─── Retrieve step ───────────────────────────────────────────────────────────
+# Evidence specification shared across fraud types.
+# Type-specific evidence (get_reg_e_info, get_scam_indicators, etc.)
+# is retrieved conditionally based on fraud_type in the input.
+
+retrieve_evidence:
+  specification: |
+    Retrieve all available evidence for this fraud case.
+
+    Required for all fraud types:
+      - get_alert: Alert details and monitoring rule that triggered this case
+      - get_member: Member profile, demographics, employment, risk rating
+      - get_account: Account history, balances, transaction patterns
+      - get_triggering_activity: The specific activity that triggered the alert
+      - get_transactions: Recent transaction history (last 90 days)
+      - get_prior_alerts: Prior fraud alerts and claims for this member
+
+    Retrieve if available (based on fraud_type):
+      Card fraud:
+        - get_card: Card details and last legitimate use
+        - get_compromise_assessment: Compromise vector analysis
+        - get_reg_e_info: Reg E applicability, member liability, deadlines
+
+      Check fraud:
+        - get_maker_verification: Maker bank status, account legitimacy
+        - get_reg_cc_info: Reg CC hold information if applicable
+
+      APP scam / authorised push payment:
+        - get_scam_indicators: Social engineering indicators, communication records
+        - get_recovery_assessment: Recovery probability, recall options
+
+# ─── Investigation parameters are defined per fraud type in domain variants ──
+# See: domains/card_fraud.yaml, check_fraud.yaml, app_scam_fraud.yaml
+
+# ─── Coordinator: parallel handlers ──────────────────────────────────────────
+# The specialty investigation fires regulatory_review and case_resolution
+# in parallel after deliberation. Both must return before generate_final_report.
+# Configuration lives in coordinator_config.yaml — update queue names and SLAs.

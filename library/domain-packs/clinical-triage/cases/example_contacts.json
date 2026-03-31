@@ -1,0 +1,50 @@
+[
+  {
+    "_id": "TRIAGE-001",
+    "_description": "Emergent — chest pain with diaphoresis",
+    "_expected": "emergent → investigate → 911 dispatch script → HOLD for clinician",
+    "chief_complaint": "Chest pain",
+    "symptoms": "Crushing chest pressure radiating to left arm for 20 minutes. Sweating. Nausea. Short of breath.",
+    "duration": "20 minutes, onset sudden",
+    "patient_age": 58,
+    "pain_level": "8/10",
+    "relevant_history": "Hypertension, type 2 diabetes, smoker 20 years. Father had MI at 61.",
+    "vitals": "Patient reports feeling dizzy. No BP reading available."
+  },
+  {
+    "_id": "TRIAGE-002",
+    "_description": "Urgent — high fever in toddler",
+    "_expected": "urgent → investigate → ED within 1 hour script → GATE for clinician",
+    "chief_complaint": "High fever, not acting right",
+    "symptoms": "Fever 104.2F for 6 hours. Not eating or drinking. More lethargic than usual. No rash. No stiff neck reported.",
+    "duration": "6 hours",
+    "patient_age": 18,
+    "pain_level": "Unable to assess — toddler",
+    "relevant_history": "No significant history. Up to date on vaccines.",
+    "vitals": "Temp 104.2F. HR appears elevated per parent."
+  },
+  {
+    "_id": "TRIAGE-003",
+    "_description": "Semi-urgent — UTI symptoms",
+    "_expected": "semi-urgent → same-day appointment → SPOT_CHECK",
+    "chief_complaint": "Burning with urination",
+    "symptoms": "Burning and frequent urination for 2 days. Mild lower abdominal discomfort. No fever. No back pain.",
+    "duration": "2 days",
+    "patient_age": 34,
+    "pain_level": "3/10",
+    "relevant_history": "Two prior UTIs in last 3 years. No known allergies.",
+    "vitals": "None reported."
+  },
+  {
+    "_id": "TRIAGE-004",
+    "_description": "Non-urgent — mild cold symptoms",
+    "_expected": "non-urgent → self-care guidance → SPOT_CHECK",
+    "chief_complaint": "Cold symptoms",
+    "symptoms": "Runny nose, mild sore throat, sneezing for 3 days. No fever. No difficulty swallowing. No ear pain.",
+    "duration": "3 days",
+    "patient_age": 29,
+    "pain_level": "1/10",
+    "relevant_history": "No significant history.",
+    "vitals": "None reported."
+  }
+]

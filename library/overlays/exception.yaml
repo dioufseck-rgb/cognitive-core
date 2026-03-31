@@ -1,0 +1,84 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Overlay: exception
+#
+# Applied to: P02, P07, P08, P11
+#
+# What it injects:
+#   A conditional branch from the Verify or Classify step into an
+#   exception-handling path. The exception path adds an investigation
+#   of the deviation and a deliberation on whether compensating controls
+#   justify the exception.
+#
+# When to apply:
+#   - A standard rule does not fully fit the case
+#   - Deviation from policy may be justified with evidence and controls
+#   - Non-standard approvals are required
+#   - The exception path needs its own audit trail separate from the
+#     standard path
+#
+# Domain scaffold parameters required when this overlay is declared:
+#   exception:
+#     trigger_condition: |
+#       [When does the exception path fire?]
+#       e.g. verify_compliance.conforms == false and
+#            deliberate_recommendation.recommended_action == 'approve'
+#     scope: |
+#       [What does the exception investigation examine?]
+#       e.g. What compensating controls exist?
+#            What is the business justification for the deviation?
+#            What is the risk if the exception is granted?
+#     compensating_controls: |
+#       [What controls would mitigate the policy deviation?]
+#     approval_required: true | false
+#     approval_lane: |
+#       [Who must approve the exception?]
+#       e.g. Credit Policy Officer, Compliance Director
+#
+# In v1 this overlay is declared in the domain scaffold and pre-composed
+# into patterns that support it. In v2 the composer injects it automatically.
+# ─────────────────────────────────────────────────────────────────────────────
+
+overlay: exception
+version: "1.0"
+applies_to: [P02, P07, P08, P11]
+injection: pre_composed
+
+inject_after: verify_compliance
+trigger: "${domain.exception.trigger_condition}"
+
+step_template:
+  name: investigate_exception
+  primitive: investigate
+  params:
+    question: |
+      This case does not conform to standard policy.
+      Investigate whether an exception is justified.
+    scope: "${domain.exception.scope}"
+    available_evidence: |
+      Standard path result: ${verify_compliance.conforms}
+      Violations: ${verify_compliance.violations}
+      Recommendation: ${deliberate_recommendation.recommended_action}
+      Warrant: ${deliberate_recommendation.warrant}
+  transitions:
+    - default: deliberate_exception
+
+  name: deliberate_exception
+  primitive: deliberate
+  params:
+    instruction: |
+      Determine whether this exception should be approved.
+
+      Policy deviation: ${verify_compliance.violations}
+      Exception investigation: ${investigate_exception.finding}
+      Compensating controls available: ${domain.exception.compensating_controls}
+
+      Options: approve_exception | deny_exception | escalate_for_approval
+    focus: |
+      Weight: strength of business justification, adequacy of compensating
+      controls, regulatory risk of granting the exception.
+
+description: >
+  Injects an exception-handling path when standard policy conformance fails
+  but the recommendation is still approval. Investigates the deviation,
+  deliberates on whether compensating controls justify the exception, and
+  routes to the approval lane if required.

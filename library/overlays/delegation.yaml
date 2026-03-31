@@ -1,0 +1,52 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Overlay: delegation
+#
+# Applied to: any pattern using a multi-workflow coordinator template
+#
+# What it does:
+#   Activates the coordinator template's delegation wiring. When declared,
+#   the domain scaffold must also declare a coordinator_template other than
+#   simple.yaml, and must supply the coordinator section with handler
+#   definitions, trigger conditions, and input mappings.
+#
+# This overlay does not inject a workflow step. It signals to the composer
+# that the domain scaffold's coordinator section should be activated and
+# wired to the pattern's govern or deliberate step.
+#
+# When to apply:
+#   - The decision requires specialised evidence or assessment from a
+#     separate workflow or queue
+#   - The primary workflow cannot finalise without a handler result
+#     (use wait-for-result or parallel-handlers coordinator template)
+#   - A downstream process should fire independently after the primary
+#     completes (use fire-and-forget coordinator template)
+#
+# Domain scaffold parameters required when this overlay is declared:
+#
+#   coordinator_template: parallel-handlers  # or wait-for-result, fire-and-forget
+#
+#   coordinator:
+#     handlers:
+#       - name: <handler_name>
+#         pattern: <pattern_id>           # e.g. P07-compliance-and-conformance
+#         domain: <domain_file.yaml>      # domain scaffold for the handler
+#         mode: wait-for-result           # or fire-and-forget
+#         trigger: "<condition>"          # when does this handler fire?
+#         resume_at: <step_name>          # which step does primary resume at?
+#         inputs:                         # what data does the handler receive?
+#           <key>: "${source.<path>}"
+#
+# See coordinator-templates/ for the complete template definitions.
+# ─────────────────────────────────────────────────────────────────────────────
+
+overlay: delegation
+version: "1.0"
+applies_to: all_patterns
+injection: coordinator_activation  # activates coordinator template, no step injected
+
+description: >
+  Activates multi-workflow delegation. When declared, the domain scaffold
+  must specify a multi-workflow coordinator template (not simple.yaml) and
+  fill in the coordinator section with handler definitions. The overlay
+  itself does not inject a workflow step — it signals the composer to wire
+  the coordinator template to the pattern's execution.

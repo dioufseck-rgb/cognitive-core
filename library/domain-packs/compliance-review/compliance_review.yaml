@@ -1,0 +1,192 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Edit this file to supply your domain knowledge.
+# Domain Pack: Compliance Review
+# Pattern:     P07 — Compliance and Conformance Review
+# Overlays:    exception, governance
+# Coordinator: simple (wait-for-result when legal review required)
+#
+# What this pack does:
+#   Reviews whether a case, action, artifact, or business process conforms
+#   to policy, regulation, or statute. Retrieves the relevant record,
+#   verifies against explicit rules immediately (early exit for clean
+#   conformance), investigates when conformance is ambiguous or violations
+#   require deeper analysis, and produces a compliance memo with violations
+#   documented and remediation requirements specified.
+#
+# Applicable to:
+#   Banking compliance (fair lending, BSA, model governance)
+#   Insurance compliance (claims handling, state filings)
+#   Healthcare compliance (HIPAA, clinical documentation)
+#   Policy self-assessments, vendor compliance, contract review
+#
+# What you fill in:
+#   - gather_subject: what record or artifact to retrieve
+#   - verify_conformance: your explicit rules, numbered
+#   - investigate_violations: what to analyse when rules fail
+#   - deliberate_finding: your finding options and criteria
+#   - generate_memo: your compliance memo format and required sections
+#   - govern_outcome: when each governance tier applies
+# ─────────────────────────────────────────────────────────────────────────────
+
+domain_name: compliance_review
+base_pattern: P07-compliance-and-conformance
+overlays:
+  - exception
+  - governance
+coordinator_template: simple
+
+# ─── Step: gather_subject ────────────────────────────────────────────────────
+# Retrieve the record, artifact, or case being reviewed.
+# Examples: a loan decision and its supporting data, a contract,
+# a policy self-assessment, a claims handling record.
+
+gather_subject:
+  specification: |
+    Retrieve the subject of this compliance review:
+      - get_decision_record: The decision being reviewed and its audit trail
+      - get_applicant_data: Relevant applicant or entity data
+      - get_supporting_documentation: Documentation submitted with the decision
+      - get_policy_version: The policy version in effect at time of decision
+      - get_prior_findings: Any prior compliance findings on this entity or case
+
+    Retrieve only what is available — compliance review proceeds on
+    whatever documentation has been provided.
+
+# ─── Step: verify_conformance ────────────────────────────────────────────────
+# Your explicit rules, numbered. Each rule must be checkable from the
+# retrieved record. Number them — violation reports reference rule numbers.
+#
+# early_exit_condition: when to skip investigation and go directly to memo.
+# Typically: full conformance with no ambiguity.
+
+verify_conformance:
+  rules: |
+    The following rules must ALL be satisfied for full conformance:
+
+    1. DOCUMENTATION: The decision is supported by documentation adequate
+       to explain the outcome to a regulator or examiner.
+
+    2. CONSISTENCY: The decision is consistent with similarly-situated
+       cases in the record (no unexplained disparate treatment).
+
+    3. POLICY COMPLIANCE: The decision follows the applicable policy
+       version in effect at the time it was made.
+
+    4. PROHIBITED BASIS: The decision does not rely on any factor
+       prohibited by applicable law or regulation.
+
+    5. PROCESS COMPLIANCE: Required process steps were completed
+       (e.g. required reviews, approvals, disclosures).
+
+    6. RECORD INTEGRITY: The audit trail is complete and unaltered.
+       All required fields are present and internally consistent.
+
+  # Context injected into what the rules are checked against
+  subject_context: |
+    Case or artifact under review: ${input.subject_description}
+    Decision type: ${input.decision_type}
+    Decision date: ${input.decision_date}
+    Entity: ${input.entity_name}
+
+  # Skip investigation and go directly to memo generation when:
+  # all rules conform and there is no ambiguity
+  early_exit_condition: "output.conforms == true and len(output.violations) == 0"
+
+# ─── Step: investigate_violations ────────────────────────────────────────────
+# Fires when verify finds violations or ambiguity.
+# Define the scope of investigation — what questions must be answered.
+
+investigate_violations:
+  scope: |
+    1. Which rules were violated and what specifically is non-conforming?
+    2. Is the violation technical (process) or substantive (outcome)?
+    3. What is the severity of the violation — material or minor?
+    4. Is there a pattern or is this an isolated instance?
+    5. Are there mitigating circumstances or compensating controls?
+    6. What remediation is required to achieve conformance?
+    7. Are there regulatory reporting obligations triggered by this finding?
+    8. What is the risk to the institution if this violation is not remediated?
+
+  effort_level: moderate
+
+# ─── Step: deliberate_finding ────────────────────────────────────────────────
+# Produce a compliance finding with remediation requirements.
+
+deliberate_finding:
+  instruction: |
+    Produce a compliance finding based on the verification and investigation.
+
+    Your finding options are:
+      - conforms: Fully conforms to all applicable rules
+      - conforms_with_observations: Conforms but with process gaps to address
+      - minor_violation: Non-conformance identified, low regulatory risk
+      - material_violation: Non-conformance with significant regulatory risk
+      - critical_violation: Non-conformance requiring immediate remediation
+        and possible regulatory notification
+
+    The warrant must:
+    - Cite specific rule numbers from the conformance check
+    - Explain the logical connection between the evidence and the finding
+    - Specify required remediation actions with accountability
+
+  focus: |
+    Weight findings by:
+    - Regulatory exposure: would a regulator find this a violation?
+    - Systemic risk: is this isolated or indicative of a pattern?
+    - Materiality: does this affect outcomes for affected parties?
+    - Remediation feasibility: can this be corrected and how quickly?
+
+# ─── Step: generate_memo ─────────────────────────────────────────────────────
+
+generate_memo:
+  format: compliance_memo
+
+  requirements: |
+    Generate a compliance memo suitable for examiner review.
+
+    Required sections:
+    1. SUBJECT — what was reviewed, by whom, and when
+    2. SCOPE — which rules and policies were applied
+    3. FINDINGS — conformance result and finding level
+    4. VIOLATIONS — each violation cited with rule reference,
+       description of the non-conforming element, and severity
+    5. REMEDIATION REQUIREMENTS — specific actions required,
+       responsible party, and deadline
+    6. OBSERVATIONS — process gaps or risks below the violation
+       threshold that should be addressed
+    7. CONCLUSION — overall compliance determination
+
+  constraints: |
+    - Cite rule numbers for every violation
+    - Do not soften material violations with hedging language
+    - Remediation requirements must be specific and actionable
+    - Distinguish between violations and observations explicitly
+
+# ─── Step: govern_outcome ────────────────────────────────────────────────────
+
+govern_outcome:
+  governance_context: |
+    AUTO — Not appropriate for compliance review. All findings require
+    at minimum spot-check review.
+
+    SPOT_CHECK — when:
+    - Finding is conforms or conforms_with_observations
+    - No violations identified, confidence >= 0.85
+
+    GATE (compliance officer review before memo is issued) — when:
+    - Any violation identified (minor or above)
+    - Ambiguous conformance requiring judgment
+    - First review of a new entity or case type
+    - Confidence in finding < 0.75
+
+    HOLD (senior compliance / legal review) — when:
+    - Material or critical violation found
+    - Potential regulatory notification required
+    - Pattern of violations across multiple cases
+    - Legal privilege considerations apply
+
+    Work order must include:
+    - Finding level and key violations
+    - Specific regulatory provisions at risk
+    - Draft memo for review
+    - Recommended disposition (issue memo / escalate / notify regulator)

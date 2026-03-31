@@ -1,0 +1,121 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern P02 — Eligibility Determination
+#
+# Purpose: Determine whether an entity, request, or case qualifies under
+# explicit criteria. Produces a warranted eligibility decision.
+#
+# Typical outcome: Eligible / conditionally eligible / ineligible / needs
+# more information — with a documented warrant traceable to evidence and rules.
+#
+# When to use this pattern:
+#   - An entity claims eligibility for something (loan, benefit, coverage,
+#     membership, access, qualification).
+#   - The decision must be traceable to specific evidence and explicit rules
+#     (ECOA, FCRA, coverage terms, program criteria).
+#   - A wrong decision has material consequences — regulatory, financial,
+#     or reputational.
+#   - For decisions outside standard criteria, add the exception overlay.
+#   - For high-risk cases requiring deeper analysis, the investigate step
+#     fires conditionally — configure the transition condition in the scaffold.
+#
+# Domain scaffold supplies:
+#   - gather_application.specification (what data to retrieve)
+#   - classify_risk.categories and criteria (risk or eligibility tiers)
+#   - classify_risk.high_risk_condition (transition condition to investigate)
+#   - classify_risk.ineligible_condition (transition condition to skip deliberate)
+#   - investigate_risk_factors.scope (what to analyse for edge cases)
+#   - deliberate_recommendation.instruction and focus (outcome space + criteria)
+#   - verify_compliance.rules (regulatory and policy rules to check)
+#   - govern_decision.governance_context (when each tier applies)
+#
+# Coordinator template: simple.yaml (default)
+#   wait-for-result.yaml when specialist review required for edge cases
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: eligibility_determination
+description: >
+  Retrieve applicant or entity data, classify against eligibility tiers,
+  investigate edge cases for high-risk profiles, deliberate on a warranted
+  recommendation, verify regulatory and policy compliance, and govern
+  the final disposition.
+
+steps:
+  - name: gather_application
+    primitive: retrieve
+    params:
+      specification: "${domain.gather_application.specification}"
+      strategy: deterministic
+    transitions:
+      - default: classify_risk
+
+  - name: classify_risk
+    primitive: classify
+    temperature: 0.0
+    params:
+      categories: "${domain.classify_risk.categories}"
+      criteria: |
+        ${domain.classify_risk.input_context}
+        ${domain.classify_risk.criteria}
+    transitions:
+      # High-risk: investigate before deliberating.
+      # Ineligible: skip deliberation, go straight to compliance check.
+      # All others: deliberate directly.
+      - when: "${domain.classify_risk.high_risk_condition}"
+        goto: investigate_risk_factors
+      - when: "${domain.classify_risk.ineligible_condition}"
+        goto: verify_compliance
+      - default: deliberate_recommendation
+
+  - name: investigate_risk_factors
+    primitive: investigate
+    params:
+      question: |
+        What are the specific risk factors and are there mitigating circumstances?
+      scope: "${domain.investigate_risk_factors.scope}"
+      available_evidence: |
+        Application data: ${gather_application.data}
+        Risk classification: ${classify_risk.category}
+        Classification reasoning: ${classify_risk.reasoning}
+      effort_level: "${domain.investigate_risk_factors.effort_level}"
+    transitions:
+      - default: deliberate_recommendation
+
+  - name: deliberate_recommendation
+    primitive: deliberate
+    params:
+      instruction: |
+        Based on the retrieved data and risk classification, determine
+        the appropriate recommendation.
+
+        Risk classification: ${classify_risk.category}
+        Classification reasoning: ${classify_risk.reasoning}
+        Investigation findings: ${investigate_risk_factors.finding}
+
+        ${domain.deliberate_recommendation.instruction}
+      focus: "${domain.deliberate_recommendation.focus}"
+    transitions:
+      - default: verify_compliance
+
+  - name: verify_compliance
+    primitive: verify
+    temperature: 0.0
+    params:
+      rules: "${domain.verify_compliance.rules}"
+      subject: |
+        Recommendation: ${deliberate_recommendation.recommended_action}
+        Risk tier: ${classify_risk.category}
+        ${domain.verify_compliance.subject_context}
+    transitions:
+      - default: govern_decision
+
+  - name: govern_decision
+    primitive: govern
+    params:
+      workflow_state: |
+        risk_tier: ${classify_risk.category}
+        recommendation: ${deliberate_recommendation.recommended_action}
+        warrant: ${deliberate_recommendation.warrant}
+        compliance_conforms: ${verify_compliance.conforms}
+        compliance_violations: ${verify_compliance.violations}
+        ${domain.govern_decision.additional_state}
+      governance_context: "${domain.govern_decision.governance_context}"

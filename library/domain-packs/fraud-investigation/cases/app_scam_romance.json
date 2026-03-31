@@ -1,0 +1,147 @@
+{
+  "case_id": "FRD-2026-00902",
+  "alert_id": "ALT-2026-7201",
+  "alert_type": "authorized_push_payment_scam",
+  "fraud_type": "app_scam",
+  "risk_score": 0.78,
+  "description": "Member reported sending $18,500 via two wire transfers and one Zelle payment to an individual met on Facebook over 6 weeks. Romance scam pattern. Member is 67, widowed, lives alone.",
+
+  "get_alert": {
+    "alert_id": "ALT-2026-7201",
+    "generated_at": "2026-02-26T14:45:00Z",
+    "alert_type": "authorized_push_payment_scam",
+    "alert_source": "member_reported",
+    "monitoring_rule": "RULE-APP-003: Member-reported scam with wire/Zelle to unrelated individual exceeding $5,000",
+    "risk_score": 0.78,
+    "priority": "high",
+    "sla_deadline": "2026-02-27T14:45:00Z"
+  },
+
+  "get_member": {
+    "member_id": "M-40387219",
+    "full_name": "Robert Tran",
+    "date_of_birth": "1958-11-03",
+    "ssn_masked": "***-**-5561",
+    "address": "8601 Maple Shade Court, Pensacola, FL 32526",
+    "phone": "(850) 555-0341",
+    "email": "rtran58@yahoo.com",
+    "member_since": "1994-02-15",
+    "member_type": "retired_military",
+    "branch_affiliation": "Navy",
+    "rank_retired": "O-5 / Commander",
+    "retirement_date": "2010-09-30",
+    "pension_monthly": 5840,
+    "va_disability_monthly": 1420,
+    "marital_status": "widowed",
+    "spouse_deceased": "2024-03-15",
+    "lives_alone": true,
+    "risk_rating": "low"
+  },
+
+  "get_account": {
+    "account_number_masked": "****9103",
+    "account_type": "checking",
+    "product": "Flagship Checking",
+    "opened": "1994-02-15",
+    "status": "active",
+    "average_balance_6mo": 42300,
+    "avg_deposits_6mo": 7800,
+    "avg_withdrawals_6mo": 5200,
+    "primary_deposit_source": "direct_deposit_dfas_retired",
+    "zelle_history": "0-1 per month, always to known contacts",
+    "wire_history": "0 wires in past 24 months"
+  },
+
+  "get_triggering_activity": {
+    "scam_type": "romance_scam",
+    "contact_platform": "Facebook",
+    "first_contact_date": "2026-01-12",
+    "scammer_persona": {
+      "name_used": "Catherine Williams",
+      "claimed_identity": "Retired Navy nurse, widowed",
+      "profile_created": "2025-12-28",
+      "profile_indicators": "minimal friends, stock photos identified"
+    },
+    "escalation_timeline": [
+      {"date": "2026-01-12", "event": "Initial contact via Navy veterans group"},
+      {"date": "2026-01-20", "event": "Exchanged phone numbers, daily communication"},
+      {"date": "2026-02-10", "event": "Scammer reported daughter in car accident"},
+      {"date": "2026-02-12", "event": "First wire: $8,000"},
+      {"date": "2026-02-18", "event": "Scammer reported complications, insurance denied"},
+      {"date": "2026-02-19", "event": "Second wire: $7,500"},
+      {"date": "2026-02-23", "event": "Zelle: $3,000 for medication"},
+      {"date": "2026-02-25", "event": "Member suspicious, contacted daughter"},
+      {"date": "2026-02-26", "event": "Daughter identified scam, accompanied to branch"}
+    ],
+    "payments": [
+      {"txn_id": "TXN-44501100", "date": "2026-02-12", "type": "domestic_wire", "amount": 8000.00, "channel": "branch_initiated", "recipient_name": "Catherine M Williams", "recipient_bank": "Chime Financial", "status": "completed"},
+      {"txn_id": "TXN-44612200", "date": "2026-02-19", "type": "domestic_wire", "amount": 7500.00, "channel": "online_banking", "recipient_name": "Catherine Williams", "recipient_bank": "Cash App (Lincoln Savings Bank)", "status": "completed"},
+      {"txn_id": "TXN-44680900", "date": "2026-02-23", "type": "zelle_payment", "amount": 3000.00, "channel": "mobile_app", "recipient_identifier": "cwilliams_navy88@gmail.com", "status": "completed"}
+    ],
+    "total_loss": 18500.00
+  },
+
+  "get_transactions": {
+    "transactions": [
+      {"txn_id": "TXN-44401100", "date": "2026-02-01", "type": "direct_deposit", "amount": 5840.00, "description": "DFAS-CL RETIRED PAY", "running_balance": 44120.55},
+      {"txn_id": "TXN-44401200", "date": "2026-02-01", "type": "direct_deposit", "amount": 1420.00, "description": "VA DISABILITY COMPENSATION", "running_balance": 45540.55},
+      {"txn_id": "TXN-44450200", "date": "2026-02-05", "type": "ach_debit", "amount": -1650.00, "description": "MORTGAGE PMT NFCU LOAN", "running_balance": 43848.38},
+      {"txn_id": "TXN-44501100", "date": "2026-02-12", "type": "domestic_wire", "amount": -8000.00, "description": "WIRE TO CATHERINE M WILLIAMS", "running_balance": 35819.88},
+      {"txn_id": "TXN-44550100", "date": "2026-02-15", "type": "direct_deposit", "amount": 5840.00, "description": "DFAS-CL RETIRED PAY", "running_balance": 41659.88},
+      {"txn_id": "TXN-44612200", "date": "2026-02-19", "type": "domestic_wire", "amount": -7500.00, "description": "WIRE TO CATHERINE WILLIAMS", "running_balance": 35579.88},
+      {"txn_id": "TXN-44680900", "date": "2026-02-23", "type": "zelle_payment", "amount": -3000.00, "description": "ZELLE TO C WILLIAMS", "running_balance": 32579.88}
+    ]
+  },
+
+  "get_scam_indicators": {
+    "recipient_account_age": "Chime account opened 2026-01-05 — 38 days before first wire",
+    "recipient_pattern": "Multiple incoming wires from different senders — mule account indicators",
+    "social_media_analysis": "Profile photo reverse-image search matches stock photography site",
+    "communication_pattern": "Classic romance scam escalation: rapport → dependency → emergency → escalating requests",
+    "vulnerability_factors": [
+      "Recently widowed (March 2024)",
+      "Lives alone",
+      "Age 67 — elder fraud vulnerability",
+      "Military community trust exploitation",
+      "Isolation indicators"
+    ]
+  },
+
+  "get_recovery_assessment": {
+    "wire_1_recovery": "low — Chime account likely emptied within hours",
+    "wire_2_recovery": "very_low — Cash App accounts typically drain immediately",
+    "zelle_recovery": "none — Zelle payments are irrevocable",
+    "total_loss": 18500.00,
+    "recommended_actions": [
+      "Initiate wire recall requests immediately",
+      "File IC3 complaint",
+      "File FTC complaint",
+      "Contact local law enforcement for elder fraud report",
+      "Refer to Adult Protective Services",
+      "Connect member with fraud counseling"
+    ]
+  },
+
+  "get_prior_alerts": {
+    "prior_alerts": [],
+    "prior_fraud_claims": []
+  },
+
+  "get_reg_e_info": {
+    "applies": false,
+    "reason": "Reg E covers unauthorized EFTs. These were authorized by the member. No regulatory right to provisional credit.",
+    "voluntary_recovery_policy": "NFCU may attempt wire recalls as courtesy but is not obligated."
+  },
+
+  "_meta": {
+    "scenario": "app_scam_romance_elder",
+    "difficulty": "hard",
+    "design_notes": "Hardest case: Reg E doesn't apply (authorized), recovery probability near zero, vulnerable elder victim. Tests empathy, regulatory accuracy, and honest communication about recovery odds.",
+    "ground_truth": {
+      "fraud_type": "app_scam",
+      "determination": "fraud_confirmed",
+      "loss_exposure": 18500.00,
+      "reg_e_applies": false
+    }
+  }
+}

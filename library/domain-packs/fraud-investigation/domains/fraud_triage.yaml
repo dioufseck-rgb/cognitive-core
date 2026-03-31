@@ -1,0 +1,35 @@
+domain_name: fraud_triage
+governance: auto
+
+classify_alert_type:
+  categories: |
+    - check_fraud: Mobile deposit duplicates, altered checks, counterfeit instruments,
+      forged endorsements, check kiting. Key signals: duplicate MICR lines, image
+      similarity scores, cross-channel deposits of same check.
+    - card_fraud: Card-not-present unauthorized transactions, card skimming, account
+      testing. Key signals: transaction velocity anomalies, unfamiliar merchants,
+      geographic impossibility, compromised CVV usage.
+    - app_scam: Authorized push payment fraud where the member was socially engineered
+      into sending funds. Romance scams, tech support scams, impersonation scams.
+      Key signals: member-initiated payments to new recipients, escalating pattern,
+      wire/Zelle to fintech accounts, vulnerability indicators.
+    - unknown: Alert does not clearly match a known fraud typology.
+  criteria: |
+    Analyze the alert metadata, triggering transactions, and member context to
+    determine the fraud type. Consider:
+    - What channel triggered the alert (transaction monitoring vs member-reported)?
+    - What instruments are involved (checks, cards, wires, Zelle)?
+    - Was the activity authorized by the member or unauthorized?
+    IMPORTANT: Authorized push payments (member initiated but was deceived) are
+    fundamentally different from unauthorized transactions.
+
+assess_priority:
+  categories: |
+    - critical: Active ongoing fraud, large dollar exposure (>$10,000),
+      elder fraud indicators, member in distress.
+    - high: Confirmed unauthorized activity, moderate dollar exposure
+      ($2,000-$10,000), time-sensitive recovery window.
+    - standard: Lower dollar exposure, historical activity, no immediate urgency.
+  criteria: |
+    Assess based on: dollar exposure, whether fraud is ongoing,
+    member vulnerability factors, regulatory timeline pressure.

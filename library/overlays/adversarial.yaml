@@ -1,0 +1,66 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Overlay: adversarial
+#
+# Applied to: P02, P03, P05, P07, P08 (and any pattern where adversarial
+# testing is needed but is not the primary workflow objective)
+#
+# Note: P04 (Adversarial Review) is the standalone pattern for cases where
+# adversarial testing IS the primary objective. Use the overlay when
+# adversarial testing modifies another objective.
+#
+# What it injects:
+#   A Challenge step inserted after the Investigate step (or after Classify
+#   if there is no Investigate step), before the final Deliberate or Govern.
+#
+# When to apply:
+#   - Decision stakes are high and a formal counter-position is required
+#   - Fraud, abuse, or manipulation risk is present
+#   - Causal hypotheses need to be tested (root cause analysis)
+#   - The cost of acting on a flawed conclusion exceeds the cost of delay
+#
+# Domain scaffold parameters required when this overlay is declared:
+#   adversarial:
+#     perspective: |
+#       [Who is challenging the finding? Define the adversarial role clearly.]
+#       e.g. Defense attorney seeking exoneration
+#            Second-line underwriter applying stricter criteria
+#            Plaintiff's counsel challenging the denial
+#     threat_model: |
+#       [What would defeat the conclusion? List 3-5 specific vectors.]
+#       e.g. 1. Legitimate explanation for the observed pattern
+#            2. Insufficient evidence to meet the required threshold
+#            3. Alternative hypothesis not considered in investigation
+#            4. Procedural defect in evidence collection
+#
+# In v1 this overlay is declared in the domain scaffold and pre-composed
+# into patterns that support it. In v2 the composer injects it automatically.
+# ─────────────────────────────────────────────────────────────────────────────
+
+overlay: adversarial
+version: "1.0"
+applies_to: [P02, P03, P05, P07, P08]
+injection: pre_composed  # v1: declared in scaffold, baked into pattern variant.
+
+inject_after: investigate_activity  # or classify_content if no investigate step
+inject_before: deliberate_determination  # or govern_disposition if no deliberate step
+
+step_template:
+  name: challenge_finding
+  primitive: challenge
+  params:
+    perspective: "${domain.adversarial.perspective}"
+    threat_model: "${domain.adversarial.threat_model}"
+    subject: |
+      Finding: ${investigate_activity.finding}
+      Confidence: ${investigate_activity.confidence}
+      Evidence used: ${investigate_activity.evidence_used}
+      Preliminary determination: ${deliberate_determination.recommended_action}
+  transitions:
+    - default: deliberate_determination  # or govern_disposition
+
+description: >
+  Injects a Challenge step to adversarially test the investigation finding
+  before finalisation. The perspective and threat_model parameters define
+  the adversarial stance. The challenge result is available to the
+  deliberate step via ${challenge_finding.survives} and
+  ${challenge_finding.vulnerabilities}.
