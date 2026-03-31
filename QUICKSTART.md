@@ -6,9 +6,8 @@ Run a governed institutional AI workflow in five minutes.
 
 ## Prerequisites
 
-- Python 3.10+
-- an LLM API key
-
+- Python 3.11+
+- An API key from one of: Anthropic, OpenAI, or Google
 
 ---
 
@@ -17,14 +16,29 @@ Run a governed institutional AI workflow in five minutes.
 ```bash
 git clone https://github.com/dioufseck-rgb/cognitive-core.git
 cd cognitive-core
-pip install -e ".[dev]"
+pip install -e ".[runtime]"
 ```
+
+> **Note:** `[runtime]` installs all LLM providers. If you want a smaller install,
+> install only the provider you use:
+> `pip install -e . langchain-anthropic langgraph`  (Anthropic)
+> `pip install -e . langchain-openai langgraph`     (OpenAI)
+> `pip install -e . langchain-google-genai langgraph` (Google)
 
 ## 2. Set your API key
 
 ```bash
+# Anthropic (Claude)
 export ANTHROPIC_API_KEY=your_key_here
+
+# — or OpenAI —
+export OPENAI_API_KEY=your_key_here
+
+# — or Google —
+export GOOGLE_API_KEY=your_key_here
 ```
+
+The framework auto-detects which provider to use from the key you set.
 
 ## 3. Run a demo
 

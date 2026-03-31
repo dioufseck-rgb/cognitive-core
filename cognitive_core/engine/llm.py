@@ -186,12 +186,15 @@ def detect_provider() -> str:
         return "google"
     if os.environ.get("AWS_DEFAULT_REGION") or os.environ.get("AWS_PROFILE"):
         return "bedrock"
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        return "anthropic"
 
     raise EnvironmentError(
         "No LLM provider detected. Set one of:\n"
-        "  LLM_PROVIDER=azure_foundry|azure|openai|google|bedrock\n"
+        "  LLM_PROVIDER=azure_foundry|azure|openai|google|bedrock|anthropic\n"
         "  Or set default_provider in llm_config.yaml\n"
         "  Or set provider API key env vars:\n"
+        "    ANTHROPIC_API_KEY=...\n"
         "    AZURE_AI_FOUNDRY_ENDPOINT=...\n"
         "    AZURE_OPENAI_ENDPOINT=... + AZURE_OPENAI_API_KEY=...\n"
         "    OPENAI_API_KEY=...\n"
@@ -342,12 +345,18 @@ def _create_bedrock(model: str, temperature: float, **kwargs) -> BaseChatModel:
     )
 
 
+def _create_anthropic(model: str, temperature: float, **kwargs) -> BaseChatModel:
+    from langchain_anthropic import ChatAnthropic
+    return ChatAnthropic(model=model, temperature=temperature, **kwargs)
+
+
 _FACTORIES = {
     "google":         _create_google,
     "azure":          _create_azure,
     "azure_foundry":  _create_azure_foundry,
     "openai":         _create_openai,
     "bedrock":        _create_bedrock,
+    "anthropic":      _create_anthropic,
 }
 
 

@@ -18,7 +18,10 @@ case_dir: cases
 # MCP data server — serves fraud case tool data from SQLite.
 # Seeded automatically from demos/fraud-operations/cases/fixtures/ on startup.
 # Remove this line (or unset DATA_MCP_CMD env var) to fall back to fixture files.
-data_mcp_cmd: "python fraud_data_mcp.py --db fraud_data.db --fixtures cases/fixtures"
+# data_mcp_cmd: "python fraud_data_mcp.py --db fraud_data.db --fixtures cases/fixtures"
+# Uncomment the line above to enable the MCP data server (richer case data).
+# Requires: pip install "cognitive-core[mcp]"
+# Run from this directory: python fraud_data_mcp.py --db fraud_data.db --fixtures cases/fixtures "python fraud_data_mcp.py --db fraud_data.db --fixtures cases/fixtures"
 
 # ─── Governance Tiers ────────────────────────────────────────────
 governance_tiers:

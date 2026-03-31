@@ -79,7 +79,10 @@ def run_post(coord: Coordinator, post: dict) -> None:
         vulns = len(challenge.get("vulnerabilities") or [])
         print(f"  Challenge:       {'survives' if survives else 'fails'}  ({vulns} vulnerabilities)")
     else:
-        print(f"  Challenge:       skipped (high-confidence conform)")
+        classify_ran = bool(trace.steps.get("classify_content"))
+        if classify_ran:
+            print(f"  Challenge:       skipped (high-confidence conform)")
+        # else: no LLM ran, no steps recorded — print nothing
 
     gov = trace.steps.get("govern_disposition", {}).get("output", {})
     tier = gov.get("tier_applied") or getattr(instance, "governance_tier", "?")

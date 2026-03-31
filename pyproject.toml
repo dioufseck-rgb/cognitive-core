@@ -36,15 +36,23 @@ classifiers = [
 dependencies = [
     "pydantic>=2.0",
     "pyyaml>=6.0",
-    "mcp[cli]>=1.0",
 ]
 
 [project.optional-dependencies]
 # Full runtime with LangGraph execution
 runtime = [
     "langgraph>=0.2",
-    "langchain-google-genai>=1.0",
-    "google-generativeai>=0.8",
+    "langchain-core>=0.3",
+    # LLM providers — install the one(s) you use
+    "langchain-anthropic>=0.3",     # for ANTHROPIC_API_KEY
+    "langchain-google-genai>=1.0",  # for GOOGLE_API_KEY
+    "langchain-openai>=0.2",        # for OPENAI_API_KEY
+    "langchain-aws>=0.2",           # for AWS Bedrock
+]
+
+# MCP data server support (fraud demo and live data integrations)
+mcp = [
+    "mcp[cli]>=1.0",
 ]
 
 # API server
@@ -62,7 +70,7 @@ db = [
 
 # Everything
 all = [
-    "cognitive-core[runtime,api,db]",
+    "cognitive-core[runtime,api,db,mcp]",
 ]
 
 # Development
@@ -75,10 +83,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/dioufseck-rgb/cc_fraud"
-Documentation = "https://github.com/dioufseck-rgb/cc_fraud"
-Repository = "https://github.com/dioufseck-rgb/cc_fraud"
-Issues = "https://github.com/dioufseck-rgb/cc_fraud/issues"
+Homepage = "https://github.com/dioufseck-rgb/cognitive-core"
+Documentation = "https://github.com/dioufseck-rgb/cognitive-core"
+Repository = "https://github.com/dioufseck-rgb/cognitive-core"
+Issues = "https://github.com/dioufseck-rgb/cognitive-core/issues"
 
 [project.scripts]
 cognitive-core = "cognitive_core.coordinator.cli:main"
