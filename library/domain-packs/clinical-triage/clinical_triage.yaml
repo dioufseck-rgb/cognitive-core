@@ -80,6 +80,17 @@ classify_severity:
       symptoms, minor cuts, chronic condition stable check-in, prescription
       refill without clinical complexity.
 
+  # Input context: what fields to present to the classifier.
+  # Field names are domain-specific — they live here, not in the workflow.
+  input_context: |
+    Chief complaint: ${input.chief_complaint}
+    Symptoms: ${input.symptoms}
+    Duration: ${input.duration}
+    Patient age: ${input.patient_age}
+    Reported pain level: ${input.pain_level}
+    Relevant history: ${input.relevant_history}
+    Vital signs (if reported): ${input.vitals}
+
   criteria: |
     Assess based on:
     1. Presenting symptoms and their acuity
@@ -112,6 +123,18 @@ investigate_situation:
   question: |
     Conduct a deeper clinical assessment for this high-acuity presentation.
 
+  # Evidence to present — field names are domain-specific.
+  input_context: |
+    Chief complaint: ${input.chief_complaint}
+    Symptoms: ${input.symptoms}
+    Duration: ${input.duration}
+    Patient age: ${input.patient_age}
+    Pain level: ${input.pain_level}
+    Relevant history: ${input.relevant_history}
+    Vital signs: ${input.vitals}
+    Severity classification: ${classify_severity.category}
+    Classification reasoning: ${classify_severity.reasoning}
+
   scope: |
     1. What specific features of the presentation indicate emergent vs urgent?
     2. Are there any red flag symptoms that require immediate 911 dispatch?
@@ -129,6 +152,14 @@ investigate_situation:
 
 generate_response:
   format: triage_disposition
+
+  # Context assembly — what state to present to the generator.
+  context: |
+    Patient age: ${input.patient_age}
+    Chief complaint: ${input.chief_complaint}
+    Severity tier: ${classify_severity.category}
+    Severity confidence: ${classify_severity.confidence}
+    Clinical investigation: ${investigate_situation.finding}
 
   requirements: |
     Generate a structured triage disposition for clinical review.

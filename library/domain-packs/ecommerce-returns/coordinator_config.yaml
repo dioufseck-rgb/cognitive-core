@@ -1,0 +1,59 @@
+workflow_dir: workflows
+domain_dir: .
+case_dir: cases
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Coordinator Template: simple
+#
+# Structure: Single workflow. No delegation.
+# Use when: The decision is self-contained. No specialist input required
+#           from other workflows.
+#
+# What to fill in:
+#   - governance_tiers: tune HITL queues, SLAs, and sample rates for your org
+#   - quality_gates: set confidence floors appropriate for your domain
+#
+# Most domain packs use this template. Graduate to a multi-workflow template
+# only when the decision genuinely requires input from a parallel or sequential
+# workflow — not just because the domain is complex.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ─── Governance Tiers ────────────────────────────────────────────────────────
+governance_tiers:
+  auto:
+    hitl: none
+    sample_rate: 0.0
+
+  spot_check:
+    hitl: post_completion
+    sample_rate: 0.10           # [FILL IN] adjust sampling rate for your volume
+    queue: qa_review            # [FILL IN] your quality review queue
+    sla: 7200                   # seconds — 2 hours default
+
+  gate:
+    hitl: before_act
+    queue: human_review         # [FILL IN] your human review queue
+    sla: 14400                  # seconds — 4 hours default
+
+  hold:
+    hitl: before_finalize
+    queue: compliance_review    # [FILL IN] your compliance review queue
+    sla: 172800                 # seconds — 48 hours default
+
+overrides: {}
+
+# ─── Quality Gates ───────────────────────────────────────────────────────────
+# Cases falling below these floors are escalated before completion.
+quality_gates:
+  min_confidence: 0.5
+  primitive_floors:
+    classify: 0.6
+    investigate: 0.5
+    verify: 0.5
+  escalation_tier: gate
+  escalation_queue: quality_review   # [FILL IN] your quality escalation queue
+  exempt_domains: []
+
+# ─── No Delegation ───────────────────────────────────────────────────────────
+delegations: []
+capabilities: []

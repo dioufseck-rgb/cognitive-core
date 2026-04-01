@@ -11,9 +11,7 @@ steps:
     params:
       categories: "${domain.classify_content.categories}"
       criteria: |
-        Content type: ${input.content_type}
-        Platform context: ${input.platform_context}
-        Content: ${input.content}
+        ${domain.classify_content.input_context}
         ${domain.classify_content.criteria}
 
   - name: verify_policy
@@ -22,10 +20,7 @@ steps:
     params:
       rules: "${domain.verify_policy.rules}"
       subject: |
-        Content category: ${classify_content.category}
-        Confidence: ${classify_content.confidence}
-        Content: ${input.content}
-        Author context: ${input.author_context}
+        ${domain.verify_policy.subject_context}
     transitions:
       - when: "output.conforms == true and classify_content.confidence >= 0.85"
         goto: govern_disposition
@@ -37,10 +32,7 @@ steps:
       perspective: "${domain.challenge_decision.perspective}"
       threat_model: "${domain.challenge_decision.threat_model}"
       subject: |
-        Classification: ${classify_content.category}
-        Policy check: ${verify_policy.conforms}
-        Violations: ${verify_policy.violations}
-        Content: ${input.content}
+        ${domain.challenge_decision.subject_context}
     transitions:
       - default: govern_disposition
 

@@ -63,6 +63,14 @@ gather_application:
 #   all others → deliberate directly
 
 classify_risk:
+  input_context: |
+    Applicant: ${input.applicant_name}, age ${input.applicant_age}
+    Requested amount: ${input.loan_amount}
+    Purpose: ${input.loan_purpose}
+    Credit score: ${gather_application.data.get_credit.score}
+    DTI ratio: ${gather_application.data.get_financials.dti_ratio}
+    Employment: ${gather_application.data.get_employment.status}
+
   categories: |
     - prime: Strong credit profile. Score 720+, DTI under 36%, stable employment
       2+ years, no derogatory marks in 24 months. Standard approval path.
@@ -91,6 +99,16 @@ classify_risk:
 # Define the scope of investigation — what questions must be answered.
 
 investigate_risk_factors:
+  question: |
+    What are the specific risk factors and are there mitigating circumstances?
+
+  input_context: |
+    Credit profile: ${gather_application.data.get_credit}
+    Financials: ${gather_application.data.get_financials}
+    Employment: ${gather_application.data.get_employment}
+    Banking history: ${gather_application.data.get_banking}
+    Risk classification: ${classify_risk.category}
+
   scope: |
     1. What is driving the high-risk classification specifically?
        Be precise: which metric, how far outside acceptable range?
@@ -110,6 +128,11 @@ investigate_risk_factors:
 # recommended_action must be one of the listed options (exact string match).
 
 deliberate_recommendation:
+  context: |
+    Risk classification: ${classify_risk.category}
+    Investigation findings: ${investigate_risk_factors.finding}
+    Loan amount: ${input.loan_amount}
+
   instruction: |
     Review the complete application picture and produce a warranted
     lending recommendation. Your options are:
@@ -165,6 +188,15 @@ verify_compliance:
 # ─── Step: govern_decision ───────────────────────────────────────────────────
 
 govern_decision:
+  workflow_state: |
+    risk_tier: ${classify_risk.category}
+    recommendation: ${deliberate_recommendation.recommended_action}
+    warrant: ${deliberate_recommendation.warrant}
+    compliance_conforms: ${verify_compliance.conforms}
+    compliance_violations: ${verify_compliance.violations}
+    loan_amount: ${input.loan_amount}
+    fraud_flag: ${gather_application.data.get_identity.fraud_flag}
+
   governance_context: |
     Determine governance tier based on the following:
 

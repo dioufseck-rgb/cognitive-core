@@ -1,0 +1,109 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Pattern: P08 (Case Resolution) + P03 (Exception and Variance) hybrid
+#
+# Standard returns run: retrieve → classify → verify → govern
+# Exception returns run: retrieve → classify → investigate → deliberate → verify → govern
+#
+# The classify step determines which path fires:
+#   within_policy → verify → govern   (fast path — most returns)
+#   outside_policy → investigate → deliberate → verify → govern  (exception path)
+#   suspected_fraud → investigate → challenge → govern  (fraud path)
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: ecommerce_return
+description: >
+  Governed e-commerce return processing. Retrieves order and customer context,
+  classifies the return against policy, routes standard returns through
+  verification directly, investigates exceptions to determine whether a
+  courtesy approval is warranted, challenges suspicious patterns adversarially,
+  and governs the final disposition with a typed work order for any human review.
+
+steps:
+  - name: retrieve_order_context
+    primitive: retrieve
+    params:
+      specification: |
+        Retrieve all available context for this return request:
+          - get_order: Order details — items, prices, purchase date, channel, payment method
+          - get_customer: Customer profile — tenure, lifetime value, return history, account standing
+          - get_return_history: Prior returns for this customer — frequency, approval rate, patterns
+          - get_item_details: Product details — category, condition expectations, restocking cost
+          - get_carrier_info: Shipping and delivery confirmation, delivery date, carrier claims
+      strategy: deterministic
+    transitions:
+      - default: classify_return
+
+  - name: classify_return
+    primitive: classify
+    temperature: 0.0
+    params:
+      categories: "${domain.classify_return.categories}"
+      criteria: |
+        ${domain.classify_return.input_context}
+        ${domain.classify_return.criteria}
+    transitions:
+      - when: "${domain.classify_return.exception_condition}"
+        goto: investigate_exception
+      - when: "${domain.classify_return.fraud_condition}"
+        goto: investigate_fraud
+      - default: verify_policy
+
+  - name: verify_policy
+    primitive: verify
+    temperature: 0.0
+    params:
+      rules: "${domain.verify_policy.rules}"
+      subject: |
+        ${domain.verify_policy.subject_context}
+    transitions:
+      - default: govern_disposition
+
+  - name: investigate_exception
+    primitive: investigate
+    params:
+      question: |
+        This return falls outside standard policy. Investigate whether
+        an exception is warranted.
+      scope: "${domain.investigate_exception.scope}"
+      available_evidence: "${domain.investigate_exception.input_context}"
+      effort_level: moderate
+    transitions:
+      - default: deliberate_exception
+
+  - name: deliberate_exception
+    primitive: deliberate
+    params:
+      instruction: |
+        ${domain.deliberate_exception.context}
+        ${domain.deliberate_exception.instruction}
+      focus: "${domain.deliberate_exception.focus}"
+    transitions:
+      - default: verify_policy
+
+  - name: investigate_fraud
+    primitive: investigate
+    params:
+      question: |
+        This return has fraud indicators. Investigate the pattern.
+      scope: "${domain.investigate_fraud.scope}"
+      available_evidence: "${domain.investigate_fraud.input_context}"
+      effort_level: deep
+    transitions:
+      - default: challenge_fraud_finding
+
+  - name: challenge_fraud_finding
+    primitive: challenge
+    params:
+      perspective: "${domain.challenge_fraud_finding.perspective}"
+      threat_model: "${domain.challenge_fraud_finding.threat_model}"
+      subject: |
+        ${domain.challenge_fraud_finding.subject_context}
+    transitions:
+      - default: govern_disposition
+
+  - name: govern_disposition
+    primitive: govern
+    params:
+      workflow_state: |
+        ${domain.govern_disposition.workflow_state}
+      governance_context: "${domain.govern_disposition.governance_context}"

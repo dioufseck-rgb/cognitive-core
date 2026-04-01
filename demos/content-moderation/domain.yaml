@@ -8,6 +8,12 @@ workflow: content_moderation
 governance: auto
 
 classify_content:
+  input_context: |
+    Content type: ${input.content_type}
+    Platform context: ${input.platform_context}
+    Content: ${input.content}
+    Author context: ${input.author_context}
+
   categories: |
     - safe: Content that clearly complies with community guidelines.
       No policy concerns. Suitable for all audiences on the platform.
@@ -32,6 +38,12 @@ classify_content:
     have different thresholds — apply platform_context.
 
 verify_policy:
+  subject_context: |
+    Content: ${input.content}
+    Author context: ${input.author_context}
+    Classification: ${classify_content.category}
+    Confidence: ${classify_content.confidence}
+
   rules: |
     The following must ALL be true to conform:
     1. Content does not target a protected characteristic
@@ -47,6 +59,12 @@ verify_policy:
     a minimalist reading; the challenge step will probe harder.
 
 challenge_decision:
+  subject_context: |
+    Classification: ${classify_content.category}
+    Policy check: ${verify_policy.conforms}
+    Violations: ${verify_policy.violations}
+    Content: ${input.content}
+
   perspective: |
     You are three simultaneous reviewers with conflicting mandates:
     1. A free-speech advocate: Is this removal justified? Is there

@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cognitive Core — Workflow Trace</title>
+<style>
+  :root {
+    --bg:        #0d1117;
+    --surface:   #161b22;
+    --border:    #30363d;
+    --text:      #e6edf3;
+    --muted:     #7d8590;
+    --accent:    #58a6ff;
+    --green:     #3fb950;
+    --red:       #f85149;
+    --yellow:    #d29922;
+    --orange:    #db6d28;
+    --purple:    #bc8cff;
+    --mono:      "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+    --sans:      -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; }
+
+  /* ── Layout ── */
+  #app { display: flex; flex-direction: column; min-height: 100vh; }
+  #header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+  #header h1 { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+  #header .subtitle { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+  #header .spacer { flex: 1; }
+  #main { flex: 1; display: flex; gap: 0; }
+  #sidebar { width: 280px; min-width: 220px; border-right: 1px solid var(--border); padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; }
+  #content { flex: 1; padding: 24px; overflow-y: auto; }
+
+  /* ── Status badge ── */
+  .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .badge.running  { background: rgba(88,166,255,.15); color: var(--accent); }
+  .badge.suspended{ background: rgba(210,153,34,.15); color: var(--yellow); }
+  .badge.completed{ background: rgba(63,185,80,.15);  color: var(--green); }
+  .badge.failed   { background: rgba(248,81,73,.15);  color: var(--red); }
+  .badge.created  { background: rgba(125,133,144,.15);color: var(--muted); }
+  .pulse { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+
+  /* ── Sidebar info ── */
+  .info-block { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .info-block .label { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 4px; }
+  .info-block .value { font-family: var(--mono); font-size: 12px; color: var(--text); word-break: break-all; }
+  .info-block .value.small { font-size: 11px; color: var(--muted); }
+
+  /* ── Buttons ── */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid transparent; transition: all .15s; text-decoration: none; }
+  .btn-primary { background: var(--accent); color: #0d1117; border-color: var(--accent); }
+  .btn-primary:hover { background: #79b8ff; }
+  .btn-ghost   { background: transparent; color: var(--text); border-color: var(--border); }
+  .btn-ghost:hover { background: var(--surface); }
+  .btn-danger  { background: transparent; color: var(--red); border-color: rgba(248,81,73,.4); }
+  .btn-danger:hover { background: rgba(248,81,73,.1); }
+  .btn-approve { background: rgba(63,185,80,.15); color: var(--green); border-color: rgba(63,185,80,.4); }
+  .btn-approve:hover { background: rgba(63,185,80,.25); }
+  .btn-approve-mod { background: rgba(88,166,255,.15); color: var(--accent); border-color: rgba(88,166,255,.4); }
+  .btn-approve-mod:hover { background: rgba(88,166,255,.25); }
+  .btn-deny { background: rgba(248,81,73,.15); color: var(--red); border-color: rgba(248,81,73,.4); }
+  .btn-deny:hover { background: rgba(248,81,73,.25); }
+  .btn-refer { background: rgba(188,140,255,.15); color: var(--purple); border-color: rgba(188,140,255,.4); }
+  .btn-refer:hover { background: rgba(188,140,255,.25); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* ── Step trace ── */
+  #trace-container { display: flex; flex-direction: column; gap: 4px; }
+  .step-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; border-radius: 8px; border: 1px solid transparent; transition: border-color .2s; }
+  .step-row:hover { border-color: var(--border); }
+  .step-icon { font-size: 13px; width: 18px; text-align: center; margin-top: 1px; flex-shrink: 0; }
+  .step-body { flex: 1; min-width: 0; }
+  .step-header { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .step-name { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--text); }
+  .step-primitive { font-family: var(--mono); font-size: 11px; color: var(--muted); background: var(--surface); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border); }
+  .step-elapsed { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-left: auto; }
+  .step-detail { margin-top: 6px; font-size: 12px; color: var(--muted); line-height: 1.55; }
+  .step-detail .key { color: var(--accent); font-family: var(--mono); }
+  .step-detail .val { color: var(--text); }
+
+  /* Confidence bar */
+  .conf-bar { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+  .conf-track { flex: 1; max-width: 160px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .conf-fill { height: 100%; border-radius: 3px; background: var(--green); transition: width .6s ease; }
+  .conf-fill.med { background: var(--yellow); }
+  .conf-fill.low { background: var(--red); }
+  .conf-label { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+  /* Compliance check rows */
+  .check-row { display: flex; align-items: center; gap: 6px; font-size: 12px; margin-top: 3px; }
+  .check-pass { color: var(--green); }
+  .check-fail { color: var(--red); }
+
+  /* HITL gate row */
+  .hitl-row { background: rgba(210,153,34,.07); border: 1px solid rgba(210,153,34,.3); border-radius: 8px; padding: 14px 16px; margin: 8px 0; }
+  .hitl-header { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--yellow); font-size: 13px; margin-bottom: 8px; }
+  .hitl-tier { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; background: rgba(210,153,34,.2); padding: 2px 7px; border-radius: 4px; }
+
+  /* Human decision row */
+  .decision-row { background: rgba(63,185,80,.07); border: 1px solid rgba(63,185,80,.25); border-radius: 8px; padding: 12px 16px; margin: 4px 0; }
+  .decision-header { display: flex; align-items: center; gap: 8px; color: var(--green); font-size: 12px; font-weight: 600; }
+
+  /* ── HITL Input Form ── */
+  #hitl-panel { background: var(--surface); border: 1px solid rgba(210,153,34,.35); border-radius: 10px; padding: 24px; max-width: 680px; margin-top: 16px; }
+  #hitl-panel h2 { font-size: 14px; font-weight: 700; color: var(--yellow); display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+  .hitl-brief { font-size: 13px; color: var(--text); line-height: 1.6; margin-bottom: 16px; padding: 12px 14px; background: var(--bg); border-radius: 6px; border: 1px solid var(--border); }
+  .hitl-compliance { margin-bottom: 14px; }
+  .hitl-compliance-title { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 6px; }
+  .rationale-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; display: block; }
+  textarea#rationale { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 10px 12px; font-size: 13px; font-family: var(--sans); resize: vertical; min-height: 72px; transition: border-color .15s; }
+  textarea#rationale:focus { outline: none; border-color: var(--accent); }
+  .hitl-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .reviewer-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .reviewer-row label { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  input#reviewer { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 6px 10px; font-size: 13px; font-family: var(--mono); width: 180px; }
+  input#reviewer:focus { outline: none; border-color: var(--accent); }
+
+  /* ── Result mode ── */
+  #result-bar { display: flex; align-items: center; gap: 14px; background: rgba(63,185,80,.08); border: 1px solid rgba(63,185,80,.25); border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; }
+  #result-bar.failed { background: rgba(248,81,73,.08); border-color: rgba(248,81,73,.25); }
+  #result-bar .result-icon { font-size: 20px; }
+  #result-bar .result-body { flex: 1; }
+  #result-bar .result-title { font-size: 14px; font-weight: 700; color: var(--green); }
+  #result-bar.failed .result-title { color: var(--red); }
+  #result-bar .result-meta { font-size: 12px; color: var(--muted); font-family: var(--mono); margin-top: 2px; }
+
+  /* ── Misc ── */
+  .divider { height: 1px; background: var(--border); margin: 8px 0; }
+  .empty { color: var(--muted); font-size: 13px; text-align: center; padding: 40px 0; }
+  .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #export-btn { display: none; }
+  #export-btn.visible { display: inline-flex; }
+  .verify-badge { font-size: 11px; font-family: var(--mono); padding: 2px 8px; border-radius: 4px; }
+  .verify-ok  { background: rgba(63,185,80,.15); color: var(--green); }
+  .verify-bad { background: rgba(248,81,73,.15); color: var(--red); }
+  .verify-unk { background: rgba(125,133,144,.15); color: var(--muted); }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <rect width="22" height="22" rx="5" fill="#58a6ff" opacity=".15"/>
+      <path d="M4 11h4l2-6 3 12 2-6h3" stroke="#58a6ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h1>Cognitive Core</h1>
+    <span class="subtitle" id="instance-label">—</span>
+    <span class="spacer"></span>
+    <span id="status-badge"></span>
+    &nbsp;
+    <span id="verify-badge" class="verify-badge verify-unk" style="display:none"></span>
+    &nbsp;
+    <button class="btn btn-ghost btn-sm" id="export-btn" onclick="exportTrace()">↓ Download Trace</button>
+  </div>
+
+  <div id="main">
+    <div id="sidebar">
+      <div class="info-block">
+        <div class="label">Instance</div>
+        <div class="value small" id="sb-instance">—</div>
+      </div>
+      <div class="info-block">
+        <div class="label">Workflow</div>
+        <div class="value" id="sb-workflow">—</div>
+      </div>
+      <div class="info-block">
+        <div class="label">Domain</div>
+        <div class="value" id="sb-domain">—</div>
+      </div>
+      <div class="info-block">
+        <div class="label">Governance Tier</div>
+        <div class="value" id="sb-tier">—</div>
+      </div>
+      <div class="info-block">
+        <div class="label">Steps Completed</div>
+        <div class="value" id="sb-steps">—</div>
+      </div>
+      <div class="info-block">
+        <div class="label">Elapsed</div>
+        <div class="value" id="sb-elapsed">—</div>
+      </div>
+      <div style="flex:1"></div>
+      <div class="info-block" id="sb-case-meta" style="display:none">
+        <div class="label">Case</div>
+        <div class="value small" id="sb-case-content">—</div>
+      </div>
+    </div>
+
+    <div id="content">
+      <div id="trace-container"></div>
+      <div id="hitl-container"></div>
+      <div id="result-container"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Bootstrap ──────────────────────────────────────────────────────
+const INSTANCE_ID = "__INSTANCE_ID__";
+const API_BASE = "";
+let mode = "watch";          // "watch" | "hitl" | "result"
+let eventSource = null;
+let allSteps = [];           // ordered log of rendered steps
+let lastLedgerId = 0;
+let pollTimer = null;
+let verifyTimer = null;
+
+// ── Utility ────────────────────────────────────────────────────────
+function fmtElapsed(sec) {
+  if (!sec && sec !== 0) return "—";
+  if (sec < 60) return sec.toFixed(1) + "s";
+  return Math.floor(sec / 60) + "m " + Math.round(sec % 60) + "s";
+}
+function fmtMs(ms) {
+  if (!ms) return "";
+  return ms >= 1000 ? (ms / 1000).toFixed(1) + "s" : ms + "ms";
+}
+function fmtTime(ts) {
+  if (!ts) return "";
+  return new Date(ts * 1000).toLocaleTimeString();
+}
+function tierColor(tier) {
+  const t = (tier || "").toLowerCase();
+  if (t === "auto") return "var(--green)";
+  if (t === "spot_check" || t === "spot-check") return "var(--accent)";
+  if (t === "gate") return "var(--yellow)";
+  if (t === "hold") return "var(--red)";
+  return "var(--muted)";
+}
+function primitiveIcon(p) {
+  const icons = { retrieve: "📥", classify: "🏷", investigate: "🔍",
+    deliberate: "⚖️", verify: "✅", generate: "📄", govern: "⏸", orchestrate: "🔀" };
+  return icons[(p||"").toLowerCase()] || "▶";
+}
+
+// ── Sidebar update ─────────────────────────────────────────────────
+function updateSidebar(inst) {
+  document.getElementById("sb-instance").textContent = inst.instance_id || INSTANCE_ID;
+  document.getElementById("sb-workflow").textContent = inst.workflow_type || "—";
+  document.getElementById("sb-domain").textContent = inst.domain || "—";
+  document.getElementById("sb-tier").textContent = inst.governance_tier || "—";
+  document.getElementById("sb-steps").textContent = inst.step_count ?? "—";
+  document.getElementById("sb-elapsed").textContent = fmtElapsed(inst.elapsed_seconds);
+  document.getElementById("instance-label").textContent =
+    (inst.workflow_type || "") + " / " + INSTANCE_ID.slice(0, 16);
+
+  // Build case display from multiple sources — case_meta, _caseInput from ledger, result
+  const meta = inst.case_meta || {};
+  const caseInput = inst._caseInput || {};
+
+  // Prefer direct case fields over case_meta fraud-domain fields
+  const display = {};
+  // Lending domain fields
+  if (caseInput.applicant_name || meta.applicant_name)
+    display["Applicant"] = caseInput.applicant_name || meta.applicant_name;
+  if (caseInput.loan_amount || meta.loan_amount)
+    display["Amount"] = "$" + ((caseInput.loan_amount || meta.loan_amount) || "").toLocaleString();
+  if (caseInput.loan_purpose || meta.loan_purpose)
+    display["Purpose"] = caseInput.loan_purpose || meta.loan_purpose;
+  // Generic fields
+  if (meta.case_id) display["Case ID"] = meta.case_id;
+  if (meta.member_name && !display["Applicant"]) display["Member"] = meta.member_name;
+  if (meta.fraud_type) display["Type"] = meta.fraud_type;
+  if (meta.amount_at_risk) display["At risk"] = "$" + meta.amount_at_risk.toLocaleString();
+
+  const hasDisplay = Object.keys(display).length > 0;
+  if (hasDisplay) {
+    const el = document.getElementById("sb-case-meta");
+    el.style.display = "block";
+    document.getElementById("sb-case-content").innerHTML =
+      Object.entries(display).map(([k, v]) =>
+        `<div style="margin-bottom:3px"><span style="color:var(--muted)">${k}:</span> ${v}</div>`
+      ).join("");
+  } else if (meta && Object.values(meta).some(v => v)) {
+    // Fall back to raw case_meta if it has any populated values
+    const el = document.getElementById("sb-case-meta");
+    el.style.display = "block";
+    document.getElementById("sb-case-content").innerHTML =
+      Object.entries(meta).filter(([,v]) => v).map(([k, v]) =>
+        `<div style="margin-bottom:3px"><span style="color:var(--muted)">${k}:</span> ${v}</div>`
+      ).join("");
+  }
+
+  // Status badge
+  const status = inst.status || "unknown";
+  const badgeEl = document.getElementById("status-badge");
+  const isLive = ["running","created"].includes(status);
+  badgeEl.innerHTML = `<span class="badge ${status}">
+    ${isLive ? '<span class="pulse"></span>' : ""}${status}
+  </span>`;
+}
+
+// ── Step rendering ─────────────────────────────────────────────────
+function renderStep(entry) {
+  const container = document.getElementById("trace-container");
+  const action = entry.action_type || entry.event || "";
+  const details = entry.details || entry;
+
+  // Human decision
+  if (action === "human_decision") {
+    const div = document.createElement("div");
+    div.className = "decision-row";
+    div.innerHTML = `
+      <div class="decision-header">
+        <span>◉</span>
+        <span>HUMAN DECISION</span>
+        <span style="color:var(--muted);font-weight:400">
+          reviewer: ${details.reviewer_id || "—"} &nbsp;${fmtTime(details.timestamp)}
+        </span>
+      </div>
+      <div style="margin-top:6px;font-size:13px;color:var(--text)">
+        <strong>${details.decision || ""}</strong>
+        ${details.rationale ? " — " + details.rationale : ""}
+      </div>`;
+    container.appendChild(div);
+    allSteps.push({ type: "decision", el: div });
+    return;
+  }
+
+  // Governance suspension (HITL gate)
+  if (action === "governance_suspension" || action === "hitl_requested") {
+    const div = document.createElement("div");
+    div.className = "hitl-row";
+    const tier = details.governance_tier || details.tier || "GATE";
+    div.innerHTML = `
+      <div class="hitl-header">
+        <span>⏸</span>
+        <span>GOVERNANCE GATE</span>
+        <span class="hitl-tier">${tier}</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted)">${details.reason || details.rationale || ""}</div>`;
+    container.appendChild(div);
+    allSteps.push({ type: "gate", el: div });
+    return;
+  }
+
+  // Skip non-step entries
+  if (!["step_completed","step_started","step_failed","governance_evaluated"].includes(action)) {
+    if (action !== "workflow_started" && action !== "resume") return;
+  }
+
+  const stepName = details.step_name || details.step || "";
+  const primitive = details.primitive || "";
+  const elapsed = details.elapsed_ms || 0;
+  const output = details.output || details.result || {};
+  const icon = primitiveIcon(primitive);
+
+  const div = document.createElement("div");
+  div.className = "step-row";
+
+  let detailHtml = "";
+
+  // Classify — confidence bar
+  if (primitive === "classify" && (output.confidence !== undefined || output.category)) {
+    const cat = output.category || "";
+    const conf = parseFloat(output.confidence || 0);
+    const pct = Math.round(conf * 100);
+    const cls = conf >= 0.75 ? "" : conf >= 0.55 ? "med" : "low";
+    const reasoning = output.reasoning || output.rationale || "";
+    detailHtml = `
+      <div class="conf-bar">
+        <div class="conf-track"><div class="conf-fill ${cls}" style="width:${pct}%"></div></div>
+        <span class="conf-label">${cat} &nbsp; ${pct}%</span>
+      </div>
+      ${reasoning ? `<div style="margin-top:4px;font-size:12px;color:var(--muted)">${reasoning}</div>` : ""}`;
+  }
+
+  // Verify — check rows
+  else if (primitive === "verify" && output.checks) {
+    detailHtml = Object.entries(output.checks).map(([k, v]) => {
+      const pass = v === true || v === "pass" || v === "conforms";
+      return `<div class="check-row">
+        <span class="${pass ? "check-pass" : "check-fail"}">${pass ? "✓" : "✗"}</span>
+        <span>${k}</span>
+        ${!pass && typeof v === "string" ? `<span style="color:var(--muted)"> — ${v}</span>` : ""}
+      </div>`;
+    }).join("");
+  }
+
+  // Govern — tier display
+  else if (primitive === "govern") {
+    const tier = output.tier || output.governance_tier || "";
+    const reason = output.rationale || output.reason || "";
+    detailHtml = `
+      <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+        <span style="font-family:var(--mono);font-size:12px;color:${tierColor(tier)};font-weight:700">${tier}</span>
+        ${reason ? `<span style="font-size:12px;color:var(--muted)">${reason}</span>` : ""}
+      </div>`;
+  }
+
+  // Retrieve — sources
+  else if (primitive === "retrieve" && (output.sources || output.tools_called)) {
+    const sources = output.sources || output.tools_called || [];
+    detailHtml = `<div style="font-size:12px;color:var(--muted);margin-top:3px">
+      Sources: ${(Array.isArray(sources) ? sources : [sources]).join(", ")}
+    </div>`;
+  }
+
+  // Deliberate / investigate / generate — recommendation or text
+  else if (output.recommendation || output.finding || output.text || output.content) {
+    const text = output.recommendation || output.finding || output.text || output.content || "";
+    const warrant = output.warrant || output.rationale || "";
+    detailHtml = `
+      <div style="font-size:12px;color:var(--text);margin-top:4px;line-height:1.55">${text}</div>
+      ${warrant ? `<div style="font-size:12px;color:var(--muted);margin-top:2px">${warrant}</div>` : ""}`;
+  }
+
+  div.innerHTML = `
+    <div class="step-icon">${icon}</div>
+    <div class="step-body">
+      <div class="step-header">
+        <span class="step-name">${stepName}</span>
+        <span class="step-primitive">${primitive}</span>
+        <span class="step-elapsed">${fmtMs(elapsed)}</span>
+      </div>
+      ${detailHtml ? `<div class="step-detail">${detailHtml}</div>` : ""}
+    </div>`;
+
+  container.appendChild(div);
+  allSteps.push({ type: "step", name: stepName, el: div });
+}
+
+// ── HITL panel (Input mode) ────────────────────────────────────────
+async function renderHITLPanel() {
+  mode = "hitl";
+  const container = document.getElementById("hitl-container");
+  container.innerHTML = "";
+
+  let workorder = {};
+  try {
+    const r = await fetch(`${API_BASE}/api/instances/${INSTANCE_ID}/workorder`);
+    if (r.ok) workorder = await r.json();
+  } catch(e) { console.warn("workorder fetch failed", e); }
+
+  const tier = workorder.governance_tier || "GATE";
+  const brief = workorder.brief || "This workflow requires human review before proceeding.";
+  const options = workorder.decision_options || ["approve", "deny"];
+
+  // Compliance info from result_summary
+  const result = workorder.result_summary || {};
+  let complianceHtml = "";
+  if (result.compliance || result.verify) {
+    const checks = result.compliance || result.verify || {};
+    complianceHtml = `<div class="hitl-compliance">
+      <div class="hitl-compliance-title">Compliance</div>
+      ${Object.entries(checks).map(([k,v]) => {
+        const pass = v === true || v === "pass" || v === "conforms";
+        return `<div class="check-row">
+          <span class="${pass ? "check-pass" : "check-fail"}">${pass ? "✓" : "✗"}</span>
+          <span>${k}</span>
+          ${!pass && typeof v === "string" ? `<span style="color:var(--muted)"> — ${v}</span>` : ""}
+        </div>`;
+      }).join("")}
+    </div>`;
+  }
+
+  // Decision button map
+  const btnMap = {
+    approve:          { cls: "btn-approve",     label: "Approve" },
+    approve_modified: { cls: "btn-approve-mod", label: "Approve Modified" },
+    deny:             { cls: "btn-deny",         label: "Deny" },
+    refer:            { cls: "btn-refer",         label: "Refer" },
+    escalate:         { cls: "btn-refer",         label: "Escalate" },
+    release:          { cls: "btn-approve",       label: "Release" },
+  };
+
+  const btns = options.map(opt => {
+    const b = btnMap[opt] || { cls: "btn-ghost", label: opt };
+    return `<button class="btn ${b.cls}" onclick="submitDecision('${opt}')" id="btn-${opt}">${b.label}</button>`;
+  }).join("");
+
+  container.innerHTML = `
+    <div id="hitl-panel">
+      <h2>⏸ UNDERWRITER REVIEW REQUIRED &nbsp;<span class="hitl-tier">${tier}</span></h2>
+      <div class="hitl-brief">${brief}</div>
+      ${complianceHtml}
+      <div class="reviewer-row">
+        <label for="reviewer">Reviewer ID</label>
+        <input id="reviewer" type="text" value="reviewer" placeholder="reviewer">
+      </div>
+      <label class="rationale-label" for="rationale">Rationale</label>
+      <textarea id="rationale" placeholder="Enter your rationale for the decision…"></textarea>
+      <div class="hitl-actions">${btns}</div>
+      <div id="hitl-status" style="margin-top:12px;font-size:12px;color:var(--muted)"></div>
+    </div>`;
+}
+
+async function submitDecision(decision) {
+  const rationale = document.getElementById("rationale")?.value || "";
+  const reviewer_id = document.getElementById("reviewer")?.value || "reviewer";
+  const statusEl = document.getElementById("hitl-status");
+
+  // Disable all buttons
+  document.querySelectorAll(".hitl-actions .btn").forEach(b => b.disabled = true);
+  statusEl.innerHTML = `<span class="spinner"></span> Submitting decision…`;
+
+  try {
+    const r = await fetch(`${API_BASE}/api/instances/${INSTANCE_ID}/decision`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ decision, rationale, reviewer_id }),
+    });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      statusEl.textContent = `Error: ${err.detail || r.statusText}`;
+      document.querySelectorAll(".hitl-actions .btn").forEach(b => b.disabled = false);
+      return;
+    }
+    statusEl.innerHTML = `<span class="spinner"></span> Decision submitted — workflow resuming…`;
+    // Clear HITL panel, resume SSE watch
+    document.getElementById("hitl-container").innerHTML = "";
+    mode = "watch";
+    startSSE();
+  } catch(e) {
+    statusEl.textContent = `Network error: ${e.message}`;
+    document.querySelectorAll(".hitl-actions .btn").forEach(b => b.disabled = false);
+  }
+}
+
+// ── Result bar (Result mode) ───────────────────────────────────────
+async function renderResultBar(inst) {
+  mode = "result";
+  document.getElementById("export-btn").classList.add("visible");
+
+  const rc = document.getElementById("result-container");
+  const ok = inst.status === "completed";
+  const elapsed = fmtElapsed(inst.elapsed_seconds);
+  const result = inst.result || {};
+  const disposition = result.disposition || result.decision || result.recommendation || "";
+
+  rc.innerHTML = `
+    <div id="result-bar" class="${ok ? "" : "failed"}">
+      <div class="result-icon">${ok ? "✓" : "✗"}</div>
+      <div class="result-body">
+        <div class="result-title">${ok ? "COMPLETE" : "FAILED"} ${disposition ? "— " + disposition.toUpperCase() : ""}</div>
+        <div class="result-meta">total elapsed ${elapsed} &nbsp;·&nbsp; ${inst.step_count || 0} steps</div>
+        ${inst.error ? `<div style="font-size:12px;color:var(--red);margin-top:4px">${inst.error}</div>` : ""}
+      </div>
+    </div>`;
+
+  // Ledger hash-chain verification
+  try {
+    const vr = await fetch(`${API_BASE}/api/instances/${INSTANCE_ID}/verify`);
+    if (vr.ok) {
+      const vd = await vr.json();
+      const vbadge = document.getElementById("verify-badge");
+      vbadge.style.display = "inline-flex";
+      if (vd.valid) {
+        vbadge.className = "verify-badge verify-ok";
+        vbadge.textContent = "✓ ledger verified";
+      } else {
+        vbadge.className = "verify-badge verify-bad";
+        vbadge.textContent = "✗ ledger tampered (entry " + vd.first_invalid_entry + ")";
+      }
+    }
+  } catch(e) { /* verify endpoint optional */ }
+}
+
+// ── SSE stream ─────────────────────────────────────────────────────
+function startSSE() {
+  if (eventSource) { eventSource.close(); eventSource = null; }
+
+  const url = `${API_BASE}/api/instances/${INSTANCE_ID}/stream?since_id=${lastLedgerId}`;
+  eventSource = new EventSource(url);
+
+  const allEventTypes = ["step_started","step_completed","governance_decision",
+    "hitl_requested","hitl_resolved","workflow_completed","workflow_failed",
+    "step_failed","human_decision","evidence_supplied"];
+
+  allEventTypes.forEach(evt => {
+    eventSource.addEventListener(evt, e => {
+      let data = {};
+      try { data = JSON.parse(e.data); } catch(_) {}
+
+      if (data.ledger_id && data.ledger_id > lastLedgerId) lastLedgerId = data.ledger_id;
+
+      // Sync sidebar
+      pollInstance();
+
+      if (evt === "hitl_requested" || evt === "governance_decision") {
+        renderStep({ action_type: "governance_suspension", details: data });
+        renderHITLPanel();
+        eventSource.close(); eventSource = null;
+        return;
+      }
+      if (evt === "workflow_completed" || evt === "workflow_failed") {
+        pollInstance().then(inst => { if (inst) renderResultBar(inst); });
+        eventSource.close(); eventSource = null;
+        return;
+      }
+      if (evt === "human_decision") {
+        renderStep({ action_type: "human_decision", details: data });
+        return;
+      }
+      if (evt === "step_completed" || evt === "step_started" || evt === "step_failed") {
+        renderStep({ action_type: evt === "step_started" ? "step_started" : "step_completed", details: data });
+      }
+    });
+  });
+
+  eventSource.onerror = () => {
+    // On SSE error, fall back to polling
+    if (eventSource) { eventSource.close(); eventSource = null; }
+    startPolling();
+  };
+}
+
+// ── Polling fallback ───────────────────────────────────────────────
+async function pollInstance() {
+  try {
+    const r = await fetch(`${API_BASE}/api/instances/${INSTANCE_ID}`);
+    if (!r.ok) return null;
+    const inst = await r.json();
+    updateSidebar(inst);
+    return inst;
+  } catch(e) { return null; }
+}
+
+async function startPolling() {
+  if (pollTimer) return;
+  pollTimer = setInterval(async () => {
+    const inst = await pollInstance();
+    if (!inst) return;
+    // Sync ledger entries
+    const ledger = inst.ledger || [];
+    for (const entry of ledger) {
+      if ((entry.id || 0) > lastLedgerId) {
+        lastLedgerId = entry.id;
+        renderStep(entry);
+      }
+    }
+    if (inst.status === "suspended" && mode === "watch") {
+      clearInterval(pollTimer); pollTimer = null;
+      renderHITLPanel();
+    }
+    if (["completed","failed","terminated"].includes(inst.status)) {
+      clearInterval(pollTimer); pollTimer = null;
+      if (mode !== "result") renderResultBar(inst);
+    }
+  }, 1500);
+}
+
+// ── Export ─────────────────────────────────────────────────────────
+async function exportTrace() {
+  // Capture current DOM + embed it as standalone
+  const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>Cognitive Core Trace — ${INSTANCE_ID}</title>
+<style>
+body{background:#0d1117;color:#e6edf3;font-family:-apple-system,sans-serif;font-size:14px;padding:32px;max-width:900px;margin:0 auto}
+h1{font-size:18px;margin-bottom:4px}
+.meta{color:#7d8590;font-size:12px;font-family:monospace;margin-bottom:24px}
+.trace{white-space:pre-wrap;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;color:#e6edf3}
+</style></head><body>
+<h1>Cognitive Core — Workflow Trace</h1>
+<div class="meta">Instance: ${INSTANCE_ID} · Exported: ${new Date().toISOString()}</div>
+<div class="trace">${document.getElementById("content").innerText}</div>
+</body></html>`;
+
+  const blob = new Blob([html], { type: "text/html" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `trace-${INSTANCE_ID.slice(0,12)}.html`;
+  a.click();
+}
+
+// ── Init ───────────────────────────────────────────────────────────
+async function init() {
+  const inst = await pollInstance();
+  if (!inst) {
+    document.getElementById("trace-container").innerHTML =
+      `<div class="empty">Instance ${INSTANCE_ID} not found.</div>`;
+    return;
+  }
+
+  // Enrich inst with case_input from the start ledger entry
+  try {
+    const ledger = inst.ledger || [];
+    const startEntry = ledger.find(e => e.action_type === "start");
+    if (startEntry && startEntry.details) {
+      const details = typeof startEntry.details === "string"
+        ? JSON.parse(startEntry.details) : startEntry.details;
+      if (details.case_input) inst._caseInput = details.case_input;
+    }
+  } catch(_) {}
+
+  updateSidebar(inst);
+
+  // Replay existing ledger entries
+  const ledger = inst.ledger || [];
+  for (const entry of ledger) {
+    if ((entry.id || 0) > lastLedgerId) lastLedgerId = entry.id;
+    renderStep(entry);
+  }
+
+  if (inst.status === "suspended") {
+    renderHITLPanel();
+  } else if (["completed","failed","terminated"].includes(inst.status)) {
+    renderResultBar(inst);
+  } else {
+    // Live — connect SSE
+    startSSE();
+  }
+}
+
+init();
+</script>
+</body>
+</html>

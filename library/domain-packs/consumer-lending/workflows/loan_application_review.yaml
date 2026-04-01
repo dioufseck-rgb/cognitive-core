@@ -18,12 +18,7 @@ steps:
     params:
       categories: "${domain.classify_risk.categories}"
       criteria: |
-        Applicant: ${input.applicant_name}, ${input.applicant_age}
-        Requested amount: ${input.loan_amount}
-        Purpose: ${input.loan_purpose}
-        Credit score: ${gather_application.data.get_credit.score}
-        DTI ratio: ${gather_application.data.get_financials.dti_ratio}
-        Employment: ${gather_application.data.get_employment.status}
+        ${domain.classify_risk.input_context}
         ${domain.classify_risk.criteria}
     transitions:
       - when: "output.category == 'high_risk'"
@@ -35,14 +30,9 @@ steps:
   - name: investigate_risk_factors
     primitive: investigate
     params:
-      question: |
-        What are the specific risk factors and are there mitigating circumstances?
+      question: "${domain.investigate_risk_factors.question}"
       scope: "${domain.investigate_risk_factors.scope}"
-      available_evidence: |
-        Credit profile: ${gather_application.data.get_credit}
-        Financials: ${gather_application.data.get_financials}
-        Employment: ${gather_application.data.get_employment}
-        Banking history: ${gather_application.data.get_banking}
+      available_evidence: "${domain.investigate_risk_factors.input_context}"
       effort_level: deep
     transitions:
       - default: deliberate_recommendation
@@ -51,12 +41,7 @@ steps:
     primitive: deliberate
     params:
       instruction: |
-        Based on the application data and risk classification, determine
-        the appropriate lending recommendation.
-
-        Risk classification: ${classify_risk.category}
-        ${input.investigation_findings}
-
+        ${domain.deliberate_recommendation.context}
         ${domain.deliberate_recommendation.instruction}
       focus: "${domain.deliberate_recommendation.focus}"
 
@@ -66,12 +51,7 @@ steps:
     params:
       rules: "${domain.verify_compliance.rules}"
       subject: |
-        Recommendation: ${deliberate_recommendation.recommended_action}
-        Risk tier: ${classify_risk.category}
-        Applicant age: ${input.applicant_age}
-        Loan amount: ${input.loan_amount}
-        DTI: ${gather_application.data.get_financials.dti_ratio}
-        Credit score: ${gather_application.data.get_credit.score}
+        ${domain.verify_compliance.subject_context}
     transitions:
       - default: govern_decision
 
@@ -79,10 +59,5 @@ steps:
     primitive: govern
     params:
       workflow_state: |
-        risk_tier: ${classify_risk.category}
-        recommendation: ${deliberate_recommendation.recommended_action}
-        warrant: ${deliberate_recommendation.warrant}
-        compliance_conforms: ${verify_compliance.conforms}
-        compliance_violations: ${verify_compliance.violations}
-        loan_amount: ${input.loan_amount}
+        ${domain.govern_decision.workflow_state}
       governance_context: "${domain.govern_decision.governance_context}"

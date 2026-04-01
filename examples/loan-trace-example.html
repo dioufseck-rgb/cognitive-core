@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cognitive Core — Loan Trace Example (APP-003 Diane Whitfield)</title>
+<style>
+  body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;padding:32px;max-width:860px;margin:0 auto;line-height:1.6}
+  h1{font-size:18px;font-weight:700;margin-bottom:4px}
+  .meta{color:#7d8590;font-size:12px;font-family:monospace;margin-bottom:28px}
+  .result-bar{background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.25);border-radius:8px;padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;gap:14px}
+  .result-icon{font-size:20px}
+  .result-title{font-size:14px;font-weight:700;color:#3fb950}
+  .result-meta{font-size:12px;color:#7d8590;font-family:monospace;margin-top:2px}
+  .step{display:flex;gap:12px;padding:10px 14px;border-radius:8px;margin:3px 0}
+  .step:hover{background:#161b22}
+  .icon{font-size:13px;width:18px;text-align:center;flex-shrink:0;margin-top:2px}
+  .step-body{flex:1}
+  .step-header{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .step-name{font-family:monospace;font-size:13px;font-weight:600}
+  .step-prim{font-family:monospace;font-size:11px;color:#7d8590;background:#161b22;padding:1px 6px;border-radius:4px;border:1px solid #30363d}
+  .step-ms{font-family:monospace;font-size:11px;color:#7d8590;margin-left:auto}
+  .step-detail{margin-top:5px;font-size:12px;color:#7d8590;line-height:1.55}
+  .conf-bar{display:flex;align-items:center;gap:8px;margin-top:4px}
+  .conf-track{width:140px;height:6px;background:#30363d;border-radius:3px;overflow:hidden}
+  .conf-fill{height:100%;background:#f85149;border-radius:3px}
+  .check{display:flex;align-items:center;gap:6px;font-size:12px;margin-top:3px}
+  .pass{color:#3fb950}.fail{color:#f85149}
+  .decision-row{background:rgba(63,185,80,.07);border:1px solid rgba(63,185,80,.25);border-radius:8px;padding:12px 16px;margin:6px 0}
+  .decision-hdr{display:flex;align-items:center;gap:8px;color:#3fb950;font-size:12px;font-weight:600}
+  .gate-row{background:rgba(210,153,34,.07);border:1px solid rgba(210,153,34,.3);border-radius:8px;padding:12px 16px;margin:8px 0}
+  .gate-hdr{display:flex;align-items:center;gap:8px;color:#d29922;font-size:13px;font-weight:600;margin-bottom:4px}
+  .verify{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-family:monospace;padding:2px 8px;border-radius:4px;background:rgba(63,185,80,.15);color:#3fb950}
+  .divider{height:1px;background:#30363d;margin:12px 0}
+  .footer{display:flex;justify-content:space-between;align-items:center;margin-top:20px}
+</style>
+</head>
+<body>
+<h1>Cognitive Core — Workflow Trace</h1>
+<div class="meta">
+  Instance: wf_example_app003 &nbsp;·&nbsp;
+  Workflow: loan_application_review &nbsp;·&nbsp;
+  Domain: consumer_lending &nbsp;·&nbsp;
+  Captured: 2026-03-31
+</div>
+
+<div class="result-bar">
+  <div class="result-icon">✓</div>
+  <div>
+    <div class="result-title">COMPLETE — APPROVE_MODIFIED</div>
+    <div class="result-meta">total elapsed 4m 18s &nbsp;·&nbsp; 6 steps &nbsp;·&nbsp; resumed after human decision</div>
+  </div>
+</div>
+
+<!-- Steps -->
+<div class="step">
+  <div class="icon">📥</div>
+  <div class="step-body">
+    <div class="step-header">
+      <span class="step-name">gather_application</span>
+      <span class="step-prim">retrieve</span>
+      <span class="step-ms">312ms</span>
+    </div>
+    <div class="step-detail">
+      Sources: get_credit, get_financials, get_employment, get_banking, get_identity
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="icon">🏷</div>
+  <div class="step-body">
+    <div class="step-header">
+      <span class="step-name">classify_risk</span>
+      <span class="step-prim">classify</span>
+      <span class="step-ms">880ms</span>
+    </div>
+    <div class="step-detail">
+      <div class="conf-bar">
+        <div class="conf-track"><div class="conf-fill" style="width:81%"></div></div>
+        <span style="font-family:monospace;font-size:11px;color:#7d8590">high_risk &nbsp; 81%</span>
+      </div>
+      <div style="margin-top:4px">Score 614, DTI 48%, part-time employment. Multiple derogatory marks 18mo.</div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="icon">🔍</div>
+  <div class="step-body">
+    <div class="step-header">
+      <span class="step-name">investigate_risk_factors</span>
+      <span class="step-prim">investigate</span>
+      <span class="step-ms">2.1s</span>
+    </div>
+    <div class="step-detail">
+      Finding: Primary driver is DTI at 48% with part-time income unverified. Derogatory marks are medical — not behavioral. Employment gap is 4 months.<br>
+      Mitigating: Long banking relationship, no NSF events, prior good standing.
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="icon">⚖️</div>
+  <div class="step-body">
+    <div class="step-header">
+      <span class="step-name">deliberate_recommendation</span>
+      <span class="step-prim">deliberate</span>
+      <span class="step-ms">1.8s</span>
+    </div>
+    <div class="step-detail">
+      Recommendation: approve_modified<br>
+      Warrant: Approve at $6,000 with income verification condition. Medical derogatory marks are non-predictive. DTI at $6K is 38%.
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="icon">✅</div>
+  <div class="step-body">
+    <div class="step-header">
+      <span class="step-name">verify_compliance</span>
+      <span class="step-prim">verify</span>
+      <span class="step-ms">640ms</span>
+    </div>
+    <div class="step-detail">
+      <div class="check"><span class="pass">✓</span> ECOA conforms</div>
+      <div class="check"><span class="pass">✓</span> FCRA conforms</div>
+      <div class="check"><span class="fail">✗</span> Ability-to-repay: income unverified — condition required</div>
+      <div class="check"><span class="pass">✓</span> Amount limits conforms</div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="icon">⏸</div>
+  <div class="step-body">
+    <div class="step-header">
+      <span class="step-name">govern_decision</span>
+      <span class="step-prim">govern</span>
+      <span class="step-ms">490ms</span>
+    </div>
+    <div class="step-detail">
+      <span style="color:#d29922;font-weight:700;font-family:monospace">GATE ⏸</span>
+      &nbsp; high_risk + approve_modified + unverified income
+    </div>
+  </div>
+</div>
+
+<div class="gate-row">
+  <div class="gate-hdr">
+    <span>⏸</span>
+    <span>GOVERNANCE GATE</span>
+    <span style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;background:rgba(210,153,34,.2);padding:2px 7px;border-radius:4px">GATE</span>
+  </div>
+  <div style="font-size:12px;color:#7d8590">high_risk + approve_modified + unverified income. Underwriter review required before any action.</div>
+</div>
+
+<div class="decision-row">
+  <div class="decision-hdr">
+    <span>◉</span>
+    <span>HUMAN DECISION</span>
+    <span style="color:#7d8590;font-weight:400">reviewer: jsmith &nbsp; 14:23:07</span>
+  </div>
+  <div style="margin-top:6px;font-size:13px;color:#e6edf3">
+    <strong>approve_modified</strong> — Approve at $6,000 with income verification condition.
+    Medical derogatory marks are non-predictive of default risk. Recommend reduced principal
+    to bring DTI within policy at 38%.
+  </div>
+</div>
+
+<div class="step">
+  <div class="icon">📄</div>
+  <div class="step-body">
+    <div class="step-header">
+      <span class="step-name">generate_output</span>
+      <span class="step-prim">generate</span>
+      <span class="step-ms">1.1s</span>
+    </div>
+    <div class="step-detail">
+      adverse_action_notice.json<br>
+      <span style="color:#e6edf3">Approved at $6,000 with income verification condition required within 30 days.</span>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="footer">
+  <div>
+    <span class="verify">✓ ledger verified &nbsp; 14 entries</span>
+  </div>
+  <div style="font-size:11px;color:#7d8590;font-family:monospace">
+    Instance wf_example_app003 &nbsp;·&nbsp; Exported 2026-03-31T14:28:03Z
+  </div>
+</div>
+</body>
+</html>

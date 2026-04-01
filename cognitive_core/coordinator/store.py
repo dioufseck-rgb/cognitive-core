@@ -171,6 +171,14 @@ class CoordinatorStore:
             self._commit()
         except Exception:
             pass  # Column already exists
+        # Hash chain — v0.1.0-technical-preview
+        try:
+            self.db.execute(
+                "ALTER TABLE action_ledger ADD COLUMN entry_hash TEXT DEFAULT NULL"
+            )
+            self._commit()
+        except Exception:
+            pass  # Column already exists
 
     # ─── Instance CRUD ───────────────────────────────────────────────
 
@@ -390,6 +398,22 @@ class CoordinatorStore:
 
     # ─── Action Ledger ───────────────────────────────────────────────
 
+    def _compute_entry_hash(self, prior_hash: str, content: str) -> str:
+        """Compute sha256(prior_hash + content) for hash chain integrity."""
+        import hashlib
+        return hashlib.sha256((prior_hash + content).encode()).hexdigest()
+
+    def _get_prior_hash(self, instance_id: str) -> str:
+        """Get the hash of the most recent ledger entry for this instance."""
+        GENESIS = "0000000000000000000000000000000000000000000000000000000000000000"
+        row = self.db.fetchone(
+            "SELECT entry_hash FROM action_ledger WHERE instance_id = ? ORDER BY id DESC LIMIT 1",
+            (instance_id,)
+        )
+        if not row or not row["entry_hash"]:
+            return GENESIS
+        return row["entry_hash"]
+
     def log_action(
         self,
         instance_id: str,
@@ -401,23 +425,90 @@ class CoordinatorStore:
         """
         Log an action to the ledger. Returns False if the idempotency
         key already exists (preventing duplicate execution).
+
+        Each entry includes entry_hash = sha256(prior_hash + content),
+        forming a tamper-evident hash chain across all ledger entries
+        for this instance.
         """
         try:
+            content = json.dumps({
+                "instance_id": instance_id,
+                "correlation_id": correlation_id,
+                "action_type": action_type,
+                "details": details,
+                "idempotency_key": idempotency_key,
+            }, sort_keys=True, default=str)
+            prior_hash = self._get_prior_hash(instance_id)
+            entry_hash = self._compute_entry_hash(prior_hash, content)
+
             self.db.execute("""
                 INSERT INTO action_ledger
                 (instance_id, correlation_id, action_type, details,
-                 idempotency_key, created_at)
-                VALUES (?, ?, ?, ?, ?, ?)
+                 idempotency_key, created_at, entry_hash)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             """, (
                 instance_id, correlation_id, action_type,
                 json.dumps(details, default=str),
-                idempotency_key, time.time(),
+                idempotency_key, time.time(), entry_hash,
             ))
             self._commit()
             return True
         except Exception:  # IntegrityError (SQLite) or UniqueViolation (Postgres)
             # Idempotency key already exists
             return False
+
+    def verify_ledger(self, instance_id: str) -> dict:
+        """
+        Verify the hash chain for all ledger entries of an instance.
+
+        Returns:
+          { valid: bool, entry_count: int, first_invalid_entry: int | None }
+
+        An unmodified ledger returns valid=True.
+        Modifying any entry's content causes verification to fail at that entry.
+        """
+        import hashlib
+        GENESIS = "0000000000000000000000000000000000000000000000000000000000000000"
+
+        rows = self.db.execute(
+            "SELECT * FROM action_ledger WHERE instance_id = ? ORDER BY id ASC",
+            (instance_id,)
+        ).fetchall()
+
+        if not rows:
+            return {"valid": True, "entry_count": 0, "first_invalid_entry": None}
+
+        prior_hash = GENESIS
+        for i, row in enumerate(rows):
+            stored_hash = row["entry_hash"] if "entry_hash" in row.keys() else None
+
+            # Entries written before hash chain was introduced have no hash — skip
+            if not stored_hash:
+                continue
+
+            # Recompute the content that was hashed at write time
+            try:
+                details = json.loads(row["details"])
+            except Exception:
+                details = {}
+            content = json.dumps({
+                "instance_id": row["instance_id"],
+                "correlation_id": row["correlation_id"],
+                "action_type": row["action_type"],
+                "details": details,
+                "idempotency_key": row["idempotency_key"],
+            }, sort_keys=True, default=str)
+
+            expected = hashlib.sha256((prior_hash + content).encode()).hexdigest()
+            if expected != stored_hash:
+                return {
+                    "valid": False,
+                    "entry_count": len(rows),
+                    "first_invalid_entry": row["id"],
+                }
+            prior_hash = stored_hash
+
+        return {"valid": True, "entry_count": len(rows), "first_invalid_entry": None}
 
     def get_ledger(
         self,

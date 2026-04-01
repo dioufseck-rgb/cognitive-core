@@ -1,0 +1,237 @@
+[
+  {
+    "_id": "RET-001",
+    "_description": "Standard in-policy return — defective item, within window",
+    "_expected": "within_policy → verify conforms → AUTO approve",
+    "order_id": "ORD-2026-88441",
+    "order_date": "2026-03-01",
+    "order_value": 89.99,
+    "days_since_delivery": 8,
+    "return_reason": "defective",
+    "return_reason_detail": "Screen cracked on first use — manufacturing defect, not dropped.",
+    "item_condition": "defective_as_received",
+    "item_category": "electronics_accessories",
+    "get_order": {
+      "order_id": "ORD-2026-88441",
+      "items": [{"sku": "PHN-CASE-7B", "name": "ProTect Phone Case", "qty": 1, "price": 89.99}],
+      "purchase_date": "2026-03-01",
+      "delivery_date": "2026-03-03",
+      "channel": "web",
+      "payment_method": "credit_card"
+    },
+    "get_customer": {
+      "customer_id": "CUST-449021",
+      "tenure_days": 847,
+      "lifetime_value": 1240.00,
+      "account_standing": "good",
+      "return_count_90d": 1,
+      "return_approval_rate": 1.0
+    },
+    "get_return_history": {
+      "total_returns": 2,
+      "approved": 2,
+      "denied": 0,
+      "last_return_days_ago": 120,
+      "fraud_flags": 0
+    },
+    "get_item_details": {
+      "category": "electronics_accessories",
+      "returnable": true,
+      "restocking_fee_pct": 0,
+      "typical_return_rate": 0.04
+    },
+    "get_carrier_info": {
+      "delivery_confirmed": true,
+      "delivery_date": "2026-03-03",
+      "signature_required": false
+    }
+  },
+  {
+    "_id": "RET-002",
+    "_description": "Out-of-policy — past 30-day window, loyal customer",
+    "_expected": "outside_policy → investigate → approve_exception (7yr customer) → SPOT_CHECK",
+    "order_id": "ORD-2026-71209",
+    "order_date": "2026-01-15",
+    "order_value": 145.00,
+    "days_since_delivery": 47,
+    "return_reason": "changed_mind",
+    "return_reason_detail": "Bought as a gift. Recipient already has one. Missed the return window due to travel.",
+    "item_condition": "unopened",
+    "item_category": "home_goods",
+    "get_order": {
+      "order_id": "ORD-2026-71209",
+      "items": [{"sku": "KTCHN-SET-3", "name": "Premium Knife Set", "qty": 1, "price": 145.00}],
+      "purchase_date": "2026-01-15",
+      "delivery_date": "2026-01-18",
+      "channel": "web",
+      "payment_method": "credit_card"
+    },
+    "get_customer": {
+      "customer_id": "CUST-102847",
+      "tenure_days": 2641,
+      "lifetime_value": 8940.00,
+      "account_standing": "excellent",
+      "return_count_90d": 0,
+      "return_approval_rate": 1.0
+    },
+    "get_return_history": {
+      "total_returns": 3,
+      "approved": 3,
+      "denied": 0,
+      "last_return_days_ago": 380,
+      "fraud_flags": 0,
+      "prior_exceptions": 0
+    },
+    "get_item_details": {
+      "category": "home_goods",
+      "returnable": true,
+      "restocking_fee_pct": 0,
+      "condition_notes": "Unopened, original packaging intact"
+    },
+    "get_carrier_info": {
+      "delivery_confirmed": true,
+      "delivery_date": "2026-01-18"
+    }
+  },
+  {
+    "_id": "RET-003",
+    "_description": "Suspected fraud — return without purchase pattern, new account",
+    "_expected": "suspected_fraud → investigate → challenge → HOLD for loss prevention",
+    "order_id": "ORD-2026-94102",
+    "order_date": "2026-03-18",
+    "order_value": 389.00,
+    "days_since_delivery": 3,
+    "return_reason": "wrong_item",
+    "return_reason_detail": "Received wrong item — ordered headphones but received a box of cables.",
+    "item_condition": "unopened",
+    "item_category": "electronics",
+    "get_order": {
+      "order_id": "ORD-2026-94102",
+      "items": [{"sku": "AUDIO-HP-PRO", "name": "ProSound Headphones", "qty": 1, "price": 389.00}],
+      "purchase_date": "2026-03-18",
+      "delivery_date": "2026-03-20",
+      "channel": "web",
+      "payment_method": "prepaid_card"
+    },
+    "get_customer": {
+      "customer_id": "CUST-991047",
+      "tenure_days": 12,
+      "lifetime_value": 389.00,
+      "account_standing": "new",
+      "return_count_90d": 1,
+      "return_approval_rate": null
+    },
+    "get_return_history": {
+      "total_returns": 1,
+      "approved": 0,
+      "denied": 0,
+      "last_return_days_ago": null,
+      "fraud_flags": 0,
+      "notes": "First return request. Account created 12 days ago. Single high-value purchase paid by prepaid card."
+    },
+    "get_item_details": {
+      "category": "electronics",
+      "returnable": true,
+      "restocking_fee_pct": 15,
+      "high_fraud_category": true,
+      "typical_return_rate": 0.06
+    },
+    "get_carrier_info": {
+      "delivery_confirmed": true,
+      "delivery_date": "2026-03-20",
+      "package_weight_lbs": 0.8,
+      "expected_weight_lbs": 1.4,
+      "weight_discrepancy": true
+    }
+  },
+  {
+    "_id": "RET-004",
+    "_description": "Carrier damage — wrong path, should be carrier claim",
+    "_expected": "carrier_claim → AUTO route to carrier claim process",
+    "order_id": "ORD-2026-80055",
+    "order_date": "2026-03-10",
+    "order_value": 220.00,
+    "days_since_delivery": 2,
+    "return_reason": "damaged_in_shipping",
+    "return_reason_detail": "Package arrived crushed. Item inside is broken. Photos attached.",
+    "item_condition": "damaged_by_carrier",
+    "item_category": "home_goods",
+    "get_order": {
+      "order_id": "ORD-2026-80055",
+      "items": [{"sku": "LAMP-DESK-4", "name": "Architect Desk Lamp", "qty": 1, "price": 220.00}],
+      "purchase_date": "2026-03-10",
+      "delivery_date": "2026-03-21",
+      "channel": "web",
+      "payment_method": "debit_card"
+    },
+    "get_customer": {
+      "customer_id": "CUST-774412",
+      "tenure_days": 312,
+      "lifetime_value": 580.00,
+      "account_standing": "good",
+      "return_count_90d": 0
+    },
+    "get_return_history": {
+      "total_returns": 1,
+      "approved": 1,
+      "denied": 0,
+      "fraud_flags": 0
+    },
+    "get_item_details": {
+      "category": "home_goods",
+      "returnable": true,
+      "carrier_insurance": true
+    },
+    "get_carrier_info": {
+      "delivery_confirmed": true,
+      "delivery_date": "2026-03-21",
+      "damage_claim_eligible": true,
+      "carrier": "FedEx",
+      "tracking": "794644792798"
+    }
+  },
+  {
+    "_id": "RET-005",
+    "_description": "High-value within policy — gate for agent review",
+    "_expected": "within_policy → verify conforms → GATE (high value threshold)",
+    "order_id": "ORD-2026-55812",
+    "order_date": "2026-03-05",
+    "order_value": 1850.00,
+    "days_since_delivery": 12,
+    "return_reason": "not_as_described",
+    "return_reason_detail": "Product specifications on website stated 4K display. Received 1080p model.",
+    "item_condition": "opened_unused",
+    "item_category": "electronics",
+    "get_order": {
+      "order_id": "ORD-2026-55812",
+      "items": [{"sku": "CAM-DSLR-X9", "name": "ProVision DSLR Camera Kit", "qty": 1, "price": 1850.00}],
+      "purchase_date": "2026-03-05",
+      "delivery_date": "2026-03-08",
+      "channel": "web",
+      "payment_method": "credit_card"
+    },
+    "get_customer": {
+      "customer_id": "CUST-228841",
+      "tenure_days": 1204,
+      "lifetime_value": 4200.00,
+      "account_standing": "good",
+      "return_count_90d": 0
+    },
+    "get_return_history": {
+      "total_returns": 2,
+      "approved": 2,
+      "denied": 0,
+      "fraud_flags": 0
+    },
+    "get_item_details": {
+      "category": "electronics",
+      "returnable": true,
+      "restocking_fee_pct": 10,
+      "high_value": true
+    },
+    "get_carrier_info": {
+      "delivery_confirmed": true,
+      "delivery_date": "2026-03-08"
+    }
+  }
+]

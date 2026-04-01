@@ -67,8 +67,9 @@ def run_application(coord: Coordinator, app: dict) -> None:
 
     delib = trace.steps.get("deliberate_recommendation", {}).get("output", {})
     if delib:
-        action = delib.get("recommended_action", "?")
-        warrant = str(delib.get("warrant") or "")
+        # Schema uses recommended_action; some model outputs use recommendation
+        action = delib.get("recommended_action") or delib.get("recommendation") or "—"
+        warrant = str(delib.get("warrant") or delib.get("rationale") or "")
         print(f"  Recommendation: {action}")
         if warrant:
             print(f"  Warrant:        {warrant[:120]}{'...' if len(warrant) > 120 else ''}")
@@ -79,18 +80,36 @@ def run_application(coord: Coordinator, app: dict) -> None:
         violations = len(verify.get("violations") or [])
         print(f"  Compliance:     {'✓ conforms' if conforms else f'✗ {violations} violation(s)'}")
 
+    # Governance outcome — read from coordinator state, not LLM step output.
+    # The coordinator evaluates governance independently after execution and may
+    # upgrade the tier beyond what the govern primitive returned.
+    actual_tier = (instance.governance_tier or "auto").lower().replace("governancetier.", "")
+    actual_status = instance.status.value   # "completed" | "suspended" | "failed"
+
     gov = trace.steps.get("govern_decision", {}).get("output", {})
-    tier = gov.get("tier_applied") or instance.governance_tier or "?"
-    tier_str = str(tier).lower().replace("governancetier.", "")
-    disposition = gov.get("disposition", "?")
-    icon = TIER_ICONS.get(tier_str, "?")
-    print(f"  Governance:     {icon} {tier_str.upper()}  —  {disposition}")
+    gov_disposition = gov.get("disposition", "")
 
-    work_order = gov.get("work_order")
-    if isinstance(work_order, dict):
-        print(f"  Work order:     → {work_order.get('target', '?')} queue")
-
-    print(f"  Expected:       {app.get('_expected', '')}")
+    if actual_status == "suspended":
+        # Instance is waiting for human review — the coordinator suspended it
+        # regardless of what the govern primitive returned. Never show "proceed"
+        # when the case is sitting in a queue.
+        pending = coord.list_pending_approvals()
+        task = next((t for t in pending if t["instance_id"] == instance_id), None)
+        queue = task.get("queue", actual_tier + "_review") if task else actual_tier + "_review"
+        icon = TIER_ICONS.get(actual_tier, "⏸ ")
+        # Use the govern primitive's disposition only if it confirms suspension
+        if gov_disposition and gov_disposition not in ("proceed", "auto"):
+            label = gov_disposition
+        else:
+            label = "suspend_for_approval"
+        print(f"  Governance:     {icon} {actual_tier.upper()}  —  {label}")
+        print(f"  Work order:     → {queue} queue")
+    elif actual_status == "completed":
+        icon = TIER_ICONS.get(actual_tier, "✓")
+        label = gov_disposition or "proceed"
+        print(f"  Governance:     {icon} {actual_tier.upper()}  —  {label}")
+    else:
+        print(f"  Governance:     ? {actual_tier.upper()}  —  {actual_status}")
 
 
 def main():
@@ -100,6 +119,7 @@ def main():
     coord = Coordinator(
         str(DEMO_DIR / "coordinator_config.yaml"),
         db_path=str(DEMO_DIR / "demo.db"),
+        verbose=False,
     )
 
     with open(DEMO_DIR / "cases" / "applications.json") as f:

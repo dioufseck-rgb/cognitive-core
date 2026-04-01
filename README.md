@@ -12,7 +12,10 @@ Cognitive Core is built differently. It treats AI-native workflow design as a fi
 
 → **[Quickstart — run a governed workflow in five minutes](QUICKSTART.md)**  
 → **[Domain library — five ready-to-run institutional decision packs](library/README.md)**  
-→ **[Position paper — the institutional AI design language](docs/institutional-intelligence.md)**
+→ **[Position paper — the institutional AI design language](docs/institutional-intelligence.md)**  
+→ **[REST API reference — all endpoints, request/response shapes, SSE events](docs/api-reference.md)**  
+→ **[Operational notes — maturity, assumptions, known limitations](OPERATIONAL_NOTES.md)**  
+→ **[Changelog — v0.1.0-technical-preview](CHANGELOG.md)**
 
 ---
 

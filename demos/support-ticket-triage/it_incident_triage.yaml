@@ -1,0 +1,93 @@
+# IT Incident Triage — Domain Specification
+#
+# Uses the same triage_and_escalation workflow as customer_support
+# and clinical_triage. Only the domain knowledge changes.
+#
+# This file is the complete difference between a customer support
+# triage system and an IT incident triage system.
+
+domain_name: it_incident_triage
+workflow: triage_and_escalation
+governance: spot_check
+
+classify_severity:
+  input_context: |
+    Incident title: ${input.title}
+    Description: ${input.description}
+    Affected system: ${input.affected_system}
+    Reporter: ${input.reporter}
+    Users affected estimate: ${input.users_affected}
+
+  categories: |
+    - sev1: Complete outage of a production system, data loss or corruption,
+      security breach, payment processing down. All-hands response.
+    - sev2: Major feature degraded, significant user impact, workaround
+      not available. On-call engineer + team lead required.
+    - sev3: Partial degradation, workaround available, limited user impact.
+      Standard on-call response within 4 hours.
+    - sev4: Minor issue, cosmetic, or question. Handled in next business day.
+
+  criteria: |
+    Classify based on user impact and system criticality.
+    Any mention of data loss or security → sev1.
+    Production systems with > 10% users affected → sev2 minimum.
+    When in doubt between sev1 and sev2, choose sev1.
+
+  escalate_condition: "output.category in ['sev1', 'sev2']"
+
+investigate_issue:
+  question: |
+    What is the scope and likely cause of this incident, and what is
+    the fastest path to resolution?
+
+  input_context: |
+    Title: ${input.title}
+    Description: ${input.description}
+    Affected system: ${input.affected_system}
+    Users affected: ${input.users_affected}
+    Recent deployments: ${input.recent_deployments}
+    Error logs: ${input.error_logs}
+    Severity: ${classify_severity.category}
+
+  scope: |
+    1. What system or component is failing, and how specifically?
+    2. What is the blast radius — which users and services are affected?
+    3. What changed recently? Deployments, config changes, traffic spikes?
+    4. What is the most likely root cause?
+    5. What is the fastest mitigation — rollback, restart, failover, patch?
+    6. Who needs to be paged immediately?
+
+  effort_level: deep
+
+generate_response:
+  context: |
+    Incident: ${input.title}
+    Affected system: ${input.affected_system}
+    Severity: ${classify_severity.category}
+    Investigation: ${investigate_issue.finding}
+
+  requirements: |
+    Produce a structured incident response brief:
+    1. Severity level and one-line impact summary
+    2. Affected systems and estimated user impact
+    3. Likely root cause (best current hypothesis)
+    4. Immediate mitigation steps — what to do right now
+    5. Who to page and what to tell them
+    6. Status page / customer communication recommendation
+
+  format: |
+    {
+      "severity": "<sev1|sev2|sev3|sev4>",
+      "impact_summary": "<one line>",
+      "affected_systems": ["<system1>", "..."],
+      "root_cause_hypothesis": "<hypothesis>",
+      "immediate_actions": ["<action1>", "..."],
+      "page": ["<team or person>", "..."],
+      "customer_comm": "<draft or null>"
+    }
+
+  constraints: |
+    - Be specific about which systems and how many users
+    - Immediate actions must be executable — no vague directives
+    - If uncertain about root cause, say so and list hypotheses
+    - page list must include specific teams, not just "engineering"

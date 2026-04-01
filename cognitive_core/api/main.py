@@ -80,11 +80,13 @@ app.add_middleware(
 )
 
 # ── API Routers ────────────────────────────────────────────────────
-from cognitive_core.api.routers import cases, instances, tasks  # noqa: E402
+from cognitive_core.api.routers import cases, instances, tasks, hitl, trace  # noqa: E402
 
 app.include_router(cases.router, prefix="/api")
 app.include_router(instances.router, prefix="/api")
 app.include_router(tasks.router, prefix="/api")
+app.include_router(hitl.router, prefix="/api")
+app.include_router(trace.router, prefix="/api")
 
 # ── SPA (mount after API routes so /api/* routes win) ─────────────
 app.mount("/", StaticFiles(directory="ui", html=True), name="ui")

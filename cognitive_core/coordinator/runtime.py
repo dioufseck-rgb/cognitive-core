@@ -257,6 +257,15 @@ class Coordinator:
                 f"Check delegation policies for circular triggers."
             )
 
+        # ── C2: Case input validation (Sprint 2.1) ──
+        # Validate at the boundary — clean errors here, not deep in execution
+        try:
+            from cognitive_core.engine.input_validation import validate_case_input
+            validate_case_input(case_input)
+        except Exception as _ve:
+            # Re-raise as ValueError so callers get a clean, typed error
+            raise ValueError(str(_ve)) from _ve
+
         # Resolve governance tier — override takes precedence
         tier = governance_tier_override or self._resolve_governance_tier(domain)
         tier_locked = bool(governance_tier_override)

@@ -1,0 +1,121 @@
+[
+  {
+    "_id": "ELIG-001",
+    "_domain_example": "Subscription upgrade eligibility",
+    "_description": "Clearly eligible — power user requesting premium upgrade",
+    "_expected": "clearly_eligible → verify conforms → AUTO approve",
+    "check_type": "subscription_upgrade",
+    "benefit": "premium_tier",
+    "claimed_status": "power_user",
+    "account_age_days": 547,
+    "account_standing": "good",
+    "verification_document": null,
+    "age": 29,
+    "region": "US",
+    "get_account": {
+      "account_id": "ACC-774421",
+      "tier": "standard",
+      "standing": "good",
+      "monthly_active_days": 28,
+      "features_used": 14,
+      "payment_history": "all_paid",
+      "chargebacks": 0,
+      "support_tickets_open": 0
+    },
+    "get_usage": {
+      "avg_sessions_per_month": 41,
+      "total_exports": 187,
+      "api_calls_last_30d": 2840,
+      "power_user_threshold_met": true
+    }
+  },
+  {
+    "_id": "ELIG-002",
+    "_domain_example": "Student discount eligibility",
+    "_description": "Borderline — claims student status, unverified university email",
+    "_expected": "borderline → investigate → needs_verification → GATE",
+    "check_type": "student_discount",
+    "benefit": "50pct_student_discount",
+    "claimed_status": "student",
+    "account_age_days": 14,
+    "account_standing": "good",
+    "verification_document": "student_id_photo_uploaded",
+    "age": 22,
+    "region": "US",
+    "email": "jsmith@gmail.com",
+    "claimed_university": "State University",
+    "get_account": {
+      "account_id": "ACC-991203",
+      "tier": "free",
+      "standing": "good",
+      "payment_history": "no_purchases",
+      "chargebacks": 0
+    },
+    "get_verification": {
+      "edu_email_verified": false,
+      "document_uploaded": true,
+      "document_type": "student_id_photo",
+      "document_verified": false,
+      "notes": "Gmail address used. Student ID photo uploaded but not yet reviewed."
+    }
+  },
+  {
+    "_id": "ELIG-003",
+    "_domain_example": "Professional discount eligibility",
+    "_description": "Clearly ineligible — account suspended, fails hard rule",
+    "_expected": "clearly_ineligible → verify fails Rule 2 → deny",
+    "check_type": "professional_discount",
+    "benefit": "professional_license",
+    "claimed_status": "licensed_professional",
+    "account_age_days": 203,
+    "account_standing": "suspended",
+    "verification_document": "license_number_provided",
+    "age": 35,
+    "region": "US",
+    "get_account": {
+      "account_id": "ACC-441029",
+      "tier": "standard",
+      "standing": "suspended",
+      "suspension_reason": "payment_dispute_open",
+      "chargebacks": 1,
+      "suspension_date": "2026-03-10"
+    },
+    "get_verification": {
+      "license_number": "LIC-CA-224891",
+      "license_type": "professional_engineer",
+      "license_verified": true,
+      "license_active": true
+    }
+  },
+  {
+    "_id": "ELIG-004",
+    "_domain_example": "Loyalty program tier upgrade",
+    "_description": "Eligible conditional — meets spend threshold, region restriction applies",
+    "_expected": "borderline → investigate → eligible_conditional → SPOT_CHECK",
+    "check_type": "loyalty_tier_upgrade",
+    "benefit": "gold_tier_loyalty",
+    "claimed_status": "high_spender",
+    "account_age_days": 892,
+    "account_standing": "good",
+    "verification_document": null,
+    "age": 41,
+    "region": "CA",
+    "get_account": {
+      "account_id": "ACC-338871",
+      "tier": "silver",
+      "standing": "good",
+      "annual_spend": 4800,
+      "gold_threshold": 5000,
+      "payment_history": "all_paid",
+      "chargebacks": 0
+    },
+    "get_usage": {
+      "purchases_last_12mo": 18,
+      "avg_order_value": 267,
+      "gold_tier_eligible_regions": ["US", "UK", "AU"],
+      "customer_region": "CA",
+      "regional_program_available": false,
+      "notes": "Gold tier not yet launched in Canada. Eligible by spend but region restriction applies."
+    }
+  }
+]

@@ -4,7 +4,7 @@
     "applicant_name": "Priya Sharma",
     "applicant_age": 34,
     "loan_amount": 12000,
-    "loan_purpose": "Home improvement — kitchen renovation",
+    "loan_purpose": "Home improvement \u2014 kitchen renovation",
     "investigation_findings": "",
     "get_credit": {
       "score": 748,
@@ -34,12 +34,11 @@
     "get_identity": {
       "verification_status": "verified",
       "fraud_flag": false
-    },
-    "_expected": "prime → approve → auto (clean profile, low amount)"
+    }
   },
   {
     "_id": "APP-002",
-    "applicant_name": "Tomás Rivera",
+    "applicant_name": "Tom\u00e1s Rivera",
     "applicant_age": 29,
     "loan_amount": 22000,
     "loan_purpose": "Debt consolidation",
@@ -72,8 +71,7 @@
     "get_identity": {
       "verification_status": "verified",
       "fraud_flag": false
-    },
-    "_expected": "near_prime → approve_modified or refer_specialist → gate (multiple concerns, higher amount)"
+    }
   },
   {
     "_id": "APP-003",
@@ -97,7 +95,7 @@
     },
     "get_employment": {
       "status": "employed_part_time",
-      "employer": "Retail — Greenway Foods",
+      "employer": "Retail \u2014 Greenway Foods",
       "tenure_years": 0.8,
       "income_source": "hourly",
       "verification_status": "verified"
@@ -110,8 +108,7 @@
     "get_identity": {
       "verification_status": "verified",
       "fraud_flag": false
-    },
-    "_expected": "high_risk → investigate → deliberate decline or refer_specialist → gate"
+    }
   },
   {
     "_id": "APP-004",
@@ -135,7 +132,7 @@
     },
     "get_employment": {
       "status": "self_employed",
-      "employer": "Self — Webb Consulting (unregistered)",
+      "employer": "Self \u2014 Webb Consulting (unregistered)",
       "tenure_years": 0.3,
       "income_source": "self_employment",
       "verification_status": "unverified"
@@ -148,7 +145,6 @@
     "get_identity": {
       "verification_status": "verified",
       "fraud_flag": false
-    },
-    "_expected": "ineligible → decline → hold (active bankruptcy, unverified income, DTI > 50%)"
+    }
   }
 ]

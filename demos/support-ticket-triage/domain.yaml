@@ -1,13 +1,21 @@
 # Support Ticket Triage — Domain Specification
 #
-# A general-purpose customer support domain.
-# Shows the simplest possible domain pack: three steps, plain language.
+# Customer support domain using the triage_and_escalation workflow.
+# This file contains ALL domain-specific content. The workflow is
+# domain-agnostic and reusable for any triage use case.
 
 domain_name: customer_support
-workflow: support_ticket_triage
+workflow: triage_and_escalation
 governance: spot_check
 
 classify_severity:
+  # Input field names are domain knowledge — not in the workflow.
+  input_context: |
+    Ticket subject: ${input.subject}
+    Ticket body: ${input.body}
+    Customer tier: ${input.customer_tier}
+    Account history: ${input.account_history}
+
   categories: |
     - critical: Complete service outage, data loss, security breach,
       payment failure affecting all users. Requires immediate response.
@@ -17,6 +25,7 @@ classify_severity:
       but operational. Resolution within 24-48 hours.
     - low: Question, minor inconvenience, feature request, documentation gap.
       Resolution within standard SLA.
+
   criteria: |
     Classify based on customer impact and business risk.
     Enterprise/premium tier customers escalate one level by default.
@@ -24,7 +33,22 @@ classify_severity:
     Keywords that signal critical: "down", "all users", "data", "payment",
     "breach", "can't access", "production".
 
+  # Escalation condition belongs in the domain — not hardcoded in workflow.
+  escalate_condition: "output.category in ['critical', 'high']"
+
 investigate_issue:
+  # The question and evidence labels are domain-specific.
+  question: |
+    What is the root cause of this issue and what is the best resolution path?
+
+  input_context: |
+    Subject: ${input.subject}
+    Body: ${input.body}
+    Customer tier: ${input.customer_tier}
+    Account history: ${input.account_history}
+    Severity classification: ${classify_severity.category}
+    Classification reasoning: ${classify_severity.reasoning}
+
   scope: |
     1. What is the specific technical failure or gap? Be precise.
     2. What is the likely root cause based on the description?
@@ -33,7 +57,16 @@ investigate_issue:
     5. Are there workarounds the customer can use immediately?
     6. Is escalation to engineering or a specialist required?
 
+  effort_level: moderate
+
 generate_response:
+  # Context assembly is domain-specific — field names and state references.
+  context: |
+    Customer: ${input.customer_name}
+    Customer tier: ${input.customer_tier}
+    Severity: ${classify_severity.category}
+    Investigation finding: ${investigate_issue.finding}
+
   requirements: |
     Write a support response that:
     1. Acknowledges the specific issue — do not use generic language
@@ -41,6 +74,7 @@ generate_response:
     3. Provides any immediate workaround if available
     4. Gives a realistic timeline based on severity
     5. Closes with a direct invitation to reply with questions
+
   format: |
     {
       "subject": "Re: <original subject>",
@@ -49,6 +83,7 @@ generate_response:
       "escalate_to": "<team or null>",
       "sla_hours": <number>
     }
+
   constraints: |
     - Never promise specific resolution times you cannot guarantee
     - Never say "we apologize for the inconvenience" — be specific

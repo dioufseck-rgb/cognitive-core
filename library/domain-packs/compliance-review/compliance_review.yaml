@@ -97,6 +97,15 @@ verify_conformance:
 # Define the scope of investigation — what questions must be answered.
 
 investigate_violations:
+  question: |
+    Analyse the compliance violations or ambiguities identified in detail.
+
+  input_context: |
+    Conformance result: ${verify_conformance.conforms}
+    Violations found: ${verify_conformance.violations}
+    Rules checked: ${verify_conformance.rules_checked}
+    Subject data: ${gather_subject.data}
+
   scope: |
     1. Which rules were violated and what specifically is non-conforming?
     2. Is the violation technical (process) or substantive (outcome)?
@@ -113,6 +122,11 @@ investigate_violations:
 # Produce a compliance finding with remediation requirements.
 
 deliberate_finding:
+  context: |
+    Conformance result: ${verify_conformance.conforms}
+    Violations: ${verify_conformance.violations}
+    Investigation: ${investigate_violations.finding}
+
   instruction: |
     Produce a compliance finding based on the verification and investigation.
 
@@ -141,6 +155,13 @@ deliberate_finding:
 generate_memo:
   format: compliance_memo
 
+  context: |
+    CONFORMANCE RESULT: ${verify_conformance.conforms}
+    VIOLATIONS: ${verify_conformance.violations}
+    INVESTIGATION FINDING: ${investigate_violations.finding}
+    COMPLIANCE DETERMINATION: ${deliberate_finding.recommended_action}
+    WARRANT: ${deliberate_finding.warrant}
+
   requirements: |
     Generate a compliance memo suitable for examiner review.
 
@@ -165,6 +186,12 @@ generate_memo:
 # ─── Step: govern_outcome ────────────────────────────────────────────────────
 
 govern_outcome:
+  workflow_state: |
+    conforms: ${verify_conformance.conforms}
+    violations: ${verify_conformance.violations}
+    finding: ${deliberate_finding.recommended_action}
+    warrant: ${deliberate_finding.warrant}
+
   governance_context: |
     AUTO — Not appropriate for compliance review. All findings require
     at minimum spot-check review.

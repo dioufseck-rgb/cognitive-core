@@ -1,0 +1,211 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Domain Pack: Eligibility Check
+# Pattern:     P02 — Eligibility Determination (lightweight embeddable)
+# Overlays:    exception, governance
+# Coordinator: simple
+#
+# What this pack does:
+#   Determines whether a person, account, or entity qualifies for a product,
+#   service, benefit, discount, program, or feature. Every determination
+#   produces a warrant with specific reasons — approvals and denials both
+#   have documented rationale traceable to the eligibility criteria.
+#
+# Designed for embedding:
+#   - Subscription tier upgrades
+#   - Loyalty program access
+#   - Professional / student discount verification
+#   - Feature gating (beta access, premium features)
+#   - Credit line increase eligibility
+#   - Promotional offer qualification
+#   - Insurance product eligibility
+#   - Government benefit programs
+#
+# The application receives a typed disposition:
+#   AUTO approve    → grant access immediately
+#   SPOT_CHECK      → grant access, flag for verification sampling
+#   GATE            → show "under review", route to agent
+#   HOLD            → hold pending compliance or identity verification
+#
+# What you fill in:
+#   All [FILL IN] sections below. The workflow is production-ready;
+#   only the eligibility criteria and governance thresholds are domain-specific.
+# ─────────────────────────────────────────────────────────────────────────────
+# Edit this file to supply your domain knowledge.
+
+domain_name: eligibility_check
+base_pattern: P02-eligibility-determination
+overlays:
+  - exception
+  - governance
+coordinator_template: simple
+
+# ─── Step: retrieve_applicant_data ───────────────────────────────────────────
+# What data do you need to make the eligibility decision?
+# Leave blank if all required data is passed directly in the case input.
+
+retrieve_applicant_data:
+  specification: |
+    Retrieve available data for this eligibility check:
+      [FILL IN] list the data sources relevant to your eligibility decision
+      Examples:
+        - get_account: Account age, standing, tier, usage history
+        - get_identity: Verified identity, age, location
+        - get_payment_history: Payment record, chargebacks, disputes
+        - get_verification: Professional license, student status, employer
+        - get_usage: Product usage, engagement metrics
+        - get_credit: Credit profile (for financial products)
+
+    Return empty context if no retrieval system is available —
+    eligibility check will run on the data passed in the case input.
+
+# ─── Step: classify_eligibility ──────────────────────────────────────────────
+# Define your eligibility tiers. Three typical tiers:
+#   clearly_eligible  → proceed to verify only
+#   borderline        → investigate before deciding
+#   clearly_ineligible → proceed to verify only (fast denial)
+
+classify_eligibility:
+  categories: |
+    - clearly_eligible: [FILL IN] define what makes an applicant clearly eligible
+      e.g. Meets all primary criteria with no ambiguity. Verified status,
+      account in good standing, all threshold requirements exceeded.
+
+    - borderline: [FILL IN] define the borderline zone
+      e.g. Meets most criteria but has one or more factors requiring
+      judgment. Close to thresholds, unverified claims, or mixed signals.
+
+    - clearly_ineligible: [FILL IN] define hard disqualifiers
+      e.g. Fails one or more hard criteria. Account suspended, age
+      requirement not met, excluded category, verification failed.
+
+  criteria: |
+    [FILL IN] The logic for classifying between tiers.
+    What are the primary signals? How do you weigh conflicting signals?
+    When in doubt between eligible and borderline, classify as borderline.
+
+  # Context injected from case input
+  input_context: |
+    [FILL IN] the fields from case input that inform classification
+    e.g.:
+    Account age (days): ${input.account_age_days}
+    Account standing: ${input.account_standing}
+    Claimed status: ${input.claimed_status}
+    Verification provided: ${input.verification_document}
+
+  # When to trigger investigation path
+  review_condition: "output.category == 'borderline'"
+
+# ─── Step: investigate_borderline ────────────────────────────────────────────
+# Fires for borderline classifications. What should the investigation resolve?
+
+investigate_borderline:
+  question: |
+    This application is borderline. Investigate whether eligibility
+    can be determined with confidence.
+
+  input_context: |
+    Classification: ${classify_eligibility.category}
+    Classification reasoning: ${classify_eligibility.reasoning}
+    Retrieved data: ${retrieve_applicant_data.data}
+    Input data: ${input}
+
+  scope: |
+    [FILL IN] The specific questions the investigation must answer.
+    Examples:
+    1. What specific factor(s) put this applicant in the borderline tier?
+    2. Is the claimed status verifiable from available data?
+    3. Are there compensating factors that justify eligibility?
+    4. What is the risk of approving vs denying a borderline case?
+    5. Is this a first application or a repeat request?
+
+  effort_level: moderate
+
+# ─── Step: deliberate_eligibility ────────────────────────────────────────────
+# For borderline cases, define the outcome options and decision criteria.
+
+deliberate_eligibility:
+  context: |
+    Eligibility classification: ${classify_eligibility.category}
+    Investigation: ${investigate_borderline.finding}
+
+  instruction: |
+    Determine eligibility for this borderline case.
+
+    Your options are:
+      [FILL IN] your eligibility outcomes
+      Examples:
+        - eligible: Approve eligibility. Document the warrant.
+        - eligible_conditional: Approve subject to [condition]. Specify condition.
+        - ineligible: Deny. Cite specific unmet criteria.
+        - needs_verification: Eligible if verified. Request specific documentation.
+
+  focus: |
+    [FILL IN] The criteria for choosing between outcomes.
+    Example: Weight the strength of evidence for the claim, the risk
+    profile of a false positive vs false negative, and any compensating
+    factors identified in the investigation.
+
+# ─── Step: verify_eligibility ────────────────────────────────────────────────
+# Your explicit eligibility rules, numbered. These run for all cases.
+# Violations become the specific denial reasons in adverse action notices.
+
+verify_eligibility:
+  rules: |
+    The following rules must ALL be satisfied for eligibility:
+
+    1. [FILL IN] Your first eligibility rule
+       e.g. AGE: Applicant must be 18 years or older.
+
+    2. [FILL IN] Your second eligibility rule
+       e.g. ACCOUNT STANDING: Account must not be suspended or under review.
+
+    3. [FILL IN] Your third eligibility rule
+       e.g. REGION: Service available in applicant's country or state.
+
+    4. [FILL IN] Your fourth eligibility rule
+       e.g. VERIFICATION: Claimed status must be verifiable or self-certified.
+
+    Add as many rules as needed. Number them — violation reports
+    reference rule numbers in adverse action communications.
+
+  # Additional context for rule verification
+  subject_context: |
+    [FILL IN] the fields relevant to rule checking
+    e.g.:
+    Applicant age: ${input.age}
+    Account status: ${retrieve_applicant_data.data.get_account.status}
+    Region: ${input.region}
+
+# ─── Step: govern_eligibility ────────────────────────────────────────────────
+
+govern_eligibility:
+  workflow_state: |
+    eligibility_tier: ${classify_eligibility.category}
+    deliberation: ${deliberate_eligibility.recommended_action}
+    warrant: ${deliberate_eligibility.warrant}
+    rules_conforms: ${verify_eligibility.conforms}
+    rules_violations: ${verify_eligibility.violations}
+
+  governance_context: |
+    AUTO (grant access immediately) — when:
+    [FILL IN] e.g. clearly_eligible + all rules conform + low risk profile
+
+    SPOT_CHECK (grant access, sample for verification) — when:
+    [FILL IN] e.g. eligible via deliberation + first application + unverified claim
+
+    GATE (hold for agent review) — when:
+    [FILL IN] e.g. needs_verification + high-value benefit + any ambiguity
+
+    HOLD (hold for compliance) — when:
+    [FILL IN] e.g. identity verification failed + regulatory requirement
+              e.g. potential fraud indicators + high-value benefit
+
+    Work order for agent must include:
+    - Eligibility classification and key evidence
+    - Specific rules conformed / violated
+    - Investigation finding (if applicable)
+    - Deliberation recommendation and warrant
+    - What the agent needs to verify or decide
+
+  # Additional workflow state to include in governance assessment
+  additional_state: ""

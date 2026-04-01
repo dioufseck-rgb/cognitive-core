@@ -72,11 +72,7 @@ steps:
     params:
       question: "${domain.investigate_situation.question}"
       scope: "${domain.investigate_situation.scope}"
-      available_evidence: |
-        Severity classification: ${classify_severity.category}
-        Classification reasoning: ${classify_severity.reasoning}
-        Context: ${retrieve_context.data}
-        Input: ${input}
+      available_evidence: "${domain.investigate_situation.input_context}"
       effort_level: "${domain.investigate_situation.effort_level}"
     transitions:
       - default: generate_response
@@ -85,12 +81,7 @@ steps:
     primitive: generate
     params:
       requirements: |
-        Generate the appropriate response or briefing for this case.
-
-        Severity: ${classify_severity.category}
-        Confidence: ${classify_severity.confidence}
-        Investigation findings: ${investigate_situation.finding}
-
+        ${domain.generate_response.context}
         ${domain.generate_response.requirements}
       format: "${domain.generate_response.format}"
       constraints: "${domain.generate_response.constraints}"

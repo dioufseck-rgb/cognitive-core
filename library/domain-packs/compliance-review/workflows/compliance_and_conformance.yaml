@@ -59,7 +59,6 @@ steps:
       rules: "${domain.verify_conformance.rules}"
       subject: |
         ${domain.verify_conformance.subject_context}
-        Retrieved data: ${gather_subject.data}
     transitions:
       # Early exit: full conformance with no ambiguity — skip investigation
       - when: "${domain.verify_conformance.early_exit_condition}"
@@ -69,14 +68,9 @@ steps:
   - name: investigate_violations
     primitive: investigate
     params:
-      question: |
-        Analyse the compliance violations or ambiguities identified.
+      question: "${domain.investigate_violations.question}"
       scope: "${domain.investigate_violations.scope}"
-      available_evidence: |
-        Conformance result: ${verify_conformance.conforms}
-        Violations found: ${verify_conformance.violations}
-        Rules checked: ${verify_conformance.rules_checked}
-        Subject data: ${gather_subject.data}
+      available_evidence: "${domain.investigate_violations.input_context}"
       effort_level: "${domain.investigate_violations.effort_level}"
     transitions:
       - default: deliberate_finding
@@ -85,12 +79,7 @@ steps:
     primitive: deliberate
     params:
       instruction: |
-        Produce a compliance finding based on the verification and investigation.
-
-        Conformance result: ${verify_conformance.conforms}
-        Violations: ${verify_conformance.violations}
-        Investigation: ${investigate_violations.finding}
-
+        ${domain.deliberate_finding.context}
         ${domain.deliberate_finding.instruction}
       focus: "${domain.deliberate_finding.focus}"
     transitions:
@@ -100,14 +89,7 @@ steps:
     primitive: generate
     params:
       requirements: |
-        Generate the compliance memo.
-
-        CONFORMANCE RESULT: ${verify_conformance.conforms}
-        VIOLATIONS: ${verify_conformance.violations}
-        INVESTIGATION FINDING: ${investigate_violations.finding}
-        COMPLIANCE DETERMINATION: ${deliberate_finding.recommended_action}
-        WARRANT: ${deliberate_finding.warrant}
-
+        ${domain.generate_memo.context}
         ${domain.generate_memo.requirements}
       format: "${domain.generate_memo.format}"
       constraints: "${domain.generate_memo.constraints}"
@@ -118,8 +100,5 @@ steps:
     primitive: govern
     params:
       workflow_state: |
-        conforms: ${verify_conformance.conforms}
-        violations: ${verify_conformance.violations}
-        finding: ${deliberate_finding.recommended_action}
-        warrant: ${deliberate_finding.warrant}
+        ${domain.govern_outcome.workflow_state}
       governance_context: "${domain.govern_outcome.governance_context}"

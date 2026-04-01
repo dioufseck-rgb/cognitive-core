@@ -1,0 +1,270 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Domain Pack: E-Commerce Returns
+# Pattern:     P08 / P03 hybrid — Case Resolution with Exception path
+# Overlays:    adversarial (fraud path), governance
+# Coordinator: simple
+#
+# What this pack does:
+#   Processes customer return requests end-to-end. Standard in-policy returns
+#   auto-approve in seconds. Out-of-policy returns investigate whether an
+#   exception is warranted. Suspected fraud is investigated adversarially
+#   and routed to loss prevention with a complete evidence brief.
+#
+# Every decision produces a warrant. Denials include specific policy
+#   citations. Exceptions include documented rationale. Fraud flags
+#   include the adversarial challenge result.
+#
+# Embed this in your returns flow:
+#   result = coordinator.start('ecommerce_return', 'ecommerce_return', case)
+#   if result.disposition == 'approve':       → process refund/replacement
+#   if result.disposition == 'deny':          → send adverse action notice
+#   if result.disposition == 'gate':          → show "under review", route brief to agent
+#   if result.disposition == 'hold':          → route to loss prevention
+#
+# What you fill in:
+#   classify_return: your return reason taxonomy and routing conditions
+#   verify_policy: your specific return policy rules
+#   investigate_exception: what to weigh when policy doesn't fit
+#   deliberate_exception: your exception approval criteria
+#   investigate_fraud / challenge_fraud_finding: your fraud patterns
+#   govern_disposition: your governance thresholds by order value and customer tier
+# ─────────────────────────────────────────────────────────────────────────────
+# Edit this file to supply your domain knowledge.
+
+domain_name: ecommerce_return
+base_pattern: P08-case-resolution
+overlays:
+  - adversarial
+  - governance
+coordinator_template: simple
+
+# ─── Step: classify_return ───────────────────────────────────────────────────
+# Define your return reason categories. The classification determines which
+# path fires:
+#   within_policy     → fast path (verify → govern)
+#   outside_policy    → exception path (investigate → deliberate → verify → govern)
+#   suspected_fraud   → fraud path (investigate → challenge → govern)
+#   high_value_exception → same as outside_policy but with higher governance tier
+
+classify_return:
+  input_context: |
+    Order ID: ${input.order_id}
+    Return reason: ${input.return_reason}
+    Days since delivery: ${input.days_since_delivery}
+    Item condition: ${input.item_condition}
+    Order value: ${input.order_value}
+    Customer profile: ${retrieve_order_context.data.get_customer}
+    Return history: ${retrieve_order_context.data.get_return_history}
+
+  categories: |
+    - within_policy: Return is within the standard return window, item is in
+      acceptable condition, and reason is eligible under return policy.
+      Straightforward approval path.
+
+    - outside_policy: Return falls outside standard policy in one or more
+      dimensions — past return window, item condition below threshold, or
+      reason not covered — but may warrant exception review based on customer
+      relationship or circumstances.
+
+    - suspected_fraud: Return exhibits one or more fraud indicators — return
+      without purchase, wardrobing pattern, item substitution, excessive return
+      frequency, or account anomalies.
+
+    - carrier_claim: Item was damaged in transit or not delivered. Claim should
+      be filed with carrier, not processed as a standard return.
+
+  criteria: |
+    Classify based on:
+    1. Days since delivery vs return window
+    2. Return reason vs eligible reasons list
+    3. Reported item condition vs acceptable condition thresholds
+    4. Customer return frequency vs policy limits
+    5. Any fraud pattern indicators in the order or return history
+
+    When within_policy and outside_policy are both plausible, classify as
+    outside_policy and let the exception investigation decide.
+    Never classify as suspected_fraud based on a single indicator alone.
+
+  # Transition conditions — adjust to match your category names above
+  exception_condition: "output.category in ['outside_policy', 'high_value_exception']"
+  fraud_condition: "output.category == 'suspected_fraud'"
+
+# ─── Step: verify_policy ─────────────────────────────────────────────────────
+# Your explicit return policy rules, numbered. Each must be checkable from
+# the order and return data. Violations are cited in adverse action notices.
+
+verify_policy:
+  subject_context: |
+    Return classification: ${classify_return.category}
+    Return reason: ${input.return_reason}
+    Days since delivery: ${input.days_since_delivery}
+    Item condition: ${input.item_condition}
+    Order value: ${input.order_value}
+    Order date: ${input.order_date}
+    Item category: ${retrieve_order_context.data.get_item_details.category}
+
+  rules: |
+    The following rules must ALL be satisfied for an in-policy return:
+
+    1. RETURN WINDOW: Return requested within [FILL IN] days of delivery date.
+
+    2. ITEM CONDITION: Item returned in [FILL IN] condition.
+       Not acceptable: used, washed, worn, damaged by customer, missing tags.
+
+    3. ELIGIBLE REASONS: Return reason is one of:
+       [FILL IN] e.g. defective, wrong item sent, not as described,
+       changed mind (within 30 days only), carrier damage.
+
+    4. EXCLUDED ITEMS: Item is not in the non-returnable category:
+       [FILL IN] e.g. digital downloads, personalized items, perishables,
+       hazardous materials, intimate apparel.
+
+    5. RETURN FREQUENCY: Customer has not exceeded [FILL IN] returns
+       in the past [FILL IN] days.
+
+    6. PROOF OF PURCHASE: Valid order ID confirms item was purchased
+       from this merchant.
+
+  # Additional context for verification
+  subject_context: ""
+
+# ─── Step: investigate_exception ─────────────────────────────────────────────
+# Fires when return is outside policy. Define what factors to weigh.
+
+investigate_exception:
+  input_context: |
+    Return classification: ${classify_return.category}
+    Classification reasoning: ${classify_return.reasoning}
+    Customer profile: ${retrieve_order_context.data.get_customer}
+    Return history: ${retrieve_order_context.data.get_return_history}
+    Order details: ${retrieve_order_context.data.get_order}
+
+  scope: |
+    1. Which specific policy rule(s) does this return fail?
+    2. What are the circumstances — is there a legitimate reason the
+       customer couldn't meet the policy requirement?
+    3. What is the customer's relationship with the merchant?
+       Tenure, lifetime value, prior return history, account standing.
+    4. Is this the customer's first exception request?
+    5. What is the cost of approving vs denying?
+       Cost of goodwill loss, potential chargeback, item resale value.
+    6. Are there any compensating factors?
+       e.g. carrier delay caused late return, item defect not apparent immediately.
+
+# ─── Step: deliberate_exception ──────────────────────────────────────────────
+# Define your exception approval criteria and outcome options.
+
+deliberate_exception:
+  context: |
+    Return classification: ${classify_return.category}
+    Investigation finding: ${investigate_exception.finding}
+
+  instruction: |
+    Determine whether this out-of-policy return should be approved as an exception.
+
+    Your options are:
+      - approve_exception: Approve despite policy violation. Document the rationale.
+      - deny_exception: Deny. Cite specific policy rules and offer alternative resolution.
+      - escalate_to_agent: Ambiguous case requiring human judgment.
+        Prepare a complete brief for the agent.
+
+  focus: |
+    Weight these factors:
+    - Customer relationship value: long-tenured high-LTV customers warrant more latitude
+    - First exception vs pattern: first exception is lower risk than a pattern
+    - Circumstances: carrier issues, product defects, merchant error warrant more latitude
+    - Business impact: cost of goodwill loss vs cost of exception
+
+    A good exception policy is consistent. Would you approve this for any customer
+    in the same circumstances?
+
+# ─── Step: investigate_fraud ─────────────────────────────────────────────────
+# Fires when fraud indicators are detected. Define the fraud patterns
+# relevant to your business.
+
+investigate_fraud:
+  input_context: |
+    Return classification: ${classify_return.category}
+    Classification reasoning: ${classify_return.reasoning}
+    Return history: ${retrieve_order_context.data.get_return_history}
+    Order details: ${retrieve_order_context.data.get_order}
+    Customer profile: ${retrieve_order_context.data.get_customer}
+
+  scope: |
+    1. What specific fraud indicators triggered this classification?
+    2. Return without purchase (RWP): did the customer actually purchase this item?
+    3. Wardrobing/renting: is there a pattern of returning used items?
+    4. Item substitution: is the item being returned different from what was ordered?
+    5. Account patterns: new account, multiple high-value orders with returns,
+       unusual address or payment patterns?
+    6. Return frequency: how does this compare to merchant average?
+    7. What is the total financial exposure if this is confirmed fraud?
+
+# ─── Step: challenge_fraud_finding ───────────────────────────────────────────
+# Adversarially challenge the fraud finding before escalating.
+# The perspective is the customer's best-case advocate.
+
+challenge_fraud_finding:
+  subject_context: |
+    Fraud investigation finding: ${investigate_fraud.finding}
+    Return reason: ${input.return_reason}
+    Customer tenure: ${retrieve_order_context.data.get_customer.tenure_days}
+    Return history: ${retrieve_order_context.data.get_return_history}
+
+  perspective: |
+    You are the customer's advocate. Challenge the fraud finding:
+    Is there an innocent explanation for every indicator?
+    Is the evidence sufficient to justify a fraud escalation, or
+    could this be a legitimate customer experiencing unusual circumstances?
+    What would the customer reasonably say in their defense?
+
+  threat_model: |
+    - False positive: legitimate customer flagged as fraudster
+      → brand damage, customer loss, potential dispute liability
+    - Insufficient evidence: pattern is suspicious but not conclusive
+    - Alternative explanation: each indicator has a benign interpretation
+    - Single indicator: one fraud signal alone is not a pattern
+
+# ─── Step: govern_disposition ────────────────────────────────────────────────
+# Define your governance thresholds. These determine what the application
+# receives and how it routes the case.
+
+govern_disposition:
+  workflow_state: |
+    return_classification: ${classify_return.category}
+    policy_conforms: ${verify_policy.conforms}
+    policy_violations: ${verify_policy.violations}
+    exception_determination: ${deliberate_exception.recommended_action}
+    fraud_investigated: ${investigate_fraud.finding}
+    fraud_challenge_survives: ${challenge_fraud_finding.survives}
+    order_value: ${input.order_value}
+    customer_ltv: ${retrieve_order_context.data.get_customer.lifetime_value}
+
+  governance_context: |
+    AUTO (process immediately) — when:
+    - Return is within policy, all rules conforms, order value < [FILL IN]
+    - Exception approved with high confidence for established customer
+
+    SPOT_CHECK (process, flag for sampling) — when:
+    - Within policy, order value [FILL IN] to [FILL IN]
+    - Exception approved, first exception for this customer
+
+    GATE (suspend, route to agent with brief) — when:
+    - Exception determination is escalate_to_agent
+    - Within policy but high order value >= [FILL IN]
+    - Fraud investigation: challenge survives (uncertain)
+    - Any return requiring human judgment
+
+    HOLD (route to loss prevention) — when:
+    - Fraud investigation: challenge fails (fraud confirmed or likely)
+    - Customer has active fraud flag
+    - Return involves suspected item substitution
+    - Financial exposure above [FILL IN]
+
+    Work order for agent must include:
+    - Return classification and key facts
+    - Policy conforms/violates with specific rule citations
+    - Exception investigation finding (if applicable)
+    - Fraud indicators (if applicable)
+    - Recommended disposition for agent to accept or override
+    - Customer communication draft
