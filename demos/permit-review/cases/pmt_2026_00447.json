@@ -1,0 +1,88 @@
+{
+  "get_application": {
+    "permit_number": "PMT-2026-00447",
+    "applicant": "Applicant",
+    "parcel_id": "APN 047-302-019",
+    "address": "3340 Industrial Parkway East",
+    "proposed_use": "Concrete batch plant / heavy industrial manufacturing",
+    "existing_use": "Vacant \u2014 undeveloped",
+    "project_scale": {
+      "site_area_acres": 4.8,
+      "building_sqft": 12000,
+      "silo_height_ft": 65,
+      "impervious_surface_added_sqft": 168000,
+      "ground_disturbance_acres": 4.8
+    },
+    "construction_type": "New construction \u2014 concrete and steel. Permanent structures."
+  },
+  "get_parcel_data": {
+    "zoning": "M-2 Heavy Industrial",
+    "general_plan_designation": "Industrial",
+    "lot_size_sqft": 209088,
+    "existing_improvements": "None \u2014 undeveloped. Adjacent to Ridgeline Creek on western boundary.",
+    "prior_permits": []
+  },
+  "get_sensitive_area_overlay": {
+    "flood_zone": {
+      "designation": "Zone AE \u2014 Special Flood Hazard Area (100-year floodplain) with Base Flood Elevations determined.",
+      "firm_panel": "FIRM Panel 06071C0891G, effective date March 6, 2020.",
+      "floodway": "REGULATORY FLOODWAY. The western 2.1 acres of the parcel (APN 047-302-019) fall within the mapped regulatory floodway of Ridgeline Creek as shown on FIRM Panel 06071C0891G. Floodway width at parcel: 310 ft. The proposed building footprint and two of three silo locations fall within the regulatory floodway.",
+      "base_flood_elevation": "BFE at parcel: 247.3 ft NAVD88.",
+      "note": "The regulatory floodway is the channel of a river or other watercourse and the adjacent land areas that must be reserved in order to discharge the base flood without cumulatively increasing the water surface elevation more than a designated height. Development in a regulatory floodway is subject to 44 CFR \u00a760.3(d) restrictions."
+    },
+    "wetland_buffer": "Ridgeline Creek is a jurisdictional waterway. USACE Section 404 permit and RWQCB Section 401 certification would be required for any fill or encroachment. The regulatory floodway designation is independent of and in addition to Section 404 requirements.",
+    "biological_resources": "Ridgeline Creek corridor is within MSHCP Criteria Cell 4872. California red-legged frog (Rana draytonii) \u2014 federally threatened under ESA \u2014 has been documented within 0.25 miles. Least Bell's vireo (Vireo bellii pusillus) \u2014 federally endangered \u2014 nesting habitat present in riparian corridor. MSHCP consistency review required before any discretionary approval.",
+    "cultural_resources": "High sensitivity area. Known archaeological site CA-RIV-2847 recorded within 200 ft of parcel boundary. Phase I survey has not been conducted for this parcel.",
+    "seismic_hazard": "Zone B. Standard CBC seismic design applies."
+  },
+  "get_ceqa_exemption_text": {
+    "applicability_note": "No categorical exemption applies to this project. New heavy industrial construction of 12,000 sq ft on 4.8 acres with 4.8 acres ground disturbance does not qualify under any Class 1\u201333 exemption. Project is an Annex II-equivalent development (industrial installation) that may have significant effects on the environment and requires environmental review.",
+    "eir_threshold": {
+      "source": "Pub. Resources Code \u00a721100; 14 CCR \u00a715081",
+      "text": "\u00a721100: State agencies shall include in any report on a project subject to this division a detailed statement describing: (a) The significant effects on the environment of the proposed project. (b) Measures proposed to minimize the significant effects on the environment. (c) Alternatives to the proposed project. (d) Means by which significant irreversible environmental changes would be avoided. (e) Growth-inducing impacts of the proposed project on the environment.",
+      "section_15300_2_b": "\u00a715300.2(b) cumulative impact exception applies regardless. Successive industrial development along Ridgeline Creek floodway would have cumulative significant effects.",
+      "section_15300_2_c": "\u00a715300.2(c) significant effect exception applies. Project in regulatory floodway with sensitive species habitat constitutes unusual circumstances triggering this exception."
+    },
+    "floodway_restriction": {
+      "source_federal": "44 CFR \u00a760.3(d)",
+      "text_federal": "\u00a760.3(d): When the Federal Emergency Management Agency has provided a notice to a community that floodway data is available or when the community independently develops floodway data, the community shall adopt regulations to: (1) Require permits for all proposed development in the floodplain, including new construction and substantial improvements to existing structures; (2) Prohibit encroachments, including fill, new construction, substantial improvements, and other development within the adopted regulatory floodway unless it has been demonstrated through hydrologic and hydraulic analyses performed in accordance with standard engineering practice that the proposed encroachment would not result in any increase in flood levels within the community during the occurrence of the base flood discharge.",
+      "source_local": "Municipal Floodplain Management Ordinance \u00a718.52.060(A)",
+      "text_local": "\u00a718.52.060(A): Floodway Areas. No encroachments, including fill, new construction, substantial improvements, or other new development, shall be permitted within a regulatory floodway as defined on the Flood Insurance Rate Map unless: (1) A No-Rise Certification is provided by a licensed civil engineer demonstrating that the proposed development will not result in any increase in the base flood elevation; and (2) The development is not a use prohibited under subsection (B) of this section.",
+      "text_local_b": "\u00a718.52.060(B): Prohibited Uses. The following uses are prohibited within a regulatory floodway regardless of whether a No-Rise Certification can be obtained: (1) Industrial manufacturing facilities; (2) Storage of hazardous materials; (3) Waste processing or treatment facilities; (4) Uses that would impede emergency access during flood events.",
+      "note": "Concrete batch plants are classified as industrial manufacturing facilities under \u00a718.52.060(B)(1). This is a categorical prohibition \u2014 a No-Rise Certification does not remove the prohibition. There is no variance pathway for uses listed in \u00a718.52.060(B)."
+    }
+  },
+  "get_municipal_code": {
+    "zone": "M-2 Heavy Industrial",
+    "section": "Municipal Code Chapter 18.28",
+    "permitted_uses": "Concrete batch plants are a permitted use in the M-2 zone (\u00a718.28.020(A)(14)) EXCEPT where prohibited by overlay regulations. The floodway prohibition at \u00a718.52.060(B)(1) overrides the M-2 use permission for the portion of the parcel within the regulatory floodway.",
+    "floodplain_overlay": "Municipal Code Chapter 18.52 \u2014 Floodplain Management Overlay. Implements the requirements of 44 CFR Part 60 as a condition of the city's participation in the National Flood Insurance Program (NFIP). Regulations apply to all development within Special Flood Hazard Areas shown on the FIRM, with heightened restrictions for regulatory floodway areas under \u00a718.52.060.",
+    "mshcp_consistency": "\u00a718.50.040: No discretionary approval shall be issued for development within an MSHCP Criteria Cell without a finding of consistency with the Western Riverside County MSHCP adopted pursuant to the Federal Endangered Species Act (16 U.S.C. \u00a71531 et seq.) and the California Natural Community Conservation Planning Act (Fish & Game Code \u00a72800 et seq.)."
+  },
+  "get_prior_determinations": {
+    "same_parcel": [],
+    "nearby_similar": [
+      {
+        "distance_ft": 1200,
+        "year": 2021,
+        "type": "Industrial storage facility, floodplain (Zone AE, not floodway)",
+        "ceqa": "EIR prepared",
+        "outcome": "EIR certified. Permit approved with extensive conditions \u2014 biological mitigation, drainage improvements, MSHCP fee."
+      },
+      {
+        "distance_ft": 2800,
+        "year": 2019,
+        "type": "Concrete batch plant, M-2 zone, no floodway",
+        "ceqa": "Mitigated Negative Declaration",
+        "outcome": "MND adopted. Permit approved."
+      }
+    ],
+    "floodway_precedents": [
+      {
+        "year": 2022,
+        "type": "Storage building proposed in regulatory floodway",
+        "outcome": "Permit denied. \u00a718.52.060(B) prohibition applies. No variance available. Applicant withdrew after city attorney opinion."
+      }
+    ]
+  }
+}

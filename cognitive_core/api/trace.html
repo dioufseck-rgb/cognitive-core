@@ -125,6 +125,8 @@
   #result-bar .result-body { flex: 1; }
   #result-bar .result-title { font-size: 14px; font-weight: 700; color: var(--green); }
   #result-bar.failed .result-title { color: var(--red); }
+  #result-bar.denied { background: rgba(219,109,40,.08); border-color: rgba(219,109,40,.25); }
+  #result-bar.denied .result-title { color: var(--orange); }
   #result-bar .result-meta { font-size: 12px; color: var(--muted); font-family: var(--mono); margin-top: 2px; }
 
   /* ── Misc ── */
@@ -473,10 +475,52 @@ async function renderHITLPanel() {
     return `<button class="btn ${b.cls}" onclick="submitDecision('${opt}')" id="btn-${opt}">${b.label}</button>`;
   }).join("");
 
+  // Build reasoning trace HTML from workorder.reasoning_trace
+  const trace = workorder.reasoning_trace || [];
+  let traceHtml = "";
+  if (trace.length) {
+    const primitiveIcon = p => ({retrieve:"📥",classify:"🏷",investigate:"🔍",
+      deliberate:"⚖️",verify:"✅",govern:"⏸",challenge:"🔎"}[p] || "▶");
+    const rows = trace.map(t => {
+      const out = t.output || {};
+      let detail = "";
+      if (t.primitive === "classify" && out.category)
+        detail = `<span style="color:var(--text)">${out.category}</span> <span style="color:var(--muted)">(confidence ${((out.confidence||0)*100).toFixed(0)}%)</span>`;
+      else if (t.primitive === "investigate" && out.finding)
+        detail = `<span style="color:var(--text)">${out.finding.slice(0,300)}</span>`;
+      else if (t.primitive === "deliberate" && out.recommended_action) {
+        const warrant = out.warrant || "";
+        detail = `<span style="color:var(--text)">${out.recommended_action}</span>`
+          + (warrant ? `<div style="color:var(--muted);font-size:11px;margin-top:3px">${warrant.slice(0,300)}</div>` : "");
+      }
+      else if (t.primitive === "verify") {
+        const conforms = out.conforms !== false;
+        const violations = out.violations || 0;
+        detail = conforms
+          ? `<span style="color:var(--green)">✓ conforms</span>`
+          : `<span style="color:var(--red)">✗ ${violations} violation(s)</span>`;
+      }
+      else if (t.primitive === "govern" && out.tier_applied)
+        detail = `Tier: ${out.tier_applied}  Disposition: ${out.disposition||"—"}`;
+      if (!detail) return "";
+      return `<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)">
+        <span style="width:24px;text-align:center">${primitiveIcon(t.primitive)}</span>
+        <span style="width:160px;font-family:monospace;font-size:11px;color:var(--muted);flex-shrink:0">${t.step||""}</span>
+        <span style="font-size:12px;line-height:1.5">${detail}</span>
+      </div>`;
+    }).filter(Boolean).join("");
+    if (rows) traceHtml = `
+      <div style="margin:12px 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Reasoning trace</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 12px;margin-bottom:12px;max-height:220px;overflow-y:auto">${rows}</div>`;
+  }
+
   container.innerHTML = `
     <div id="hitl-panel">
-      <h2>⏸ UNDERWRITER REVIEW REQUIRED &nbsp;<span class="hitl-tier">${tier}</span></h2>
-      <div class="hitl-brief">${brief}</div>
+      <h2>⏸ ${workorder.queue ? workorder.queue.replace(/_/g," ").toUpperCase() : "HUMAN REVIEW REQUIRED"} &nbsp;<span class="hitl-tier">${tier}</span></h2>
+      <div style="max-height:180px;overflow-y:auto;margin-bottom:16px;border-radius:6px;border:1px solid var(--border)">
+        <div class="hitl-brief" style="border:none;margin-bottom:0">${brief}</div>
+      </div>
+      ${traceHtml}
       ${complianceHtml}
       <div class="reviewer-row">
         <label for="reviewer">Reviewer ID</label>
@@ -530,15 +574,54 @@ async function renderResultBar(inst) {
   const ok = inst.status === "completed";
   const elapsed = fmtElapsed(inst.elapsed_seconds);
   const result = inst.result || {};
-  const disposition = result.disposition || result.decision || result.recommendation || "";
+  // Disposition is nested in result.steps[] under the govern primitive
+  const steps = result.steps || [];
+  const governStep = steps.find(s => s.primitive === "govern") || {};
+  const deliberateStep = steps.find(s => s.primitive === "deliberate") || {};
+  const disposition = (
+    result.disposition ||
+    governStep.disposition ||
+    deliberateStep.recommended_action ||
+    result.decision ||
+    result.recommendation ||
+    ""
+  );
+
+  // Determine outcome label based on status and ledger
+  const ledger = inst.ledger || [];
+  const humanDecision = ledger.find(e => e.action_type === "human_decision");
+  const isTerminated = inst.status === "terminated";
+  const isDenied = isTerminated && humanDecision &&
+    ["deny", "reject"].includes((humanDecision.details?.decision || "").toLowerCase());
+
+  let outcomeIcon, outcomeClass, outcomeLabel;
+  if (ok) {
+    outcomeIcon = "✓"; outcomeClass = ""; outcomeLabel = "COMPLETE";
+  } else if (isDenied) {
+    outcomeIcon = "✗"; outcomeClass = "denied"; outcomeLabel = "DENIED";
+  } else if (isTerminated) {
+    outcomeIcon = "—"; outcomeClass = "failed"; outcomeLabel = "TERMINATED";
+  } else {
+    outcomeIcon = "✗"; outcomeClass = "failed"; outcomeLabel = "FAILED";
+  }
+
+  // For denied/terminated, show the human decision as disposition.
+  // For completed with a human approval, show the human decision over the govern output.
+  const humanApproval = ledger.find(e =>
+    e.action_type === "human_decision" &&
+    ["approve", "approve_modified", "release", "refer"].includes((e.details?.decision || "").toLowerCase())
+  );
+  const displayDisposition = isDenied
+    ? (humanDecision.details?.rationale || "")
+    : (humanApproval?.details?.decision || disposition || "");
 
   rc.innerHTML = `
-    <div id="result-bar" class="${ok ? "" : "failed"}">
-      <div class="result-icon">${ok ? "✓" : "✗"}</div>
+    <div id="result-bar" class="${outcomeClass}">
+      <div class="result-icon">${outcomeIcon}</div>
       <div class="result-body">
-        <div class="result-title">${ok ? "COMPLETE" : "FAILED"} ${disposition ? "— " + disposition.toUpperCase() : ""}</div>
+        <div class="result-title">${outcomeLabel}${displayDisposition ? " — " + displayDisposition : ""}</div>
         <div class="result-meta">total elapsed ${elapsed} &nbsp;·&nbsp; ${inst.step_count || 0} steps</div>
-        ${inst.error ? `<div style="font-size:12px;color:var(--red);margin-top:4px">${inst.error}</div>` : ""}
+        ${inst.error && !isDenied ? `<div style="font-size:12px;color:var(--red);margin-top:4px">${inst.error}</div>` : ""}
       </div>
     </div>`;
 
@@ -646,19 +729,134 @@ async function startPolling() {
 
 // ── Export ─────────────────────────────────────────────────────────
 async function exportTrace() {
-  // Capture current DOM + embed it as standalone
+  // Fetch full instance data and build a self-contained audit trace HTML
+  let inst = {};
+  try {
+    const r = await fetch(`${API_BASE}/api/instances/${INSTANCE_ID}`);
+    if (r.ok) inst = await r.json();
+  } catch(_) {}
+
+  const ledger = inst.ledger || [];
+  const result = inst.result || {};
+  const steps = result.steps || [];
+  const meta = inst.case_meta || {};
+  const caseInput = inst._caseInput || {};
+
+  // Disposition
+  const humanApprovalEntry = ledger.find(e =>
+    e.action_type === "human_decision" &&
+    ["approve","approve_modified","release","refer"].includes((e.details?.decision||"").toLowerCase())
+  );
+  const humanDenyEntry = ledger.find(e =>
+    e.action_type === "human_decision" &&
+    ["deny","reject"].includes((e.details?.decision||"").toLowerCase())
+  );
+  const governStep = steps.find(s => s.primitive === "govern") || {};
+  const deliberateStep = steps.find(s => s.primitive === "deliberate") || {};
+  const finalDisposition = humanApprovalEntry?.details?.decision
+    || governStep.disposition
+    || deliberateStep.recommended_action
+    || "";
+
+  const isCompleted = inst.status === "completed";
+  const isDenied = inst.status === "terminated" && !!humanDenyEntry;
+  const outcomeLabel = isCompleted ? "COMPLETE" : isDenied ? "DENIED" : inst.status?.toUpperCase() || "UNKNOWN";
+  const outcomeColor = isCompleted ? "#3fb950" : isDenied ? "#db6d28" : "#f85149";
+
+  // Build step rows
+  function fmtMs(ms) { return ms >= 1000 ? (ms/1000).toFixed(1)+"s" : ms+"ms"; }
+  function primitiveIcon(p) {
+    return {retrieve:"📥",classify:"🏷",investigate:"🔍",deliberate:"⚖️",
+            verify:"✅",generate:"📄",govern:"⏸",challenge:"🔎"}[p] || "▶";
+  }
+
+  let stepRows = "";
+  for (const s of steps) {
+    const icon = primitiveIcon(s.primitive);
+    let detail = "";
+    if (s.primitive === "classify" && s.category)
+      detail = `Category: ${s.category}  (confidence ${((s.confidence||0)*100).toFixed(0)}%)`;
+    else if (s.primitive === "deliberate" && s.recommended_action)
+      detail = `Recommendation: ${s.recommended_action}
+       Warrant: ${(s.warrant||"").slice(0,180)}`;
+    else if (s.primitive === "verify")
+      detail = s.conforms ? "✓ conforms" : `✗ ${s.violations} violation(s)`;
+    else if (s.primitive === "investigate" && s.finding)
+      detail = s.finding.slice(0, 220);
+    else if (s.primitive === "govern")
+      detail = `Tier: ${s.tier_applied || "—"}  Disposition: ${s.disposition || "—"}`;
+    else if (s.primitive === "retrieve" && s.sources?.length)
+      detail = `Sources: ${s.sources.join(", ")}`;
+
+    stepRows += `<tr>
+      <td style="padding:8px 12px;font-family:monospace;font-size:13px">${icon} ${s.step_name || ""}</td>
+      <td style="padding:8px 12px;font-family:monospace;font-size:11px;color:#7d8590">${s.primitive || ""}</td>
+      <td style="padding:8px 12px;font-size:12px;color:#e6edf3;white-space:pre-wrap">${detail}</td>
+    </tr>`;
+  }
+
+  // Human decision row
+  let humanRows = "";
+  for (const e of ledger) {
+    if (e.action_type !== "human_decision") continue;
+    const d = e.details || {};
+    const ts = new Date(e.created_at * 1000).toLocaleTimeString();
+    humanRows += `<tr style="background:rgba(63,185,80,.06)">
+      <td colspan="3" style="padding:10px 12px;font-size:12px">
+        <span style="color:#3fb950;font-weight:700">◉ HUMAN DECISION</span>
+        &nbsp; reviewer: ${d.reviewer_id || "—"} &nbsp; ${ts}<br>
+        <span style="color:#e6edf3">${d.decision || ""}</span>
+        ${d.rationale ? ` — ${d.rationale}` : ""}
+      </td>
+    </tr>`;
+  }
+
+  // Case info
+  const applicant = caseInput.applicant_name || meta.applicant_name || "";
+  const amount = caseInput.loan_amount || meta.loan_amount || "";
+  const purpose = caseInput.loan_purpose || meta.loan_purpose || "";
+
   const html = `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
 <title>Cognitive Core Trace — ${INSTANCE_ID}</title>
 <style>
-body{background:#0d1117;color:#e6edf3;font-family:-apple-system,sans-serif;font-size:14px;padding:32px;max-width:900px;margin:0 auto}
-h1{font-size:18px;margin-bottom:4px}
-.meta{color:#7d8590;font-size:12px;font-family:monospace;margin-bottom:24px}
-.trace{white-space:pre-wrap;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;color:#e6edf3}
+  body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;padding:32px;max-width:900px;margin:0 auto}
+  h1{font-size:18px;font-weight:700;margin-bottom:4px}
+  .meta{color:#7d8590;font-size:12px;font-family:monospace;margin-bottom:20px}
+  .result{background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.25);border-radius:8px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:14px}
+  .result-icon{font-size:20px}
+  .result-title{font-size:15px;font-weight:700;color:${outcomeColor}}
+  .result-meta{font-size:12px;color:#7d8590;font-family:monospace;margin-top:2px}
+  table{width:100%;border-collapse:collapse;margin-bottom:16px}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#7d8590;padding:6px 12px;border-bottom:1px solid #30363d}
+  td{border-bottom:1px solid #21262d}
+  .verify{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-family:monospace;padding:2px 8px;border-radius:4px;background:rgba(63,185,80,.15);color:#3fb950;margin-top:16px}
+  .footer{font-size:11px;color:#7d8590;font-family:monospace;margin-top:24px;border-top:1px solid #30363d;padding-top:12px}
 </style></head><body>
 <h1>Cognitive Core — Workflow Trace</h1>
-<div class="meta">Instance: ${INSTANCE_ID} · Exported: ${new Date().toISOString()}</div>
-<div class="trace">${document.getElementById("content").innerText}</div>
+<div class="meta">Instance: ${INSTANCE_ID} &nbsp;·&nbsp; Workflow: ${inst.workflow_type || ""} &nbsp;·&nbsp; Domain: ${inst.domain || ""}</div>
+${applicant ? `<div class="meta">Case: ${applicant}${amount ? "  ·  $"+Number(amount).toLocaleString() : ""}${purpose ? "  ·  "+purpose : ""}</div>` : ""}
+
+<div class="result">
+  <div class="result-icon">${isCompleted ? "✓" : isDenied ? "✗" : "—"}</div>
+  <div>
+    <div class="result-title">${outcomeLabel}${finalDisposition ? " — " + finalDisposition.toUpperCase() : ""}</div>
+    <div class="result-meta">total elapsed ${fmtElapsed(inst.elapsed_seconds)} &nbsp;·&nbsp; ${inst.step_count || 0} steps &nbsp;·&nbsp; tier: ${inst.governance_tier || "—"}</div>
+  </div>
+</div>
+
+<table>
+  <thead><tr><th>Step</th><th>Primitive</th><th>Output</th></tr></thead>
+  <tbody>${stepRows}${humanRows}</tbody>
+</table>
+
+<div>
+  <span class="verify">✓ ledger verified &nbsp; ${ledger.length} entries</span>
+</div>
+
+<div class="footer">
+  Exported: ${new Date().toISOString()} &nbsp;·&nbsp; Cognitive Core v0.1.0-technical-preview
+</div>
 </body></html>`;
 
   const blob = new Blob([html], { type: "text/html" });

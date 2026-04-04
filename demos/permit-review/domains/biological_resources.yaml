@@ -1,0 +1,83 @@
+domain_name: biological_resources
+governance: auto
+
+# ─── Step: retrieve_species_records ──────────────────────────────
+retrieve_species_records:
+  specification: |
+    Retrieve biological resources data for the project parcel:
+    - get_cnddb_records: California Natural Diversity Database records
+      within 1 mile of project site — sensitive species occurrences
+      (CDFW special status species, USFWS listed species)
+    - get_mshcp_criteria_cell: Western Riverside County MSHCP criteria
+      cell mapping for the project parcel
+    - get_usfws_ipac: USFWS Information for Planning and Consultation
+      (IPaC) output — threatened and endangered species list for project
+      location
+    - get_habitat_mapping: General habitat type mapping for project site
+      and surrounding 500 ft — native vegetation communities, wetlands,
+      riparian areas
+
+# ─── Step: verify_mshcp_consistency ──────────────────────────────
+verify_mshcp_consistency:
+  rules: |
+    RULE 1 — MSHCP Criteria Cell consistency
+    Source: Western Riverside County MSHCP (2003, amended 2015);
+    Municipal Code §18.50.040
+    Check: Is the project parcel within an MSHCP Criteria Cell?
+    If yes: has a MSHCP consistency finding been made? Is the proposed
+    development consistent with the conservation objectives for that cell?
+
+    RULE 2 — ESA Section 7 consultation trigger
+    Source: Endangered Species Act 16 U.S.C. §1536; 50 CFR Part 402
+    Check: Does the project have a federal nexus (federal funding, federal
+    permit, or federal land)? If yes: does the IPaC output identify
+    threatened or endangered species with potential for take?
+    If both yes: formal Section 7 consultation with USFWS required.
+
+    RULE 3 — ESA Section 10 incidental take (non-federal projects)
+    Source: Endangered Species Act 16 U.S.C. §1539
+    Check: For non-federal projects — does the project have potential to
+    result in incidental take of a listed species? If MSHCP coverage
+    applies (project in permit area), take authorization is provided by
+    the MSHCP. If not in permit area: standalone Section 10 HCP required.
+
+    RULE 4 — CESA consistency (state listed species)
+    Source: California Endangered Species Act Fish & Game Code §2080
+    Check: Does CNDDB data show state-listed species within the project
+    footprint or within 500 ft? If yes: CDFW 2081 incidental take permit
+    may be required.
+
+  subject_context: |
+    Project parcel: ${parcel_id}
+    Proposed use: ${proposed_use}
+    Project scale: ${project_scale}
+    Sensitive area overlay: ${sensitive_area_overlay}
+    CNDDB records: ${retrieve_species_records.data}
+    MSHCP criteria cell: ${retrieve_species_records.data}
+    USFWS IPaC output: ${retrieve_species_records.data}
+    Habitat mapping: ${retrieve_species_records.data}
+    Investigation finding context: ${investigation_finding}
+
+# ─── Step: generate_bio_finding ──────────────────────────────────
+generate_bio_finding:
+  requirements: |
+    Generate a biological resources finding for the EIA specialist.
+    Include: MSHCP criteria cell status and consistency determination,
+    listed species records within project area, ESA Section 7/10
+    consultation triggers (if any), CESA consistency assessment,
+    recommended biological mitigation measures with citations.
+  format: Structured biological resources memo. One section per rule checked.
+  constraints: |
+    Cite CNDDB record numbers, MSHCP criteria cell numbers, and IPaC
+    output date for all species findings. Do not assess habitat quality
+    beyond what CNDDB and IPaC records support.
+
+# ─── Step: govern_bio_result ─────────────────────────────────────
+govern_bio_result:
+  workflow_state: |
+    conforms: ${verify_mshcp_consistency.conforms}
+    violations: ${verify_mshcp_consistency.violations}
+  governance_context: |
+    AUTO — always. This handler returns results to the specialist workflow.
+    ESA Section 7 consultation triggers and MSHCP violations are surfaced
+    in the specialist workflow's deliberation and govern steps.

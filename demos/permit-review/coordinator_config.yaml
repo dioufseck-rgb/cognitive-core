@@ -1,0 +1,301 @@
+# ═══════════════════════════════════════════════════════════════════
+# Cognitive Core — Permit Review Coordinator Config
+#
+# Entry point: permit_intake workflow with any case JSON.
+# Delegation policies route conditional and complex cases to
+# specialist EIA assessment, which fires parallel handlers for
+# public notice compliance and biological resources review.
+#
+# Governance model:
+#   - Intake: spot_check for exempt cases, hold for prohibited
+#   - Specialist EIA: gate (planning manager reviews complete package)
+#   - Public notice + biological resources: auto via delegation override
+#     (they run as part of the specialist pipeline)
+#
+# Regulatory framework:
+#   CEQA (Pub. Resources Code §21000 et seq.)
+#   14 CCR Title 14 (CEQA Guidelines)
+#   Municipal Zoning Code
+#   44 CFR Part 60 (NFIP floodplain management)
+# ═══════════════════════════════════════════════════════════════════
+
+workflow_dir: workflows
+domain_dir: domains
+case_dir: cases
+
+# ─── Execution MCP ───────────────────────────────────────────────
+# Provides governed execution tools: notify_applicant, file_notice_of_exemption,
+# file_notice_of_determination, trigger_public_notice, update_permit_status.
+# Remove this line to disable execution (ops will be logged as pending_external_dispatch).
+# Requires: pip install mcp
+# DRY_RUN=true to log without sending emails.
+execution_mcp_cmd: "DRY_RUN=true python execution_mcp.py"
+
+# ─── Governance Tiers ────────────────────────────────────────────
+governance_tiers:
+  auto:
+    hitl: none
+    sample_rate: 0.0
+
+  spot_check:
+    hitl: post_completion
+    sample_rate: 0.15
+    queue: planning_qa_review
+    sla: 86400          # 24 hours
+
+  gate:
+    hitl: before_act
+    queue: planning_manager_review
+    sla: 86400          # 24 hours — planning manager must review before
+                        # Notice of Determination is filed
+
+  hold:
+    hitl: before_finalize
+    queue: city_attorney_review
+    sla: 259200         # 72 hours — city attorney review before any
+                        # communication to applicant
+
+overrides: {}
+
+quality_gates:
+  min_confidence: 0.5
+  primitive_floors:
+    classify: 0.70
+    investigate: 0.60
+    verify: 0.70
+    deliberate: 0.75
+  escalation_tier: gate
+  escalation_queue: planning_manager_review
+  exempt_domains: []
+
+# ─── Delegation Policies ─────────────────────────────────────────
+
+delegations:
+
+  # ── Intake → Specialist EIA (fire_and_forget) ─────────────────
+  # Fires when classify_review_type returns conditional or complex.
+  # The specialist EIA runs independently and fires its own
+  # parallel handlers. The intake workflow has already completed
+  # by the time the specialist runs.
+
+  - name: intake_to_eia_conditional
+    mode: fire_and_forget
+    conditions:
+      - domain: permit_intake
+        selector: "step:classify_review_type"
+        field: category
+        operator: eq
+        value: conditional
+    target_workflow: eia_assessment
+    target_domain: eia_specialist
+    sla: 172800           # 48 hours
+    inputs:
+      permit_number: "${source.input.get_application.permit_number}"
+      parcel_id: "${source.input.get_application.parcel_id}"
+      proposed_use: "${source.input.get_application.proposed_use}"
+      project_scale: "${source.input.get_application.project_scale}"
+      classification: "${source.step:classify_review_type.category}"
+      classification_confidence: "${source.step:classify_review_type.confidence}"
+      classification_reasoning: "${source.step:classify_review_type.reasoning}"
+      ceqa_triggers: "${source.step:classify_review_type.reasoning}"
+      parcel_data: "${source.input.get_parcel_data}"
+      sensitive_area_overlay: "${source.input.get_sensitive_area_overlay}"
+      ceqa_exemption_text: "${source.input.get_ceqa_exemption_text}"
+      municipal_code: "${source.input.get_municipal_code}"
+      prior_determinations: "${source.input.get_prior_determinations}"
+
+  - name: intake_to_eia_complex
+    mode: fire_and_forget
+    conditions:
+      - domain: permit_intake
+        selector: "step:classify_review_type"
+        field: category
+        operator: eq
+        value: complex
+    target_workflow: eia_assessment
+    target_domain: eia_specialist
+    sla: 259200           # 72 hours — EIR scoping required
+    inputs:
+      permit_number: "${source.input.get_application.permit_number}"
+      parcel_id: "${source.input.get_application.parcel_id}"
+      proposed_use: "${source.input.get_application.proposed_use}"
+      project_scale: "${source.input.get_application.project_scale}"
+      classification: "${source.step:classify_review_type.category}"
+      classification_confidence: "${source.step:classify_review_type.confidence}"
+      classification_reasoning: "${source.step:classify_review_type.reasoning}"
+      parcel_data: "${source.input.get_parcel_data}"
+      sensitive_area_overlay: "${source.input.get_sensitive_area_overlay}"
+      ceqa_exemption_text: "${source.input.get_ceqa_exemption_text}"
+      municipal_code: "${source.input.get_municipal_code}"
+      prior_determinations: "${source.input.get_prior_determinations}"
+
+  # ── Specialist EIA → Public Notice Compliance (wait_for_result) ─
+  # Fires after investigate_environmental_impacts completes.
+  # Verifies that the statutory public notice and review period
+  # requirements under CEQA have been met.
+
+  - name: eia_to_public_notice
+    mode: wait_for_result
+    resume_at_step: deliberate_determination
+    governance_tier: auto
+    conditions:
+      - domain: eia_specialist
+        selector: last_investigate
+        field: finding
+        operator: exists
+    target_workflow: public_notice_compliance
+    target_domain: public_notice
+    sla: 86400
+    inputs:
+      permit_number: "${source.input.permit_number}"
+      parcel_id: "${source.input.parcel_id}"
+      classification: "${source.input.classification}"
+      investigation_finding: "${source.last_investigate.finding}"
+      investigation_confidence: "${source.last_investigate.confidence}"
+      ceqa_determination_type: "${source.input.classification}"
+
+  # ── Specialist EIA → Biological Resources Review (wait_for_result) ─
+  # Fires in parallel with public_notice.
+  # Checks sensitive species records and MSHCP criteria cell overlap.
+
+  - name: eia_to_biological_resources
+    mode: wait_for_result
+    resume_at_step: deliberate_determination
+    governance_tier: auto
+    conditions:
+      - domain: eia_specialist
+        selector: last_investigate
+        field: finding
+        operator: exists
+    target_workflow: biological_resources_review
+    target_domain: biological_resources
+    sla: 86400
+    inputs:
+      permit_number: "${source.input.permit_number}"
+      parcel_id: "${source.input.parcel_id}"
+      proposed_use: "${source.input.proposed_use}"
+      project_scale: "${source.input.project_scale}"
+      sensitive_area_overlay: "${source.input.sensitive_area_overlay}"
+      investigation_finding: "${source.last_investigate.finding}"
+
+# ─── Capabilities ─────────────────────────────────────────────────
+
+capabilities:
+
+  - need: eia_assessment
+    type: workflow
+    workflow: eia_assessment
+    domain: eia_specialist
+
+  - need: public_notice_review
+    type: workflow
+    workflow: public_notice_compliance
+    domain: public_notice
+
+  - need: biological_resources_review
+    type: workflow
+    workflow: biological_resources_review
+    domain: biological_resources
+
+  - need: planning_manager_review
+    type: human_task
+    queue: planning_manager_review
+
+  - need: city_attorney_review
+    type: human_task
+    queue: city_attorney_review
+
+# ─── Execution Policies ───────────────────────────────────────────
+# Dispatched after tier clearance via MCP tool calls.
+# AUTO/SPOT_CHECK: fires immediately on completion.
+# GATE/HOLD: fires only after human approves.
+# Inputs resolved against workflow state using ${source.*} references.
+
+executions:
+
+  # ── Exempt case: file NOE + notify applicant ─────────────────────
+  - name: exempt_case_execution
+    min_tier: auto
+    conditions:
+      - domain: permit_intake
+        selector: last_govern
+        field: disposition
+        operator: eq
+        value: proceed
+    ops:
+      - tool: file_notice_of_exemption
+        description: "File Notice of Exemption with county recorder"
+        inputs:
+          permit_number: "${source.input.get_application.permit_number}"
+          exemption_class: "14 CCR §15301"
+          project_description: "${source.input.get_application.proposed_use}"
+        reversible: true
+        reversal_tool: withdraw_notice_of_exemption
+
+      - tool: notify_applicant
+        description: "Send approval notification to applicant"
+        inputs:
+          permit_number: "${source.input.get_application.permit_number}"
+          template: approval_exempt
+          determination: "Approved — CEQA Categorical Exemption"
+        reversible: false
+
+      - tool: update_permit_status
+        description: "Update permit management system"
+        inputs:
+          permit_number: "${source.input.get_application.permit_number}"
+          status: approved_exempt
+        reversible: true
+        reversal_tool: revert_permit_status
+
+  # ── Prohibited case: notify applicant of denial ──────────────────
+  - name: prohibited_case_execution
+    min_tier: auto
+    conditions:
+      - domain: permit_intake
+        selector: last_govern
+        field: disposition
+        operator: eq
+        value: hold
+    ops:
+      - tool: notify_applicant
+        description: "Send denial notification — statutory bar identified"
+        inputs:
+          permit_number: "${source.input.get_application.permit_number}"
+          template: hold_pending_attorney_review
+          message: "Your application has been placed on hold pending city attorney review. You will be contacted within 72 hours."
+        reversible: false
+
+  # ── GATE case (post-approval): file MND + notify ─────────────────
+  - name: conditional_case_post_approval
+    min_tier: gate
+    conditions:
+      - domain: permit_intake
+        selector: last_govern
+        field: disposition
+        operator: eq
+        value: proceed
+    ops:
+      - tool: file_notice_of_determination
+        description: "File Notice of Determination with county recorder"
+        inputs:
+          permit_number: "${source.input.get_application.permit_number}"
+          determination_type: mitigated_negative_declaration
+        reversible: true
+        reversal_tool: withdraw_notice_of_determination
+
+      - tool: notify_applicant
+        description: "Send conditional approval notification"
+        inputs:
+          permit_number: "${source.input.get_application.permit_number}"
+          template: approval_conditional
+          determination: "Conditionally Approved — Mitigated Negative Declaration"
+        reversible: false
+
+      - tool: trigger_public_notice
+        description: "Trigger 20-day public review period per Pub. Resources Code §21092"
+        inputs:
+          permit_number: "${source.input.get_application.permit_number}"
+          notice_type: mnd
+          review_period_days: 20
+        reversible: false

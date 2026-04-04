@@ -1,0 +1,197 @@
+domain_name: eia_specialist
+governance: gate
+
+# ─── Step: retrieve_site_data ─────────────────────────────────────
+retrieve_site_data:
+  specification: |
+    Retrieve additional site-specific data for environmental assessment:
+
+    - get_air_quality_data: Nearest AQMD monitoring station data,
+      applicable attainment status, thresholds of significance
+    - get_traffic_data: Existing VMT baseline, level of service data,
+      transit proximity confirmation (for SB 743 analysis)
+    - get_cultural_resources: NAHC Sacred Lands File results,
+      archaeological sensitivity map, prior survey records
+    - get_noise_data: Existing ambient noise levels, sensitive receptors
+      within 500 ft, municipal noise ordinance thresholds
+    - get_utility_data: Water and sewer capacity confirmation,
+      stormwater permit requirements (MS4 permit)
+    - get_geology_data: Soils report if available, liquefaction zone,
+      expansive soils mapping
+
+# ─── Step: investigate_environmental_impacts ─────────────────────
+investigate_environmental_impacts:
+  question: |
+    For each mandatory CEQA Appendix G issue area applicable to this
+    project, determine: (a) whether the project would cause a significant
+    effect, (b) what mitigation measures are available, and (c) whether
+    mitigation would reduce the effect to less-than-significant.
+
+  scope: |
+    Assess all applicable CEQA Appendix G issue areas (14 CCR Appendix G):
+
+    AESTHETICS (Section I)
+    Thresholds: Would the project have a substantial adverse effect on a
+    scenic vista? Would it substantially degrade the existing visual character?
+
+    AIR QUALITY (Section III)
+    Thresholds: SCAQMD thresholds — construction NOx > 100 lbs/day,
+    operational ROG/NOx > 55 lbs/day indicate significant impact.
+
+    BIOLOGICAL RESOURCES (Section IV)
+    Thresholds: Would the project have a substantial adverse effect on any
+    species identified as a candidate, sensitive, or special-status species
+    in local or regional plans, policies, or regulations, or by CDFW or USFWS?
+
+    CULTURAL RESOURCES (Section V)
+    Thresholds (per AB 52 and SB 18): Would the project cause a substantial
+    adverse change in the significance of a historical resource or
+    archaeological resource (CEQA §21074)?
+
+    GEOLOGY AND SOILS (Section VI)
+    Thresholds: Would the project directly or indirectly cause potential
+    substantial adverse effects involving rupture of a known earthquake fault,
+    strong seismic ground shaking, seismic-related ground failure, or landslides?
+
+    HAZARDS AND HAZARDOUS MATERIALS (Section VIII)
+    Thresholds: Would the project create a significant hazard to the public
+    through the routine transport, use, or disposal of hazardous materials?
+
+    HYDROLOGY AND WATER QUALITY (Section IX)
+    Thresholds: Would the project violate any water quality standards or
+    waste discharge requirements? Would it substantially alter drainage patterns?
+
+    LAND USE AND PLANNING (Section X)
+    Thresholds: Would the project conflict with any applicable land use plan,
+    policy, or regulation adopted for the purpose of avoiding or mitigating
+    an environmental effect?
+
+    NOISE (Section XII)
+    Thresholds: Would the project result in generation of excessive groundborne
+    vibration? Would it expose persons to noise levels in excess of standards
+    established in the local general plan or noise ordinance?
+
+    TRANSPORTATION (Section XVI — SB 743)
+    Thresholds (Pub. Resources Code §21099): VMT analysis. Projects within
+    0.5 miles of a major transit stop are presumed less-than-significant.
+    Residential projects generating VMT per capita below the regional average
+    are presumed less-than-significant.
+
+    UTILITIES AND SERVICE SYSTEMS (Section XIX)
+    Thresholds: Would the project exceed the capacity of existing or planned
+    water, wastewater, or stormwater infrastructure?
+
+    For each issue area: cite the applicable threshold. State whether the
+    project meets, may meet, or does not meet the threshold. Identify
+    mitigation measures where applicable and assess residual significance.
+
+  input_context: |
+    Application data: ${retrieve_site_data.data}
+    Classification from intake: ${classification}
+    Classification reasoning: ${classification_reasoning}
+    Sensitive area overlays: ${sensitive_area_overlay}
+    CEQA instrument text: ${ceqa_exemption_text}
+    Municipal code: ${municipal_code}
+
+# ─── Step: deliberate_determination ──────────────────────────────
+deliberate_determination:
+  context: |
+    You are an environmental review specialist preparing an EIA determination.
+    You have the results of the environmental investigation and the findings
+    from the public notice compliance and biological resources review handlers.
+
+  instruction: |
+    Based on the investigation findings and handler results, determine:
+    1. CEQA determination: Negative Declaration, Mitigated Negative Declaration,
+       or EIR required — with statutory citation from Pub. Resources Code and
+       14 CCR
+    2. For each Appendix G issue area where a potentially significant impact
+       was identified: the applicable threshold, the finding, the mitigation
+       measure (citing the code requirement or standard), and the residual
+       significance after mitigation
+    3. Conditions of approval required by the EIA determination — each citing
+       the applicable code section or Appendix G threshold that requires it
+    4. Required filings and actions — Notice of Determination, State
+       Clearinghouse filing, conditions precedent to building permit
+    5. Whether the determination can be made at staff level or requires
+       Planning Commission or Council action under CEQA
+
+    Handler results to incorporate:
+    - Public notice compliance: ${public_notice_compliance.artifact}
+    - Biological resources: ${biological_resources_review.artifact}
+
+    IMPORTANT: Do not issue resource_requests. The investigation findings
+    and handler results contain all the information needed for the EIA
+    determination. Any additional studies required by the determination
+    are listed as conditions of approval — not as requests to the coordinator.
+
+  focus: |
+    Statutory grounding. Every impact finding must cite an Appendix G
+    threshold. Every mitigation measure must cite a code requirement
+    or applicable standard. If public notice or biological resources
+    handlers flagged violations, address them in the determination.
+    Reach a determination on the available record — the determination
+    is the output, not a gateway to further data collection.
+
+# ─── Step: generate_eia_memo ─────────────────────────────────────
+generate_eia_memo:
+  context: |
+    Generate an EIA findings memo for inclusion in the permit file
+    and for attachment to the Notice of Determination or Notice of
+    Exemption.
+
+  requirements: |
+    Required sections:
+    1. PROJECT SUMMARY — permit number, parcel, proposed use, scale
+    2. CEQA DETERMINATION — type with statutory citation
+    3. ISSUE AREA FINDINGS — for each Appendix G area assessed:
+       - Threshold cited
+       - Finding (less-than-significant / significant / significant
+         and unavoidable)
+       - Mitigation measures (if any) with citations
+       - Residual significance after mitigation
+    4. PUBLIC NOTICE COMPLIANCE — summary of handler finding
+    5. BIOLOGICAL RESOURCES — summary of handler finding
+    6. CONDITIONS OF APPROVAL — each with citation
+    7. REQUIRED FILINGS — Notice of Determination, Notice of Exemption,
+       State Clearinghouse notification (if EIR)
+    8. STATUTORY CITATIONS — complete list
+
+  format: |
+    EIA findings memo format. Section headings numbered.
+    Issue area findings in table format where practical.
+
+  constraints: |
+    - Every impact finding must cite the applicable Appendix G threshold
+    - Every mitigation measure must cite its source
+    - Do not make policy recommendations beyond the statutory framework
+    - Quote operative statutory language for all cited provisions
+
+# ─── Step: govern_eia_determination ──────────────────────────────
+govern_eia_determination:
+  workflow_state: |
+    classification: ${classification}
+    investigation_confidence: ${investigate_environmental_impacts.confidence}
+    significant_impacts: ${investigate_environmental_impacts.evidence_flags}
+    public_notice_conforms: ${public_notice_compliance.conforms}
+    biological_resources_conforms: ${biological_resources_review.conforms}
+    determination: ${deliberate_determination.recommended_action}
+    determination_confidence: ${deliberate_determination.confidence}
+
+  governance_context: |
+    GATE (planning manager review before Notice of Determination filed) — when:
+    - Conditional classification / MND determination
+    - Any significant impact identified (even if mitigable)
+    - Biological resources handler flagged a potential MSHCP issue
+    - Public notice handler found a compliance gap
+    - Determination confidence < 0.85
+    Rationale: EIA determination has legal consequences. Planning manager
+    review required before filing with county recorder.
+
+    HOLD (city attorney and Planning Commission or Council action) — when:
+    - EIR required determination
+    - Significant and unavoidable impacts identified
+    - Biological resources handler flagged ESA Section 7 consultation need
+    - Prohibited classification confirmed
+    Rationale: EIR and significant-and-unavoidable findings require public
+    hearing and elected body action. City attorney review before any notice.

@@ -1,0 +1,50 @@
+# ─────────────────────────────────────────────────────────────────
+# Public Notice Compliance Handler
+#
+# Parallel handler in the EIA specialist pipeline. Verifies that
+# applicable CEQA public notice and review period requirements have
+# been met. Returns a typed compliance result to the specialist
+# workflow for inclusion in the deliberation.
+# ─────────────────────────────────────────────────────────────────
+
+name: public_notice_compliance
+description: >
+  Retrieve public notice records, verify compliance with CEQA
+  §21092 notice and review period requirements, generate compliance
+  finding, govern result.
+
+steps:
+  - name: retrieve_notice_records
+    primitive: retrieve
+    params:
+      specification: "${domain.retrieve_notice_records.specification}"
+      strategy: deterministic
+    transitions:
+      - default: verify_notice_compliance
+
+  - name: verify_notice_compliance
+    primitive: verify
+    model: fast
+    temperature: 0.0
+    params:
+      rules: "${domain.verify_notice_compliance.rules}"
+      subject: |
+        ${domain.verify_notice_compliance.subject_context}
+    transitions:
+      - default: generate_notice_finding
+
+  - name: generate_notice_finding
+    primitive: generate
+    params:
+      requirements: "${domain.generate_notice_finding.requirements}"
+      format: "${domain.generate_notice_finding.format}"
+      constraints: "${domain.generate_notice_finding.constraints}"
+    transitions:
+      - default: govern_notice_result
+
+  - name: govern_notice_result
+    primitive: govern
+    params:
+      workflow_state: |
+        ${domain.govern_notice_result.workflow_state}
+      governance_context: "${domain.govern_notice_result.governance_context}"

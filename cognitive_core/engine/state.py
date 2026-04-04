@@ -140,53 +140,68 @@ def build_context_from_state(state: WorkflowState) -> str:
 
         parts.append(f"\n--- {name} ({step['primitive']}){iter_label} ---")
 
+        # Context is truncated aggressively — downstream steps need structured
+        # outputs (category, finding, recommendation) not full prose reasoning.
+        # Reasoning strings are capped at 150 chars; retrieve data at 120 chars.
+        # This keeps context token count bounded regardless of LLM verbosity.
         primitive = step["primitive"]
         if primitive == "classify":
             parts.append(f"Category: {output.get('category', 'N/A')}")
             parts.append(f"Confidence: {output.get('confidence', 'N/A')}")
-            parts.append(f"Reasoning: {output.get('reasoning', 'N/A')}")
+            reasoning = str(output.get('reasoning', ''))
+            if reasoning:
+                parts.append(f"Reasoning: {reasoning[:150]}")
+            alts = output.get('alternative_categories', [])
+            if alts:
+                parts.append(f"Alternatives considered: {', '.join(a.get('category','') for a in alts[:3])}")
         elif primitive == "investigate":
-            parts.append(f"Finding: {output.get('finding', 'N/A')}")
+            parts.append(f"Finding: {str(output.get('finding', 'N/A'))[:300]}")
             parts.append(f"Confidence: {output.get('confidence', 'N/A')}")
-            parts.append(f"Reasoning: {output.get('reasoning', 'N/A')}")
-            for h in output.get("hypotheses_tested", []):
-                parts.append(f"  Hypothesis: {h.get('hypothesis', '')} -> {h.get('status', '')}")
+            for h in output.get("hypotheses_tested", [])[:3]:
+                parts.append(f"  Hypothesis: {h.get('hypothesis', '')[:80]} -> {h.get('status', '')}")
+            flags = output.get("evidence_flags", [])
+            if flags:
+                parts.append(f"  Evidence flags: {flags[:3]}")
         elif primitive == "verify":
             parts.append(f"Conforms: {output.get('conforms', 'N/A')}")
-            parts.append(f"Reasoning: {output.get('reasoning', 'N/A')}")
             for v in output.get("violations", []):
-                parts.append(f"  Violation [{v.get('severity', '')}]: {v.get('description', '')}")
+                parts.append(f"  Violation [{v.get('severity', '')}]: {str(v.get('description', ''))[:100]}")
+            if output.get('conforms') and not output.get('violations'):
+                parts.append("  All rules passed.")
         elif primitive == "generate":
-            parts.append(f"Artifact preview: {str(output.get('artifact', ''))[:200]}...")
+            parts.append(f"Artifact preview: {str(output.get('artifact', ''))[:150]}")
             parts.append(f"Confidence: {output.get('confidence', 'N/A')}")
         elif primitive == "challenge":
             parts.append(f"Survives: {output.get('survives', 'N/A')}")
-            parts.append(f"Assessment: {output.get('overall_assessment', 'N/A')}")
-            for v in output.get("vulnerabilities", []):
-                parts.append(f"  Vulnerability [{v.get('severity', '')}]: {v.get('description', '')}")
+            assessment = str(output.get('overall_assessment', ''))
+            if assessment:
+                parts.append(f"Assessment: {assessment[:150]}")
+            for v in output.get("vulnerabilities", [])[:3]:
+                parts.append(f"  Vulnerability [{v.get('severity', '')}]: {str(v.get('description', ''))[:80]}")
         elif primitive == "retrieve":
             data = output.get("data", {})
             parts.append(f"Sources retrieved: {list(data.keys())}")
-            for key, val in data.items():
-                parts.append(f"  {key}: {json.dumps(val, indent=2)[:200]}...")
+            for key, val in list(data.items())[:5]:
+                parts.append(f"  {key}: {json.dumps(val)[:120]}")
         elif primitive == "deliberate":
-            parts.append(f"Situation: {str(output.get('situation_summary', ''))[:300]}...")
-            options = output.get("options_considered", [])
-            if options:
-                parts.append(f"Options considered: {len(options)}")
+            situation = str(output.get('situation_summary', ''))
+            if situation:
+                parts.append(f"Situation: {situation[:200]}")
             action = output.get("recommended_action")
             if action:
                 parts.append(f"Recommended action: {action}")
+            warrant = str(output.get('warrant', ''))
+            if warrant:
+                parts.append(f"Warrant: {warrant[:150]}")
             parts.append(f"Confidence: {output.get('confidence', 'N/A')}")
         elif primitive == "govern":
             tier = output.get("tier_applied", "?")
             disposition = output.get("disposition", "?")
             parts.append(f"Governance tier: {tier}")
             parts.append(f"Disposition: {disposition}")
-            rationale = output.get("tier_rationale", "")
+            rationale = str(output.get("tier_rationale", ""))
             if rationale:
-                parts.append(f"Rationale: {rationale[:200]}")
-            parts.append(f"Confidence: {output.get('confidence', 'N/A')}")
+                parts.append(f"Rationale: {rationale[:150]}")
 
     routing_log = state.get("routing_log", [])
     if routing_log:

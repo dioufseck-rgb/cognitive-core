@@ -1,0 +1,80 @@
+{
+  "get_application": {
+    "permit_number": "PMT-2026-00318",
+    "applicant": "Applicant",
+    "parcel_id": "APN 047-185-011",
+    "address": "890 Transit Corridor Avenue",
+    "proposed_use": "Mixed-use: multifamily residential (180 units) + ground-floor retail",
+    "existing_use": "Surface parking lot (vacant/underutilized)",
+    "project_scale": {
+      "site_area_acres": 1.2,
+      "building_height_stories": 6,
+      "residential_units": 180,
+      "affordable_units": 18,
+      "retail_sqft": 8400,
+      "total_floor_area_sqft": 198000,
+      "ground_disturbance_sqft": 52200
+    },
+    "construction_type": "Type IA concrete podium, wood frame upper floors"
+  },
+  "get_parcel_data": {
+    "zoning": "MU-T Mixed-Use Transit Corridor",
+    "general_plan_designation": "High Density Mixed Use",
+    "lot_size_sqft": 52200,
+    "existing_improvements": "Paved surface parking lot, no structures. Previously developed \u2014 no virgin ground.",
+    "prior_permits": [],
+    "housing_element_site": true,
+    "housing_element_note": "Site is identified in the adopted Housing Element (2023-2031) as an opportunity site for residential development."
+  },
+  "get_sensitive_area_overlay": {
+    "flood_zone": "Zone X \u2014 Outside 500-year floodplain. FIRM Panel 06071C0844G.",
+    "wetland_buffer": "None within 100 ft.",
+    "biological_resources": "Not within MSHCP criteria cell. Site is fully developed/paved. No native vegetation.",
+    "cultural_resources": "Moderate sensitivity per General Plan Figure CR-1. No known archaeological resources on site but site not previously surveyed below surface.",
+    "seismic_hazard": "Zone B \u2014 Near-source seismic zone. Site-specific geotechnical study required per CBC \u00a71613.",
+    "wildfire_hazard": "Not within SRA or VHFHSZ.",
+    "transit_proximity": "0.4 miles from regional rail station \u2014 qualifies for VMT reduction under SB 743 transit proximity presumption."
+  },
+  "get_ceqa_exemption_text": {
+    "class_32_section": "14 CCR \u00a715332",
+    "class_32_title": "In-Fill Development Projects",
+    "class_32_text": "Class 32 consists of projects characterized as in-fill development meeting the conditions described in this section. (a) The project is consistent with the applicable general plan designation and all applicable general plan policies as well as with applicable zoning designation and regulations. (b) The proposed development occurs within city limits on a project site of no more than five acres substantially surrounded by urban uses. (c) The project site has no value as habitat for endangered, rare or threatened species. (d) Approval of the project would not result in any significant effects relating to traffic, noise, air quality, or water quality. (e) The site can be adequately served by all required utilities and public services.",
+    "class_32_applicability_note": "Class 32 exemption does not apply if any of the five conditions cannot be confirmed. Condition (d) requires independent assessment. Project of 180 units and 8,400 sq ft retail must be assessed for traffic, noise, air quality, and water quality impacts before exemption can be claimed.",
+    "section_15300_2_exceptions": {
+      "subsection_b_cumulative": "\u00a715300.2(b) cumulative impact exception: Successive projects of the same type in the same place over time. Not applicable \u2014 this is a single large project, not successive small ones.",
+      "subsection_c_unusual_circumstances": "\u00a715300.2(c): A categorical exemption shall not be used for a project which may cause a significant effect on the environment due to unusual circumstances."
+    },
+    "appendix_g_thresholds": {
+      "source": "14 CCR Appendix G \u2014 Environmental Checklist Form",
+      "transportation_vmt": "Per SB 743 (Pub. Resources Code \u00a721099) and OPR Technical Advisory (Dec 2018): Projects within 0.5 miles of a major transit stop are presumed to have a less-than-significant transportation impact. Applicable here \u2014 site is 0.4 miles from regional rail.",
+      "noise": "A project will normally have a significant effect on the environment if the project will expose persons to or generate noise levels in excess of standards established in a local general plan or noise ordinance.",
+      "air_quality": "A project will have a significant effect on the environment if the project will conflict with or obstruct implementation of the applicable air quality plan, or violate any ambient air quality standard.",
+      "cultural_resources": "A project will normally have a significant effect if it will cause a substantial adverse change in the significance of a historical resource or archaeological resource."
+    }
+  },
+  "get_municipal_code": {
+    "zone": "MU-T Mixed-Use Transit Corridor",
+    "section": "Municipal Code Chapter 18.36",
+    "permitted_uses": "Multifamily residential is a permitted use in MU-T zone (\u00a718.36.020(A)(3)). Ground-floor retail is required on Transit Corridor Avenue frontage (\u00a718.36.040(B)).",
+    "development_standards": {
+      "max_height": "8 stories / 85 ft. Proposed 6 stories \u2014 conforms.",
+      "min_density": "100 units/acre in MU-T zone. Proposed 150 units/acre \u2014 conforms.",
+      "affordable_housing": "Inclusionary requirement: 10% of units at 80% AMI (\u00a718.60.030). 18 affordable units = 10% of 180 \u2014 conforms.",
+      "ground_floor_active_use": "Minimum 60% ground floor street frontage must be active use (\u00a718.36.040(B)). Retail proposed at 100% frontage \u2014 conforms.",
+      "parking": "MU-T zone within 0.5 miles of transit: maximum 0.5 spaces/unit, no minimum (\u00a718.44.060(C)(2)). Applicant proposes 54 spaces (0.3/unit) \u2014 conforms."
+    }
+  },
+  "get_prior_determinations": {
+    "same_parcel": [],
+    "nearby_similar": [
+      {
+        "distance_ft": 520,
+        "year": 2024,
+        "type": "Mixed-use, 145 units, MU-T zone",
+        "ceqa": "Mitigated Negative Declaration",
+        "key_findings": "Cultural resources Phase I survey required as condition. Air quality construction mitigation measures required. No significant impacts after mitigation.",
+        "outcome": "MND adopted. Permit approved with conditions."
+      }
+    ]
+  }
+}

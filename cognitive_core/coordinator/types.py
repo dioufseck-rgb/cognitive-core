@@ -336,3 +336,44 @@ class Capability:
     queue: str = ""
     # For external services
     endpoint: str = ""
+
+
+# ─── Execution Policies ──────────────────────────────────────────────
+
+@dataclass
+class ExecutionOp:
+    """
+    A single governed execution operation dispatched after tier clearance.
+    Backed by an MCP tool call.
+    """
+    tool: str                          # MCP tool name
+    inputs: dict[str, Any] = field(default_factory=dict)  # resolved at dispatch
+    reversible: bool = False           # whether this op can be undone
+    reversal_tool: str = ""            # tool to call to undo, if reversible
+    description: str = ""             # human-readable description for work order
+
+
+@dataclass
+class ExecutionDecision:
+    """Result of execution policy evaluation — ops to dispatch."""
+    policy_name: str
+    ops: list[ExecutionOp]
+    tier_required: str = "auto"        # minimum tier at which this fires
+
+
+@dataclass
+class ExecutionPolicy:
+    """
+    A rule that triggers governed MCP execution after tier clearance.
+    Evaluated deterministically against workflow output — no LLM calls.
+    Follows the same condition/input_mapping pattern as DelegationPolicy.
+    """
+    name: str
+    conditions: list[DelegationCondition]   # reuse existing condition type
+    ops: list[dict[str, Any]]               # raw op specs — resolved at dispatch
+    # Minimum tier at which this policy fires.
+    # auto: fires immediately on completion
+    # spot_check: fires immediately, sampled for review
+    # gate: held until human approves, then fires
+    # hold: held until compliance releases, then fires
+    min_tier: str = "auto"

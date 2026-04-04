@@ -1,0 +1,63 @@
+domain_name: public_notice
+governance: auto
+
+# ─── Step: retrieve_notice_records ───────────────────────────────
+retrieve_notice_records:
+  specification: |
+    Retrieve public notice records for the permit application:
+    - get_notice_records: Notice of Intent to Adopt MND or NOI for EIR,
+      publication dates, posting locations, mailing list documentation
+    - get_review_period: Start date, end date, duration in calendar days
+    - get_public_comments: Any written comments received during review period
+    - get_scoping_record: State Clearinghouse SCH number if EIR (required
+      for projects with statewide, regional, or areawide significance)
+
+# ─── Step: verify_notice_compliance ──────────────────────────────
+verify_notice_compliance:
+  rules: |
+    RULE 1 — MND public review period
+    Source: Pub. Resources Code §21092; 14 CCR §15073
+    Check: If CEQA determination is MND — was a minimum 20-day public
+    review period provided? (30 days if submitted to State Clearinghouse)
+
+    RULE 2 — EIR public review period
+    Source: Pub. Resources Code §21092; 14 CCR §15105
+    Check: If CEQA determination is EIR — was a minimum 45-day public
+    review period provided? (30 days for recirculated EIR per §21092.1)
+
+    RULE 3 — Notice content requirements
+    Source: 14 CCR §15072 (MND), §15085 (EIR)
+    Check: Does the notice include: project title, brief project description,
+    project location, proposed CEQA determination, review period dates,
+    and address for comment submission?
+
+    RULE 4 — State Clearinghouse notification (if required)
+    Source: Pub. Resources Code §21083.9; 14 CCR §15205
+    Check: Was the Notice of Preparation filed with the State Clearinghouse
+    for projects with statewide, regional, or areawide significance?
+
+  subject_context: |
+    Permit number: ${permit_number}
+    CEQA determination type: ${ceqa_determination_type}
+    Notice records: ${retrieve_notice_records.data}
+    Classification: ${classification}
+
+# ─── Step: generate_notice_finding ──────────────────────────────
+generate_notice_finding:
+  requirements: |
+    Generate a public notice compliance finding for the EIA specialist.
+    Include: determination of compliance or non-compliance for each rule,
+    review period dates and duration, number of public comments received,
+    any material objections relevant to the permit determination.
+  format: Structured compliance memo, one paragraph per rule checked.
+  constraints: Cite the specific §21092 or §15073/15105 provision for each finding.
+
+# ─── Step: govern_notice_result ──────────────────────────────────
+govern_notice_result:
+  workflow_state: |
+    conforms: ${verify_notice_compliance.conforms}
+    violations: ${verify_notice_compliance.violations}
+  governance_context: |
+    AUTO — always. This handler returns results to the specialist workflow.
+    No separate HITL required. Violations are surfaced in the specialist
+    workflow's deliberation and govern steps.

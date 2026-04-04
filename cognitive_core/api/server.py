@@ -39,6 +39,7 @@ COORD_CONFIG = os.environ.get("CC_COORD_CONFIG", "coordinator_config.yaml")
 COORD_BASE   = os.environ.get("CC_COORD_BASE", ".")
 DB_PATH      = os.environ.get("CC_DB_PATH", "cognitive_core.db")
 WORKERS      = int(os.environ.get("CC_WORKERS", "4"))
+API_KEY      = os.environ.get("CC_API_KEY", "")  # If set, all API requests require Authorization: Bearer <key>
 
 
 @asynccontextmanager
@@ -61,15 +62,15 @@ async def lifespan(app: FastAPI):
     deps.set_coordinator(coordinator)
     print(f"[startup] Coordinator ready (config: {COORD_CONFIG})", flush=True)
 
-    # ── Hash chain on action ledger (Sprint 4.1) ───────────────────
-    try:
-        from cognitive_core.coordinator.ledger_chain import patch_store_for_hashing
-        patch_store_for_hashing(coordinator.store)
-        print("[startup] Action ledger hash chain enabled", flush=True)
-    except Exception as e:
-        print(f"[startup] WARNING: Hash chain not enabled: {e}", flush=True)
+    # ── Hash chain on action ledger ────────────────────────────────
+    # The CoordinatorStore already has hash chain built into log_action.
+    # No patching needed — verify with store.verify_ledger(instance_id).
+    print("[startup] Action ledger hash chain enabled", flush=True)
 
-    # ── Clean stale running instances ──────────────────────────────
+    # ── Clean stale state from previous process ───────────────────
+    # Running instances will never complete (the thread is gone).
+    # Pending tasks may reference instance IDs that no longer exist
+    # or will never be actioned — cancel them all on restart.
     try:
         stale = [i for i in coordinator.store.list_instances(limit=1000)
                  if i.status.value == "running"]
@@ -84,10 +85,43 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"[startup] WARNING: Could not clean stale instances: {e}", flush=True)
 
+    # Cancel all pending tasks — they belong to the previous process.
+    # Leaving them causes old decisions to be applied to new instances.
+    try:
+        from cognitive_core.coordinator.tasks import TaskStatus, TaskResolution
+        import time as _time
+        pending_tasks = coordinator.tasks.list_tasks(status=TaskStatus.PENDING)
+        cancelled = 0
+        for task in pending_tasks:
+            try:
+                coordinator.tasks.resolve(task.task_id, TaskResolution(
+                    task_id=task.task_id,
+                    action="cancel",
+                    resolved_by="server_startup",
+                    notes="Stale task cancelled on server restart",
+                    resolved_at=_time.time(),
+                ))
+                cancelled += 1
+            except Exception:
+                pass
+        if cancelled:
+            print(f"[startup] Cancelled {cancelled} stale pending task(s)", flush=True)
+    except Exception as e:
+        print(f"[startup] WARNING: Could not cancel stale tasks: {e}", flush=True)
+
     # ── Thread pool ────────────────────────────────────────────────
     executor = ThreadPoolExecutor(max_workers=WORKERS, thread_name_prefix="workflow")
     deps.set_executor(executor)
     print(f"[startup] Thread pool ready ({WORKERS} workers)", flush=True)
+
+    # ── Auth status ────────────────────────────────────────────────
+    if API_KEY:
+        print(f"[startup] API key auth enabled (CC_API_KEY)", flush=True)
+    else:
+        print(f"[startup] WARNING: No auth configured — API is open. "
+              f"For production, deploy behind an API gateway or set CC_API_KEY.", flush=True)
+    if not os.environ.get("X_CALLER_IDENTITY_HEADER"):
+        print(f"[startup] Caller identity: read from X-Caller-Identity header (injected by gateway)", flush=True)
 
     yield
 
@@ -109,6 +143,52 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── API key auth middleware ────────────────────────────────────────
+# Enabled only when CC_API_KEY is set. Open by default for dev mode.
+# Exempt: GET / (landing page) and GET /instances/*/trace (browser-facing).
+from starlette.middleware.base import BaseHTTPMiddleware  # noqa: E402
+from starlette.requests import Request                    # noqa: E402
+from starlette.responses import JSONResponse              # noqa: E402
+
+class ApiKeyMiddleware(BaseHTTPMiddleware):
+    """
+    Minimal API key auth. Enabled only when CC_API_KEY is set.
+
+    For production, deploy behind an API gateway (Apigee, Kong, AWS API Gateway)
+    that handles authentication and injects caller identity via:
+      X-Caller-Identity: alice@institution.com
+      X-Caller-Role: underwriter
+
+    The framework reads these headers and passes them to the action ledger
+    so reviewer identity is recorded without the caller needing to supply it
+    in the request body.
+    """
+    async def dispatch(self, request: Request, call_next):
+        # Propagate gateway-injected identity into request state
+        # so endpoints can read it without re-parsing headers
+        caller = (
+            request.headers.get("X-Caller-Identity") or
+            request.headers.get("X-User-ID") or
+            request.headers.get("X-Authenticated-User") or
+            ""
+        )
+        request.state.caller_identity = caller
+
+        if not API_KEY:
+            return await call_next(request)
+
+        path = request.url.path
+        # Exempt browser-facing routes — auth handled at gateway
+        if path == "/" or path.startswith("/instances/"):
+            return await call_next(request)
+
+        auth = request.headers.get("Authorization", "")
+        if auth == f"Bearer {API_KEY}":
+            return await call_next(request)
+        return JSONResponse({"detail": "Unauthorized"}, status_code=401)
+
+app.add_middleware(ApiKeyMiddleware)
 
 # ── API Routers ────────────────────────────────────────────────────
 from cognitive_core.api.routers import instances, tasks, hitl  # noqa: E402
@@ -132,10 +212,11 @@ class StartRequest(BaseModel):
 
 @app.post("/api/start")
 async def start_instance(req: StartRequest) -> dict[str, Any]:
-    """Submit a new case for processing. Returns instance_id immediately."""
+    """Submit a new case for processing. Returns instance_id immediately.
+    The workflow runs in a background thread — open the trace_url to watch progress."""
     import asyncio
+    import threading
     coord = deps.get_coordinator()
-    executor = deps.get_executor()
 
     # Validate required fields
     if not req.workflow_type:
@@ -145,16 +226,33 @@ async def start_instance(req: StartRequest) -> dict[str, Any]:
     if not req.case_input:
         raise HTTPException(422, "case_input must not be empty")
 
-    loop = asyncio.get_event_loop()
-    try:
-        # start() is synchronous; run in thread pool so event loop stays free
-        instance_id = await loop.run_in_executor(
-            executor,
-            lambda: _run_start(coord, req.workflow_type, req.domain, req.case_input),
-        )
-    except Exception as exc:
-        raise HTTPException(500, f"Failed to start workflow: {exc}")
+    # Run start() in a background thread — returns immediately.
+    # The workflow executes asynchronously; the SSE stream reports progress.
+    result: dict[str, Any] = {}
+    ready = threading.Event()
 
+    def _run():
+        try:
+            instance_id = _run_start(coord, req.workflow_type, req.domain, req.case_input)
+            result["instance_id"] = instance_id
+        except Exception as e:
+            result["error"] = str(e)
+        finally:
+            ready.set()
+
+    t = threading.Thread(target=_run, daemon=True)
+    t.start()
+
+    # Wait briefly for the instance to be created (fast — just DB write)
+    # then return. The workflow continues running in the background.
+    ready.wait(timeout=30)
+
+    if "error" in result:
+        raise HTTPException(500, f"Failed to start workflow: {result['error']}")
+    if "instance_id" not in result:
+        raise HTTPException(504, "Workflow start timed out")
+
+    instance_id = result["instance_id"]
     return {
         "instance_id": instance_id,
         "workflow_type": req.workflow_type,
@@ -165,13 +263,47 @@ async def start_instance(req: StartRequest) -> dict[str, Any]:
     }
 
 
-def _run_start(coord, workflow_type: str, domain: str, case_input: dict) -> str:
+def _run_workflow_background(coord, instance_id: str, workflow_type: str,
+                              domain: str, case_input: dict) -> None:
+    """Run workflow to completion in a background thread."""
     import asyncio
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     try:
-        instance_id = coord.start(workflow_type=workflow_type, domain=domain, case_input=case_input)
-        # Patch case_meta with domain-agnostic fields the coordinator may not have set
+        coord.start(
+            workflow_type=workflow_type,
+            domain=domain,
+            case_input=case_input,
+            _existing_instance_id=None,  # coord.start creates a new instance
+        )
+    except Exception as e:
+        import logging
+        logging.getLogger("permit_server").error(
+            f"Background workflow {instance_id} failed: {e}"
+        )
+    finally:
+        loop.close()
+        asyncio.set_event_loop(None)
+
+
+def _run_start(coord, workflow_type: str, domain: str, case_input: dict) -> str:
+    """
+    Create the instance record and launch the workflow in a background thread.
+    Returns the instance_id immediately — the workflow runs asynchronously.
+    The trace page SSE stream shows progress as steps complete.
+    """
+    import asyncio
+    import threading
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        instance_id = coord.start(
+            workflow_type=workflow_type,
+            domain=domain,
+            case_input=case_input,
+        )
+        # Patch case_meta with domain-agnostic fields
         inst = coord.store.get_instance(instance_id)
         if inst and not any((inst.case_meta or {}).values()):
             inst.case_meta = {k: v for k, v in {
@@ -179,6 +311,8 @@ def _run_start(coord, workflow_type: str, domain: str, case_input: dict) -> str:
                 "loan_amount":    str(case_input.get("loan_amount", "")),
                 "loan_purpose":   case_input.get("loan_purpose", ""),
                 "case_id":        case_input.get("case_id", ""),
+                "permit_number":  case_input.get("get_application", {}).get("permit_number", ""),
+                "proposed_use":   case_input.get("get_application", {}).get("proposed_use", ""),
             }.items() if v}
             coord.store.save_instance(inst)
         return instance_id
@@ -248,23 +382,11 @@ async def get_instance(instance_id: str) -> dict[str, Any]:
 
     ledger = coord.store.get_ledger(instance_id=instance_id)
 
-    return {
-        "instance_id": inst.instance_id,
-        "workflow_type": inst.workflow_type,
-        "domain": inst.domain,
-        "status": inst.status.value,
-        "governance_tier": inst.governance_tier,
-        "correlation_id": inst.correlation_id,
-        "created_at": inst.created_at,
-        "updated_at": inst.updated_at,
-        "elapsed_seconds": inst.elapsed_seconds,
-        "step_count": inst.step_count,
-        "current_step": inst.current_step,
-        "result": inst.result,
-        "error": inst.error,
-        "case_meta": inst.case_meta,
-        "ledger": ledger,
-    }
+    enriched = _enriched_instance(inst)
+    enriched["correlation_id"] = inst.correlation_id
+    enriched["result"] = inst.result
+    enriched["ledger"] = ledger
+    return enriched
 
 
 

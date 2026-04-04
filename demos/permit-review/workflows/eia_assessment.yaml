@@ -1,0 +1,69 @@
+# ─────────────────────────────────────────────────────────────────
+# EIA Specialist Assessment Workflow
+#
+# Runs after intake_to_eia delegation fires. Receives classification
+# and application data from the intake workflow. Retrieves additional
+# site-specific data, investigates all mandatory CEQA Appendix G
+# issue areas, then suspends to wait for parallel results from
+# public notice compliance and biological resources review handlers
+# before deliberating on the final EIA determination.
+# ─────────────────────────────────────────────────────────────────
+
+name: eia_assessment
+description: >
+  Retrieve full site data, investigate environmental impacts across
+  all applicable CEQA Appendix G issue areas, suspend for parallel
+  public notice and biological resources review, deliberate on EIA
+  determination with combined handler results, generate EIA findings
+  memo, and govern sign-off requirement.
+
+steps:
+  - name: retrieve_site_data
+    primitive: retrieve
+    params:
+      specification: "${domain.retrieve_site_data.specification}"
+      strategy: deterministic
+    transitions:
+      - default: investigate_environmental_impacts
+
+  - name: investigate_environmental_impacts
+    primitive: investigate
+    params:
+      question: "${domain.investigate_environmental_impacts.question}"
+      scope: "${domain.investigate_environmental_impacts.scope}"
+      available_evidence: "${domain.investigate_environmental_impacts.input_context}"
+      effort_level: deep
+    transitions:
+      - default: deliberate_determination
+    # Note: delegation policies fire public_notice and biological_resources
+    # handlers after this step completes. This step's completion triggers
+    # the parallel handler dispatch. The workflow suspends here until
+    # both handlers return, then resumes at deliberate_determination.
+
+  - name: deliberate_determination
+    primitive: deliberate
+    params:
+      instruction: |
+        ${domain.deliberate_determination.context}
+        ${domain.deliberate_determination.instruction}
+      focus: "${domain.deliberate_determination.focus}"
+    transitions:
+      - default: generate_eia_memo
+
+  - name: generate_eia_memo
+    primitive: generate
+    params:
+      requirements: |
+        ${domain.generate_eia_memo.context}
+        ${domain.generate_eia_memo.requirements}
+      format: "${domain.generate_eia_memo.format}"
+      constraints: "${domain.generate_eia_memo.constraints}"
+    transitions:
+      - default: govern_eia_determination
+
+  - name: govern_eia_determination
+    primitive: govern
+    params:
+      workflow_state: |
+        ${domain.govern_eia_determination.workflow_state}
+      governance_context: "${domain.govern_eia_determination.governance_context}"

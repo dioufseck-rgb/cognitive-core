@@ -64,6 +64,10 @@ class RetryPolicy:
     # Whether to retry on JSON parse failure
     retry_on_parse_failure: bool = True
 
+    # Hard timeout per LLM call in seconds. If the provider doesn't respond
+    # within this limit, the call is aborted and retried. Prevents thread deadlock.
+    call_timeout_seconds: float = 120.0
+
 
 DEFAULT_POLICY = RetryPolicy()
 
@@ -343,7 +347,16 @@ def invoke_with_retry(
         }
         try:
             t0 = time.time()
-            response = llm.invoke(messages)
+            # Hard timeout on LLM call — prevents thread deadlock if provider hangs.
+            # Runs invoke in a separate thread; raises TimeoutError if it exceeds limit.
+            import concurrent.futures as _cf
+            _timeout_s = getattr(policy, "call_timeout_seconds", 120)
+            with _cf.ThreadPoolExecutor(max_workers=1) as _ex:
+                _fut = _ex.submit(llm.invoke, messages)
+                try:
+                    response = _fut.result(timeout=_timeout_s)
+                except _cf.TimeoutError:
+                    raise TimeoutError(f"LLM call timed out after {_timeout_s}s")
             raw = response.content
             elapsed = time.time() - t0
             entry["latency_s"] = round(elapsed, 2)

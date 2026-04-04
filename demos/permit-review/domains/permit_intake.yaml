@@ -1,0 +1,220 @@
+domain_name: permit_intake
+governance: spot_check
+
+# ─── Step: retrieve_application ──────────────────────────────────
+retrieve_application:
+  specification: |
+    Retrieve all available data for the permit application:
+
+    - get_application: Project description, applicant, parcel ID, proposed use,
+      project scale (sq ft, units, acreage), construction type
+    - get_parcel_data: Current zoning classification, General Plan designation,
+      lot size, existing improvements, prior permit history
+    - get_sensitive_area_overlay: Floodplain (FIRM panel), wetland buffer,
+      biological resources survey area, cultural resources sensitivity,
+      seismic hazard zone, wildfire hazard area
+    - get_ceqa_exemption_text: Full text of applicable categorical exemption
+      classes (Class 1-33) from 14 CCR §15301-15333 based on project type
+    - get_municipal_code: Applicable zoning code sections for the parcel's
+      zone classification — permitted uses, conditional uses, development
+      standards, sensitive area regulations
+    - get_prior_determinations: Prior CEQA determinations on this parcel
+      or substantially similar projects within 1 mile in the last 5 years
+
+# ─── Step: classify_review_type ──────────────────────────────────
+classify_review_type:
+  categories: |
+    - exempt: Project qualifies for a CEQA Categorical Exemption under
+      14 CCR §15301-15333. The exemption class, section, and applicable
+      conditions must be cited. No further environmental review required
+      unless an exception under 14 CCR §15300.2 applies.
+
+    - conditional: Project does not qualify for categorical exemption but
+      may qualify for a Mitigated Negative Declaration (MND) under Pub.
+      Resources Code §21064.5 if all potentially significant impacts can
+      be mitigated to less-than-significant levels. Requires Initial Study
+      and specialist EIA assessment.
+
+    - complex: Project requires preparation of an Environmental Impact
+      Report (EIR) under Pub. Resources Code §21100 because it may have
+      a significant effect on the environment that cannot be fully mitigated.
+
+    - prohibited: Project is prohibited by a statutory bar that closes the
+      standard approval pathway. Applies when the project violates a use
+      prohibition in the municipal code, NFIP floodway development restriction
+      (44 CFR §60.3(d)), or habitat protection statute with no derogation pathway.
+
+  input_context: |
+    Application data: ${retrieve_application.data}
+    Parcel data: ${retrieve_application.data}
+    Sensitive area overlays: ${retrieve_application.data}
+    Retrieved CEQA exemption text: ${retrieve_application.data}
+    Municipal code sections: ${retrieve_application.data}
+
+  criteria: |
+    Classification must cite the specific CEQA provision (statute or 14 CCR
+    section and class number) that drives the classification.
+
+    If exempt: identify the exemption class and confirm no exception under
+    14 CCR §15300.2 applies:
+      §15300.2(a): Location exception — Classes 3,4,5,6,11 inapplicable in
+        particularly sensitive environments
+      §15300.2(b): Cumulative impact exception — successive projects of the
+        same type in the same place over time
+      §15300.2(c): Significant effect exception — project may cause significant
+        effect due to unusual circumstances
+
+    If conditional: identify which CEQA threshold(s) under 14 CCR §15064
+    are potentially triggered and which mandatory CEQA Appendix G issue areas
+    require assessment.
+
+    If complex: identify the specific provision triggering EIR requirement
+    (Pub. Resources Code §21100, or specific Appendix G threshold that cannot
+    be mitigated).
+
+    If prohibited: cite the specific prohibition — municipal code section,
+    44 CFR section, or habitat statute — and confirm no variance pathway exists.
+
+    Do not classify on judgment alone. Every classification must be traceable
+    to retrieved statutory text.
+
+# ─── Step: verify_statutory_compliance ───────────────────────────
+verify_statutory_compliance:
+  rules: |
+    Check each of the following requirements independently. For each rule,
+    cite the specific instrument, section, and provision. Record conforms,
+    does not conform, or cannot be determined.
+
+    RULE 1 — CEQA Categorical Exemption applicability
+    Source: 14 CCR §15300-15333 (retrieved text)
+    Check: Does the project description fall within the scope of the claimed
+    exemption class? Are any exceptions under §15300.2 triggered?
+
+    RULE 2 — Zoning conformance
+    Source: Municipal Code (retrieved sections)
+    Check: Is the proposed use a permitted use or conditional use in the
+    applicable zone? Do development standards conform to applicable code sections?
+
+    RULE 3 — Sensitive area compliance
+    Source: Municipal Code sensitive area regulations (retrieved);
+    44 CFR §60.3 (NFIP) if floodplain overlay present
+    Check: Does the project comply with buffer requirements, setback standards,
+    and use restrictions in sensitive area overlays?
+
+    RULE 4 — Floodway development prohibition (if applicable)
+    Source: 44 CFR §60.3(d); Municipal Floodplain Management Ordinance
+    Check: Is the project site within the regulatory floodway as shown on
+    the FIRM? If so, is the proposed use prohibited under §60.3(d)?
+
+  subject_context: |
+    Project description: ${retrieve_application.data}
+    Parcel and overlay data: ${retrieve_application.data}
+    Classification finding: ${classify_review_type.category}
+    Classification reasoning: ${classify_review_type.reasoning}
+
+# ─── Step: deliberate_determination ──────────────────────────────
+deliberate_determination:
+  context: |
+    You are a senior planner preparing a staff determination for a
+    development permit application. Your determination must be grounded
+    in the statutory compliance findings. Every conclusion must be
+    traceable to a specific rule finding.
+
+  instruction: |
+    Based on the classification and statutory compliance findings, determine:
+    1. The CEQA determination with statutory citation
+    2. The permit determination: approve, approve with conditions, deny,
+       close — and the statutory basis
+    3. Required conditions of approval, each citing the applicable code
+       section. Technical studies required by statute (geotechnical, cultural
+       resources Phase I/II, biological resources, traffic/VMT) are CONDITIONS
+       OF APPROVAL — list them here as conditions, not as resource requests.
+       The determination is made now on the available record; the required
+       studies are prerequisites for building permit issuance, not for this
+       planning determination.
+    4. Required filings — Notice of Exemption, Notice of Determination,
+       State Clearinghouse submission — with the applicable CEQA section
+    5. Whether the determination is within staff delegated authority or
+       requires hearing officer, planning commission, or council action
+
+    IMPORTANT: Do not issue resource_requests. All information needed to
+    make the CEQA and permit determination is present in the retrieved
+    application data and statutory compliance findings. If additional studies
+    are legally required, list them as conditions of approval.
+
+  focus: |
+    Statutory grounding of every conclusion. If a statutory bar was
+    identified, state directly that the standard pathway is closed.
+    For conditional classifications: recommend the MND pathway with
+    conditions addressing each identified impact, citing the applicable
+    Appendix G threshold and the mitigation measure that reduces it to
+    less-than-significant.
+
+# ─── Step: generate_staff_report ─────────────────────────────────
+generate_staff_report:
+  context: |
+    Generate a staff determination report for the planning department
+    record and, where required, for public notice.
+
+  requirements: |
+    Required sections:
+    1. PROJECT DESCRIPTION — applicant, parcel, proposed use, scale
+    2. CEQA DETERMINATION — determination type with statutory citation
+    3. ZONING COMPLIANCE — permitted use finding with code citation
+    4. SENSITIVE AREA FINDINGS — findings for each applicable overlay
+    5. CONDITIONS OF APPROVAL — each condition with code citation
+    6. REQUIRED ACTIONS — filings, studies, consultations required
+    7. SIGN-OFF REQUIREMENT — staff level, hearing officer, commission,
+       or council — with the municipal code section requiring that level
+    8. STATUTORY CITATIONS — consolidated list of all instruments cited
+
+  format: |
+    Formal planning department staff report. Each finding numbered.
+    Each citation in the form [Instrument] [Section].
+
+  constraints: |
+    - Every finding must cite a specific statutory provision
+    - Do not make policy recommendations beyond the statutory framework
+    - If a determination cannot be made on the available record, state
+      what additional information is required and cite the basis
+
+# ─── Step: govern_determination ──────────────────────────────────
+govern_determination:
+  workflow_state: |
+    review_type: ${classify_review_type.category}
+    review_confidence: ${classify_review_type.confidence}
+    statutory_violations: ${verify_statutory_compliance.violations}
+    conforms: ${verify_statutory_compliance.conforms}
+    determination: ${deliberate_determination.recommended_action}
+    determination_confidence: ${deliberate_determination.confidence}
+
+  governance_context: |
+    SPOT CHECK — when:
+    - Categorical exemption confirmed, confidence >= 0.90
+    - No sensitive area violations
+    - No public notice required
+    - Determination within staff delegated authority
+    Rationale: Standard permitted development. Quality monitoring sufficient.
+
+    GATE (planning manager or hearing officer review before determination
+    is communicated to applicant) — when:
+    - Conditional classification with MND pathway determination
+    - A failed CEQA exemption check (RULE 1 violation) on a conditional
+      case is expected and does NOT trigger HOLD — the MND pathway is
+      the correct response to a failed exemption
+    - Any sensitive area finding requiring conditions of approval
+    - Determination confidence < 0.85
+    Rationale: MND determination has legal consequences. Planning manager
+    review required before Notice of Intent to Adopt MND is published.
+
+    HOLD (city attorney review and planning commission or council action) — when:
+    - Prohibited classification with an actual statutory bar (floodway
+      prohibition, MSHCP consistency violation, prohibited use in zone)
+    - Complex classification requiring EIR
+    - Verify findings include Rule 3, 4 violations (sensitive area or
+      floodway) — NOT Rule 1 violations on conditional cases
+    - Project within regulatory floodway (44 CFR §60.3(d) applies)
+    Rationale: Statutory bar closes the standard approval pathway.
+    Legal review required before any communication to applicant.
+    A failed exemption check (Rule 1) on a conditional case is NOT
+    a HOLD trigger — it is the expected finding that leads to MND.

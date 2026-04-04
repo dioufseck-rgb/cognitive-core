@@ -282,6 +282,37 @@ class CoordinatorStore:
         ))
         self._commit()
 
+    def claim_work_order_handler(self, work_order_id: str) -> bool:
+        """
+        Atomically claim a work order for handler execution.
+        Sets a sentinel handler_instance_id of '__claiming__' so concurrent
+        threads can detect the claim and skip duplicate handler starts.
+        Returns True if this call claimed it (first writer wins).
+        Returns False if already claimed by another thread.
+        """
+        cursor = self.db.execute("""
+            UPDATE work_orders
+            SET handler_instance_id = '__claiming__'
+            WHERE work_order_id = ? AND (handler_instance_id IS NULL OR handler_instance_id = '')
+        """, (work_order_id,))
+        self._commit()
+        return cursor.rowcount > 0
+
+    def complete_work_order(self, work_order_id: str, result_json: str, completed_at: float) -> bool:
+        """
+        Atomically mark a work order as completed.
+        Returns True if this call was the one that completed it (first writer wins).
+        Returns False if it was already completed (concurrent completion — safe to ignore).
+        Uses UPDATE WHERE status != 'completed' to prevent double-completion race condition.
+        """
+        cursor = self.db.execute("""
+            UPDATE work_orders
+            SET status = 'completed', completed_at = ?, result = ?
+            WHERE work_order_id = ? AND status != 'completed'
+        """, (completed_at, result_json, work_order_id))
+        self._commit()
+        return cursor.rowcount > 0
+
     def get_work_order(self, work_order_id: str) -> WorkOrder | None:
         row = self.db.fetchone("SELECT * FROM work_orders WHERE work_order_id = ?", (work_order_id,))
         if not row:
@@ -482,8 +513,22 @@ class CoordinatorStore:
         for i, row in enumerate(rows):
             stored_hash = row["entry_hash"] if "entry_hash" in row.keys() else None
 
-            # Entries written before hash chain was introduced have no hash — skip
+            # Entries written before hash chain was introduced have no hash.
+            # Still advance prior_hash by computing what it would have been,
+            # so the chain remains consistent for subsequent hashed entries.
             if not stored_hash:
+                try:
+                    details_null = json.loads(row["details"])
+                except Exception:
+                    details_null = {}
+                content_null = json.dumps({
+                    "instance_id": row["instance_id"],
+                    "correlation_id": row["correlation_id"],
+                    "action_type": row["action_type"],
+                    "details": details_null,
+                    "idempotency_key": row["idempotency_key"],
+                }, sort_keys=True, default=str)
+                prior_hash = hashlib.sha256((prior_hash + content_null).encode()).hexdigest()
                 continue
 
             # Recompute the content that was hashed at write time

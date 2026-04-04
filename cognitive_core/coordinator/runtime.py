@@ -112,6 +112,7 @@ class Coordinator:
         task_queue: TaskQueue | None = None,
         db_path: str | Path = "coordinator.db",
         verbose: bool = True,
+        overrides: dict[str, Any] | None = None,
     ):
         # Load coordinator config
         if config:
@@ -121,6 +122,10 @@ class Coordinator:
                 self.config = yaml.safe_load(f)
         else:
             self.config = {}
+
+        # Apply caller overrides (e.g. absolute paths resolved in run.py)
+        if overrides:
+            self.config.update(overrides)
 
         # Build policy engine
         self.policy = load_policy_engine(self.config)
@@ -191,8 +196,13 @@ class Coordinator:
 
         self.verbose = verbose
 
-        # Cached MCP provider (avoids spawning a new subprocess per workflow)
+        # Cached MCP provider for data tools (avoids spawning a new subprocess per workflow)
         self._mcp_provider: Any = None
+
+        # Cached MCP client for execution tools — initialized from execution_mcp_cmd
+        self._execution_mcp_client: Any = None
+        # Parsed command info for per-call MCP sessions
+        self._execution_mcp_cmd_info: dict | None = None
 
         # Persistent background event loop for MCP operations.
         # Thread pool workers create/close their own loops; we keep one
@@ -204,6 +214,17 @@ class Coordinator:
         # Resource backpressure queue: work orders waiting for capacity
         # Key: resource_id or capability_key → list of (wo_id, instance_id, req, capability)
         self._resource_wait_queue: dict[str, list[dict[str, Any]]] = {}
+
+        # Delegation dispatch lock — prevents concurrent threads from entering
+        # _evaluate_and_execute_delegations for the same instance simultaneously.
+        import threading as _th
+        # RLock (reentrant): same thread can acquire multiple times.
+        # Needed because _execute_delegation → self.start() → _on_completed
+        # → _evaluate_and_execute_delegations re-enters this lock from the
+        # same thread. Without reentrancy this deadlocks.
+        # Cross-thread protection still works: a different thread blocks
+        # until the acquiring thread fully releases all its acquisitions.
+        self._delegation_lock = _th.RLock()
 
         # Federation spoke (child coordinator in a federated hierarchy)
         self._federation_spoke: Any = None
@@ -605,6 +626,9 @@ class Coordinator:
 
         # Now proceed to delegation evaluation (skipped during suspension)
         self._evaluate_and_execute_delegations(instance, final_state)
+
+        # ── Execution policies — dispatched after tier clearance ──
+        self._evaluate_and_execute_executions(instance, final_state)
 
         # Check unresolved needs
         needs = self._extract_unresolved_needs(final_state)
@@ -1065,6 +1089,9 @@ class Coordinator:
         # ── Step 2: Evaluate delegation policies ──
         self._evaluate_and_execute_delegations(instance, final_state)
 
+        # ── Step 2b: Evaluate execution policies ──
+        self._evaluate_and_execute_executions(instance, final_state)
+
         # ── Step 3: Check for unresolved needs ──
         needs = self._extract_unresolved_needs(final_state)
         if needs:
@@ -1232,6 +1259,251 @@ class Coordinator:
             return tier_config.sla_seconds
         return None
 
+    def _call_execution_tool(self, tool_name: str, inputs: dict) -> dict:
+        """
+        Call an execution MCP tool.
+
+        Opens a fresh stdio session per call to avoid anyio cancel-scope
+        cross-task issues that occur with persistent sessions on background loops.
+        Each call is fully self-contained: connect → call → disconnect.
+        """
+        import asyncio
+        import json
+
+        cmd_info = self._execution_mcp_cmd_info
+        if not cmd_info:
+            return {"error": "No execution MCP command configured"}
+
+        async def _call_fresh():
+            from mcp import ClientSession, StdioServerParameters
+            from mcp.client.stdio import stdio_client
+
+            server_params = StdioServerParameters(
+                command=cmd_info["command"],
+                args=cmd_info["args"],
+                env=cmd_info.get("env"),
+            )
+            async with stdio_client(server_params) as (read, write):
+                async with ClientSession(read, write) as session:
+                    await session.initialize()
+                    result = await session.call_tool(tool_name, arguments=inputs)
+                    contents = []
+                    for block in result.content:
+                        if hasattr(block, "text"):
+                            contents.append(block.text)
+                        elif hasattr(block, "data"):
+                            contents.append(str(block.data))
+                    raw = " ".join(contents)
+                    try:
+                        return json.loads(raw)
+                    except Exception:
+                        return {"result": raw}
+
+        return asyncio.run(_call_fresh())
+
+    def _init_execution_mcp(self) -> None:
+        """
+        Initialize the execution MCP client from coordinator config.
+        Called lazily on first execution policy dispatch.
+        Reads execution_mcp_cmd from config or EXECUTION_MCP_CMD env var.
+        """
+        if self._execution_mcp_client is not None:
+            return  # Already initialized
+
+        import os
+        execution_mcp_cmd = (
+            os.environ.get("EXECUTION_MCP_CMD", "")
+            or self.config.get("execution_mcp_cmd", "")
+        )
+
+        if not execution_mcp_cmd:
+            self._log("  ⚠ No execution_mcp_cmd configured — execution ops will be logged as pending")
+            return
+
+        try:
+            import re as _re, os as _os, asyncio
+
+            # Parse optional KEY=VALUE env prefixes before the command.
+            # e.g. "DRY_RUN=true python execution_mcp.py"
+            # → env={"DRY_RUN": "true"}, command="python", args=["execution_mcp.py"]
+            parts = execution_mcp_cmd.split()
+            env_overrides = {}
+            cmd_start = 0
+            for i, part in enumerate(parts):
+                if _re.match(r'^[A-Z_][A-Z0-9_]*=', part):
+                    k, v = part.split("=", 1)
+                    env_overrides[k] = v
+                    cmd_start = i + 1
+                else:
+                    cmd_start = i
+                    break
+
+            cmd_parts = parts[cmd_start:]
+            if not cmd_parts:
+                raise ValueError(f"No command found in execution_mcp_cmd: {execution_mcp_cmd!r}")
+
+            mcp_env = {**_os.environ, **env_overrides} if env_overrides else None
+
+            # Store parsed command info — no persistent session needed.
+            # _call_execution_tool opens a fresh connection per call to avoid
+            # anyio cancel-scope cross-task errors with persistent sessions.
+            self._execution_mcp_cmd_info = {
+                "command": cmd_parts[0],
+                "args": cmd_parts[1:],
+                "env": mcp_env,
+            }
+
+            # Validate by doing a quick connect/list-tools/disconnect
+            from mcp import ClientSession, StdioServerParameters
+            from mcp.client.stdio import stdio_client
+
+            async def _validate():
+                server_params = StdioServerParameters(
+                    command=cmd_parts[0],
+                    args=cmd_parts[1:],
+                    env=mcp_env,
+                )
+                async with stdio_client(server_params) as (read, write):
+                    async with ClientSession(read, write) as session:
+                        await session.initialize()
+                        tools_result = await session.list_tools()
+                        return [t.name for t in tools_result.tools]
+
+            tool_names = asyncio.run(_validate())
+            self._execution_mcp_client = True  # sentinel: initialized
+            self._log(f"  ⚡ Execution MCP ready ({len(tool_names)} tools): "
+                      f"{', '.join(tool_names[:5])}")
+
+        except Exception as e:
+            self._log(f"  ✗ Failed to connect execution MCP: {e}")
+            self._execution_mcp_client = None
+            self._execution_mcp_cmd_info = None
+
+    def _evaluate_and_execute_executions(
+        self,
+        instance: "InstanceState",
+        final_state: dict[str, Any],
+    ) -> None:
+        """
+        Evaluate execution policies and dispatch any that fire.
+
+        Execution policies are deterministic — no LLM calls.
+        They fire after tier clearance (post-approval for GATE/HOLD,
+        immediately for AUTO/SPOT_CHECK).
+
+        Each policy maps to a list of ExecutionOps backed by MCP tools.
+        For GATE/HOLD cases this is called post-approval so the tier
+        has already been cleared by the human decision.
+
+        Each dispatched op is logged to the action ledger with:
+          - tool name and resolved inputs
+          - reversible flag and reversal_tool
+          - execution result or error
+
+        Reversible ops are registered in the CompensationLedger so
+        they can be unwound if the workflow is subsequently reversed.
+        """
+        # Initialize execution MCP client on first use
+        self._init_execution_mcp()
+
+        tier_str = str(instance.governance_tier).lower().replace("governancetier.", "")
+        decisions = self.policy.evaluate_executions(
+            domain=instance.domain,
+            workflow_output=final_state,
+            tier=tier_str,
+        )
+
+        if not decisions:
+            return
+
+        total_ops = sum(len(d.ops) for d in decisions)
+        self._log(f"  executions: {len(self.policy.execution_policies)} policies evaluated, "
+                  f"{len(decisions)} triggered, {total_ops} op(s)")
+
+        for decision in decisions:
+            for op in decision.ops:
+                self._dispatch_execution_op(instance, decision.policy_name, op)
+
+    def _dispatch_execution_op(
+        self,
+        instance: "InstanceState",
+        policy_name: str,
+        op: Any,
+    ) -> None:
+        """
+        Dispatch a single execution op via MCP tool call.
+        Logs the attempt and result to the action ledger.
+        Registers reversible ops in the CompensationLedger.
+        """
+        import time as _time
+
+        self._log(f"  ⚡ exec: {op.tool}")
+        if op.description:
+            self._log(f"     {op.description[:70]}")
+
+        # Log the dispatch attempt
+        self.store.log_action(
+            instance_id=instance.instance_id,
+            correlation_id=instance.correlation_id,
+            action_type="execution_dispatched",
+            details={
+                "policy": policy_name,
+                "tool": op.tool,
+                "inputs": op.inputs,
+                "reversible": op.reversible,
+                "reversal_tool": op.reversal_tool,
+            },
+            idempotency_key=f"exec:{instance.instance_id}:{policy_name}:{op.tool}",
+        )
+
+        # Dispatch via MCP client if available
+        result = None
+        error = None
+        t0 = _time.time()
+        try:
+            if self._execution_mcp_client:
+                # Call tool directly via MCP session — bypasses ToolRegistry
+                result = self._call_execution_tool(op.tool, op.inputs)
+                self._log(f"     ✓ {op.tool} ({int((_time.time()-t0)*1000)}ms)")
+            else:
+                # No execution MCP client — log as pending for external pickup
+                self._log(f"     ⚠ {op.tool}: no execution MCP client — logged for external dispatch")
+                result = {"status": "pending_external_dispatch", "tool": op.tool,
+                          "inputs": op.inputs}
+        except Exception as e:
+            error = str(e)
+            self._log(f"     ✗ {op.tool}: {error[:80]}")
+
+        # Log the result
+        self.store.log_action(
+            instance_id=instance.instance_id,
+            correlation_id=instance.correlation_id,
+            action_type="execution_completed" if not error else "execution_failed",
+            details={
+                "policy": policy_name,
+                "tool": op.tool,
+                "result": result,
+                "error": error,
+                "elapsed_ms": int((_time.time() - t0) * 1000),
+            },
+        )
+
+        # Register reversible ops with CompensationLedger
+        if op.reversible and op.reversal_tool and not error:
+            try:
+                from cognitive_core.engine.compensation import get_compensation_ledger
+                ledger = get_compensation_ledger()
+                if ledger:
+                    ledger.register(
+                        instance_id=instance.instance_id,
+                        tool=op.reversal_tool,
+                        inputs=op.inputs,
+                        description=f"Reverse {op.tool}",
+                    )
+            except Exception:
+                pass  # Compensation ledger is optional
+
+
     def _evaluate_and_execute_delegations(
         self,
         instance: InstanceState,
@@ -1310,14 +1582,45 @@ class Coordinator:
         ff_delegations = [d for d in new_delegations if d.mode != "wait_for_result"]
         blocking_delegations = [d for d in new_delegations if d.mode == "wait_for_result"]
 
-        for deleg in ff_delegations:
-            self._execute_delegation(instance, deleg, final_state)
+        import threading as _thr, traceback as _tb, sys as _sys
+        _tid = _thr.current_thread().name
+        _caller = "".join(_tb.format_stack()[-4:-1])
+        self._log(f"  [DELEG-TRACE] thread={_tid} instance={instance.instance_id[:8]} "
+                  f"new_delegations={[d.policy_name for d in new_delegations]}")
+        self._log(f"  [DELEG-TRACE] caller:\n{_caller}")
 
-        # All blocking delegations are batched into a single suspension with
-        # multiple work_order_ids. The source resumes once — after ALL handlers
-        # complete — with combined results. No intermediate generate_final_report.
-        if blocking_delegations:
-            self._execute_all_blocking_delegations(instance, blocking_delegations, final_state)
+        with self._delegation_lock:
+            # Re-check already_fired inside the lock to prevent concurrent threads
+            # dispatching the same handlers. This is the fix for the parallel
+            # handler duplication bug — two threads can reach here before either
+            # has written the idempotency key to the DB.
+            ledger_recheck = self.store.get_ledger(instance_id=instance.instance_id)
+            fired_recheck = set()
+            for entry in ledger_recheck:
+                if entry.get("action_type") == "delegation_dispatched":
+                    details = entry.get("details", {})
+                    if isinstance(details, str):
+                        try:
+                            import json as _json
+                            details = _json.loads(details)
+                        except Exception:
+                            details = {}
+                    pname = details.get("policy", "")
+                    if pname:
+                        fired_recheck.add(pname)
+
+            self._log(f"  [DELEG-TRACE] fired_recheck={fired_recheck}")
+            ff_delegations = [d for d in ff_delegations if d.policy_name not in fired_recheck]
+            blocking_delegations = [d for d in blocking_delegations if d.policy_name not in fired_recheck]
+
+            for deleg in ff_delegations:
+                self._execute_delegation(instance, deleg, final_state)
+
+            # All blocking delegations are batched into a single suspension with
+            # multiple work_order_ids. The source resumes once — after ALL handlers
+            # complete — with combined results. No intermediate generate_final_report.
+            if blocking_delegations:
+                self._execute_all_blocking_delegations(instance, blocking_delegations, final_state)
 
     def _on_kill_switch_suspended(self, instance: InstanceState, reason: str):
         """Suspend workflow when a kill switch blocks Act execution."""
@@ -1389,7 +1692,7 @@ class Coordinator:
         4. When all providers complete, resumes the source forward
            from the step that paused, now with the resources available
         """
-        from cognitive_core.engine.stepper import StepInterrupt
+        from cognitive_core.engine.devs_executor import StepInterrupt
 
         step_name = interrupt.suspended_at_step
         requests = interrupt.resource_requests
@@ -2288,7 +2591,10 @@ class Coordinator:
             self._log(f"    ⚠ NO tool data in inputs — handler retrieve may fail")
             self._log(f"      hint: add get_* entries to delegation inputs in config.yaml")
 
-        self.store.log_action(
+        # Log the delegation dispatch — idempotency key prevents double dispatch.
+        # If log_action returns False, this delegation already fired (concurrent thread).
+        # Skip the handler start to prevent duplicate workflows.
+        dispatched = self.store.log_action(
             instance_id=source.instance_id,
             correlation_id=source.correlation_id,
             action_type="delegation_dispatched",
@@ -2302,6 +2608,10 @@ class Coordinator:
             },
             idempotency_key=f"deleg:{source.instance_id}:{decision.policy_name}",
         )
+
+        if not dispatched:
+            self._log(f"  ⚠ delegation {decision.policy_name} already dispatched (concurrent thread) — skipping")
+            return
 
         if decision.mode == "wait_for_result":
             self._execute_blocking_delegation(
@@ -2322,6 +2632,21 @@ class Coordinator:
         lineage = source.lineage + [
             f"{source.workflow_type}:{source.instance_id}"
         ]
+
+        # Guard: if handler already started (concurrent thread), skip.
+        # Refresh work order from DB to get the latest handler_instance_id.
+        fresh_wo = self.store.get_work_order(wo.work_order_id)
+        if fresh_wo and fresh_wo.handler_instance_id:
+            self._log(f"  ⚠ delegation {decision.policy_name} handler already started "
+                      f"({fresh_wo.handler_instance_id}) — skipping duplicate start")
+            return
+
+        # Atomically claim the work order by setting a placeholder handler_id.
+        # If another thread already set it, the UPDATE will affect 0 rows.
+        claimed = self.store.claim_work_order_handler(wo.work_order_id)
+        if not claimed:
+            self._log(f"  ⚠ delegation {decision.policy_name} handler claimed by another thread — skipping")
+            return
 
         try:
             handler_id = self.start(
@@ -2557,16 +2882,27 @@ class Coordinator:
             if wo.status in (WorkOrderStatus.COMPLETED, WorkOrderStatus.FAILED):
                 continue  # Already resolved
 
-            # Update work order
-            wo.status = WorkOrderStatus.COMPLETED
-            wo.completed_at = time.time()
-            wo.result = WorkOrderResult(
-                work_order_id=wo.work_order_id,
-                status="completed",
-                outputs=instance.result or {},
-                completed_at=time.time(),
-            )
-            self.store.save_work_order(wo)
+            # Atomically mark work order completed — first thread wins.
+            # If another thread already completed it, skip to avoid duplicate resume.
+            import json as _json
+            completed_at = time.time()
+            result_outputs = instance.result or {}
+            result_json = _json.dumps({
+                "work_order_id": wo.work_order_id,
+                "status": "completed",
+                "outputs": result_outputs,
+                "error": None,
+                "completed_at": completed_at,
+            })
+            completed = self.store.complete_work_order(wo.work_order_id, result_json, completed_at)
+            if not completed:
+                self._log(f"  ⚠ work order {wo.work_order_id} already completed by another thread — skipping")
+                continue
+
+            # Refresh from DB to get consistent state
+            wo = self.store.get_work_order(wo.work_order_id)
+            if not wo:
+                continue
 
             # Check if requester is suspended waiting
             requester = self.store.get_instance(wo.requester_instance_id)
@@ -2637,7 +2973,7 @@ class Coordinator:
         """
         from cognitive_core.engine.composer import load_three_layer
         from cognitive_core.engine.trace import set_trace
-        from cognitive_core.engine.stepper import (
+        from cognitive_core.engine.devs_executor import (
             step_execute, resource_request_callback,
             no_interrupt_callback, StepResult,
         )
@@ -2694,24 +3030,19 @@ class Coordinator:
                 action_registry = self._build_action_registry(case_input)
 
         # ── Check execution prerequisites ──
-        # Need both LangGraph and a configured LLM provider for real execution.
-        # If either is missing, fall back to simulated execution which exercises
-        # the full coordinator state machine without LLM calls.
+        # DEVS executor has no LangGraph dependency.
+        # Only check LLM availability; fall back to simulation if not configured.
         _can_execute = True
         _fallback_reason = None
         try:
-            from langgraph.graph import StateGraph  # noqa: F401
-        except ImportError:
+            from cognitive_core.engine.llm import create_llm
+            create_llm(model="default", temperature=0.1)
+        except Exception as e:
             _can_execute = False
-            _fallback_reason = "LangGraph not installed"
-
-        if _can_execute:
-            try:
-                from cognitive_core.engine.llm import create_llm
-                _test_llm = create_llm(model="default", temperature=0.1)
-            except Exception as e:
-                _can_execute = False
-                _fallback_reason = f"LLM not configured ({e})"
+            _fallback_reason = f"LLM not configured ({e})"
+            import sys as _sys, traceback as _tb
+            print(f"[coordinator] LLM test failed — falling back to simulation: {e}", file=_sys.stderr, flush=True)
+            _tb.print_exc(file=_sys.stderr)
 
         if not _can_execute:
             self._log(f"  ⚠ {_fallback_reason} — running simulated execution")
@@ -2728,11 +3059,40 @@ class Coordinator:
                 tool_registry=tool_registry,
             )
         else:
+            # Build a step logging callback that writes each step result
+            # to the action ledger so the SSE stream can replay them live.
+            import time as _step_time
+            _start_time = _step_time.time()
+
+            def _step_log_callback(step_name, step_output, state):
+                try:
+                    prim = step_output.get("primitive", "")
+                    output = step_output.get("output", step_output.get("result", {}))
+                    elapsed_ms = int((_step_time.time() - _start_time) * 1000)
+                    self.store.log_action(
+                        instance_id=instance.instance_id,
+                        correlation_id=instance.correlation_id,
+                        action_type="step_completed",
+                        details={
+                            "step_name": step_name,
+                            "primitive": prim,
+                            "output": output,
+                            "elapsed_ms": elapsed_ms,
+                            "confidence": step_output.get("confidence"),
+                        },
+                    )
+                except Exception:
+                    pass  # never block execution on logging failure
+                return None  # never interrupt
+
+            from cognitive_core.engine.devs_executor import combined_callback
+            callback = combined_callback(_step_log_callback, resource_request_callback)
+
             result = step_execute(
                 config, case_input, model, temperature,
                 tool_registry=tool_registry,
                 action_registry=action_registry,
-                step_callback=resource_request_callback,
+                step_callback=callback,
             )
 
             if result.completed:
@@ -2760,7 +3120,7 @@ class Coordinator:
         This enables the coordinator state machine (suspend/resume/dispatch)
         to be tested end-to-end without LLM or LangGraph dependencies.
         """
-        from cognitive_core.engine.stepper import StepInterrupt
+        from cognitive_core.engine.devs_executor import StepInterrupt
 
         steps = config.get("steps", [])
         step_outputs = []
@@ -2902,7 +3262,7 @@ class Coordinator:
           - StepInterrupt: workflow interrupted again
         """
         from cognitive_core.engine.composer import load_three_layer
-        from cognitive_core.engine.stepper import (
+        from cognitive_core.engine.devs_executor import (
             step_resume, resource_request_callback, StepResult,
         )
 
@@ -2925,9 +3285,9 @@ class Coordinator:
                 )
 
         # ── Check execution prerequisites ──
+        # DEVS executor has no LangGraph dependency.
         _can_execute = True
         try:
-            from langgraph.graph import StateGraph  # noqa: F401
             from cognitive_core.engine.llm import create_llm
             create_llm(model="default", temperature=0.1)
         except Exception:
@@ -2935,19 +3295,45 @@ class Coordinator:
 
         if not _can_execute:
             self._log(f"  ⚠ LLM not available — simulated resume at '{resume_step}'")
-            # Inject delegation results into case_input for simulated execution
             case_input = dict(state_snapshot.get("input", {}))
             case_input["_delegation_results"] = state_snapshot.get("delegation_results", {})
             return self._execute_workflow_simulated(
                 instance, config, case_input, tool_registry, action_registry,
             )
 
+        import time as _step_time_r
+        _start_time_r = _step_time_r.time()
+
+        def _step_log_callback_r(step_name, step_output, state):
+            try:
+                prim = step_output.get("primitive", "")
+                output = step_output.get("output", step_output.get("result", {}))
+                elapsed_ms = int((_step_time_r.time() - _start_time_r) * 1000)
+                self.store.log_action(
+                    instance_id=instance.instance_id,
+                    correlation_id=instance.correlation_id,
+                    action_type="step_completed",
+                    details={
+                        "step_name": step_name,
+                        "primitive": prim,
+                        "output": output,
+                        "elapsed_ms": elapsed_ms,
+                        "confidence": step_output.get("confidence"),
+                    },
+                )
+            except Exception:
+                pass
+            return None
+
+        from cognitive_core.engine.devs_executor import combined_callback
+        resume_callback = combined_callback(_step_log_callback_r, resource_request_callback)
+
         result = step_resume(
             config, state_snapshot, resume_step,
             model, temperature,
             tool_registry=tool_registry,
             action_registry=action_registry,
-            step_callback=resource_request_callback,
+            step_callback=resume_callback,
         )
 
         if result.completed:

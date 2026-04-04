@@ -20,6 +20,9 @@ from cognitive_core.coordinator.types import (
     GovernanceTierConfig,
     DelegationPolicy,
     DelegationCondition,
+    ExecutionPolicy,
+    ExecutionOp,
+    ExecutionDecision,
     Capability,
     Contract,
     ContractField,
@@ -102,6 +105,7 @@ class PolicyEngine:
         self,
         governance_tiers: dict[str, GovernanceTierConfig] | None = None,
         delegation_policies: list[DelegationPolicy] | None = None,
+        execution_policies: list[ExecutionPolicy] | None = None,
         capabilities: list[Capability] | None = None,
         contracts: dict[str, Contract] | None = None,
         overrides: dict[str, str] | None = None,
@@ -109,6 +113,7 @@ class PolicyEngine:
     ):
         self.governance_tiers = governance_tiers or dict(DEFAULT_TIERS)
         self.delegation_policies = delegation_policies or []
+        self.execution_policies = execution_policies or []
         self.capabilities = capabilities or []
         self.contracts = contracts or {}
         self.overrides = overrides or {}  # domain → tier override
@@ -281,6 +286,64 @@ class PolicyEngine:
         return contract.validate_response(outputs)
 
     # ─── Internal Helpers ────────────────────────────────────────────
+
+    def evaluate_executions(
+        self,
+        domain: str,
+        workflow_output: dict[str, Any],
+        tier: str,
+    ) -> list[ExecutionDecision]:
+        """
+        Evaluate all execution policies against a completed workflow's output.
+        Only returns policies whose min_tier is satisfied by the actual tier.
+        Returns a list of execution decisions to dispatch (may be empty).
+        Fully deterministic — no LLM calls.
+        """
+        tier_order = ["auto", "spot_check", "gate", "hold"]
+        tier_idx = tier_order.index(tier.lower().replace("governancetier.", ""))                    if tier.lower().replace("governancetier.", "") in tier_order else 0
+
+        decisions = []
+        steps = workflow_output.get("steps", [])
+
+        for policy in self.execution_policies:
+            # Check min_tier — policy only fires at or above its required tier
+            policy_tier_idx = tier_order.index(policy.min_tier)                               if policy.min_tier in tier_order else 0
+            if tier_idx < policy_tier_idx:
+                continue
+
+            # Check domain and conditions
+            if not self._domain_matches_name(policy, domain):
+                continue
+            if not self._conditions_match(policy.conditions, steps):
+                continue
+
+            # Resolve inputs for each op using the same ${source.*} resolution
+            # as delegation policies
+            ops = []
+            for op_spec in policy.ops:
+                raw_inputs = op_spec.get("inputs", {})
+                resolved_inputs = self._resolve_inputs(raw_inputs, workflow_output)
+                ops.append(ExecutionOp(
+                    tool=op_spec["tool"],
+                    inputs=resolved_inputs,
+                    reversible=op_spec.get("reversible", False),
+                    reversal_tool=op_spec.get("reversal_tool", ""),
+                    description=op_spec.get("description", ""),
+                ))
+
+            decisions.append(ExecutionDecision(
+                policy_name=policy.name,
+                ops=ops,
+                tier_required=policy.min_tier,
+            ))
+
+        return decisions
+
+    def _domain_matches_name(self, policy: Any, domain: str) -> bool:
+        """Check if any condition targets this domain."""
+        if not policy.conditions:
+            return True
+        return any(c.domain == domain or c.domain == "" for c in policy.conditions)
 
     def _domain_matches(self, policy: DelegationPolicy, domain: str) -> bool:
         """Check if any condition targets this domain."""
@@ -624,9 +687,29 @@ def load_policy_engine(config: dict[str, Any]) -> PolicyEngine:
             endpoint=cap.get("endpoint", ""),
         ))
 
+    # Execution policies
+    execution_policies = []
+    for e in config.get("executions", []):
+        conditions = []
+        for c in e.get("conditions", []):
+            conditions.append(DelegationCondition(
+                domain=c.get("domain", "*"),
+                selector=c.get("selector", "last_govern"),
+                field=c.get("field", "disposition"),
+                operator=c.get("operator", "eq"),
+                value=c.get("value"),
+            ))
+        execution_policies.append(ExecutionPolicy(
+            name=e.get("name", "unnamed"),
+            conditions=conditions,
+            ops=e.get("ops", []),
+            min_tier=e.get("min_tier", "auto"),
+        ))
+
     return PolicyEngine(
         governance_tiers=tiers,
         delegation_policies=delegations,
+        execution_policies=execution_policies,
         capabilities=capabilities,
         contracts=contracts,
         overrides=overrides,

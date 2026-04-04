@@ -58,83 +58,47 @@ except ImportError:
 # Configuration loading
 # ═══════════════════════════════════════════════════════════════════════
 
+# Resolve all paths eagerly at import time, before any chdir() can happen.
+# Thread pool workers and subprocess contexts may have different cwd values;
+# using absolute paths here ensures the config is always found.
 _CONFIG_PATHS = [
-    Path(os.environ.get("LLM_CONFIG_PATH", "")),       # explicit env var
-    Path.cwd() / "llm_config.yaml",                    # working directory
-    Path(__file__).parent.parent / "llm_config.yaml",   # repo root
+    Path(os.environ.get("LLM_CONFIG_PATH", "")).resolve() if os.environ.get("LLM_CONFIG_PATH") else None,
+    (Path.cwd() / "llm_config.yaml").resolve(),          # launch cwd (repo root)
+    Path(__file__).resolve().parent.parent.parent / "llm_config.yaml",  # repo root via __file__
 ]
 
 _config_cache: dict | None = None
 
 
 def _load_config() -> dict:
-    """Load and cache the LLM config file. Falls back to built-in defaults."""
+    """
+    Load and cache the LLM config file.
+
+    Searches in order:
+      1. LLM_CONFIG_PATH env var (explicit override)
+      2. cwd/llm_config.yaml (working directory)
+      3. repo root (two levels up from this file)
+
+    Raises FileNotFoundError if no config file is found — silent fallback
+    to hardcoded defaults is removed. llm_config.yaml is the source of truth.
+    """
     global _config_cache
     if _config_cache is not None:
         return _config_cache
 
     for p in _CONFIG_PATHS:
-        if p and p.is_file():
+        if p and Path(p).is_file():
             with open(p) as f:
                 _config_cache = yaml.safe_load(f) or {}
             return _config_cache
 
-    # Built-in fallback (no config file found)
-    _config_cache = _BUILTIN_DEFAULTS
-    return _config_cache
-
-
-# Hardcoded fallback so the framework runs even without llm_config.yaml.
-# This is intentionally minimal — the config file is the source of truth.
-_BUILTIN_DEFAULTS: dict = {
-    "default_provider": None,  # force auto-detect
-    "aliases": {
-        "default": {
-            "google": "gemini-2.0-flash-lite",
-            "azure": "gpt-4o-mini",
-            "azure_foundry": "gpt-4o-mini",
-            "openai": "gpt-4o-mini",
-            "bedrock": "anthropic.claude-3-5-haiku-20241022-v1:0",
-        },
-        "fast": {
-            "google": "gemini-2.0-flash-lite",
-            "azure": "gpt-4o-mini",
-            "azure_foundry": "gpt-4o-mini",
-            "openai": "gpt-4o-mini",
-            "bedrock": "anthropic.claude-3-5-haiku-20241022-v1:0",
-        },
-        "standard": {
-            "google": "gemini-2.5-pro",
-            "azure": "gpt-4o",
-            "azure_foundry": "gpt-4o",
-            "openai": "gpt-4o",
-            "bedrock": "anthropic.claude-3-5-sonnet-20241022-v2:0",
-        },
-        "strong": {
-            "google": "gemini-2.5-pro",
-            "azure": "gpt-4o",
-            "azure_foundry": "gpt-4o",
-            "openai": "gpt-4o",
-            "bedrock": "anthropic.claude-3-5-sonnet-20241022-v2:0",
-        },
-    },
-    "model_to_provider": {
-        "gemini-2.0-flash-lite": "google",
-        "gemini-2.5-pro": "google",
-        "gpt-4o": "openai",
-        "gpt-4o-mini": "openai",
-        "gpt-4.1": "openai",
-        "gpt-4.1-mini": "openai",
-    },
-    "provider_defaults": {
-        "google": "gemini-2.0-flash-lite",
-        "azure": "gpt-4o",
-        "azure_foundry": "gpt-4o",
-        "openai": "gpt-4o",
-        "bedrock": "anthropic.claude-3-5-sonnet-20241022-v2:0",
-    },
-    "provider_settings": {},
-}
+    searched = [str(p) for p in _CONFIG_PATHS if p]
+    raise FileNotFoundError(
+        "llm_config.yaml not found. Searched:\n"
+        + "\n".join(f"  {p}" for p in searched)
+        + "\n\nFix: ensure llm_config.yaml exists at the repo root, or set:\n"
+        + "  export LLM_CONFIG_PATH=/path/to/llm_config.yaml"
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════════

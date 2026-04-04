@@ -1,0 +1,89 @@
+# ─────────────────────────────────────────────────────────────────
+# Permit Intake Workflow
+#
+# Entry point for all permit review cases. Retrieves the regulatory
+# corpus and application data, classifies the review type against
+# CEQA and municipal code, verifies statutory compliance for simple
+# cases, deliberates on the determination, generates a staff report,
+# and governs the sign-off requirement.
+#
+# For conditional and complex cases, delegation policies fire the
+# specialist EIA assessment workflow after this workflow completes.
+# The intake workflow does not wait for the specialist — it completes
+# and the specialist runs independently (fire-and-forget).
+#
+# For exempt and prohibited cases, the full determination is made
+# in this workflow.
+# ─────────────────────────────────────────────────────────────────
+
+name: permit_intake
+description: >
+  Retrieve application and regulatory corpus, classify review type
+  against CEQA and municipal code, verify statutory compliance,
+  deliberate on determination, generate staff report, govern sign-off.
+
+steps:
+  - name: retrieve_application
+    primitive: retrieve
+    params:
+      specification: "${domain.retrieve_application.specification}"
+      strategy: deterministic
+    transitions:
+      - default: classify_review_type
+
+  - name: classify_review_type
+    primitive: classify
+    model: fast
+    temperature: 0.0
+    params:
+      categories: "${domain.classify_review_type.categories}"
+      criteria: |
+        ${domain.classify_review_type.input_context}
+        ${domain.classify_review_type.criteria}
+    transitions:
+      - when: "output.category == 'prohibited'"
+        goto: verify_statutory_compliance
+      - when: "output.category == 'exempt'"
+        goto: verify_statutory_compliance
+      - when: "output.category in ['conditional', 'complex']"
+        goto: generate_staff_report
+      - default: verify_statutory_compliance
+
+  - name: verify_statutory_compliance
+    primitive: verify
+    model: fast
+    temperature: 0.0
+    params:
+      rules: "${domain.verify_statutory_compliance.rules}"
+      subject: |
+        ${domain.verify_statutory_compliance.subject_context}
+    transitions:
+      - default: deliberate_determination
+
+  - name: deliberate_determination
+    primitive: deliberate
+    params:
+      instruction: |
+        ${domain.deliberate_determination.context}
+        ${domain.deliberate_determination.instruction}
+      focus: "${domain.deliberate_determination.focus}"
+    transitions:
+      - default: generate_staff_report
+
+  - name: generate_staff_report
+    primitive: generate
+    params:
+      requirements: |
+        ${domain.generate_staff_report.context}
+        ${domain.generate_staff_report.requirements}
+      format: "${domain.generate_staff_report.format}"
+      constraints: "${domain.generate_staff_report.constraints}"
+    transitions:
+      - default: govern_determination
+
+  - name: govern_determination
+    primitive: govern
+    params:
+      workflow_state: |
+        ${domain.govern_determination.workflow_state}
+      governance_context: "${domain.govern_determination.governance_context}"

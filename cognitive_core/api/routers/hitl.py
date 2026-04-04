@@ -78,33 +78,52 @@ async def get_workorder(instance_id: str) -> dict[str, Any]:
             task_id = p.get("task_id")
             break
 
-    # Build reasoning trace from the action ledger
-    ledger = coord.store.get_ledger(instance_id=instance_id)
+    # Build reasoning trace from instance.result (most reliable source).
+    # task_payload does not surface result_summary — read it from the instance directly.
+    result_summary = instance.result or {}
+    if not result_summary and suspension.state_snapshot:
+        # Fall back to state snapshot
+        snap = suspension.state_snapshot
+        result_summary = {"steps": snap.get("steps", [])}
+
     reasoning_trace = []
-    for entry in ledger:
-        details = entry.get("details", {})
-        action_type = entry.get("action_type", "")
-        # Include step executions in the trace
-        if action_type in ("step_completed", "step_started", "step_failed", "governance_evaluated"):
-            reasoning_trace.append({
-                "action": action_type,
-                "step": details.get("step_name", details.get("step", "")),
-                "primitive": details.get("primitive", ""),
-                "output": details.get("output", details.get("result", {})),
-                "elapsed_ms": details.get("elapsed_ms", 0),
-                "timestamp": entry.get("created_at", 0),
-            })
+    for step in (result_summary.get("steps") or []):
+        if not step.get("step_name"):
+            continue
+        reasoning_trace.append({
+            "step": step.get("step_name", ""),
+            "primitive": step.get("primitive", ""),
+            "output": {k: v for k, v in step.items()
+                       if k not in ("step_name", "primitive") and v not in (None, "", [], {})},
+            "timestamp": 0,
+        })
 
     # Extract decision options from domain config if available
     decision_options = _get_decision_options(instance, task_payload)
 
     # Build brief from escalation_brief or fallback
     escalation_brief = task_payload.get("escalation_brief") or {}
-    brief = (
-        escalation_brief.get("summary")
-        or task_payload.get("reason", "")
-        or f"Instance {instance_id} is suspended pending human review."
-    )
+    # Build brief from escalation_brief, govern step output, or classify output
+    govern_step = next((s for s in (result_summary.get("steps") or [])
+                        if s.get("primitive") == "govern"), {})
+    classify_step = next((s for s in (result_summary.get("steps") or [])
+                          if s.get("primitive") == "classify"), {})
+    deliberate_step = next((s for s in (result_summary.get("steps") or [])
+                            if s.get("primitive") == "deliberate"), {})
+
+    if escalation_brief.get("summary"):
+        brief = escalation_brief["summary"]
+    elif govern_step.get("tier_rationale"):
+        brief = govern_step["tier_rationale"]
+    elif deliberate_step.get("recommended_action"):
+        risk = classify_step.get("category", "")
+        rec = deliberate_step.get("recommended_action", "")
+        warrant = deliberate_step.get("warrant", "")
+        brief = f"Risk: {risk}. Recommendation: {rec}. {warrant}"
+    elif task_payload.get("reason"):
+        brief = task_payload["reason"]
+    else:
+        brief = f"Instance {instance_id} is suspended pending human review."
 
     return {
         "instance_id": instance_id,
@@ -117,6 +136,7 @@ async def get_workorder(instance_id: str) -> dict[str, Any]:
         "created_at": instance.created_at,
         "updated_at": instance.updated_at,
         "brief": brief,
+        "queue": task_payload.get("queue", ""),
         "escalation_reason": task_payload.get("reason", ""),
         "escalation_brief": escalation_brief,
         "reasoning_trace": reasoning_trace,

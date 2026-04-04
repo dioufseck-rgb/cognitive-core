@@ -1,0 +1,51 @@
+# ─────────────────────────────────────────────────────────────────
+# Biological Resources Review Handler
+#
+# Parallel handler in the EIA specialist pipeline. Checks sensitive
+# species records, MSHCP criteria cell overlap, and applicable
+# habitat conservation plan consistency requirements. Returns a
+# typed biological resources finding to the specialist workflow.
+# ─────────────────────────────────────────────────────────────────
+
+name: biological_resources_review
+description: >
+  Retrieve sensitive species database records and MSHCP criteria
+  cell mapping for the project parcel. Verify consistency with the
+  Western Riverside County MSHCP and applicable ESA requirements.
+  Generate biological resources finding. Govern result.
+
+steps:
+  - name: retrieve_species_records
+    primitive: retrieve
+    params:
+      specification: "${domain.retrieve_species_records.specification}"
+      strategy: deterministic
+    transitions:
+      - default: verify_mshcp_consistency
+
+  - name: verify_mshcp_consistency
+    primitive: verify
+    model: fast
+    temperature: 0.0
+    params:
+      rules: "${domain.verify_mshcp_consistency.rules}"
+      subject: |
+        ${domain.verify_mshcp_consistency.subject_context}
+    transitions:
+      - default: generate_bio_finding
+
+  - name: generate_bio_finding
+    primitive: generate
+    params:
+      requirements: "${domain.generate_bio_finding.requirements}"
+      format: "${domain.generate_bio_finding.format}"
+      constraints: "${domain.generate_bio_finding.constraints}"
+    transitions:
+      - default: govern_bio_result
+
+  - name: govern_bio_result
+    primitive: govern
+    params:
+      workflow_state: |
+        ${domain.govern_bio_result.workflow_state}
+      governance_context: "${domain.govern_bio_result.governance_context}"

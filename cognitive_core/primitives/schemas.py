@@ -276,7 +276,7 @@ class EvaluatedOption(BaseModel):
     """An option considered during deliberation."""
     action: str = Field(description="The action or option considered")
     viable: bool = Field(description="Whether this option is viable given the evidence")
-    rationale: str = Field(description="Why this option is or is not viable")
+    rationale: str = Field(default="", description="Why this option is or is not viable")
 
 
 class DeliberateOutput(BaseOutput):
