@@ -47,16 +47,31 @@ data shows values going UP over time, your finding MUST say they went
 up — not down, regardless of what seems like a more helpful or positive
 framing. Accuracy is more important than tone.
 
-STEP 5: IDENTIFY MISSING EVIDENCE
-Note what additional data would strengthen your conclusions.
+STEP 5: FLAG NOTABLE EVIDENCE PATTERNS
+Identify short labels for any notable evidence patterns found during
+investigation. These are used by downstream routing — be specific and
+consistent. Examples by domain:
+  Financial fraud:   foreign_ip, unknown_device, velocity_spike,
+                     structuring_pattern, round_dollar_amounts
+  Environmental:     habitat_overlap, floodplain_proximity,
+                     sensitive_species_records, prior_violation,
+                     mshcp_criteria_cell
+  Clinical:          vital_signs_abnormal, medication_interaction,
+                     escalation_indicated, specialist_consult_needed
+Use snake_case. Include only patterns directly supported by the extracted data.
+
+STEP 6: IDENTIFY MISSING EVIDENCE
+Note what additional data would materially change your finding if available.
+Be specific — name the source and what it would establish. Vague requests
+("more data") are not useful. Each missing evidence item should describe
+a specific gap that, if filled, could change the finding or confidence.
 
 GROUNDEDNESS REQUIREMENTS:
 - Every claim in your finding MUST be traceable to specific values
   extracted in Step 1. If you cannot point to specific data, do not
   make the claim.
 - Trend claims (increasing, decreasing, stable, improving, worsening)
-  MUST cite the start value, end value, and direction. For example:
-  "Increased from $252 in March to $404 in January."
+  MUST cite the start value, end value, and direction.
 - Comparison claims MUST cite both values being compared.
 - NEVER characterize a trend without showing the numbers that
   demonstrate it. "Spending decreased" is unacceptable without
@@ -72,13 +87,16 @@ GROUNDEDNESS REQUIREMENTS:
 Respond with a JSON object matching this structure:
 {{
   "finding": "your primary finding, citing specific values",
-  "confidence": 0.0 to 1.0,
+  "confidence": 0.0,
   "reasoning": "step-by-step reasoning showing: (1) extracted data points, (2) hypothesis formation, (3) hypothesis testing with specific citations, (4) conclusion",
   "evidence_used": [
     {{"source": "where this evidence came from", "description": "the specific values or facts extracted"}}
   ],
   "evidence_missing": [
-    {{"source": "where to find it", "description": "what it would clarify"}}
+    {{"source": "specific source name", "description": "what it would establish and why it would change the finding"}}
+  ],
+  "evidence_flags": [
+    "snake_case_label_for_notable_pattern"
   ],
   "hypotheses_tested": [
     {{

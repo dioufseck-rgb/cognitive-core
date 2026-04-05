@@ -15,25 +15,33 @@ RULES AND CRITERIA TO CHECK:
 {additional_instructions}
 
 INSTRUCTIONS:
-1. Use the SUBJECT TO VERIFY section as the primary data to check against the rules.
-   If the subject section contains specific values (e.g., "Policy status: active"),
-   use those values directly. The INPUT DATA section provides additional reference.
-2. Systematically check the subject against EVERY rule and criterion listed.
+1. Read every rule in RULES AND CRITERIA TO CHECK. Count them. You must
+   check ALL of them — not just the ones you expect to fail.
+2. Use the SUBJECT TO VERIFY section as the primary data. If the subject
+   contains specific values (e.g. "Policy status: active"), use those
+   values directly. INPUT DATA provides additional reference.
 3. For each rule, determine whether the subject data conforms or violates.
-4. IMPORTANT: If the subject data clearly satisfies a rule, mark it as conforming.
-   Only flag violations when the data demonstrably fails a rule.
-5. For violations, describe what specifically is wrong and how severe it is.
-6. Provide an overall conformance determination.
+   Add EVERY rule to rules_checked regardless of whether it passed or failed.
+   A rules_checked list that omits passing rules is incomplete and will be
+   treated as low coverage by the quality gate.
+4. For violations, describe what specifically fails and how severe it is.
+5. Provide an overall conformance determination.
+
+COMPLETENESS REQUIREMENT:
+rules_checked must contain every rule from RULES AND CRITERIA TO CHECK.
+If you check 6 rules, rules_checked must have 6 entries — not just the
+ones with violations. The epistemic layer computes rule coverage as
+rules_checked.length / total_rules. Omitting passing rules understates
+coverage and may trigger unnecessary escalation.
 
 CONFORMANCE LOGIC:
 - conforms = true ONLY if ALL rules pass with zero violations.
 - conforms = false if ANY rule has a violation.
 - If a field's value clearly matches the rule's requirement, that rule PASSES.
-  For example: if coverage_type is "liability,comprehensive" and the rule
-  requires coverage to contain "liability", that rule PASSES because the
-  string "liability,comprehensive" contains "liability".
+  Example: if coverage_type is "liability,comprehensive" and the rule
+  requires "liability", that rule PASSES because the string contains it.
 - Do NOT invent requirements beyond what the rules explicitly state.
-- Do NOT flag violations for rules that are clearly satisfied by the data.
+- Do NOT flag violations for rules clearly satisfied by the data.
 
 Severity levels:
 - critical: Must be fixed before proceeding, regulatory or safety risk
@@ -42,9 +50,9 @@ Severity levels:
 
 Respond with a JSON object matching this structure:
 {{
-  "conforms": true or false (overall determination),
-  "confidence": 0.0 to 1.0,
-  "reasoning": "overall assessment citing specific evidence for each rule checked",
+  "conforms": true or false,
+  "confidence": 0.0,
+  "reasoning": "assessment citing specific evidence for each rule checked",
   "violations": [
     {{
       "rule": "which rule was violated",
@@ -53,7 +61,9 @@ Respond with a JSON object matching this structure:
       "location": "where in the input the violation occurs"
     }}
   ],
-  "rules_checked": ["list of all rules that were checked"],
+  "rules_checked": [
+    "every rule that was checked — both passing and failing ones"
+  ],
   "evidence_used": [
     {{"source": "where this evidence came from", "description": "the specific content checked"}}
   ],

@@ -111,11 +111,12 @@ PRIMITIVE_CONFIGS: dict[str, dict[str, Any]] = {
     },
     "govern": {
         "required_params": ["workflow_state", "governance_context"],
-        "optional_params": ["tier_override", "additional_instructions"],
+        "optional_params": ["tier_override", "additional_instructions", "epistemic_context"],
         "defaults": {
             "tier_override": "",
             "additional_instructions": "",
             "context": "No additional context provided.",
+            "epistemic_context": "Epistemic state not yet computed.",
         },
         "prompt_file": "govern.txt",
         "schema": GovernOutput,

@@ -140,9 +140,15 @@ def run_case(coord: Coordinator, case: dict) -> None:
         action = deliberate.get("recommended_action", "?")
         conf = deliberate.get("confidence", 0)
         warrant = deliberate.get("warrant", "")
+        rq = deliberate.get("reasoning_quality")
+        oc = deliberate.get("outcome_certainty")
         print(f"  Determination:        {action}  (confidence: {conf:.2f})")
         if warrant:
             print(f"  Warrant:              {warrant[:70]}")
+        if rq is not None or oc is not None:
+            rq_str = f"{rq:.2f}" if rq is not None else "—"
+            oc_str = f"{oc:.2f}" if oc is not None else "—"
+            print(f"  Epistemic (deliberate): reasoning_quality={rq_str}  outcome_certainty={oc_str}")
 
     # Governance
     gov = trace.steps.get("govern_determination", {}).get("output", {})
@@ -157,6 +163,11 @@ def run_case(coord: Coordinator, case: dict) -> None:
         print(f"  Disposition:          {disposition}")
     if tier_rationale:
         print(f"  Rationale:            {tier_rationale[:70]}")
+
+    # Surface epistemic acknowledgment from govern reasoning
+    gov_reasoning = gov.get("reasoning", "")
+    if "VERIFY_DELIBERATE_TENSION" in gov_reasoning or "CLASSIFY_DELIBERATE" in gov_reasoning:
+        print(f"  Epistemic (govern):   coherence flags acknowledged in tier reasoning")
 
     # Delegation (conditional/complex cases)
     category_val = classify.get("category", "") if classify else ""

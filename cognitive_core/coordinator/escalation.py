@@ -93,6 +93,10 @@ def build_escalation_brief(
         "steps_completed": len(steps),
     }
 
+    # Epistemic context is injected by the coordinator after this function
+    # returns (it has the WorkflowEpistemicRecord; we don't here).
+    # The coordinator merges it into brief["epistemic"] before publishing the task.
+
     return brief
 
 

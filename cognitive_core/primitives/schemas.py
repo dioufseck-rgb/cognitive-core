@@ -188,6 +188,14 @@ class InvestigateOutput(BaseOutput):
         default_factory=list,
         description="Suggested next steps based on findings"
     )
+    evidence_flags: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Short labels for notable evidence patterns found during investigation. "
+            "Examples: foreign_ip, unknown_device, velocity_spike, habitat_overlap. "
+            "Used by delegation policies to route to specialist handlers."
+        )
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -309,6 +317,31 @@ class DeliberateOutput(BaseOutput):
     confidence_basis: str = Field(
         default="",
         description="Which upstream step outputs drove the confidence score"
+    )
+
+    # ── Layer 2 judgment fields (LLM-reported epistemic self-assessment) ──
+    # These are reported by the LLM and used alongside framework-computed
+    # mechanical metrics in the WorkflowEpistemicRecord. Optional so existing
+    # outputs that predate these fields continue to parse without error.
+    reasoning_quality: Optional[float] = Field(
+        default=None,
+        ge=0.0, le=1.0,
+        description=(
+            "Self-assessed quality of the reasoning chain: 0.0 = circular or unsupported, "
+            "1.0 = rigorous step-by-step logic tightly connected to evidence. "
+            "Report honestly — this is used by the governance layer to decide whether "
+            "human review is required. Do not inflate."
+        )
+    )
+    outcome_certainty: Optional[float] = Field(
+        default=None,
+        ge=0.0, le=1.0,
+        description=(
+            "How clearly the available evidence supports the recommended_action: "
+            "0.0 = evidence is ambiguous or contradictory, 1.0 = evidence unambiguously "
+            "supports one outcome. Distinct from reasoning_quality — you can reason well "
+            "about a genuinely ambiguous situation (low certainty, high quality)."
+        )
     )
 
 

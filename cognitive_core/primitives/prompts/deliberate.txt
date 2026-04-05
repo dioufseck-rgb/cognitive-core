@@ -47,6 +47,33 @@ STEP 6: CONFIDENCE BASIS
 Cite which specific upstream step outputs drove your confidence score.
 If confidence is low, explain what evidence gap is responsible.
 
+STEP 7: EPISTEMIC SELF-ASSESSMENT
+Assess the quality of your own reasoning. Report two scores honestly:
+
+reasoning_quality — How sound is the logical structure of your deliberation?
+  0.0 = reasoning is circular, unsupported, or jumps to conclusions
+  0.5 = reasoning is plausible but has gaps or unverified assumptions
+  1.0 = rigorous step-by-step logic, every claim traceable to evidence
+  Ask: if someone examined my reasoning chain, would it hold up?
+
+outcome_certainty — How clearly does the available evidence support
+  the recommended action over alternatives?
+  0.0 = evidence is contradictory or absent; multiple outcomes equally plausible
+  0.5 = evidence leans toward the recommendation but alternatives are plausible
+  1.0 = evidence unambiguously supports this outcome; no credible alternative
+  Ask: could a different analyst, given the same evidence, reasonably reach
+  a different conclusion?
+
+IMPORTANT: These scores are used by the governance layer to decide whether
+human review is required. Do not inflate them. A score of 0.9 that doesn't
+reflect the evidence will trigger governance escalation when the mechanical
+checks run — it is better to report 0.6 honestly.
+
+If the CONTEXT includes an "Epistemic state" section showing coherence flags
+or low epistemic scores on prior steps, factor those into your assessment.
+A VERIFY_DELIBERATE_TENSION flag, for example, should lower outcome_certainty
+unless your warrant explicitly resolves the tension.
+
 REQUIREMENTS:
 - Every claim in your situation summary must be traceable to prior
   step outputs available in CONTEXT above.
@@ -72,6 +99,8 @@ Respond with a JSON object matching this structure:
   "warrant": "logical connection between situation and recommendation",
   "confidence_basis": "which upstream outputs drove the confidence score",
   "confidence": 0.0,
+  "reasoning_quality": 0.0,
+  "outcome_certainty": 0.0,
   "reasoning": "brief summary of the deliberation approach",
   "evidence_used": [
     {{"source": "step name or input field", "description": "what it established"}}

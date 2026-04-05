@@ -58,15 +58,36 @@ governance_tiers:
 overrides: {}
 
 quality_gates:
+  escalation_tier: gate
+  escalation_queue: planning_manager_review
+  exempt_domains: []
+
+  # ── Scalar form (backward compatible) ────────────────────────────
   min_confidence: 0.5
   primitive_floors:
     classify: 0.70
     investigate: 0.60
     verify: 0.70
     deliberate: 0.75
-  escalation_tier: gate
-  escalation_queue: planning_manager_review
-  exempt_domains: []
+
+  # ── Epistemic gate triggers (multi-condition) ─────────────────────
+  # Any fired trigger causes escalation to planning_manager_review.
+  # Evaluated against the WorkflowEpistemicRecord accumulated per step.
+  # These complement the scalar floors above — both are checked.
+  gate_triggers:
+    # Evidence and coverage floors
+    - any_step.evidence_completeness < 0.70
+    - verify.rule_coverage < 0.80
+    - deliberate.citation_rate < 0.60
+
+    # Coherence flags that always require human review
+    - coherence_flag: VERIFY_DELIBERATE_TENSION
+    - coherence_flag: CLASSIFY_DELIBERATE_MISMATCH
+    - coherence_flag: UNWARRANTED_RECOMMENDATION
+
+    # Structural epistemic problems
+    - not_warranted
+    - confidence_drop > 0.25
 
 # ─── Delegation Policies ─────────────────────────────────────────
 

@@ -209,4 +209,37 @@ def build_context_from_state(state: WorkflowState) -> str:
         for rd in routing_log:
             parts.append(f"  {rd['from_step']} -> {rd['to_step']} ({rd['decision_type']}): {rd['reason']}")
 
+    # Epistemic summary appended when available so deliberate and govern
+    # primitives can see coherence flags and open gaps without re-deriving them.
+    ep_record = state.get("epistemic", {}).get("_record")
+    if ep_record:
+        flags = ep_record.get("coherence_flags", [])
+        gaps = ep_record.get("open_evidence_gaps", [])
+        warranted = ep_record.get("warranted", True)
+        overall = ep_record.get("workflow_overall")
+        low = ep_record.get("low_confidence_steps", [])
+        if flags or gaps or not warranted or low:
+            parts.append("\n--- Epistemic state ---")
+            if overall is not None:
+                parts.append(f"Workflow epistemic overall: {overall:.2f}")
+            if not warranted:
+                parts.append("WARNING: one or more steps are not warranted")
+            for f in flags:
+                parts.append(f"  Coherence flag: {f}")
+            for g in gaps:
+                parts.append(f"  Open evidence gap: {g[:120]}")
+            for s in low[:3]:
+                step_flags = s.get("flags", [])
+                ec = s.get("evidence_completeness")
+                rc = s.get("rule_coverage")
+                line = (f"  Low epistemic step: {s['step']} ({s['primitive']}) "
+                        f"overall={s['overall']:.2f}")
+                if ec is not None:
+                    line += f" evidence_completeness={ec:.2f}"
+                if rc is not None:
+                    line += f" rule_coverage={rc:.2f}"
+                if step_flags:
+                    line += f" flags={step_flags}"
+                parts.append(line)
+
     return "\n".join(parts)

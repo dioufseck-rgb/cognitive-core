@@ -1153,6 +1153,18 @@ class Coordinator:
         if escalation_brief:
             task_payload["escalation_brief"] = escalation_brief
 
+        # Attach epistemic context to the task payload so the reviewer
+        # sees structured uncertainty, not just a scalar confidence.
+        try:
+            ep_record = getattr(instance, "_epistemic_record", None)
+            if ep_record:
+                task_payload["epistemic"] = ep_record.reviewer_context()
+                # Merge into escalation_brief if present
+                if escalation_brief:
+                    escalation_brief["epistemic"] = ep_record.reviewer_context()
+        except Exception:
+            pass
+
         task = Task.create(
             task_type=TaskType.GOVERNANCE_APPROVAL,
             queue=gov_decision.queue,
@@ -1210,11 +1222,29 @@ class Coordinator:
         self, instance: InstanceState, final_state: dict[str, Any]
     ) -> dict[str, Any] | None:
         """
-        Check workflow output against quality gate thresholds.
+        Check workflow output against quality gate conditions.
 
-        Returns None if all gates pass, or a dict with details
-        about the gate that fired. When a gate fires, the coordinator
-        should escalate to HITL regardless of the domain's declared tier.
+        Supports two forms (both can coexist in coordinator_config.yaml):
+
+        1. Scalar form (backward compatible):
+           quality_gates:
+             min_confidence: 0.5
+             primitive_floors: {classify: 0.70, deliberate: 0.75}
+
+        2. Multi-condition epistemic form (new):
+           quality_gates:
+             gate_triggers:
+               - any_step.evidence_completeness < 0.70
+               - verify.rule_coverage < 0.80
+               - coherence_flag: VERIFY_DELIBERATE_TENSION
+               - confidence_drop > 0.25
+               - not_warranted
+
+        gate_triggers are evaluated against the WorkflowEpistemicRecord
+        accumulated during execution. Any trigger that fires causes
+        escalation. Multiple fired triggers are all reported.
+
+        Returns None if all gates pass, or a dict with details.
         """
         qg_config = self.policy.raw_config.get("quality_gates", {})
         if not qg_config:
@@ -1224,9 +1254,41 @@ class Coordinator:
         if instance.domain in exempt:
             return None
 
+        escalation_tier = qg_config.get("escalation_tier", "gate")
+        escalation_queue = qg_config.get("escalation_queue", "quality_review")
+
+        # ── Form 2: gate_triggers DSL (epistemic-aware) ────────────
+        gate_triggers = qg_config.get("gate_triggers", [])
+        if gate_triggers:
+            ep_record = getattr(instance, "_epistemic_record", None)
+            if ep_record is not None:
+                try:
+                    from cognitive_core.engine.epistemic import evaluate_gate_triggers
+                    fired = evaluate_gate_triggers(gate_triggers, ep_record)
+                    if fired:
+                        # Report all fired triggers, not just the first
+                        reasons = " | ".join(t["description"] for t in fired)
+                        return {
+                            "reason": reasons,
+                            "fired_triggers": fired,
+                            "trigger_count": len(fired),
+                            "escalation_tier": escalation_tier,
+                            "escalation_queue": escalation_queue,
+                            # Compat fields for existing escalation brief builder
+                            "step_name": fired[0].get("step_name", ""),
+                            "primitive": fired[0].get("primitive", ""),
+                            "confidence": fired[0].get("value"),
+                            "floor": fired[0].get("threshold"),
+                        }
+                except Exception as e:
+                    self._log(f"  ⚠ gate_triggers evaluation failed (falling back to scalar): {e}")
+
+        # ── Form 1: scalar confidence floors (backward compatible) ──
         global_min = qg_config.get("min_confidence", 0.5)
         primitive_floors = qg_config.get("primitive_floors", {})
-        escalation_tier = qg_config.get("escalation_tier", "gate")
+
+        if not global_min and not primitive_floors:
+            return None
 
         steps = final_state.get("steps", [])
         for step in steps:
@@ -1247,7 +1309,7 @@ class Coordinator:
                     "confidence": confidence,
                     "floor": floor,
                     "escalation_tier": escalation_tier,
-                    "escalation_queue": qg_config.get("escalation_queue", "quality_review"),
+                    "escalation_queue": escalation_queue,
                 }
 
         return None
@@ -1509,16 +1571,39 @@ class Coordinator:
         instance: InstanceState,
         final_state: dict[str, Any],
     ):
-        """Evaluate delegation policies and execute any that fire."""
+        """
+        Evaluate delegation policies and execute any that fire.
+
+        Session 6 duplication fix
+        ─────────────────────────
+        Root cause: two threads could both read the ledger (empty), both
+        conclude no delegations had fired, both enter the RLock, and both
+        pass the fired_recheck — because neither had written to the DB yet.
+        The ledger write was in _execute_delegation, *after* the lock,
+        so the recheck inside the lock saw stale data.
+
+        Fix: write the idempotency claim INSIDE the lock, BEFORE executing
+        the delegation. The claim uses log_action's UNIQUE idempotency_key
+        constraint — the second thread's log_action returns False (duplicate),
+        so it skips. First writer wins, atomically, even across threads.
+
+        This also handles the recursive call case: when a handler's
+        _on_completed calls back into this method, the claim is already
+        in the DB, so the delegation is skipped without needing a separate
+        recursive guard.
+        """
+        import threading as _thr
+        _tid = _thr.current_thread().name
+
         delegations = self.policy.evaluate_delegations(
             domain=instance.domain,
             workflow_output=final_state,
             lineage=instance.lineage,
         )
 
-        # ── Deduplicate: skip policies that already fired for this instance ──
-        # This prevents infinite loops when a resumed workflow re-completes
-        # and the same evidence flags trigger the same delegation again.
+        # ── Pre-filter: skip policies visibly already fired ──
+        # This is an optimistic read — may have false negatives under concurrency,
+        # but those are caught by the atomic claim inside the lock below.
         already_fired = set()
         ledger = self.store.get_ledger(instance_id=instance.instance_id)
         for entry in ledger:
@@ -1539,6 +1624,8 @@ class Coordinator:
         self._log(f"  delegations: {len(self.policy.delegation_policies)} policies evaluated, "
                    f"{len(delegations)} triggered"
                    f"{f', {skipped} skipped (already fired)' if skipped else ''}")
+        self._log(f"  [DELEG-TRACE] thread={_tid} instance={instance.instance_id[:8]} "
+                  f"candidates={[d.policy_name for d in new_delegations]}")
 
         # Log evidence flags from investigate steps for visibility
         for step in final_state.get("steps", []):
@@ -1561,66 +1648,140 @@ class Coordinator:
             },
         )
 
-        # Execute fire-and-forget first (source stays completed),
-        # then blocking (source suspends). This ensures F&F delegations
-        # dispatch before the source is suspended by a blocking delegation.
-        #
-        # MULTIPLE BLOCKING DELEGATIONS execute serially, not in parallel:
-        #   1. First blocking delegation suspends source, runs handler
-        #   2. When handler completes → source resumes → _on_completed
-        #   3. Dedup guard skips first delegation (already fired)
-        #   4. Second blocking delegation fires, suspends source again
-        #   5. Repeat until all blocking delegations have executed
-        #
-        # This is BY DESIGN: each blocking delegation gets the enriched
-        # state from the previous one. If you need parallel execution,
-        # use fire_and_forget mode with a final gather step.
-        #
-        # If any handler gets governance-held (doesn't complete immediately),
-        # remaining blocking delegations are deferred until the source
-        # resumes after that handler completes.
+        if not new_delegations:
+            return
+
+        # ── Partition by mode ──
         ff_delegations = [d for d in new_delegations if d.mode != "wait_for_result"]
         blocking_delegations = [d for d in new_delegations if d.mode == "wait_for_result"]
 
-        import threading as _thr, traceback as _tb, sys as _sys
-        _tid = _thr.current_thread().name
-        _caller = "".join(_tb.format_stack()[-4:-1])
-        self._log(f"  [DELEG-TRACE] thread={_tid} instance={instance.instance_id[:8]} "
-                  f"new_delegations={[d.policy_name for d in new_delegations]}")
-        self._log(f"  [DELEG-TRACE] caller:\n{_caller}")
-
         with self._delegation_lock:
-            # Re-check already_fired inside the lock to prevent concurrent threads
-            # dispatching the same handlers. This is the fix for the parallel
-            # handler duplication bug — two threads can reach here before either
-            # has written the idempotency key to the DB.
-            ledger_recheck = self.store.get_ledger(instance_id=instance.instance_id)
-            fired_recheck = set()
-            for entry in ledger_recheck:
-                if entry.get("action_type") == "delegation_dispatched":
-                    details = entry.get("details", {})
-                    if isinstance(details, str):
-                        try:
-                            import json as _json
-                            details = _json.loads(details)
-                        except Exception:
-                            details = {}
-                    pname = details.get("policy", "")
-                    if pname:
-                        fired_recheck.add(pname)
-
-            self._log(f"  [DELEG-TRACE] fired_recheck={fired_recheck}")
-            ff_delegations = [d for d in ff_delegations if d.policy_name not in fired_recheck]
-            blocking_delegations = [d for d in blocking_delegations if d.policy_name not in fired_recheck]
-
+            # ── Atomic claim: write idempotency key BEFORE executing ──
+            # log_action uses INSERT with a UNIQUE idempotency_key.
+            # If two threads race here, the second INSERT returns False.
+            # First writer executes the delegation; second writer skips.
+            # This is the definitive fix for the duplication bug:
+            # the claim is visible to all threads immediately after commit.
+            claimed_ff = []
             for deleg in ff_delegations:
-                self._execute_delegation(instance, deleg, final_state)
+                claim_key = f"deleg:{instance.instance_id}:{deleg.policy_name}"
+                claimed = self.store.log_action(
+                    instance_id=instance.instance_id,
+                    correlation_id=instance.correlation_id,
+                    action_type="delegation_dispatched",
+                    details={
+                        "policy": deleg.policy_name,
+                        "mode": deleg.mode,
+                        "target_workflow": deleg.target_workflow,
+                        "target_domain": deleg.target_domain,
+                        "contract": deleg.contract_name,
+                        "_claimed_only": True,  # work_order_id filled in _execute_delegation
+                    },
+                    idempotency_key=claim_key,
+                )
+                if claimed:
+                    claimed_ff.append(deleg)
+                    self._log(f"  [DELEG-TRACE] claimed {deleg.policy_name} (ff)")
+                else:
+                    self._log(f"  [DELEG-TRACE] {deleg.policy_name} already claimed by another thread — skipping")
 
-            # All blocking delegations are batched into a single suspension with
-            # multiple work_order_ids. The source resumes once — after ALL handlers
-            # complete — with combined results. No intermediate generate_final_report.
-            if blocking_delegations:
-                self._execute_all_blocking_delegations(instance, blocking_delegations, final_state)
+            claimed_blocking = []
+            for deleg in blocking_delegations:
+                claim_key = f"deleg:{instance.instance_id}:{deleg.policy_name}"
+                claimed = self.store.log_action(
+                    instance_id=instance.instance_id,
+                    correlation_id=instance.correlation_id,
+                    action_type="delegation_dispatched",
+                    details={
+                        "policy": deleg.policy_name,
+                        "mode": deleg.mode,
+                        "target_workflow": deleg.target_workflow,
+                        "target_domain": deleg.target_domain,
+                        "contract": deleg.contract_name,
+                        "_claimed_only": True,
+                    },
+                    idempotency_key=claim_key,
+                )
+                if claimed:
+                    claimed_blocking.append(deleg)
+                    self._log(f"  [DELEG-TRACE] claimed {deleg.policy_name} (blocking)")
+                else:
+                    self._log(f"  [DELEG-TRACE] {deleg.policy_name} already claimed — skipping")
+
+            # ── Execute claimed delegations (lock still held for FF) ──
+            # FF delegations: source is already COMPLETED, safe to dispatch inside lock.
+            # Blocking delegations: source will be suspended; also safe inside lock
+            # since suspension writes happen inside _execute_all_blocking_delegations.
+            for deleg in claimed_ff:
+                self._execute_claimed_delegation(instance, deleg, final_state)
+
+            if claimed_blocking:
+                self._execute_all_blocking_delegations(instance, claimed_blocking, final_state)
+
+
+    def _execute_claimed_delegation(
+        self,
+        source: InstanceState,
+        decision: "DelegationDecision",
+        source_state: dict[str, Any],
+    ):
+        """
+        Execute a fire-and-forget delegation that was already atomically claimed
+        via log_action idempotency key in _evaluate_and_execute_delegations.
+        Skips the redundant log_action write that _execute_delegation would do.
+        """
+        errors = self.policy.validate_work_order_inputs(
+            decision.contract_name, decision.inputs
+        )
+        if errors:
+            self._log(f"  ⚠ delegation {decision.policy_name} skipped: "
+                       f"contract validation failed: {errors}")
+            self.store.log_action(
+                instance_id=source.instance_id,
+                correlation_id=source.correlation_id,
+                action_type="delegation_skipped",
+                details={"policy": decision.policy_name, "errors": errors},
+            )
+            return
+
+        wo = WorkOrder.create(
+            requester_instance_id=source.instance_id,
+            correlation_id=source.correlation_id,
+            contract_name=decision.contract_name,
+            contract_version=decision.contract_version,
+            inputs=decision.inputs,
+            sla_seconds=decision.sla_seconds,
+        )
+        wo.handler_workflow_type = decision.target_workflow
+        wo.handler_domain = decision.target_domain
+        wo.status = WorkOrderStatus.DISPATCHED
+        wo.dispatched_at = time.time()
+        self.store.save_work_order(wo)
+
+        self.store.log_action(
+            instance_id=source.instance_id,
+            correlation_id=source.correlation_id,
+            action_type="delegation_work_order_created",
+            details={
+                "policy": decision.policy_name,
+                "work_order_id": wo.work_order_id,
+                "target_workflow": decision.target_workflow,
+                "target_domain": decision.target_domain,
+            },
+        )
+
+        self._log(f"  → DELEGATION [fire]: {decision.policy_name}")
+        self._log(f"    work_order: {wo.work_order_id}")
+        self._log(f"    target: {decision.target_workflow}/{decision.target_domain}")
+
+        tool_keys = [k for k, v in decision.inputs.items()
+                     if isinstance(v, (dict, list)) and k.startswith("get_")]
+        scalar_keys = [k for k in decision.inputs.keys() if k not in tool_keys]
+        self._log(f"    inputs: {scalar_keys}")
+        if not tool_keys:
+            self._log(f"    ⚠ NO tool data in inputs — handler retrieve may fail")
+
+        self._execute_fire_and_forget_delegation(source, decision, wo)
 
     def _on_kill_switch_suspended(self, instance: InstanceState, reason: str):
         """Suspend workflow when a kill switch blocks Act execution."""
@@ -3061,14 +3222,39 @@ class Coordinator:
         else:
             # Build a step logging callback that writes each step result
             # to the action ledger so the SSE stream can replay them live.
+            # Also computes epistemic state (mechanical + coherence) per step.
             import time as _step_time
             _start_time = _step_time.time()
+
+            from cognitive_core.engine.epistemic import (
+                WorkflowEpistemicRecord, compute_step_epistemic_state,
+            )
+            _epistemic_record = WorkflowEpistemicRecord(
+                instance_id=instance.instance_id
+            )
 
             def _step_log_callback(step_name, step_output, state):
                 try:
                     prim = step_output.get("primitive", "")
                     output = step_output.get("output", step_output.get("result", {}))
                     elapsed_ms = int((_step_time.time() - _start_time) * 1000)
+
+                    prior_steps = state.get("steps", [])[:-1]
+                    ep_state = compute_step_epistemic_state(
+                        step_output=step_output,
+                        prior_steps=prior_steps,
+                        open_gaps=list(_epistemic_record.open_gaps),
+                    )
+                    _epistemic_record.add_step(ep_state)
+
+                    # Write compact epistemic summary into state so nodes
+                    # (deliberate, govern) can read it via the state dict.
+                    # Keyed by step_name so each step's flags are addressable.
+                    if "epistemic" not in state:
+                        state["epistemic"] = {}
+                    state["epistemic"][step_name] = ep_state.to_dict()
+                    state["epistemic"]["_record"] = _epistemic_record.reviewer_context()
+
                     self.store.log_action(
                         instance_id=instance.instance_id,
                         correlation_id=instance.correlation_id,
@@ -3079,11 +3265,20 @@ class Coordinator:
                             "output": output,
                             "elapsed_ms": elapsed_ms,
                             "confidence": step_output.get("confidence"),
+                            "epistemic": ep_state.to_dict(),
                         },
                     )
+                    if ep_state.coherence_flags:
+                        self._log(
+                            f"  ⚠ epistemic: {step_name} flags="
+                            f"{[f.value for f in ep_state.coherence_flags]} "
+                            f"overall={ep_state.overall:.2f} warranted={ep_state.warranted}"
+                        )
                 except Exception:
                     pass  # never block execution on logging failure
                 return None  # never interrupt
+
+            instance._epistemic_record = _epistemic_record
 
             from cognitive_core.engine.devs_executor import combined_callback
             callback = combined_callback(_step_log_callback, resource_request_callback)
@@ -3304,11 +3499,42 @@ class Coordinator:
         import time as _step_time_r
         _start_time_r = _step_time_r.time()
 
+        from cognitive_core.engine.epistemic import (
+            WorkflowEpistemicRecord, compute_step_epistemic_state,
+        )
+        # Reconstruct epistemic record from prior step ledger entries
+        _epistemic_record_r = WorkflowEpistemicRecord(instance_id=instance.instance_id)
+        try:
+            for entry in self.store.get_ledger(instance_id=instance.instance_id):
+                if entry.get("action_type") == "step_completed":
+                    ep = entry.get("details", {}).get("epistemic")
+                    if ep:
+                        from cognitive_core.engine.epistemic import (
+                            StepEpistemicState, CoherenceFlag,
+                        )
+                        _epistemic_record_r.open_gaps = list(ep.get("inherited_gaps", []))
+        except Exception:
+            pass
+
         def _step_log_callback_r(step_name, step_output, state):
             try:
                 prim = step_output.get("primitive", "")
                 output = step_output.get("output", step_output.get("result", {}))
                 elapsed_ms = int((_step_time_r.time() - _start_time_r) * 1000)
+
+                prior_steps = state.get("steps", [])[:-1]
+                ep_state = compute_step_epistemic_state(
+                    step_output=step_output,
+                    prior_steps=prior_steps,
+                    open_gaps=list(_epistemic_record_r.open_gaps),
+                )
+                _epistemic_record_r.add_step(ep_state)
+
+                if "epistemic" not in state:
+                    state["epistemic"] = {}
+                state["epistemic"][step_name] = ep_state.to_dict()
+                state["epistemic"]["_record"] = _epistemic_record_r.reviewer_context()
+
                 self.store.log_action(
                     instance_id=instance.instance_id,
                     correlation_id=instance.correlation_id,
@@ -3319,11 +3545,20 @@ class Coordinator:
                         "output": output,
                         "elapsed_ms": elapsed_ms,
                         "confidence": step_output.get("confidence"),
+                        "epistemic": ep_state.to_dict(),
                     },
                 )
+                if ep_state.coherence_flags:
+                    self._log(
+                        f"  ⚠ epistemic: {step_name} flags="
+                        f"{[f.value for f in ep_state.coherence_flags]} "
+                        f"overall={ep_state.overall:.2f} warranted={ep_state.warranted}"
+                    )
             except Exception:
                 pass
             return None
+
+        instance._epistemic_record = _epistemic_record_r
 
         from cognitive_core.engine.devs_executor import combined_callback
         resume_callback = combined_callback(_step_log_callback_r, resource_request_callback)
@@ -4167,18 +4402,39 @@ class _CoordinatorTrace:
         if primitive == "classify":
             self._log(f"    → {output.get('category', '?')} "
                        f"({output.get('confidence', 0):.2f})")
+            alts = output.get("alternative_categories", [])
+            if alts:
+                alt_str = ", ".join(
+                    f"{a.get('category','?')} ({a.get('confidence',0):.2f})"
+                    for a in alts[:3]
+                )
+                self._log(f"    → alternatives: {alt_str}")
+            reasoning = str(output.get("reasoning", ""))
+            if reasoning:
+                for line in reasoning[:400].splitlines():
+                    if line.strip():
+                        self._log(f"    · {line.strip()}")
         elif primitive == "investigate":
-            finding = output.get("finding", "?")[:70]
+            finding = str(output.get("finding", "?"))
             flags = output.get("evidence_flags", [])
-            self._log(f"    → {finding}...")
+            missing = output.get("evidence_missing", [])
+            # Print finding across multiple lines if needed
+            for i, chunk in enumerate([finding[j:j+120] for j in range(0, min(len(finding), 480), 120)]):
+                prefix = "    →" if i == 0 else "      "
+                self._log(f"{prefix} {chunk}")
             if flags:
                 self._log(f"    → flags: {flags}")
+            if missing:
+                for m in missing[:2]:
+                    desc = m.get("description", "") if isinstance(m, dict) else str(m)
+                    self._log(f"    → missing: {str(desc)[:120]}")
+            conf = output.get("confidence")
+            if conf is not None:
+                self._log(f"    → confidence: {conf:.2f}")
         elif primitive == "retrieve":
             data = output.get("data", {})
             sources = output.get("sources_queried", [])
             n_ok = sum(1 for s in sources if s.get("status") == "success")
-            # Only count as EMPTY when record_count is explicitly 0,
-            # not when it's absent/None (which means "not tracked")
             n_empty = sum(1 for s in sources
                          if s.get("status") == "success"
                          and s.get("record_count") is not None
@@ -4193,19 +4449,59 @@ class _CoordinatorTrace:
                 parts.append(f"{n_untracked} record_count n/a")
             self._log(f"    → {', '.join(parts)}")
         elif primitive == "generate":
-            self._log(f"    → generated {len(str(output.get('artifact', ''))):,} chars")
+            artifact = str(output.get("artifact", ""))
+            self._log(f"    → generated {len(artifact):,} chars")
+            # Show first 300 chars of artifact
+            preview = artifact[:300].replace("\n", " ")
+            if preview:
+                self._log(f"    · {preview}{'...' if len(artifact) > 300 else ''}")
         elif primitive == "deliberate":
-            action = output.get("recommended_action") or ""
-            self._log(f"    → {action[:70]}")
+            action = str(output.get("recommended_action") or "")
+            conf = output.get("confidence", 0)
+            rq = output.get("reasoning_quality")
+            oc = output.get("outcome_certainty")
+            # Print full action across multiple lines
+            for i, chunk in enumerate([action[j:j+120] for j in range(0, min(len(action), 360), 120)]):
+                prefix = "    →" if i == 0 else "      "
+                self._log(f"{prefix} {chunk}")
+            warrant = str(output.get("warrant") or "")
+            if warrant:
+                for i, chunk in enumerate([warrant[j:j+120] for j in range(0, min(len(warrant), 360), 120)]):
+                    prefix = "    · warrant:" if i == 0 else "             "
+                    self._log(f"{prefix} {chunk}")
+            self._log(f"    · confidence: {conf:.2f}" +
+                      (f"  rq={rq:.2f}" if rq is not None else "") +
+                      (f"  oc={oc:.2f}" if oc is not None else ""))
+            situation = str(output.get("situation_summary") or "")
+            if situation:
+                self._log(f"    · situation: {situation[:200]}")
         elif primitive == "govern":
             tier = output.get("tier_applied", "?")
             disposition = output.get("disposition", "?")
+            rationale = str(output.get("tier_rationale") or "")
             self._log(f"    → tier={tier} disposition={disposition}")
+            if rationale:
+                for i, chunk in enumerate([rationale[j:j+120] for j in range(0, min(len(rationale), 480), 120)]):
+                    prefix = "    · rationale:" if i == 0 else "              "
+                    self._log(f"{prefix} {chunk}")
+            wo = output.get("work_order") or {}
+            if wo.get("instructions"):
+                instr = str(wo["instructions"])
+                for i, chunk in enumerate([instr[j:j+120] for j in range(0, min(len(instr), 360), 120)]):
+                    prefix = "    · instructions:" if i == 0 else "                 "
+                    self._log(f"{prefix} {chunk}")
         elif primitive == "verify":
             conforms = output.get("conforms", "?")
-            n_viol = len(output.get("violations", []))
-            self._log(f"    → conforms: {conforms}"
-                       f"{f' ({n_viol} violations)' if n_viol else ''}")
+            violations = output.get("violations", [])
+            rules = output.get("rules_checked", [])
+            self._log(f"    → conforms: {conforms}  rules_checked: {len(rules)}")
+            for v in violations:
+                rule = v.get("rule", "") if isinstance(v, dict) else str(v)
+                desc = v.get("description", "") if isinstance(v, dict) else ""
+                sev = v.get("severity", "") if isinstance(v, dict) else ""
+                self._log(f"    ✗ [{sev}] {rule}: {str(desc)[:120]}")
+            if conforms and not violations:
+                self._log(f"    ✓ all {len(rules)} rules passed")
 
     def on_parse_error(self, step_name, error):
         # Show full error, split into multiple lines for tracebacks

@@ -187,6 +187,9 @@ govern_determination:
     conforms: ${verify_statutory_compliance.conforms}
     determination: ${deliberate_determination.recommended_action}
     determination_confidence: ${deliberate_determination.confidence}
+    determination_reasoning_quality: ${deliberate_determination.reasoning_quality}
+    determination_outcome_certainty: ${deliberate_determination.outcome_certainty}
+    determination_warrant: ${deliberate_determination.warrant}
 
   governance_context: |
     SPOT CHECK — when:
@@ -194,6 +197,7 @@ govern_determination:
     - No sensitive area violations
     - No public notice required
     - Determination within staff delegated authority
+    - No coherence flags from epistemic state
     Rationale: Standard permitted development. Quality monitoring sufficient.
 
     GATE (planning manager or hearing officer review before determination
@@ -204,6 +208,14 @@ govern_determination:
       the correct response to a failed exemption
     - Any sensitive area finding requiring conditions of approval
     - Determination confidence < 0.85
+    - VERIFY_DELIBERATE_TENSION flag present in epistemic state:
+      verify found statutory violations but deliberate recommended approval.
+      The tier_rationale MUST explain whether the warrant resolves the tension
+      (e.g. "MND pathway is the correct response to a failed exemption") or
+      whether the tension represents a genuine unresolved conflict requiring
+      closer review. Do not ignore this flag.
+    - UNWARRANTED_RECOMMENDATION flag present: deliberate recommendation
+      has no warrant — always escalate to GATE minimum.
     Rationale: MND determination has legal consequences. Planning manager
     review required before Notice of Intent to Adopt MND is published.
 
@@ -214,6 +226,9 @@ govern_determination:
     - Verify findings include Rule 3, 4 violations (sensitive area or
       floodway) — NOT Rule 1 violations on conditional cases
     - Project within regulatory floodway (44 CFR §60.3(d) applies)
+    - CLASSIFY_DELIBERATE_MISMATCH flag present in epistemic state:
+      classification and determination are inconsistent — requires HOLD pending
+      review since the determination cannot be trusted.
     Rationale: Statutory bar closes the standard approval pathway.
     Legal review required before any communication to applicant.
     A failed exemption check (Rule 1) on a conditional case is NOT

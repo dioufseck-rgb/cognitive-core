@@ -1237,6 +1237,33 @@ def create_govern_node(
             input_data = {k: v for k, v in state["input"].items() if k != "_meta"}
             resolved["input"] = json.dumps(input_data, indent=2)
 
+        # Inject epistemic context so the govern primitive can see coherence
+        # flags and mechanically-computed uncertainty scores from prior steps.
+        if "epistemic_context" not in resolved:
+            ep_record = state.get("epistemic", {}).get("_record")
+            if ep_record:
+                flags = ep_record.get("coherence_flags", [])
+                warranted = ep_record.get("warranted", True)
+                overall = ep_record.get("workflow_overall")
+                low = ep_record.get("low_confidence_steps", [])
+                gaps = ep_record.get("open_evidence_gaps", [])
+                lines = []
+                if overall is not None:
+                    lines.append(f"Workflow epistemic overall: {overall:.2f}")
+                if not warranted:
+                    lines.append("WARRANTED: false — one or more steps have unresolved epistemic problems")
+                for f in flags:
+                    lines.append(f"Coherence flag: {f}")
+                for s in low[:3]:
+                    step_flags = s.get("flags", [])
+                    lines.append(f"Low epistemic step: {s['step']} overall={s['overall']:.2f}" +
+                                  (f" flags={step_flags}" if step_flags else ""))
+                for g in gaps:
+                    lines.append(f"Open gap: {g[:100]}")
+                resolved["epistemic_context"] = "\n".join(lines) if lines else "All steps epistemically sound."
+            else:
+                resolved["epistemic_context"] = "Epistemic state not yet computed."
+
         # Set execution mode
         mode = resolved.get("mode", "dry_run" if dry_run else "execution")
         resolved["mode"] = mode

@@ -18,9 +18,12 @@ CONSTRAINTS:
 
 INSTRUCTIONS:
 1. Identify the key facts from the source material you will use.
+   List them explicitly in evidence_used — every factual claim in the
+   artifact must trace to a named source.
 2. Generate the artifact using ONLY facts from the source material.
-   Never fabricate numbers, dates, names, or statistics.
+   Never fabricate numbers, dates, names, statistics, or citations.
 3. Verify your output against every constraint listed above.
+   For each constraint, record whether it was satisfied in constraints_checked.
 
 ARTIFACT FORMAT RULES:
 If the format describes TEXT (narrative, report, memo, letter, closure
@@ -38,6 +41,15 @@ RESPONSE FORMAT — respond with ONLY this JSON, no other text:
 {{
   "artifact": <the generated content — string or object per rules above>,
   "format": "{format}",
-  "confidence": <0.0 to 1.0>,
-  "reasoning": "<2-3 sentences: what key facts were used and any constraint issues>"
+  "confidence": 0.0,
+  "reasoning": "2-3 sentences: what key facts were used and any constraint issues",
+  "evidence_used": [
+    {{"source": "step name or input field", "description": "the specific fact used"}}
+  ],
+  "evidence_missing": [
+    {{"source": "where to find it", "description": "what would improve the artifact"}}
+  ],
+  "constraints_checked": [
+    {{"constraint": "the constraint", "satisfied": true, "notes": ""}}
+  ]
 }}
