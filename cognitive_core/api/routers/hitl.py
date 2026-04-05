@@ -334,6 +334,7 @@ _ACTION_TO_EVENT = {
     "workflow_failed":        "workflow_failed",
     "workflow_started":       "step_started",
     "resume":                 "step_started",
+    "orchestrator_decision":  "orchestrator_decision",
 }
 
 
@@ -355,7 +356,8 @@ def _ledger_entry_to_sse(entry: dict, instance_id: str) -> str:
         "timestamp": entry.get("created_at", time.time()),
     }
     # Merge any extra details the LLM steps store
-    for key in ("decision", "rationale", "reviewer_id", "reason", "governance_tier"):
+    for key in ("decision", "rationale", "reviewer_id", "reason", "governance_tier",
+                "action", "reasoning"):
         if key in details:
             payload[key] = details[key]
 

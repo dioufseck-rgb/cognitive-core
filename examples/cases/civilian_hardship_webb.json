@@ -1,0 +1,37 @@
+{
+  "_id": "hardship-civilian-001",
+  "_description": "Civilian overextension case — Marcus Webb, single loan, stable employment, spending overextension. Contrast case: orchestrator should choose financial investigation path, skip synthesize_approach, and proceed directly to guidance generation.",
+  "_expected_path": "classify_hardship → investigate_financial → generate_guidance → challenge_guidance",
+  "_expected_tier": "spot_check",
+
+  "member_name": "Marcus Webb",
+  "member_statement": "I took on too much debt over the past year — new car, some credit cards — and my monthly payments have gotten to a point where I'm struggling to keep up. I'm still employed full-time but I'm stretched thin. I have a personal loan with you and I'm looking to see if there's any way to reduce my monthly payment for a while until I can get things under control.",
+
+  "member_profile": {
+    "member_id": "MBR-331204",
+    "tenure_years": 3,
+    "military_status": "civilian",
+    "payment_history": "two 30-day lates in the past 18 months",
+    "credit_score": 618,
+    "employment": "full-time — $54,000/year",
+    "prior_hardship_requests": 0
+  },
+
+  "loan_details": {
+    "personal_loan": {
+      "loan_id": "PL-774432",
+      "balance": 11800,
+      "monthly_payment": 298,
+      "rate": 11.5,
+      "remaining_term_months": 44,
+      "status": "current"
+    }
+  },
+
+  "household": {
+    "monthly_income_current": 4500,
+    "monthly_income_expected_post_va": null,
+    "monthly_obligations_total": 3100,
+    "dependents": 0
+  }
+}

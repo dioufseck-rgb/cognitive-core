@@ -3189,6 +3189,10 @@ class Coordinator:
             )
             if has_act:
                 action_registry = self._build_action_registry(case_input)
+        else:
+            # Agentic mode: build action_registry if govern is available
+            if "govern" in config.get("available_primitives", []):
+                action_registry = self._build_action_registry(case_input)
 
         # ── Check execution prerequisites ──
         # DEVS executor has no LangGraph dependency.
@@ -3211,76 +3215,107 @@ class Coordinator:
                 instance, config, case_input, tool_registry, action_registry,
             )
 
+        # ── Shared step callback: epistemic state + ledger ────────────────
+        # Used by both workflow and agentic execution modes.
+        import time as _step_time
+        _start_time = _step_time.time()
+
+        from cognitive_core.engine.epistemic import (
+            WorkflowEpistemicRecord, compute_step_epistemic_state,
+        )
+        _epistemic_record = WorkflowEpistemicRecord(
+            instance_id=instance.instance_id
+        )
+
+        def _step_log_callback(step_name, step_output, state):
+            try:
+                prim = step_output.get("primitive", "")
+                output = step_output.get("output", step_output.get("result", {}))
+                elapsed_ms = int((_step_time.time() - _start_time) * 1000)
+
+                prior_steps = state.get("steps", [])[:-1]
+                ep_state = compute_step_epistemic_state(
+                    step_output=step_output,
+                    prior_steps=prior_steps,
+                    open_gaps=list(_epistemic_record.open_gaps),
+                )
+                _epistemic_record.add_step(ep_state)
+
+                if "epistemic" not in state:
+                    state["epistemic"] = {}
+                state["epistemic"][step_name] = ep_state.to_dict()
+                state["epistemic"]["_record"] = _epistemic_record.reviewer_context()
+
+                self.store.log_action(
+                    instance_id=instance.instance_id,
+                    correlation_id=instance.correlation_id,
+                    action_type="step_completed",
+                    details={
+                        "step_name": step_name,
+                        "primitive": prim,
+                        "output": output,
+                        "elapsed_ms": elapsed_ms,
+                        "confidence": step_output.get("confidence"),
+                        "epistemic": ep_state.to_dict(),
+                    },
+                )
+                if ep_state.coherence_flags:
+                    self._log(
+                        f"  ⚠ epistemic: {step_name} flags="
+                        f"{[f.value for f in ep_state.coherence_flags]} "
+                        f"overall={ep_state.overall:.2f} warranted={ep_state.warranted}"
+                    )
+            except Exception:
+                pass
+            return None
+
+        instance._epistemic_record = _epistemic_record
+
+        from cognitive_core.engine.devs_executor import (
+            combined_callback, resource_request_callback, step_execute,
+        )
+
         # Execute with step-level interception
         if is_agentic:
-            # Agentic mode: no stepper support yet, use direct execution
-            from cognitive_core.engine.agentic import run_agentic_workflow
-            return run_agentic_workflow(
-                config, case_input, model, temperature,
-                tool_registry=tool_registry,
-            )
-        else:
-            # Build a step logging callback that writes each step result
-            # to the action ledger so the SSE stream can replay them live.
-            # Also computes epistemic state (mechanical + coherence) per step.
-            import time as _step_time
-            _start_time = _step_time.time()
+            # Agentic mode: DEVS-native executor.
+            # The orchestrator selects the trajectory autonomously.
+            # The substrate enforces governance on that trajectory identically
+            # to workflow mode — same step callback, same epistemic engine,
+            # same ledger recording.
+            from cognitive_core.engine.agentic_devs import run_agentic_workflow_devs
+            callback = combined_callback(_step_log_callback, resource_request_callback)
 
-            from cognitive_core.engine.epistemic import (
-                WorkflowEpistemicRecord, compute_step_epistemic_state,
-            )
-            _epistemic_record = WorkflowEpistemicRecord(
-                instance_id=instance.instance_id
-            )
-
-            def _step_log_callback(step_name, step_output, state):
+            def _decision_log_callback(decision: dict):
+                """Log each orchestrator trajectory decision to the action ledger."""
                 try:
-                    prim = step_output.get("primitive", "")
-                    output = step_output.get("output", step_output.get("result", {}))
-                    elapsed_ms = int((_step_time.time() - _start_time) * 1000)
-
-                    prior_steps = state.get("steps", [])[:-1]
-                    ep_state = compute_step_epistemic_state(
-                        step_output=step_output,
-                        prior_steps=prior_steps,
-                        open_gaps=list(_epistemic_record.open_gaps),
-                    )
-                    _epistemic_record.add_step(ep_state)
-
-                    # Write compact epistemic summary into state so nodes
-                    # (deliberate, govern) can read it via the state dict.
-                    # Keyed by step_name so each step's flags are addressable.
-                    if "epistemic" not in state:
-                        state["epistemic"] = {}
-                    state["epistemic"][step_name] = ep_state.to_dict()
-                    state["epistemic"]["_record"] = _epistemic_record.reviewer_context()
-
                     self.store.log_action(
                         instance_id=instance.instance_id,
                         correlation_id=instance.correlation_id,
-                        action_type="step_completed",
+                        action_type="orchestrator_decision",
                         details={
-                            "step_name": step_name,
-                            "primitive": prim,
-                            "output": output,
-                            "elapsed_ms": elapsed_ms,
-                            "confidence": step_output.get("confidence"),
-                            "epistemic": ep_state.to_dict(),
+                            "action": decision.get("action", "invoke"),
+                            "primitive": decision.get("primitive", ""),
+                            "step_name": decision.get("step_name", ""),
+                            "params_key": decision.get("params_key", ""),
+                            "reasoning": decision.get("reasoning", ""),
                         },
                     )
-                    if ep_state.coherence_flags:
-                        self._log(
-                            f"  ⚠ epistemic: {step_name} flags="
-                            f"{[f.value for f in ep_state.coherence_flags]} "
-                            f"overall={ep_state.overall:.2f} warranted={ep_state.warranted}"
-                        )
                 except Exception:
-                    pass  # never block execution on logging failure
-                return None  # never interrupt
+                    pass
 
-            instance._epistemic_record = _epistemic_record
-
-            from cognitive_core.engine.devs_executor import combined_callback
+            result = run_agentic_workflow_devs(
+                config, case_input, model, temperature,
+                tool_registry=tool_registry,
+                action_registry=action_registry,
+                step_callback=callback,
+                decision_callback=_decision_log_callback,
+            )
+            if result.completed:
+                return result.final_state
+            else:
+                return result.interrupt
+        else:
+            # Workflow mode: DEVS executor with shared step callback.
             callback = combined_callback(_step_log_callback, resource_request_callback)
 
             result = step_execute(

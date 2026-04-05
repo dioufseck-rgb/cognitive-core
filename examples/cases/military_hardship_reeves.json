@@ -1,0 +1,46 @@
+{
+  "_id": "hardship-reeves-001",
+  "_description": "Military transition case — Angela Reeves, spouse of medically retired servicemember, two loans, proactive contact before any missed payment. Primary test case for agentic DDD: orchestrator should choose military investigation path and invoke synthesize_approach before generating guidance.",
+  "_expected_path": "classify_hardship → investigate_military → synthesize_approach → generate_guidance → challenge_guidance",
+  "_expected_tier": "gate",
+
+  "member_name": "Angela Reeves",
+  "member_statement": "My husband was just medically retired from the Army after 14 years of service. His income has stopped completely and we won't know what his VA disability rating and payments will be for another 3 to 4 months. I have a mortgage and a car loan with you. I've never missed a payment in 12 years and I want to get ahead of this before things get difficult. I don't know what my options are but I want to do the right thing.",
+
+  "member_profile": {
+    "member_id": "MBR-448821",
+    "tenure_years": 12,
+    "military_status": "spouse_of_retired_servicemember",
+    "payment_history": "perfect — 144 consecutive on-time payments, no delinquencies",
+    "credit_score": 764,
+    "employment": "part-time — $28,000/year",
+    "prior_hardship_requests": 0
+  },
+
+  "loan_details": {
+    "mortgage": {
+      "loan_id": "MTG-221983",
+      "balance": 187400,
+      "monthly_payment": 1342,
+      "rate": 4.875,
+      "ltv": 0.68,
+      "remaining_term_months": 204,
+      "status": "current"
+    },
+    "auto_loan": {
+      "loan_id": "AUTO-884421",
+      "balance": 14200,
+      "monthly_payment": 387,
+      "rate": 6.25,
+      "remaining_term_months": 38,
+      "status": "current"
+    }
+  },
+
+  "household": {
+    "monthly_income_current": 2333,
+    "monthly_income_expected_post_va": 3800,
+    "monthly_obligations_total": 1729,
+    "dependents": 2
+  }
+}

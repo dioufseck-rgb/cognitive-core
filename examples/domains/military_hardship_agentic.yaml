@@ -6,6 +6,7 @@
 
 domain_name: military_hardship_agentic
 workflow: loan_hardship_agentic
+governance: auto
 description: >
   Agentic domain for military family loan hardship. The orchestrator
   adapts the investigation path based on what it discovers — military
@@ -42,14 +43,15 @@ orchestrator_strategy: |
     and hardship duration.
   - After investigation, classify the appropriate assistance option.
   - If the case involves multiple factors (military + financial, two loans,
-    regulatory considerations), use THINK to synthesize findings before
-    generating guidance. Think connects the dots that individual steps miss.
-  - If the case is complex (multiple loans, unclear timeline, regulatory
-    sensitivity), consider investigating deeper before generating guidance.
+    regulatory considerations), use deliberate (synthesize_approach) to connect
+    findings before generating guidance.
   - Generate the guidance letter or escalation brief.
   - Challenge for regulatory compliance (SCRA, ECOA, UDAAP), empathy,
     accuracy, and completeness.
   - If challenge fails, regenerate with the feedback.
+  - ALWAYS end with govern (govern_hardship) after challenge passes.
+    This determines the final governance tier and produces the work order.
+    Do not end without calling govern.
 
   KEY PRINCIPLES:
   - Proactive members with perfect payment history deserve enhanced consideration.
@@ -58,9 +60,8 @@ orchestrator_strategy: |
   - If in doubt about whether to escalate, escalate. Better safe.
   - You may skip classify_assistance and go straight to generate if
     the investigation makes the right option obvious.
-  - Use THINK when you have multiple findings that need to be reconciled
-    before generating a response. Don't use think for simple cases where
-    the investigation finding directly answers the question.
+  - Use deliberate (synthesize_approach) when multiple findings need to be
+    reconciled before generating a response.
 
 primitive_configs:
 
@@ -268,6 +269,7 @@ primitive_configs:
     primitive: challenge
     model: strong
     temperature: 0.05
+    sla_seconds: 900
     params:
       input: "${_last_generate.artifact}"
       perspective: |
@@ -304,3 +306,39 @@ primitive_configs:
         - Tone slightly off
         - Could be more concise
         - Minor formatting issues
+
+  govern_hardship:
+    primitive: govern
+    params:
+      workflow_state: |
+        hardship_classification: ${_last_classify.category}
+        hardship_confidence: ${_last_classify.confidence}
+        investigation_finding: ${_last_investigate.finding}
+        challenge_result: ${_last_challenge.survives}
+        challenge_vulnerabilities: ${_last_challenge.vulnerabilities}
+        guidance_generated: true
+      governance_context: |
+        Determine the appropriate governance tier for this hardship determination:
+
+        AUTO — when:
+        - Challenge passed with no critical vulnerabilities
+        - Hardship is non-military, temporary, single loan, low complexity
+        - Classification confidence >= 0.90, investigation confidence >= 0.80
+
+        SPOT CHECK — when:
+        - Challenge passed but minor vulnerabilities noted
+        - Standard case with good documentation
+        - Member has no prior hardship requests
+
+        GATE (planning manager review before communication) — when:
+        - Case involves military transition or SCRA considerations
+        - Multiple loans requiring coordinated approach
+        - Challenge identified regulatory concerns (ECOA, UDAAP, SCRA)
+        - Hardship involves VA benefit timing uncertainty
+        - Any permanent income reduction requiring loan modification
+
+        HOLD (compliance review before finalization) — when:
+        - Challenge failed on regulatory grounds
+        - Active SCRA coverage period with rate reduction rights
+        - Case requires specialist review (complex modification, legal exposure)
+        - Prior violations or elevated regulatory risk

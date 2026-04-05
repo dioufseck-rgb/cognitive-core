@@ -287,6 +287,7 @@ class Simulator:
         self._rt_backend: ThreadingPython | None = None
         self._step_callback: Callable | None = None
         self._termination_fn: Callable = lambda t, m: False
+        self._inject_wait_timeout = 60  # seconds; override for long-running LLM steps
 
         # Injection queue (Cognitive Core extension)
         self._inject_lock = Lock()
@@ -346,6 +347,17 @@ class Simulator:
         transition_type: 'internal' | 'external' | 'confluent'
         """
         self._step_callback = callback
+
+    def stop(self):
+        """
+        Request the simulation loop to stop at the next iteration.
+        Sets the termination condition to always return True.
+        """
+        self.setTerminationCondition(lambda t, m: True)
+        # Also wake the event loop if it's waiting for an inject
+        if self._rt_backend is not None:
+            self._rt_backend.interrupt()
+        self._inject_event.set()
 
     # ── Injection (Cognitive Core extension) ──────────────────────────────────
 
@@ -427,7 +439,7 @@ class Simulator:
                     with self._inject_lock:
                         has_pending = len(self._inject_queue) > 0
                     if not has_pending:
-                        woken = self._inject_event.wait(timeout=60)
+                        woken = self._inject_event.wait(timeout=self._inject_wait_timeout)
                         if not woken:
                             break  # No inject arrived in 60s — terminate
                     tn = scheduler.readFirst()

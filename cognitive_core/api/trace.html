@@ -111,6 +111,7 @@
   .hitl-tier { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; background: rgba(210,153,34,.2); padding: 2px 7px; border-radius: 4px; }
 
   .decision-row { background: rgba(63,185,80,.07); border: 1px solid rgba(63,185,80,.25); border-radius: 8px; padding: 12px 16px; margin: 4px 0; }
+  .orchestrator-row { background: rgba(88,166,255,.05); border: 1px solid rgba(88,166,255,.18); border-radius: 6px; padding: 8px 14px; margin: 3px 0 3px 28px; display: flex; align-items: flex-start; gap: 10px; }
   .decision-header { display: flex; align-items: center; gap: 8px; color: var(--green); font-size: 12px; font-weight: 600; }
 
   /* HITL panel */
@@ -349,6 +350,27 @@ function renderStep(entry) {
     div.innerHTML=`<div class="hitl-header"><span>⏸</span><span>GOVERNANCE GATE</span><span class="hitl-tier">${tier}</span></div>
       <div style="font-size:12px;color:var(--muted)">${details.reason||details.rationale||""}</div>`;
     container.appendChild(div); allSteps.push({type:"gate",el:div}); return;
+  }
+  if (action==="orchestrator_decision") {
+    const prim = details.primitive||"";
+    const stepName = details.step_name||"";
+    const reasoning = details.reasoning||"";
+    const isEnd = details.action==="end";
+    const icon = isEnd ? "⏹" : (primIcon(prim)||"▶");
+    const label = isEnd
+      ? `<span style="font-family:var(--mono);font-size:11px;color:var(--muted)">end</span>`
+      : `<span style="font-family:var(--mono);font-size:11px;color:var(--accent)">${prim}</span>
+         <span style="font-size:11px;color:var(--muted)">&nbsp;·&nbsp;${stepName}</span>`;
+    const div = document.createElement("div"); div.className="orchestrator-row";
+    div.innerHTML=`<span style="font-size:13px;opacity:.7">${icon}</span>
+      <div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+          <span style="font-size:10px;font-family:var(--mono);color:var(--muted);letter-spacing:.05em">ORCHESTRATOR</span>
+          ${label}
+        </div>
+        ${reasoning?`<div style="font-size:11px;color:var(--muted)">${reasoning}</div>`:""}
+      </div>`;
+    container.appendChild(div); allSteps.push({type:"orchestrator",el:div}); return;
   }
   if (!["step_completed","step_started","step_failed"].includes(action)) {
     if (action!=="workflow_started"&&action!=="resume") return;
@@ -644,7 +666,7 @@ async function renderResultBar(inst) {
 function startSSE() {
   if(eventSource){eventSource.close();eventSource=null;}
   eventSource=new EventSource(`${API_BASE}/api/instances/${INSTANCE_ID}/stream?since_id=${lastLedgerId}`);
-  ["step_started","step_completed","governance_decision","hitl_requested","hitl_resolved","workflow_completed","workflow_failed","step_failed","human_decision","evidence_supplied","suspended_for_approval"].forEach(evt=>{
+  ["step_started","step_completed","governance_decision","hitl_requested","hitl_resolved","workflow_completed","workflow_failed","step_failed","human_decision","evidence_supplied","suspended_for_approval","orchestrator_decision"].forEach(evt=>{
     eventSource.addEventListener(evt,e=>{
       let data={};try{data=JSON.parse(e.data);}catch(_){}
       if(data.ledger_id&&data.ledger_id>lastLedgerId)lastLedgerId=data.ledger_id;

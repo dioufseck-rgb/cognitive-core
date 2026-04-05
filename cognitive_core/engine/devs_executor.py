@@ -546,6 +546,7 @@ class WorkflowExecutor:
 
         sim = Simulator(workflow_model)
         sim.setRealTime(True)
+        sim._inject_wait_timeout = 1200  # 20 min — LLM steps can be slow
 
         # Wire simulator reference into all WorkflowStep components
         # so background threads can call sim.inject() to return results.
