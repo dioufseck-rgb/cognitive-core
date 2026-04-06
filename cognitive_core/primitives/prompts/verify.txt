@@ -69,7 +69,16 @@ Respond with a JSON object matching this structure:
   ],
   "evidence_missing": [
     {{"source": "where to find it", "description": "what it would clarify"}}
-  ]
+  ],
+  "reasoning_quality": 0.0 to 1.0,
+  "outcome_certainty": 0.0 to 1.0
 }}
+
+reasoning_quality: How rigorously was each rule applied?
+  0.0 = rules not independently checked; 1.0 = each rule checked independently with specific citations.
+  Report honestly — used by governance. Do not inflate.
+
+outcome_certainty: How certain is the conformance determination?
+  0.0 = rule applicability is genuinely ambiguous; 1.0 = clear conformance or clear violation with no ambiguity.
 
 Respond ONLY with the JSON object. No other text.

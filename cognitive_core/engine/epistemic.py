@@ -580,6 +580,20 @@ def compute_step_epistemic_state(
     reasoning_quality = output.get("reasoning_quality")
     outcome_certainty = output.get("outcome_certainty")
 
+    # Compute alternative_separation mechanically for classify steps:
+    # margin between top-category confidence and next-best alternative.
+    # This is Layer 1 (derived from observable output), not Layer 2 (LLM-reported).
+    alternative_separation = None
+    if primitive == "classify":
+        top_conf = output.get("confidence")
+        alts = output.get("alternative_categories", [])
+        if top_conf is not None and alts:
+            next_best = max(
+                (a.get("confidence", 0) if isinstance(a, dict) else 0)
+                for a in alts
+            )
+            alternative_separation = round(float(top_conf) - float(next_best), 3)
+
     # If judgment scores are present, include them in overall computation
     judgment_scores = [s for s in [reasoning_quality, outcome_certainty] if s is not None]
     if judgment_scores:
@@ -593,6 +607,7 @@ def compute_step_epistemic_state(
         citation_rate=citation_rate,
         reasoning_quality=reasoning_quality,
         outcome_certainty=outcome_certainty,
+        alternative_separation=alternative_separation,
         coherence_flags=coherence_flags,
         inherited_gaps=inherited_gaps,
         resolved_gaps=resolved_gaps,

@@ -66,7 +66,7 @@ class _AgenticTrace(NullTrace):
     """
     def __init__(self):
         self.decisions: list[dict] = []
-        self.steps: list[dict] = []
+        self.steps: dict = {}
         self._t0 = time.time()
 
     def on_route_decision(self, from_step, to_step, decision_type, reason):
@@ -101,11 +101,6 @@ class _AgenticTrace(NullTrace):
         print(f"  {_prim_icon(primitive)} {step_name}  [{primitive}]  conf={conf}")
         if summary:
             print(f"    {summary}")
-
-    def __init__(self):
-        self.decisions = []
-        self.steps = {}
-        self._t0 = time.time()
 
 
 def _prim_icon(primitive: str) -> str:
@@ -219,12 +214,56 @@ def run_case(coord: Coordinator, case_path: Path) -> None:
     else:
         print(f"    (no decisions recorded in ledger)")
 
-    # Compare to expected
-    expected_steps = [s.strip() for s in expected_path.split("→")]
-    actual_matches = trajectory == expected_steps
+    # Epistemic state per step — read from ledger step_completed entries
+    ledger_steps = [e for e in ledger if e.get("action_type") == "step_completed"]
+
+    print(f"\n  Epistemic state per step:")
+    print(f"  {'Step':<35} {'Prim':<12} {'conf':>5} {'rq':>5} {'oc':>5} {'sep':>5} {'overall':>7} {'W':>2}  Interpretation")
+    print(f"  {'─'*35} {'─'*12} {'─'*5} {'─'*5} {'─'*5} {'─'*5} {'─'*7} {'─'*2}  {'─'*14}")
+    for entry in ledger_steps:
+        d = entry["details"]
+        sname = d.get("step_name", "")[:34]
+        prim  = d.get("primitive", "")[:11]
+        ep    = d.get("epistemic") or {}
+        conf  = d.get("confidence")
+        rq    = ep.get("reasoning_quality")
+        oc    = ep.get("outcome_certainty")
+        sep   = ep.get("alternative_separation")
+        ov    = ep.get("overall")
+        wa    = ep.get("warranted")
+        flags = ep.get("coherence_flags", [])
+
+        def fmt(v): return f"{v:.2f}" if v is not None else "  — "
+
+        # Operational state interpretation
+        critical = [f for f in flags if "tension" in str(f).lower() or "mismatch" in str(f).lower()]
+        if wa is False or critical:
+            interp = "INSUFFICIENT"
+        elif flags or (ov is not None and ov < 0.6):
+            interp = "DEGRADED   "
+        else:
+            interp = "SUPPORTED  "
+
+        warranted_str = "✓" if wa else ("✗" if wa is False else "—")
+        flag_str = f"  ⚠ {', '.join(str(f) for f in flags)}" if flags else ""
+        print(f"  {sname:<35} {prim:<12} {fmt(conf):>5} {fmt(rq):>5} {fmt(oc):>5} {fmt(sep):>5} {fmt(ov):>7} {warranted_str:>2}  {interp}{flag_str}")
+
+    # Compare to expected — check primitive coverage rather than exact step names
+    # (orchestrator names steps freely; primitives are the structural invariant)
+    primitives_used = [e["details"].get("primitive", "") for e in ledger_steps]
+
+    print(f"\n  Primitives used: {' → '.join(p for p in primitives_used if p)}")
+
+    # Check must_include satisfaction
+    must_include = ["classify", "investigate", "generate", "challenge", "govern"]
+    missing = [p for p in must_include if p not in primitives_used]
+    if missing:
+        print(f"  ⚠ Missing required primitives: {missing}")
+    else:
+        print(f"  ✓ All required primitives present")
+
     if expected_path:
-        print(f"\n  Expected:  {' → '.join(expected_steps)}")
-        print(f"  Match: {'✓ YES' if actual_matches else '△ DIFFERENT'}")
+        print(f"\n  Expected path (reference): {expected_path}")
 
     # Epistemic state from govern step if present
     govern_output = trace.steps.get("govern_eia_determination") or trace.steps.get("govern_hardship")

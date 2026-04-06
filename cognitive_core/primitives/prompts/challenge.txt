@@ -107,7 +107,16 @@ Respond with a JSON object matching this structure:
   ],
   "evidence_missing": [
     {{"source": "where to find it", "description": "what it would clarify"}}
-  ]
+  ],
+  "reasoning_quality": 0.0 to 1.0,
+  "outcome_certainty": 0.0 to 1.0
 }}
+
+reasoning_quality: How rigorous and genuinely adversarial is this challenge?
+  0.0 = superficial or biased toward passing; 1.0 = thorough, independent, and adversarially rigorous.
+  Report honestly — used by governance. Do not inflate.
+
+outcome_certainty: How certain is the survives determination?
+  0.0 = genuinely borderline — reasonable people could disagree; 1.0 = clearly passes or clearly fails.
 
 Respond ONLY with the JSON object. No other text.

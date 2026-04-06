@@ -51,7 +51,17 @@ Respond with a JSON object matching this structure:
   ],
   "alternative_categories": [
     {{"category": "name", "confidence": 0.0 to 1.0, "reasoning": "specific evidence for and against"}}
-  ]
+  ],
+  "reasoning_quality": 0.0 to 1.0,
+  "outcome_certainty": 0.0 to 1.0
 }}
+
+reasoning_quality: How sound is the logical structure of your classification reasoning?
+  0.0 = circular or unsupported; 1.0 = rigorously evidence-grounded.
+  Report honestly — used by the governance layer. Do not inflate.
+
+outcome_certainty: How clearly does the evidence distinguish this category from alternatives?
+  0.0 = genuinely ambiguous between categories; 1.0 = evidence unambiguously supports this category.
+  This should reflect actual separation from alternatives, not just your confidence in being correct.
 
 Respond ONLY with the JSON object. No other text.

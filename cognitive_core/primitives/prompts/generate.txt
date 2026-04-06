@@ -51,5 +51,14 @@ RESPONSE FORMAT — respond with ONLY this JSON, no other text:
   ],
   "constraints_checked": [
     {{"constraint": "the constraint", "satisfied": true, "notes": ""}}
-  ]
+  ],
+  "reasoning_quality": 0.0 to 1.0,
+  "outcome_certainty": 0.0 to 1.0
 }}
+
+reasoning_quality: How well is the artifact grounded in the accumulated evidence and prior step outputs?
+  0.0 = generic or ungrounded; 1.0 = tightly connected to specific findings from prior steps.
+  Report honestly — used by governance. Do not inflate.
+
+outcome_certainty: How confident are you the artifact meets all requirements and constraints?
+  0.0 = significant gaps or unresolved uncertainties; 1.0 = all requirements demonstrably met.

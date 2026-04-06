@@ -156,6 +156,15 @@ class ClassifyOutput(BaseOutput):
         default_factory=list,
         description="Other categories considered with their confidence scores"
     )
+    # ── Layer 2 judgment fields ──
+    reasoning_quality: Optional[float] = Field(
+        default=None, ge=0.0, le=1.0,
+        description="How sound is the classification reasoning: 0.0 = circular or unsupported, 1.0 = tightly evidence-grounded. Report honestly — used by governance."
+    )
+    outcome_certainty: Optional[float] = Field(
+        default=None, ge=0.0, le=1.0,
+        description="How clearly the evidence supports this category over alternatives: 0.0 = genuinely ambiguous, 1.0 = unambiguous."
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -196,6 +205,15 @@ class InvestigateOutput(BaseOutput):
             "Used by delegation policies to route to specialist handlers."
         )
     )
+    # ── Layer 2 judgment fields ──
+    reasoning_quality: Optional[float] = Field(
+        default=None, ge=0.0, le=1.0,
+        description="How sound is the investigative reasoning: 0.0 = speculative or circular, 1.0 = rigorous hypothesis testing grounded in evidence."
+    )
+    outcome_certainty: Optional[float] = Field(
+        default=None, ge=0.0, le=1.0,
+        description="How clearly the evidence supports the finding: 0.0 = evidence is ambiguous or incomplete, 1.0 = finding is well-supported."
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -221,6 +239,15 @@ class VerifyOutput(BaseOutput):
         default_factory=list,
         description="All rules/criteria that were checked"
     )
+    # ── Layer 2 judgment fields ──
+    reasoning_quality: Optional[float] = Field(
+        default=None, ge=0.0, le=1.0,
+        description="How sound is the verification reasoning: 0.0 = rules not properly applied, 1.0 = each rule independently and rigorously checked."
+    )
+    outcome_certainty: Optional[float] = Field(
+        default=None, ge=0.0, le=1.0,
+        description="How certain is the conformance determination: 0.0 = rule applicability genuinely ambiguous, 1.0 = clear conformance or clear violation."
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -241,6 +268,15 @@ class GenerateOutput(BaseOutput):
     constraints_checked: list[ConstraintResult] = Field(
         default_factory=list,
         description="Constraints that were checked during generation"
+    )
+    # ── Layer 2 judgment fields ──
+    reasoning_quality: Optional[float] = Field(
+        default=None, ge=0.0, le=1.0,
+        description="How well the artifact is grounded in the accumulated evidence and prior step outputs: 0.0 = generic or ungrounded, 1.0 = tightly connected to specific findings."
+    )
+    outcome_certainty: Optional[float] = Field(
+        default=None, ge=0.0, le=1.0,
+        description="How confident you are the artifact meets all requirements and constraints: 0.0 = significant gaps or uncertainties, 1.0 = all requirements demonstrably met."
     )
 
 
@@ -273,6 +309,15 @@ class ChallengeOutput(BaseOutput):
     )
     overall_assessment: str = Field(
         description="Summary assessment of resilience"
+    )
+    # ── Layer 2 judgment fields ──
+    reasoning_quality: Optional[float] = Field(
+        default=None, ge=0.0, le=1.0,
+        description="How rigorous is the adversarial analysis: 0.0 = superficial or biased toward passing, 1.0 = thorough and genuinely adversarial."
+    )
+    outcome_certainty: Optional[float] = Field(
+        default=None, ge=0.0, le=1.0,
+        description="How certain is the survives determination: 0.0 = genuinely borderline, 1.0 = clearly passes or clearly fails."
     )
 
 

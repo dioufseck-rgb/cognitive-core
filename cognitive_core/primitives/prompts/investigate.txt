@@ -107,7 +107,16 @@ Respond with a JSON object matching this structure:
       "reasoning": "why this status was assigned, with specific value citations"
     }}
   ],
-  "recommended_actions": ["specific next steps"]
+  "recommended_actions": ["specific next steps"],
+  "reasoning_quality": 0.0 to 1.0,
+  "outcome_certainty": 0.0 to 1.0
 }}
+
+reasoning_quality: How sound is the investigative reasoning chain?
+  0.0 = speculative or circular; 1.0 = rigorous hypothesis testing tightly grounded in evidence.
+  Report honestly — used by governance. Do not inflate.
+
+outcome_certainty: How clearly does the evidence support the finding?
+  0.0 = evidence is ambiguous or incomplete; 1.0 = finding is well-supported across multiple independent sources.
 
 Respond ONLY with the JSON object. No other text.

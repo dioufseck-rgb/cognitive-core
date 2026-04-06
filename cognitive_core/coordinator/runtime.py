@@ -3259,12 +3259,36 @@ class Coordinator:
                         "epistemic": ep_state.to_dict(),
                     },
                 )
+                # Compact epistemic summary — fires for every step at framework level
+                def _fmt(v):
+                    return f"{v:.2f}" if v is not None else "—"
+                # Interpretation: derive operational state from warranted + flags + overall
+                _flags = ep_state.coherence_flags or []
+                _critical = [f for f in _flags
+                             if hasattr(f, "value") and "tension" in f.value.lower()
+                             or hasattr(f, "value") and "mismatch" in f.value.lower()]
+                if not ep_state.warranted or _critical:
+                    _interp = "INSUFFICIENT"
+                elif _flags or (ep_state.overall is not None and ep_state.overall < 0.6):
+                    _interp = "DEGRADED"
+                else:
+                    _interp = "SUPPORTED"
+                ep_parts = [
+                    f"{_interp}",
+                    f"overall={_fmt(ep_state.overall)}",
+                    f"warranted={'✓' if ep_state.warranted else '✗'}",
+                ]
+                if ep_state.reasoning_quality is not None:
+                    ep_parts.append(f"rq={_fmt(ep_state.reasoning_quality)}")
+                if ep_state.outcome_certainty is not None:
+                    ep_parts.append(f"oc={_fmt(ep_state.outcome_certainty)}")
+                if ep_state.alternative_separation is not None:
+                    ep_parts.append(f"sep={_fmt(ep_state.alternative_separation)}")
                 if ep_state.coherence_flags:
-                    self._log(
-                        f"  ⚠ epistemic: {step_name} flags="
-                        f"{[f.value for f in ep_state.coherence_flags]} "
-                        f"overall={ep_state.overall:.2f} warranted={ep_state.warranted}"
-                    )
+                    flag_names = [f.value if hasattr(f, "value") else str(f)
+                                  for f in ep_state.coherence_flags]
+                    ep_parts.append(f"⚠ flags={flag_names}")
+                self._log_epistemic(f"     epistemic: {step_name}  {' · '.join(ep_parts)}")
             except Exception:
                 pass
             return None
@@ -3583,12 +3607,36 @@ class Coordinator:
                         "epistemic": ep_state.to_dict(),
                     },
                 )
+                # Compact epistemic summary — fires for every step at framework level
+                def _fmt(v):
+                    return f"{v:.2f}" if v is not None else "—"
+                # Interpretation: derive operational state from warranted + flags + overall
+                _flags = ep_state.coherence_flags or []
+                _critical = [f for f in _flags
+                             if hasattr(f, "value") and "tension" in f.value.lower()
+                             or hasattr(f, "value") and "mismatch" in f.value.lower()]
+                if not ep_state.warranted or _critical:
+                    _interp = "INSUFFICIENT"
+                elif _flags or (ep_state.overall is not None and ep_state.overall < 0.6):
+                    _interp = "DEGRADED"
+                else:
+                    _interp = "SUPPORTED"
+                ep_parts = [
+                    f"{_interp}",
+                    f"overall={_fmt(ep_state.overall)}",
+                    f"warranted={'✓' if ep_state.warranted else '✗'}",
+                ]
+                if ep_state.reasoning_quality is not None:
+                    ep_parts.append(f"rq={_fmt(ep_state.reasoning_quality)}")
+                if ep_state.outcome_certainty is not None:
+                    ep_parts.append(f"oc={_fmt(ep_state.outcome_certainty)}")
+                if ep_state.alternative_separation is not None:
+                    ep_parts.append(f"sep={_fmt(ep_state.alternative_separation)}")
                 if ep_state.coherence_flags:
-                    self._log(
-                        f"  ⚠ epistemic: {step_name} flags="
-                        f"{[f.value for f in ep_state.coherence_flags]} "
-                        f"overall={ep_state.overall:.2f} warranted={ep_state.warranted}"
-                    )
+                    flag_names = [f.value if hasattr(f, "value") else str(f)
+                                  for f in ep_state.coherence_flags]
+                    ep_parts.append(f"⚠ flags={flag_names}")
+                self._log_epistemic(f"     epistemic: {step_name}  {' · '.join(ep_parts)}")
             except Exception:
                 pass
             return None
@@ -4350,6 +4398,10 @@ class Coordinator:
     def _log(self, msg: str):
         if self.verbose:
             print(f"  [coord] {msg}", file=sys.stderr, flush=True)
+
+    def _log_epistemic(self, msg: str):
+        """Always print epistemic state — not gated by verbose."""
+        print(f"  [coord] {msg}", file=sys.stderr, flush=True)
 
 
 class _CompositeTrace:
