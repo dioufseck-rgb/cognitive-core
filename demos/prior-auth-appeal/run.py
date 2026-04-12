@@ -42,7 +42,9 @@ CASES_DIR = DEMO_DIR / "cases"
 
 # ── Load case and documents ────────────────────────────────────────────────
 
-def load_case(case_file: str = "appeal_chen_spine.json") -> dict:
+def load_case(case_file: str = "pa_2024_a001.json") -> dict:
+    if not case_file.endswith(".json"):
+        case_file = case_file + ".json"
     with open(CASES_DIR / case_file) as f:
         return json.load(f)
 
@@ -486,8 +488,8 @@ def main():
     parser.add_argument("--compare", action="store_true", help="Also run ReAct agent")
     parser.add_argument("--save",    action="store_true", help="Save determinations to output/")
     parser.add_argument("--verbose", action="store_true", help="Show LLM call details")
-    parser.add_argument("--case",    default="appeal_chen_spine.json",
-                        help="Case file to use (default: appeal_chen_spine.json)")
+    parser.add_argument("--case",    default="pa_2024_a001.json",
+                        help="Case file to use (default: pa_2024_a001.json). .json extension optional.")
     args = parser.parse_args()
 
     print(f"\n{'═' * 72}")
