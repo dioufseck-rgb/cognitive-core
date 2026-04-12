@@ -1,0 +1,122 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cognitive-core"
+version = "0.1.0"
+description = "Open-source framework for governed institutional AI workflows built from typed cognitive primitives."
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.11"
+authors = [
+    { name = "Mamadou Seck", email = "" },
+]
+keywords = [
+    "ai",
+    "agents",
+    "workflows",
+    "governance",
+    "institutional-ai",
+    "cognitive-primitives",
+    "llm-orchestration",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+]
+
+dependencies = [
+    "pydantic>=2.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# Full runtime with LangGraph execution
+runtime = [
+    "langgraph>=0.2",
+    "langchain-core>=0.3",
+    # LLM providers — install the one(s) you use
+    "langchain-anthropic>=0.3",     # for ANTHROPIC_API_KEY
+    "langchain-google-genai>=1.0",  # for GOOGLE_API_KEY
+    "langchain-openai>=0.2",        # for OPENAI_API_KEY
+    "langchain-aws>=0.2",           # for AWS Bedrock
+]
+
+# MCP data server support (fraud demo and live data integrations)
+mcp = [
+    "mcp[cli]>=1.0",
+]
+
+# API server
+api = [
+    "fastapi>=0.111",
+    "uvicorn[standard]>=0.29",
+    "python-multipart>=0.0.9",
+    "aiofiles>=23.0",
+]
+
+# Database backend
+db = [
+    "psycopg2-binary>=2.9",
+]
+
+# Everything
+all = [
+    "cognitive-core[runtime,api,db,mcp]",
+]
+
+# Development
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "cognitive-core[all]",
+]
+
+[project.urls]
+Homepage = "https://github.com/dioufseck-rgb/cognitive-core"
+Documentation = "https://github.com/dioufseck-rgb/cognitive-core"
+Repository = "https://github.com/dioufseck-rgb/cognitive-core"
+Issues = "https://github.com/dioufseck-rgb/cognitive-core/issues"
+
+[project.scripts]
+cognitive-core = "cognitive_core.coordinator.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["cognitive_core"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "cognitive_core/",
+    "configs/",
+    "pyproject.toml",
+    "README.md",
+    "LICENSE",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "I", "N", "W"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+ignore_missing_imports = true

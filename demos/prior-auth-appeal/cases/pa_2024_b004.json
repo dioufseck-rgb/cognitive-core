@@ -1,0 +1,90 @@
+{
+  "case_id": "PA-2024-B004",
+  "appeal_date": "2024-11-25",
+  "member": {
+    "id": "M-889900",
+    "name": "Kevin Watkins",
+    "age": 41,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2022-04-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C5-C6, one level",
+    "requested_by": "Dr. Sarah Martinez, MD \u2014 Spine Surgery",
+    "facility": "Stanford Medical Center"
+  },
+  "denial": {
+    "date": "2024-11-10",
+    "reason_code": "MED-003",
+    "reason_text": "Member meets conservative treatment requirements. However, surgical request is premature. Member's symptoms have been present for only 6 weeks. Plan criteria require at least 6 weeks of symptoms before surgical consideration. Recent onset radiculopathy has a high rate of spontaneous resolution.",
+    "reviewer": "Dr. Patricia Huang, MD",
+    "level": "initial"
+  },
+  "appeal_basis": [
+    "Member is a professional musician \u2014 right hand weakness is career-ending",
+    "All conservative treatment completed and failed within the 6-week period",
+    "Functional plateau reached at 6 weeks",
+    "Physician recommends surgery given functional impairment"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Acute cervical radiculopathy C5-C6 with functional impairment",
+    "occupation": "Professional violinist \u2014 right hand function essential to livelihood",
+    "imaging": {
+      "mri_1": {
+        "date": "2024-10-01",
+        "findings": "C5-C6 large disc herniation with moderate right C6 nerve root compression. Foraminal stenosis. No cord contact. No myelomalacia."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-10-01",
+      "findings": "Right C6 dermatomal numbness, bicep reflex diminished right, grip strength 4/5 right. Fine motor testing: unable to perform violin fingering tasks. Functional impairment documented by occupational therapy."
+    },
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 6,
+        "total_sessions": 18,
+        "note": "6 weeks intensive PT. Functional plateau documented at 6 weeks. No improvement in fine motor deficits or radicular symptoms. OT confirms inability to perform professional duties.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Methylprednisolone dose pack x3",
+            "duration": "6 weeks total",
+            "response": "Temporary partial relief"
+          },
+          {
+            "drug": "Gabapentin 600mg TID",
+            "duration": "5 weeks",
+            "response": "Partial pain relief, no motor improvement"
+          }
+        ]
+      },
+      "interventional": {
+        "right_c6_epidural": {
+          "date": "2024-10-28",
+          "response": "25% temporary relief, no improvement in motor deficit, returned to baseline in 2 weeks"
+        }
+      }
+    }
+  },
+  "documents_enclosed": [
+    "MRI report",
+    "PT and OT records",
+    "Neurological and functional exam",
+    "Epidural records"
+  ],
+  "question": "Should the prior authorization denial for ACDF C5-C6 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "UPHOLD \u2014 only 6 weeks of symptoms, plan requires minimum 6 weeks before surgical consideration. Technically borderline at best.",
+    "harder_question_1": "The plan's 6-week requirement is met exactly \u2014 does at least 6 weeks mean >6 weeks or \u22656 weeks?",
+    "harder_question_2": "Clinical standards allow earlier surgery for significant functional impairment \u2014 does occupational impairment in a professional musician constitute significant functional impairment under CHSC 1374.32?",
+    "harder_question_3": "All conservative treatment criteria are met. If the symptom duration criterion is met (exactly 6 weeks), is there any remaining basis for denial?",
+    "harder_question_4": "Does the plan's 6-week minimum apply to symptom duration or to conservative treatment duration?",
+    "the_genuine_tension": "The plan denied on symptom duration \u2014 only 6 weeks. But 6 weeks is the minimum, and member has exactly met it. All conservative criteria are met. Clinical standard supports earlier surgery for functional impairment in precision-dependent occupations. The plan's premature argument is the weakest possible basis for denial when all criteria are otherwise satisfied.",
+    "right_answer": "OVERTURN \u2014 All conservative treatment criteria are met (PT to plateau, two agents, injection). The 6-week symptom duration minimum is satisfied. Clinical standards support surgery when functional plateau is reached and significant functional impairment exists \u2014 documented by OT evaluation. The recent onset argument does not survive scrutiny when all plan criteria are met and clinical standard supports the procedure."
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "case_id": "PA-2024-E003",
+  "appeal_date": "2024-11-14",
+  "member": {
+    "id": "M-889922",
+    "name": "George Harris",
+    "age": 48,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2021-01-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "Revision ACDF C5-C6 (revision of prior C5-C6 fusion from 2021)",
+    "requested_by": "Dr. Karen Williams, MD \u2014 Revision Spine Surgery",
+    "facility": "UCSF Medical Center"
+  },
+  "denial": {
+    "date": "2024-10-30",
+    "reason_code": "MED-003",
+    "reason_text": "Revision surgery not covered under standard ACDF criteria. Member had prior C5-C6 ACDF in 2021. Revision criteria require documentation of hardware failure, pseudarthrosis, or new pathology at previously treated level. Documentation submitted does not confirm hardware failure.",
+    "reviewer": "Dr. Patricia Huang, MD",
+    "level": "initial"
+  },
+  "appeal_basis": [
+    "CT scan confirms pseudarthrosis (failure of fusion) at C5-C6",
+    "Symptoms have returned and worsened since 2021 fusion",
+    "Revision criteria met per treating surgeon"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Pseudarthrosis C5-C6 following prior ACDF 2021 \u2014 failed fusion",
+    "prior_surgical_history": "C5-C6 ACDF 2021 \u2014 initially good outcome, symptoms recurred at 18 months",
+    "imaging": {
+      "mri_1": {
+        "date": "2024-09-01",
+        "findings": "Hardware artifact limits MRI assessment. Possible non-union at C5-C6 but cannot confirm. Residual disc material or recurrent herniation cannot be excluded."
+      },
+      "ct_1": {
+        "date": "2024-09-15",
+        "findings": "CT without artifact limitation: C5-C6 \u2014 incomplete bridging bone formation. Lucency around hardware suggesting pseudarthrosis. Findings consistent with failed fusion/pseudarthrosis. Hardware appears intact without fracture."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-09-20",
+      "findings": "Return of right C6 symptoms: bicep weakness 4/5 right, bicep reflex diminished right, C6 dermatomal numbness. Worse than preoperative baseline."
+    },
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 8,
+        "total_sessions": 24,
+        "note": "8 weeks PT. No improvement \u2014 treating physician notes PT cannot address structural hardware/fusion failure.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Naproxen 500mg BID",
+            "duration": "4 months",
+            "response": "Partial pain relief only"
+          },
+          {
+            "drug": "Gabapentin 300mg TID",
+            "duration": "3 months",
+            "response": "Partial neuropathic relief"
+          }
+        ]
+      },
+      "interventional": {
+        "epidural": {
+          "date": "2024-10-10",
+          "response": "Minimal improvement \u2014 treating physician notes this is expected when structural failure is present"
+        }
+      }
+    }
+  },
+  "documents_enclosed": [
+    "CT scan report confirming pseudarthrosis",
+    "MRI report (limited by artifact)",
+    "PT records",
+    "Neurological exam",
+    "Surgical records from 2021"
+  ],
+  "question": "Should the prior authorization denial for revision ACDF C5-C6 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "UPHOLD \u2014 denial states hardware failure not confirmed. Plan requires documentation of hardware failure for revision. Documentation is ambiguous.",
+    "harder_question_1": "The MRI cannot confirm pseudarthrosis due to hardware artifact. The CT scan does confirm it. Which imaging study controls for the revision criteria?",
+    "harder_question_2": "Is pseudarthrosis the same as hardware failure for plan criteria purposes?",
+    "harder_question_3": "The plan's denial reviewed MRI only \u2014 did the plan reviewer have access to the CT scan that confirms pseudarthrosis?",
+    "harder_question_4": "If the plan reviewed the wrong imaging study (MRI when CT was the appropriate modality), is this a procedural error or a factual dispute?",
+    "the_genuine_tension": "The denial references non-confirmation of hardware failure without specifying which imaging was reviewed. The CT scan \u2014 the appropriate modality for assessing fusion status given hardware artifact on MRI \u2014 confirms pseudarthrosis. A single-pass system reads hardware failure not confirmed and upholds. A system that reads both imaging reports and applies the right one overturns.",
+    "right_answer": "OVERTURN \u2014 CT scan (the appropriate modality for assessing fusion status in the presence of hardware) confirms pseudarthrosis at C5-C6. The plan's reliance on the MRI report (which explicitly noted hardware artifact limiting assessment) to deny was procedurally incorrect. Pseudarthrosis constitutes a documented failed fusion meeting revision criteria. Conservative treatment completed and failed."
+  }
+}

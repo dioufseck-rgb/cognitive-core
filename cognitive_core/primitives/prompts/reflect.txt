@@ -1,0 +1,159 @@
+You are performing a metacognitive reflection task.
+
+You do NOT reason about the case.
+You reason about the REASONING about the case.
+
+Your output will directly shape what the next primitive is asked to do.
+This is reflection-in-action — not evaluation after the fact, but direction for what comes next.
+
+ACCUMULATED EPISTEMIC STATE:
+{context}
+
+DOMAIN KNOWLEDGE INDEX:
+{domain_index}
+
+REFLECTION SCOPE:
+{scope}
+
+{additional_instructions}
+
+INSTRUCTIONS — FOLLOW THIS EXACT SEQUENCE:
+
+STEP 1: WHAT WAS ESTABLISHED
+List every claim the accumulated reasoning has established with genuine evidential support.
+Be precise. A directly observed fact is established. An interpretation or characterization of that fact is not — it is an inference.
+Only list claims that are directly traceable to evidence in the accumulated state.
+
+STEP 2: WHAT WAS ASSUMED
+List every premise the reasoning took for granted without verifying.
+These are the invisible load-bearing assumptions — the things that must be true for the established claims to support the conclusions.
+An assumption is something the reasoning treated as given that is not directly evidenced in the accumulated state.
+
+STEP 3: WHAT CHANGED
+Compared to the state before the most recent step — what is now different?
+What prior belief has been updated, strengthened, weakened, or overturned?
+If nothing changed, say so explicitly — that is itself diagnostic.
+
+STEP 4: SENSITIVITY ANALYSIS
+Which single fact in the accumulated evidence, if different, would most change the current trajectory?
+State the fact, what it currently says, what it would need to say to change things, and what would change.
+This is the highest-leverage uncertainty in the current reasoning.
+
+STEP 5: OPEN QUESTIONS
+What questions has the reasoning NOT asked that it should have?
+Not evidence gaps (those are tracked elsewhere) — reasoning gaps.
+Questions the current chain of steps didn't think to ask.
+Maximum three. Be specific.
+
+STEP 6: TRAJECTORY ASSESSMENT
+Given steps 1-5, what should happen next?
+
+POST-CHALLENGE GUARD (apply this first if the most recent step was a challenge failure):
+Before accepting any challenge finding as a reason to revise, ask two questions:
+
+Q1 — What was the epistemic basis for the current conclusion?
+Identify the specific type of reasoning that produced it. Examples of distinct
+epistemic bases: "conclusion follows from a structural rule applied to
+component-level evidence," "conclusion follows from a procedural requirement
+independent of substantive merits," "conclusion follows from unresolvable conflict
+between equally authoritative sources." The basis type is whatever reasoning
+the deliberate step used — not the conclusion itself.
+
+Q2 — Did the challenge attack that epistemic basis, or did it find a compelling
+argument in a different epistemic domain?
+A challenge that finds a stronger substantive case for an alternative outcome does NOT
+defeat a conclusion whose basis is structural, procedural, or conflict-based.
+Argumentative strength in one domain is not evidence of error in another.
+
+If the challenge attacked a different epistemic domain than the one that produced
+the conclusion:
+
+- The conclusion stands. Set trajectory to CONTINUE.
+- In template_guidance, state explicitly: "The challenge found a compelling
+argument in [domain], but the conclusion was based on [basis]. These are
+independent. The basis has not been defeated. Preserve the conclusion."
+- Do NOT treat "a stronger argument exists" as grounds for revision.
+
+Only set trajectory to REVISE if the challenge found a genuine flaw within the
+same epistemic basis that produced the conclusion — i.e., the structural rule
+was misapplied, the procedural fact was wrong, or the sources were not actually
+in conflict.
+
+Option A — CONTINUE: the current path is sound, proceed to the next planned step.
+Use when: established facts are solid, assumptions are warranted, open questions are minor.
+Use also when: post-challenge guard confirms the challenge attacked a different
+epistemic domain — the conclusion stands and must be preserved.
+
+Option B — REVISE: something specific needs to be re-examined before proceeding.
+Use when: a key assumption is unverified, the sensitivity analysis points to an answerable gap,
+or an open question would materially change the conclusion.
+Use also when: the challenge found a genuine flaw within the same epistemic basis as
+the current conclusion — not merely a stronger argument in a different domain.
+MUST specify: which step to revise, what specific question to ask, what hypothesis to test.
+One revision target only. Do not propose re-running the entire workflow.
+
+Option C — ESCALATE: the reasoning has reached a genuine impasse.
+Use when: the most important question cannot be answered from available evidence,
+or the sensitivity analysis points to information that requires external sources.
+MUST specify: exactly what is unresolvable and why.
+
+STEP 7: DYNAMIC SPEC FOR NEXT STEP
+If trajectory is CONTINUE or REVISE, produce the dynamic spec for the next primitive:
+
+next_question: the single most important question for the next step to answer
+(not a restatement of the static spec — a specific question derived from what was found)
+
+domain_keys_relevant: which keys from the domain index are relevant to this question
+(list only what the next step needs — exclude everything else)
+
+established_facts_to_skip: what the next step should explicitly NOT re-examine
+(already established — re-examining wastes context and dilutes focus)
+
+hypothesis: if the next step is investigate — the specific hypothesis to test
+(a testable proposition, not an open-ended question)
+
+template_guidance: how the next step should structure its reasoning
+(e.g., "focus only on section 3", "test compelled vs voluntary", "do not broaden scope")
+
+GROUNDEDNESS REQUIREMENTS:
+
+- Every claim in "what_was_established" must be traceable to a specific prior step output.
+- Every assumption in "what_was_assumed" must be genuinely implicit — not stated anywhere.
+- The sensitivity analysis fact must be real — actually present in the accumulated evidence.
+- The next_question must be answerable in principle from the available evidence.
+
+Respond with a JSON object matching this structure:
+{{
+"what_was_established": ["claim 1 — traceable to step X", "claim 2 — traceable to step Y"],
+"what_was_assumed": ["assumption 1", "assumption 2"],
+"what_changed": "description of what the most recent step changed in the reasoning",
+"sensitivity": {{
+"load_bearing_fact": "the fact that matters most",
+"current_value": "what it currently says",
+"alternative_value": "what it would need to say to change things",
+"what_would_change": "what conclusion or path would change"
+}},
+"open_questions": ["question 1", "question 2", "question 3"],
+"trajectory": "continue | revise | escalate",
+"revision_target": "step_name or null if continue/escalate",
+"escalation_reason": "why unresolvable or null if continue/revise",
+"next_question": "the specific question for the next step",
+"domain_keys_relevant": ["key1", "key2"],
+"established_facts_to_skip": ["fact 1", "fact 2"],
+"hypothesis": "testable proposition for investigate, or null",
+"template_guidance": "how the next step should structure its reasoning",
+"confidence": 0.0,
+"reasoning": "brief meta-summary of the reflection",
+"reasoning_quality": 0.0,
+"outcome_certainty": 0.0,
+"evidence_used": [{"source": "step name", "description": "what it established"}],
+"evidence_missing": [{"source": "where to find it", "description": "what it would resolve"}]
+}}
+
+reasoning_quality: How rigorously did you examine the reasoning rather than the case?
+  0.0 = just summarized what steps found; 1.0 = genuinely interrogated assumptions and gaps.
+
+outcome_certainty: How confident are you in the trajectory assessment?
+  0.0 = genuinely unclear whether to continue/revise/escalate; 1.0 = clear directive.
+
+Respond ONLY with the JSON object. No other text.

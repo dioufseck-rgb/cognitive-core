@@ -1,0 +1,88 @@
+{
+  "case_id": "PA-2024-C002",
+  "appeal_date": "2024-10-20",
+  "member": {
+    "id": "M-101122",
+    "name": "David Santos",
+    "age": 63,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2015-06-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C6-C7, one level",
+    "requested_by": "Dr. Lisa Wong, MD \u2014 Spine Surgery",
+    "facility": "Cedars-Sinai Medical Center"
+  },
+  "denial": {
+    "date": "2024-10-05",
+    "reason_code": "MED-003",
+    "reason_text": "Myelopathy exception applied but criteria not met. MRI shows cord compression and T2 signal change. However, member's symptoms are primarily right-sided (radicular) with only mild bilateral components. Primary diagnosis remains radiculopathy. Myelopathy exception requires myelopathy as primary diagnosis.",
+    "reviewer": "Dr. Patricia Huang, MD",
+    "level": "initial"
+  },
+  "appeal_basis": [
+    "T2 signal change (myelomalacia) is present \u2014 regulatory override applies",
+    "Mixed myelopathy/radiculopathy presentation \u2014 both diagnoses are present",
+    "Plan cannot deny myelopathy exception when myelomalacia is objectively documented"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Mixed cervical myelopathy-radiculopathy \u2014 which is primary disputed",
+    "imaging": {
+      "mri_1": {
+        "date": "2024-09-01",
+        "findings": "C6-C7 moderate cord compression. T2 signal change (myelomalacia) within cord. Right C7 foraminal stenosis more prominent than left."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-09-05",
+      "findings": "Predominant right C7 distribution: right tricep weakness 4/5, right finger numbness. Bilateral findings: bilateral hyperreflexia (right > left), positive right Hoffman, equivocal left Hoffman, gait mildly wide-based. Pain predominantly right-sided 8/10."
+    },
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 6,
+        "total_sessions": 18,
+        "note": "6 weeks PT. Myelopathy protocol given cord signal change. No improvement in bilateral neurological signs or right-sided radicular symptoms.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Pregabalin 150mg BID",
+            "duration": "3 months",
+            "response": "Partial right-sided pain relief"
+          },
+          {
+            "drug": "Naproxen 500mg BID",
+            "duration": "2 months",
+            "response": "Inadequate"
+          }
+        ]
+      },
+      "interventional": {
+        "right_c7_epidural": {
+          "date": "2024-09-28",
+          "response": "50% right-sided relief, fully returned in 3 weeks. No change in bilateral hyperreflexia."
+        }
+      }
+    }
+  },
+  "documents_enclosed": [
+    "MRI report",
+    "PT records",
+    "Neurological exam",
+    "Epidural records"
+  ],
+  "question": "Should the prior authorization denial for ACDF C6-C7 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "UPHOLD \u2014 plan says myelopathy is not the primary diagnosis; radicular symptoms predominate. Plan correctly applied its own criteria.",
+    "harder_question_1": "Myelomalacia is objectively present on MRI \u2014 does CIC 10169.5(a)(3) apply regardless of which diagnosis is primary?",
+    "harder_question_2": "Can a plan deny the myelopathy exception when myelomalacia is documented, by arguing radiculopathy is the primary diagnosis?",
+    "harder_question_3": "For the regulatory override, is the question which diagnosis is primary or is structural neurological compromise present?",
+    "harder_question_4": "The plan's own myelopathy exception was applied but found insufficient \u2014 does this mean the plan acknowledged myelopathy exists but argued it is secondary?",
+    "the_genuine_tension": "The plan acknowledges myelopathy exists but argues it is secondary to radiculopathy. For the plan criteria myelopathy exception, the plan may have a defensible argument. But CIC 10169.5(a)(3) does not ask which diagnosis is primary \u2014 it asks whether objective evidence of structural neurological compromise that physical therapy cannot address is present. Myelomalacia on MRI is exactly that, regardless of whether radiculopathy is also present.",
+    "right_answer": "OVERTURN \u2014 CIC 10169.5(a)(3) applies based on documented myelomalacia. The regulatory provision does not require myelopathy to be the primary diagnosis \u2014 it requires objective evidence of structural neurological compromise. Myelomalacia is such evidence. The primary diagnosis restriction in the plan's exception clause cannot override the statutory prohibition."
+  }
+}

@@ -1,0 +1,54 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Workflow: Loan Modification — First-Instance Loss Mitigation Determination
+#
+# The orchestrator sequences primitives to evaluate a complete loss mitigation
+# application. Constraints ensure:
+# 1. Application completeness is verified before any eligibility analysis
+# 2. Income is calculated correctly before waterfall analysis
+# 3. All retention options are evaluated before non-retention
+# 4. Investor restrictions are identified before waterfall steps are applied
+# 5. Challenge tests the determination from the borrower's perspective
+# 6. Govern applies the correct tier based on case complexity
+#
+# Key architectural distinction from prior-auth-appeal:
+# This is a first-instance determination, not appellate review.
+# The system is producing the servicer's determination, not reviewing
+# a prior decision. The output vocabulary is APPROVE / DENY / PEND /
+# PARTIAL / REFER, not OVERTURN / UPHOLD / REMAND.
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: loan_modification
+mode: agentic
+
+goal: "${domain.goal}"
+
+available_primitives:
+  - retrieve
+  - classify
+  - investigate
+  - verify
+  - deliberate
+  - generate
+  - challenge
+  - reflect
+  - govern
+
+constraints:
+  max_steps: 20
+  max_repeat: 2
+  must_include:
+    - retrieve
+    - verify
+    - classify
+    - investigate
+    - deliberate
+    - generate
+    - challenge
+    - govern
+  must_end_with: govern
+  challenge_must_pass: false
+
+orchestrator:
+  strategy: "${domain.orchestrator_strategy}"
+
+primitive_configs: "${domain.primitive_configs}"

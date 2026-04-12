@@ -1,0 +1,125 @@
+You are performing an investigation task.
+
+CONTEXT:
+{context}
+
+QUESTION TO INVESTIGATE:
+{question}
+
+AVAILABLE EVIDENCE:
+{available_evidence}
+
+INVESTIGATION SCOPE:
+{scope}
+
+{additional_instructions}
+If the block above contains "DYNAMIC SPEC FROM REFLECT", treat it as a
+structural directive — not a suggestion. It supersedes default scope and ordering.
+Follow next_question, hypothesis, template_guidance, and established_facts_to_skip exactly.
+
+EFFORT BUDGET: {effort_level}
+This indicates how deep the investigation should go: light (surface-level review),
+moderate (follow key leads), deep (exhaustive analysis).
+
+INSTRUCTIONS — FOLLOW THIS EXACT SEQUENCE:
+
+STEP 1: EXTRACT KEY DATA POINTS
+Before forming any hypotheses or conclusions, extract the specific values,
+numbers, dates, and facts from the available evidence that are relevant
+to the question. List them explicitly in your reasoning. For numerical
+data, extract the actual values — do not summarize or characterize them
+yet. For example:
+  - CORRECT: "Feb spending: $304, Mar: $252, Jul: $411, Jan: $404"
+  - WRONG: "Spending has been decreasing over the period"
+You MUST show the raw data before interpreting it.
+
+STEP 2: FORM HYPOTHESES
+Based on the extracted data points (not your general impression), form
+testable hypotheses. Each hypothesis must be specific enough that the
+extracted data can confirm or reject it.
+
+STEP 3: TEST EACH HYPOTHESIS AGAINST THE EXTRACTED DATA
+For each hypothesis, cite the specific data points from Step 1 that
+support or contradict it. Do not use vague language like "the data
+suggests" — state which specific values support or contradict the
+hypothesis and why.
+
+STEP 4: STATE YOUR FINDING
+Your finding must follow directly from the hypothesis testing. If the
+data shows values going UP over time, your finding MUST say they went
+up — not down, regardless of what seems like a more helpful or positive
+framing. Accuracy is more important than tone.
+
+STEP 5: FLAG NOTABLE EVIDENCE PATTERNS
+Identify short labels for any notable evidence patterns found during
+investigation. These are used by downstream routing — be specific and
+consistent. Examples by domain:
+  Financial fraud:   foreign_ip, unknown_device, velocity_spike,
+                     structuring_pattern, round_dollar_amounts
+  Environmental:     habitat_overlap, floodplain_proximity,
+                     sensitive_species_records, prior_violation,
+                     mshcp_criteria_cell
+  Clinical:          vital_signs_abnormal, medication_interaction,
+                     escalation_indicated, specialist_consult_needed
+Use snake_case. Include only patterns directly supported by the extracted data.
+
+STEP 6: IDENTIFY MISSING EVIDENCE
+Note what additional data would materially change your finding if available.
+Be specific — name the source and what it would establish. Vague requests
+("more data") are not useful. Each missing evidence item should describe
+a specific gap that, if filled, could change the finding or confidence.
+
+GROUNDEDNESS REQUIREMENTS:
+- Every claim in your finding MUST be traceable to specific values
+  extracted in Step 1. If you cannot point to specific data, do not
+  make the claim.
+- Trend claims (increasing, decreasing, stable, improving, worsening)
+  MUST cite the start value, end value, and direction.
+- Comparison claims MUST cite both values being compared.
+- NEVER characterize a trend without showing the numbers that
+  demonstrate it. "Spending decreased" is unacceptable without
+  "from $X to $Y."
+- If the data is ambiguous or shows mixed signals, say so. Do not
+  force a clean narrative onto noisy data.
+- Your confidence score MUST reflect the strength of evidence:
+    0.9+ = finding is directly and unambiguously supported by data
+    0.7-0.9 = finding is supported but some data points are mixed
+    0.5-0.7 = evidence is ambiguous, finding is the best interpretation
+    <0.5 = insufficient evidence, finding is speculative
+
+Respond with a JSON object matching this structure:
+{{
+  "finding": "your primary finding, citing specific values",
+  "confidence": 0.0,
+  "reasoning": "step-by-step reasoning showing: (1) extracted data points, (2) hypothesis formation, (3) hypothesis testing with specific citations, (4) conclusion",
+  "evidence_used": [
+    {{"source": "where this evidence came from", "description": "the specific values or facts extracted"}}
+  ],
+  "evidence_missing": [
+    {{"source": "specific source name", "description": "what it would establish and why it would change the finding"}}
+  ],
+  "evidence_flags": [
+    "snake_case_label_for_notable_pattern"
+  ],
+  "hypotheses_tested": [
+    {{
+      "hypothesis": "the hypothesis statement",
+      "status": "supported | rejected | inconclusive",
+      "evidence_for": ["specific data points supporting this — cite actual values"],
+      "evidence_against": ["specific data points contradicting this — cite actual values"],
+      "reasoning": "why this status was assigned, with specific value citations"
+    }}
+  ],
+  "recommended_actions": ["specific next steps"],
+  "reasoning_quality": 0.0 to 1.0,
+  "outcome_certainty": 0.0 to 1.0
+}}
+
+reasoning_quality: How sound is the investigative reasoning chain?
+  0.0 = speculative or circular; 1.0 = rigorous hypothesis testing tightly grounded in evidence.
+  Report honestly — used by governance. Do not inflate.
+
+outcome_certainty: How clearly does the evidence support the finding?
+  0.0 = evidence is ambiguous or incomplete; 1.0 = finding is well-supported across multiple independent sources.
+
+Respond ONLY with the JSON object. No other text.

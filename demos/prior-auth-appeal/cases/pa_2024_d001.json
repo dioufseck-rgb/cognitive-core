@@ -1,0 +1,86 @@
+{
+  "case_id": "PA-2024-D001",
+  "appeal_date": "2024-10-18",
+  "member": {
+    "id": "M-334466",
+    "name": "Sandra White",
+    "age": 44,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2020-11-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C6-C7, one level",
+    "requested_by": "Dr. Paul Lee, MD \u2014 Neurosurgery",
+    "facility": "UCLA Medical Center"
+  },
+  "denial": {
+    "date": "2024-10-05",
+    "reason_code": "MED-003",
+    "reason_text": "Does not meet criteria. Conservative treatment incomplete. Physical therapy and medication requirements not satisfied.",
+    "reviewer": "Dr. Alan Foster, MD",
+    "level": "initial",
+    "imr_notice_included": false,
+    "criteria_cited": "Generic reference to plan criteria \u2014 no section number, no specific criterion"
+  },
+  "appeal_basis": [
+    "Denial notice does not specify which criteria were not met",
+    "Denial does not include IMR notice as required by CHSC 1374.31",
+    "Member cannot meaningfully appeal without knowing which specific criteria failed"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Cervical radiculopathy C6-C7",
+    "imaging": {
+      "mri_1": {
+        "date": "2024-08-15",
+        "findings": "C6-C7 disc herniation, moderate right C7 nerve root compression. No cord contact. No myelomalacia."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-08-20",
+      "findings": "Right C7 dermatomal numbness, tricep weakness 4/5 right, tricep reflex diminished"
+    },
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 4,
+        "total_sessions": 12,
+        "note": "4 weeks PT completed. Member claims functional plateau but PT discharge does not use that language.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Ibuprofen 800mg TID",
+            "duration": "6 weeks",
+            "response": "Partial relief"
+          }
+        ]
+      },
+      "interventional": null
+    },
+    "procedural_defects": {
+      "imr_notice_missing": true,
+      "criteria_not_specified": true,
+      "section_number_not_cited": true,
+      "note": "CHSC 1374.31(b) requires denial notices to: (1) specify the exact clinical criteria applied, (2) include the member's right to IMR, (3) provide the specific clinical reason for denial. None of these requirements were met in this denial notice."
+    }
+  },
+  "documents_enclosed": [
+    "MRI report",
+    "PT records (4 weeks)",
+    "Denial notice (original)",
+    "Neurological exam"
+  ],
+  "question": "Should the prior authorization denial for ACDF C6-C7 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "UPHOLD \u2014 only 4 weeks PT (need 6), only one pharmacotherapy agent, no injection. Clear criteria shortfall.",
+    "harder_question_1": "The denial notice is procedurally defective \u2014 does this change the outcome even if the clinical denial is correct?",
+    "harder_question_2": "CHSC 1374.31(b) requires criteria citation and IMR notice \u2014 what is the remedy for a defective denial notice?",
+    "harder_question_3": "Can a plan uphold a substantively correct denial that was procedurally defective?",
+    "harder_question_4": "Should the disposition be UPHOLD (correct clinical decision), REMAND (defective notice requires reissue), or something else?",
+    "the_genuine_tension": "Clinical criteria clearly not met \u2014 this is a legitimate denial on the merits. But the denial notice violates CHSC 1374.31(b) on multiple grounds. A single-pass system reads the clinical record and upholds. A system applying the full regulatory framework catches the procedural defect. The correct disposition is not a binary overturn/uphold \u2014 it is a remand requiring a compliant denial notice.",
+    "right_answer": "REMAND \u2014 The clinical denial is substantively correct (criteria not met: 4 weeks PT vs 6 required, one pharmacotherapy agent, no injection). However, the denial notice violates CHSC 1374.31(b): no specific criteria cited, no section number, no IMR notice. The plan must reissue a compliant denial notice before the member can meaningfully exercise appeal rights."
+  }
+}

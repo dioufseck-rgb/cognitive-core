@@ -1,0 +1,156 @@
+You are performing a governance determination task.
+
+CONTEXT — ACCUMULATED WORKFLOW STATE:
+{context}
+
+WORKFLOW STATE SUMMARY:
+{workflow_state}
+
+GOVERNANCE CONTEXT:
+{governance_context}
+
+TIER OVERRIDE (if set, this tier is the floor — you may escalate but not de-escalate):
+{tier_override}
+
+EPISTEMIC STATE (framework-computed from prior step outputs):
+{epistemic_context}
+
+{additional_instructions}
+
+GOVERNANCE TIER DEFINITIONS:
+- AUTO: Fully automated. Confidence is established. Decision class is well-understood.
+  No human involvement required. Proceed immediately.
+- SPOT_CHECK: Sampled post-completion review. Automation is appropriate; quality
+  monitoring is required. Proceed, but flag for sampling queue.
+- GATE: Mandatory human review before any action executes. High-stakes, novel, or
+  ambiguous cases. Suspend until reviewer approves.
+- HOLD: Compliance hold before finalization. Regulatory exposure or legal consequence.
+  Do not proceed until compliance officer releases.
+
+TIER ESCALATION IS STRICTLY UPWARD. Once a tier is established for a decision instance,
+it cannot be lowered. If a tier_override is set, you may only match or exceed it.
+
+DISPOSITION OPTIONS:
+- proceed: Confidence is sufficient, tier allows automation, no blocking issues.
+- escalate: Route to human reviewer or specialist. Tier requires it or confidence is
+  insufficient.
+- suspend: Pause workflow pending resource fulfillment (e.g. missing evidence, pending
+  sub-workflow result). Issue a work_order specifying what is needed.
+- hold: Compliance hold. Do not proceed. Notify compliance queue.
+
+INSTRUCTIONS — FOLLOW THIS EXACT SEQUENCE:
+
+STEP 1: READ EPISTEMIC STATE
+Before reviewing step outputs, read the EPISTEMIC STATE section above.
+If it shows coherence flags, warranted=false, or open evidence gaps, these
+are framework-computed signals that must be addressed in your tier determination.
+You cannot override epistemic flags by ignoring them — if VERIFY_DELIBERATE_TENSION
+is present, your tier_rationale must explain how it has been resolved or why
+escalation to GATE is appropriate despite it.
+
+Coherence flags and their governance implications:
+- VERIFY_DELIBERATE_TENSION: verify found violations but deliberate recommended
+  approval. Almost always requires GATE unless the deliberate warrant explicitly
+  resolves the tension (e.g. explains why approval is correct despite violations).
+- CLASSIFY_DELIBERATE_MISMATCH: classification and deliberate recommendation are
+  inconsistent. Requires GATE minimum — the inconsistency must be reviewed.
+- UNWARRANTED_RECOMMENDATION: deliberate recommended action has no warrant.
+  Requires GATE — a recommendation without a warrant cannot be acted upon.
+- CONFIDENCE_DROP: significant confidence decrease between steps. Investigate
+  cause before proceeding. Typically requires SPOT_CHECK minimum.
+- UNRESOLVED_EVIDENCE_GAPS: prior steps identified missing evidence that was
+  never addressed. Consider SUSPEND to obtain missing evidence.
+
+STEP 2: ASSESS ACCUMULATED CONFIDENCE
+Review all prior step outputs in the workflow state. What is the overall confidence
+in the accumulated reasoning? Where are the gaps? Are any critical steps missing or
+below threshold?
+
+STEP 3: DETERMINE GOVERNANCE TIER
+Given the confidence assessment, the epistemic flags, and the governance context
+(domain tier, case characteristics, regulatory exposure), determine the appropriate
+tier. Apply the tier_override floor if set. Justify your determination explicitly —
+if you are choosing AUTO or SPOT_CHECK despite epistemic flags, explain specifically
+why the flags do not require escalation.
+
+STEP 4: DETERMINE DISPOSITION
+Given the tier and confidence, what must happen next?
+- AUTO tier + sufficient confidence → proceed
+- SPOT_CHECK tier + sufficient confidence → proceed (flag for sampling)
+- GATE tier → escalate (issue work_order for human_review)
+- HOLD tier → hold (issue work_order for compliance review)
+- Insufficient confidence regardless of tier → suspend (issue work_order for missing resource)
+
+STEP 5: CONSTRUCT WORK ORDER (if disposition is not 'proceed')
+Specify exactly what the receiver must do. Be precise about:
+- work_type: human_review | sub_workflow | external
+- target: specific queue name or workflow ID
+- instructions: what the reviewer/system must do (not generic). If epistemic
+  flags are present, include them in the instructions so the reviewer knows
+  exactly what to examine. Example: "Review VERIFY_DELIBERATE_TENSION: verify
+  found 1 statutory violation but deliberate recommended approval. Confirm
+  whether the warrant adequately resolves this or whether denial is required."
+- inputs: everything they need, drawn from the accumulated workflow state
+- governance_tier: the tier that applies to this work order
+- sla: time constraint if applicable
+
+STEP 6: BUILD ACCOUNTABILITY RECORD
+Record this governance decision for the audit chain. Include:
+- Which step triggered this governance determination
+- What tier was applied and why
+- What epistemic flags were present and how they influenced the decision
+- What will happen next
+
+REQUIREMENTS:
+- Your tier determination must be traceable to specific evidence in the workflow state.
+- If epistemic flags are present, your tier_rationale MUST reference them.
+- If tier_override is set, verify your determined tier is >= the override.
+- work_order must be null if and only if disposition is 'proceed'.
+- escalation_target must match the work_order target if a work_order is issued.
+- resumption_condition must be set if disposition is 'suspend'.
+- confidence reflects your certainty that the tier determination is correct.
+
+Respond with a JSON object matching this structure:
+{{
+  "tier_applied": "auto | spot_check | gate | hold",
+  "tier_rationale": "why this tier given this context, evidence, and epistemic state",
+  "disposition": "proceed | escalate | suspend | hold",
+  "work_order": {{
+    "work_type": "human_review | sub_workflow | external",
+    "target": "queue or workflow id",
+    "instructions": "specific instructions for the receiver, including epistemic flags if present",
+    "inputs": {{}},
+    "governance_tier": "tier that applies",
+    "sla": "time constraint or null",
+    "versioned_contract": "schema version or empty string"
+  }},
+  "escalation_target": "queue or workflow id, or null",
+  "resumption_condition": "what must happen to resume, or null",
+  "accountability_chain": {{
+    "decision_instance_id": "from workflow state or generate a uuid",
+    "governance_decisions": [
+      {{
+        "step": "govern step name",
+        "tier": "tier applied",
+        "rationale": "why",
+        "timestamp": ""
+      }}
+    ],
+    "final_tier": "tier applied",
+    "audit_timestamp": ""
+  }},
+  "confidence": 0.0,
+  "reasoning": "step-by-step governance reasoning including epistemic flag analysis",
+  "evidence_used": [
+    {{"source": "step name or field", "description": "what it established"}}
+  ],
+  "evidence_missing": [
+    {{"source": "where to find it", "description": "what it would establish"}}
+  ],
+  "resource_requests": []
+}}
+
+If disposition is 'proceed', set work_order to null, escalation_target to null,
+and resumption_condition to null.
+
+Respond ONLY with the JSON object. No other text.

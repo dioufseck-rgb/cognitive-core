@@ -1,0 +1,185 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Cognitive Core — LLM Configuration
+#
+# This file is the single source of truth for model names and provider settings.
+# Edit this file when models are deprecated or you want to use different models.
+# Never hardcode model names in application code.
+#
+# Override any value without editing this file:
+#   LLM_DEFAULT_MODEL=<model>     override the default model
+#   LLM_PROVIDER=<provider>       override the provider
+#   LLM_CONFIG_PATH=<path>        load a different config file entirely
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Provider ──────────────────────────────────────────────────────────────────
+# Leave null to auto-detect from API key environment variables.
+# Set explicitly to force a specific provider.
+#
+#   null        → auto-detect (recommended)
+#   google      → requires GOOGLE_API_KEY
+#   openai      → requires OPENAI_API_KEY
+#   azure       → requires AZURE_OPENAI_ENDPOINT + AZURE_OPENAI_API_KEY
+#   bedrock     → requires AWS credentials
+#
+default_provider: null
+
+
+# ── Model aliases ─────────────────────────────────────────────────────────────
+# Maps logical alias → provider → model name.
+# Workflows reference aliases ("default", "fast", "standard", "strong").
+# Changing a model here updates all workflows that use that alias.
+#
+# IMPORTANT: Model availability varies by API key tier and region.
+# If you get a 404 error, replace the model name here with one from:
+#   python -m cognitive_core.engine.llm --list-models
+#
+aliases:
+  # Default: used when no model is specified. Should be fast and cheap.
+  default:
+    anthropic:    claude-haiku-4-5-20251001
+    google:       gemini-3-flash-preview
+    openai:       gpt-4o-mini
+    azure:        gpt-4o-mini
+    azure_foundry: gpt-4o-mini
+    bedrock:      anthropic.claude-3-5-haiku-20241022-v1:0
+
+  # Fast: used for low-latency steps (classify, verify).
+  # Uses the lite model for speed — these steps are deterministic and don't need full capacity.
+  fast:
+    anthropic:    claude-haiku-4-5-20251001
+    google:       gemini-3.1-flash-lite-preview
+    openai:       gpt-4o-mini
+    azure:        gpt-4o-mini
+    azure_foundry: gpt-4o-mini
+    bedrock:      anthropic.claude-3-5-haiku-20241022-v1:0
+
+  # Standard: used for steps requiring more reasoning depth.
+  standard:
+    anthropic:    claude-sonnet-4-6
+    google:       gemini-3-flash-preview
+    openai:       gpt-4o
+    azure:        gpt-4o
+    azure_foundry: gpt-4o
+    bedrock:      anthropic.claude-3-5-sonnet-20241022-v2:0
+
+  # Strong: used for the most complex reasoning steps.
+  strong:
+    anthropic:    claude-sonnet-4-6
+    google:       gemini-3-flash-preview
+    openai:       gpt-4o
+    azure:        gpt-4o
+    azure_foundry: gpt-4o
+    bedrock:      anthropic.claude-3-5-sonnet-20241022-v2:0
+
+
+# ── Model → provider lookup ───────────────────────────────────────────────────
+# Used to infer the provider when a workflow specifies a model name directly.
+# Add entries here when using models not listed above.
+#
+model_to_provider:
+  # Google
+  gemini-3-flash-preview:        google
+  gemini-3.1-flash-lite-preview:  google
+  gemini-2.0-flash:             google
+  gemini-2.0-flash-lite:        google
+  gemini-2.5-flash-preview-04-17: google
+  gemini-2.5-pro:               google
+  gemini-3.1-flash-lite-preview: google
+  gemini-3.1-pro-preview-customtools: google
+  # Anthropic
+  claude-haiku-4-5-20251001:    anthropic
+  claude-sonnet-4-6:            anthropic
+  claude-opus-4-6:              anthropic
+  # OpenAI
+  gpt-4o:                       openai
+  gpt-4o-mini:                  openai
+  gpt-4.1:                      openai
+  gpt-4.1-mini:                 openai
+  o3:                           openai
+  o4-mini:                      openai
+  # Anthropic via Bedrock
+  anthropic.claude-3-5-haiku-20241022-v1:0:   bedrock
+  anthropic.claude-3-5-sonnet-20241022-v2:0:  bedrock
+  anthropic.claude-3-7-sonnet-20250219-v1:0:  bedrock
+
+
+# ── Provider-level defaults ───────────────────────────────────────────────────
+# Fallback model per provider when no alias matches.
+#
+provider_defaults:
+  anthropic:    claude-haiku-4-5-20251001
+  google:       gemini-3-flash-preview
+  openai:       gpt-4o-mini
+  azure:        gpt-4o
+  azure_foundry: gpt-4o
+  bedrock:      anthropic.claude-3-5-haiku-20241022-v1:0
+
+
+# ── Pricing (cost tracking) ───────────────────────────────────────────────────
+# USD per million tokens. Used for cost tracking — not required for operation.
+# Set to null to disable cost tracking for a model.
+#
+pricing:
+  claude-haiku-4-5-20251001:
+    input_per_million:  0.80
+    output_per_million: 4.00
+  claude-sonnet-4-6:
+    input_per_million:  3.00
+    output_per_million: 15.00
+  gemini-2.0-flash:
+    input_per_million:  0.10
+    output_per_million: 0.40
+  gemini-2.5-pro:
+    input_per_million:  1.25
+    output_per_million: 10.00
+  gpt-4o-mini:
+    input_per_million:  0.15
+    output_per_million: 0.60
+  gpt-4o:
+    input_per_million:  2.50
+    output_per_million: 10.00
+
+
+# ── Provider settings ─────────────────────────────────────────────────────────
+# Provider-specific configuration. Uncomment and edit as needed.
+#
+provider_settings:
+  google:
+    # temperature: 0.7
+    # top_p: 0.95
+    # max_output_tokens: 8192
+  openai:
+    # timeout: 60
+  azure:
+    # api_version: "2024-08-01-preview"
+
+
+# ── Per-primitive output token budgets ────────────────────────────────────────
+# Controls max_tokens (Anthropic/OpenAI) / max_output_tokens (Google) per call.
+# Heavy primitives (deliberate, reflect, govern, generate, challenge) produce
+# large JSON schemas with multiple list fields — they need real headroom.
+# Light primitives (retrieve, classify, verify) are structurally bounded.
+#
+# These values are passed at invocation time via create_llm(**kwargs).
+# Override per-step in domain configs via: params.max_tokens: <n>
+# To disable the budget for a primitive (use provider default): set to null.
+primitive_max_tokens:
+  retrieve:    4096
+  classify:    4096
+  investigate: 8192
+  verify:      6144
+  deliberate:  8192
+  reflect:     8192
+  generate:    8192
+  challenge:   8192
+  govern:      6144
+
+# Per-primitive model alias overrides.
+# classify uses 'fast' by default but the fast lite model truncates on
+# multi-category schemas with compound criteria. Override to 'standard'
+# so classification is reliable across all domains without per-domain tuning.
+# verify also benefits from standard — the two-stage constraint checker
+# produces dense JSON that lite models truncate.
+primitive_model_alias:
+  classify: standard
+  verify:   standard

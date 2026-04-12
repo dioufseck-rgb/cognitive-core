@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cognitive Core — Workflow Trace</title>
+<style>
+  :root {
+    --bg:        #0d1117;
+    --surface:   #161b22;
+    --border:    #30363d;
+    --text:      #e6edf3;
+    --muted:     #7d8590;
+    --accent:    #58a6ff;
+    --green:     #3fb950;
+    --red:       #f85149;
+    --yellow:    #d29922;
+    --orange:    #db6d28;
+    --purple:    #bc8cff;
+    --mono:      "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+    --sans:      -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; }
+
+  #app { display: flex; flex-direction: column; min-height: 100vh; }
+  #header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+  #header h1 { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+  #header .subtitle { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+  #header .spacer { flex: 1; }
+  #main { flex: 1; display: flex; }
+  #sidebar { width: 280px; min-width: 220px; border-right: 1px solid var(--border); padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+  #content { flex: 1; padding: 24px; overflow-y: auto; }
+
+  .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .badge.running   { background: rgba(88,166,255,.15); color: var(--accent); }
+  .badge.suspended { background: rgba(210,153,34,.15);  color: var(--yellow); }
+  .badge.completed { background: rgba(63,185,80,.15);   color: var(--green); }
+  .badge.failed    { background: rgba(248,81,73,.15);   color: var(--red); }
+  .badge.created   { background: rgba(125,133,144,.15); color: var(--muted); }
+  .pulse { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+
+  .info-block { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .info-block .label { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 4px; }
+  .info-block .value { font-family: var(--mono); font-size: 12px; color: var(--text); word-break: break-all; }
+  .info-block .value.small { font-size: 11px; color: var(--muted); }
+
+  /* Epistemic sidebar */
+  #ep-block { border-color: rgba(188,140,255,.3); }
+  #ep-block .label { color: var(--purple); }
+  .ep-bar-row { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+  .ep-bar-label { font-size: 10px; color: var(--muted); width: 52px; flex-shrink: 0; }
+  .ep-bar-track { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .ep-bar-fill { height: 100%; border-radius: 2px; transition: width .5s; }
+  .ep-bar-val { font-family: var(--mono); font-size: 10px; width: 28px; text-align: right; flex-shrink: 0; }
+  .ep-flag { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-family: var(--mono); padding: 2px 5px; border-radius: 3px; background: rgba(248,81,73,.1); color: var(--red); border: 1px solid rgba(248,81,73,.2); margin: 2px 2px 0 0; }
+
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid transparent; transition: all .15s; text-decoration: none; }
+  .btn-ghost       { background: transparent; color: var(--text); border-color: var(--border); }
+  .btn-ghost:hover { background: var(--surface); }
+  .btn-approve     { background: rgba(63,185,80,.15);   color: var(--green);  border-color: rgba(63,185,80,.4); }
+  .btn-approve:hover { background: rgba(63,185,80,.25); }
+  .btn-approve-mod { background: rgba(88,166,255,.15);  color: var(--accent); border-color: rgba(88,166,255,.4); }
+  .btn-approve-mod:hover { background: rgba(88,166,255,.25); }
+  .btn-deny        { background: rgba(248,81,73,.15);   color: var(--red);    border-color: rgba(248,81,73,.4); }
+  .btn-deny:hover  { background: rgba(248,81,73,.25); }
+  .btn-refer       { background: rgba(188,140,255,.15); color: var(--purple); border-color: rgba(188,140,255,.4); }
+  .btn-refer:hover { background: rgba(188,140,255,.25); }
+  .btn:disabled    { opacity: .4; cursor: not-allowed; }
+
+  #trace-container { display: flex; flex-direction: column; gap: 4px; }
+  .step-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; border-radius: 8px; border: 1px solid transparent; transition: border-color .2s; }
+  .step-row:hover { border-color: var(--border); }
+  .step-icon { font-size: 13px; width: 18px; text-align: center; margin-top: 2px; flex-shrink: 0; }
+  .step-body { flex: 1; min-width: 0; }
+  .step-header { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .step-name { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--text); }
+  .step-primitive { font-family: var(--mono); font-size: 11px; color: var(--muted); background: var(--surface); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border); }
+  .step-elapsed { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-left: auto; }
+  .step-detail { margin-top: 6px; font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .step-full { color: var(--text); font-size: 12px; line-height: 1.65; margin-top: 4px; }
+  .step-sub  { color: var(--muted); font-size: 12px; line-height: 1.6; margin-top: 3px; }
+  .sec-label { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-top: 7px; margin-bottom: 2px; }
+
+  .conf-bar { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+  .conf-track { flex: 1; max-width: 160px; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .conf-fill { height: 100%; border-radius: 3px; background: var(--green); transition: width .6s; }
+  .conf-fill.med { background: var(--yellow); }
+  .conf-fill.low { background: var(--red); }
+  .conf-label { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+  /* Epistemic in step */
+  .ep-step { margin-top: 8px; padding: 8px 10px; background: rgba(188,140,255,.05); border: 1px solid rgba(188,140,255,.15); border-radius: 6px; }
+  .ep-step-title { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--purple); margin-bottom: 5px; }
+  .ep-scores { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 4px; }
+  .ep-score  { font-size: 11px; }
+  .ep-score .k { color: var(--muted); }
+  .ep-score .v { font-family: var(--mono); }
+  .ep-pill { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-family: var(--mono); padding: 2px 7px; border-radius: 10px; }
+  .ep-pill.ok  { background: rgba(63,185,80,.1);  color: var(--green); border: 1px solid rgba(63,185,80,.2); }
+  .ep-pill.bad { background: rgba(248,81,73,.1);  color: var(--red);   border: 1px solid rgba(248,81,73,.2); }
+  .ep-flags { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+
+  .check-row { display: flex; align-items: flex-start; gap: 6px; font-size: 12px; margin-top: 3px; }
+  .check-pass { color: var(--green); flex-shrink: 0; }
+  .check-fail { color: var(--red);   flex-shrink: 0; }
+
+  .hitl-row { background: rgba(210,153,34,.07); border: 1px solid rgba(210,153,34,.3); border-radius: 8px; padding: 14px 16px; margin: 8px 0; }
+  .hitl-header { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--yellow); font-size: 13px; margin-bottom: 8px; }
+  .hitl-tier { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; background: rgba(210,153,34,.2); padding: 2px 7px; border-radius: 4px; }
+
+  .decision-row { background: rgba(63,185,80,.07); border: 1px solid rgba(63,185,80,.25); border-radius: 8px; padding: 12px 16px; margin: 4px 0; }
+  .orchestrator-row { background: rgba(88,166,255,.05); border: 1px solid rgba(88,166,255,.18); border-radius: 6px; padding: 8px 14px; margin: 3px 0 3px 28px; display: flex; align-items: flex-start; gap: 10px; }
+  .decision-header { display: flex; align-items: center; gap: 8px; color: var(--green); font-size: 12px; font-weight: 600; }
+
+  /* HITL panel */
+  #hitl-panel { background: var(--surface); border: 1px solid rgba(210,153,34,.35); border-radius: 10px; padding: 24px; max-width: 760px; margin-top: 16px; }
+  #hitl-panel h2 { font-size: 14px; font-weight: 700; color: var(--yellow); display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+  .hitl-brief { font-size: 13px; color: var(--text); line-height: 1.65; padding: 12px 14px; background: var(--bg); border-radius: 6px; border: 1px solid var(--border); margin-bottom: 14px; }
+
+  /* Epistemic in HITL */
+  .ep-hitl { background: rgba(188,140,255,.06); border: 1px solid rgba(188,140,255,.2); border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; }
+  .ep-hitl-title { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--purple); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+  .ep-hitl-overall { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .ep-hitl-bar { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .ep-hitl-fill { height: 100%; border-radius: 3px; transition: width .5s; }
+  .ep-hitl-flag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-family: var(--mono); padding: 3px 8px; border-radius: 4px; background: rgba(248,81,73,.1); color: var(--red); border: 1px solid rgba(248,81,73,.25); margin: 2px; }
+  .ep-hitl-gap { display: flex; align-items: flex-start; gap: 6px; font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .ep-hitl-gap::before { content: "○"; color: var(--yellow); flex-shrink: 0; }
+  .ep-hitl-step { background: var(--bg); border-radius: 5px; padding: 7px 10px; margin-bottom: 5px; }
+  .ep-hitl-step-name { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+
+  /* Work order instructions */
+  .wo-instr { background: rgba(88,166,255,.05); border: 1px solid rgba(88,166,255,.18); border-radius: 6px; padding: 10px 12px; margin-bottom: 14px; }
+  .wo-instr-title { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); margin-bottom: 6px; }
+
+  /* Reasoning trace */
+  .rtrace { margin-bottom: 14px; }
+  .rtrace-title { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 8px; }
+  .rtrace-row { display: flex; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+  .rtrace-icon { width: 20px; text-align: center; flex-shrink: 0; }
+  .rtrace-name { width: 180px; font-family: var(--mono); font-size: 11px; color: var(--muted); flex-shrink: 0; padding-top: 1px; }
+  .rtrace-detail { flex: 1; font-size: 12px; line-height: 1.6; }
+
+  .hitl-compliance { margin-bottom: 14px; }
+  .hitl-compliance-title { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 6px; }
+  textarea#rationale { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 10px 12px; font-size: 13px; font-family: var(--sans); resize: vertical; min-height: 72px; transition: border-color .15s; }
+  textarea#rationale:focus { outline: none; border-color: var(--accent); }
+  .hitl-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .reviewer-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .reviewer-row label { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  input#reviewer { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 6px 10px; font-size: 13px; font-family: var(--mono); width: 180px; }
+  input#reviewer:focus { outline: none; border-color: var(--accent); }
+
+  #result-bar { display: flex; align-items: center; gap: 14px; background: rgba(63,185,80,.08); border: 1px solid rgba(63,185,80,.25); border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; }
+  #result-bar.failed { background: rgba(248,81,73,.08); border-color: rgba(248,81,73,.25); }
+  #result-bar.denied { background: rgba(219,109,40,.08); border-color: rgba(219,109,40,.25); }
+  .result-icon { font-size: 20px; }
+  .result-body { flex: 1; }
+  .result-title { font-size: 14px; font-weight: 700; color: var(--green); }
+  #result-bar.failed .result-title { color: var(--red); }
+  #result-bar.denied .result-title { color: var(--orange); }
+  .result-meta { font-size: 12px; color: var(--muted); font-family: var(--mono); margin-top: 2px; }
+
+  .empty { color: var(--muted); font-size: 13px; text-align: center; padding: 40px 0; }
+  .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #export-btn { display: none; }
+  #export-btn.visible { display: inline-flex; }
+  .verify-badge { font-size: 11px; font-family: var(--mono); padding: 2px 8px; border-radius: 4px; }
+  .verify-ok  { background: rgba(63,185,80,.15);  color: var(--green); }
+  .verify-bad { background: rgba(248,81,73,.15);  color: var(--red); }
+  .verify-unk { background: rgba(125,133,144,.15); color: var(--muted); }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <rect width="22" height="22" rx="5" fill="#58a6ff" opacity=".15"/>
+      <path d="M4 11h4l2-6 3 12 2-6h3" stroke="#58a6ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h1>Cognitive Core</h1>
+    <span class="subtitle" id="instance-label">—</span>
+    <span class="spacer"></span>
+    <span id="status-badge"></span>
+    &nbsp;
+    <span id="verify-badge" class="verify-badge verify-unk" style="display:none"></span>
+    &nbsp;
+    <button class="btn btn-ghost" id="export-btn" onclick="exportTrace()">↓ Download Trace</button>
+  </div>
+  <div id="main">
+    <div id="sidebar">
+      <div class="info-block">
+        <div class="label">Instance</div>
+        <div class="value small" id="sb-instance">—</div>
+      </div>
+      <div class="info-block">
+        <div class="label">Workflow</div>
+        <div class="value" id="sb-workflow">—</div>
+      </div>
+      <div class="info-block">
+        <div class="label">Domain</div>
+        <div class="value" id="sb-domain">—</div>
+      </div>
+      <div class="info-block">
+        <div class="label">Governance Tier</div>
+        <div class="value" id="sb-tier">—</div>
+      </div>
+      <div class="info-block">
+        <div class="label">Steps Completed</div>
+        <div class="value" id="sb-steps">—</div>
+      </div>
+      <div class="info-block">
+        <div class="label">Elapsed</div>
+        <div class="value" id="sb-elapsed">—</div>
+      </div>
+      <div class="info-block" id="ep-block" style="display:none">
+        <div class="label">Epistemic State</div>
+        <div id="ep-content"></div>
+      </div>
+      <div style="flex:1"></div>
+      <div class="info-block" id="sb-case-meta" style="display:none">
+        <div class="label">Case</div>
+        <div class="value small" id="sb-case-content">—</div>
+      </div>
+    </div>
+    <div id="content">
+      <div id="trace-container"></div>
+      <div id="hitl-container"></div>
+      <div id="result-container"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const INSTANCE_ID = "__INSTANCE_ID__";
+const API_BASE = "";
+let mode = "watch";
+let eventSource = null;
+let allSteps = [];
+let lastLedgerId = 0;
+let pollTimer = null;
+let wfEp = { overall: null, flags: [], warranted: true, gaps: [], lowSteps: [] };
+
+function fmtElapsed(s) {
+  if (!s && s !== 0) return "—";
+  if (s < 60) return s.toFixed(1) + "s";
+  return Math.floor(s/60) + "m " + Math.round(s%60) + "s";
+}
+function fmtMs(ms) { return ms >= 1000 ? (ms/1000).toFixed(1)+"s" : (ms||0)+"ms"; }
+function fmtTime(ts) { return ts ? new Date(ts*1000).toLocaleTimeString() : ""; }
+function tierColor(t) {
+  t = (t||"").toLowerCase().replace("governancetier.","");
+  return t==="auto"?"var(--green)":t==="spot_check"||t==="spot-check"?"var(--accent)":t==="gate"?"var(--yellow)":t==="hold"?"var(--red)":"var(--muted)";
+}
+function primIcon(p) {
+  return {retrieve:"📥",classify:"🏷",investigate:"🔍",deliberate:"🤔",verify:"✅",generate:"📝",govern:"⚖️",challenge:"⚔️"}[(p||"").toLowerCase()]||"▶";
+}
+function sc(v) { return v===null||v===undefined?"var(--muted)":v>=0.75?"var(--green)":v>=0.55?"var(--yellow)":"var(--red)"; }
+function sfill(v) { return v===null||v===undefined?"med":v>=0.75?"":v>=0.55?"med":"low"; }
+function pp(v) { return v!==null&&v!==undefined ? Math.round(v*100)+"%" : "—"; }
+
+function updateEpSidebar() {
+  const ep = wfEp;
+  const hasIssues = ep.flags.length||!ep.warranted||ep.lowSteps.length||ep.gaps.length;
+  if (!hasIssues && ep.overall===null) return;
+  document.getElementById("ep-block").style.display = "block";
+  let h = "";
+  if (ep.overall!==null) {
+    h += `<div class="ep-bar-row"><span class="ep-bar-label">overall</span>
+      <div class="ep-bar-track"><div class="ep-bar-fill conf-fill ${sfill(ep.overall)}" style="width:${Math.round(ep.overall*100)}%"></div></div>
+      <span class="ep-bar-val" style="color:${sc(ep.overall)}">${pp(ep.overall)}</span></div>`;
+  }
+  h += ep.warranted ? `<span style="color:var(--green);font-size:11px;font-family:var(--mono)">✓ warranted</span>` : `<span style="color:var(--red);font-size:11px;font-family:var(--mono)">⚠ not warranted</span>`;
+  if (ep.flags.length) {
+    h += `<div style="margin-top:5px">${ep.flags.map(f=>`<span class="ep-flag">⚑ ${String(f).split(" ")[0]}</span>`).join("")}</div>`;
+  }
+  if (ep.gaps.length) h += `<div style="font-size:10px;color:var(--yellow);margin-top:5px">${ep.gaps.length} open gap${ep.gaps.length>1?"s":""}</div>`;
+  document.getElementById("ep-content").innerHTML = h;
+}
+
+function updateSidebar(inst) {
+  document.getElementById("sb-instance").textContent = inst.instance_id||INSTANCE_ID;
+  document.getElementById("sb-workflow").textContent = inst.workflow_type||"—";
+  document.getElementById("sb-domain").textContent = inst.domain||"—";
+  document.getElementById("sb-tier").textContent = (inst.governance_tier||"—").replace("governancetier.","");
+  document.getElementById("sb-steps").textContent = inst.step_count??"—";
+  document.getElementById("sb-elapsed").textContent = fmtElapsed(inst.elapsed_seconds);
+  document.getElementById("instance-label").textContent = (inst.workflow_type||"")+" / "+INSTANCE_ID.slice(0,16);
+  const meta = inst.case_meta||{}, ci = inst._caseInput||{};
+  const d = {};
+  if (ci.applicant_name||meta.applicant_name) d["Applicant"]=ci.applicant_name||meta.applicant_name;
+  if (ci.loan_amount||meta.loan_amount) d["Amount"]="$"+((ci.loan_amount||meta.loan_amount)||"").toLocaleString();
+  if (ci.loan_purpose||meta.loan_purpose) d["Purpose"]=ci.loan_purpose||meta.loan_purpose;
+  if (meta.case_id) d["Case ID"]=meta.case_id;
+  if (meta.member_name&&!d["Applicant"]) d["Member"]=meta.member_name;
+  if (meta.fraud_type) d["Type"]=meta.fraud_type;
+  if (meta.permit_number) d["Permit"]=meta.permit_number;
+  if (meta.proposed_use) d["Use"]=meta.proposed_use;
+  if (meta.amount_at_risk) d["At risk"]="$"+meta.amount_at_risk.toLocaleString();
+  if (Object.keys(d).length) {
+    document.getElementById("sb-case-meta").style.display="block";
+    document.getElementById("sb-case-content").innerHTML=Object.entries(d).map(([k,v])=>`<div style="margin-bottom:3px"><span style="color:var(--muted)">${k}:</span> ${v}</div>`).join("");
+  } else if (Object.values(meta).some(v=>v)) {
+    document.getElementById("sb-case-meta").style.display="block";
+    document.getElementById("sb-case-content").innerHTML=Object.entries(meta).filter(([,v])=>v).map(([k,v])=>`<div style="margin-bottom:3px"><span style="color:var(--muted)">${k}:</span> ${v}</div>`).join("");
+  }
+  const status = inst.status||"unknown";
+  const live = ["running","created"].includes(status);
+  document.getElementById("status-badge").innerHTML=`<span class="badge ${status}">${live?'<span class="pulse"></span>':""}${status}</span>`;
+}
+
+function epStepHtml(ep) {
+  if (!ep) return "";
+  const flags = ep.coherence_flags||[];
+  const warranted = ep.warranted!==false;
+  const scores = [];
+  if (ep.overall!=null) scores.push({k:"overall",v:ep.overall});
+  if (ep.evidence_completeness!=null) scores.push({k:"evidence",v:ep.evidence_completeness});
+  if (ep.rule_coverage!=null) scores.push({k:"rules",v:ep.rule_coverage});
+  if (ep.citation_rate!=null) scores.push({k:"citation",v:ep.citation_rate});
+  if (ep.reasoning_quality!=null) scores.push({k:"rq",v:ep.reasoning_quality});
+  if (ep.outcome_certainty!=null) scores.push({k:"oc",v:ep.outcome_certainty});
+  const hasAny = flags.length||!warranted||scores.length;
+  if (!hasAny) return "";
+  return `<div class="ep-step"><div class="ep-step-title">Epistemic</div>
+    ${scores.length ? `<div class="ep-scores">${scores.map(s=>`<span class="ep-score"><span class="k">${s.k}</span> <span class="v" style="color:${sc(s.v)}">${pp(s.v)}</span></span>`).join("")}</div>` : ""}
+    ${warranted ? `<span class="ep-pill ok">✓ warranted</span>` : `<span class="ep-pill bad">⚠ not warranted</span>`}
+    ${flags.length ? `<div class="ep-flags">${flags.map(f=>`<span class="ep-flag">⚑ ${f}</span>`).join("")}</div>` : ""}
+  </div>`;
+}
+
+function renderStep(entry) {
+  const container = document.getElementById("trace-container");
+  const action = entry.action_type||entry.event||"";
+  const details = entry.details||entry;
+
+  if (action==="human_decision") {
+    const div = document.createElement("div"); div.className="decision-row";
+    div.innerHTML=`<div class="decision-header"><span>◉</span><span>HUMAN DECISION</span>
+      <span style="color:var(--muted);font-weight:400">reviewer: ${details.reviewer_id||"—"} &nbsp;${fmtTime(details.timestamp)}</span></div>
+      <div style="margin-top:6px;font-size:13px;color:var(--text)"><strong>${details.decision||""}</strong>${details.rationale?" — "+details.rationale:""}</div>`;
+    container.appendChild(div); allSteps.push({type:"decision",el:div}); return;
+  }
+  if (action==="governance_suspension"||action==="hitl_requested"||action==="suspended_for_approval") {
+    const div = document.createElement("div"); div.className="hitl-row";
+    const tier = details.governance_tier||details.tier||"GATE";
+    div.innerHTML=`<div class="hitl-header"><span>⏸</span><span>GOVERNANCE GATE</span><span class="hitl-tier">${tier}</span></div>
+      <div style="font-size:12px;color:var(--muted)">${details.reason||details.rationale||""}</div>`;
+    container.appendChild(div); allSteps.push({type:"gate",el:div}); return;
+  }
+  if (action==="orchestrator_decision") {
+    const prim = details.primitive||"";
+    const stepName = details.step_name||"";
+    const reasoning = details.reasoning||"";
+    const isEnd = details.action==="end";
+    const icon = isEnd ? "⏹" : (primIcon(prim)||"▶");
+    const label = isEnd
+      ? `<span style="font-family:var(--mono);font-size:11px;color:var(--muted)">end</span>`
+      : `<span style="font-family:var(--mono);font-size:11px;color:var(--accent)">${prim}</span>
+         <span style="font-size:11px;color:var(--muted)">&nbsp;·&nbsp;${stepName}</span>`;
+    const div = document.createElement("div"); div.className="orchestrator-row";
+    div.innerHTML=`<span style="font-size:13px;opacity:.7">${icon}</span>
+      <div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+          <span style="font-size:10px;font-family:var(--mono);color:var(--muted);letter-spacing:.05em">ORCHESTRATOR</span>
+          ${label}
+        </div>
+        ${reasoning?`<div style="font-size:11px;color:var(--muted)">${reasoning}</div>`:""}
+      </div>`;
+    container.appendChild(div); allSteps.push({type:"orchestrator",el:div}); return;
+  }
+  if (!["step_completed","step_started","step_failed"].includes(action)) {
+    if (action!=="workflow_started"&&action!=="resume") return;
+  }
+
+  const stepName = details.step_name||details.step||"";
+  const primitive = details.primitive||"";
+  const elapsed = details.elapsed_ms||0;
+  const output = details.output||details.result||{};
+  const ep = details.epistemic||null;
+
+  if (ep) {
+    if (ep.overall!=null) wfEp.overall=ep.overall;
+    (ep.coherence_flags||[]).forEach(f=>{ if(!wfEp.flags.includes(f)) wfEp.flags.push(f); });
+    if (ep.warranted===false) wfEp.warranted=false;
+    (ep.inherited_gaps||[]).forEach(g=>{ if(!wfEp.gaps.includes(g)) wfEp.gaps.push(g); });
+    updateEpSidebar();
+  }
+
+  const div = document.createElement("div"); div.className="step-row";
+  let det = "";
+
+  if (primitive==="classify") {
+    const cat=output.category||"", conf=parseFloat(output.confidence||0), p=Math.round(conf*100);
+    const cls=conf>=0.75?"":conf>=0.55?"med":"low";
+    const alts=(output.alternative_categories||[]).slice(0,3);
+    det=`<div class="conf-bar"><div class="conf-track"><div class="conf-fill ${cls}" style="width:${p}%"></div></div>
+      <span class="conf-label">${cat} &nbsp;${p}%</span></div>
+      ${output.reasoning?`<div class="step-sub">${output.reasoning}</div>`:""}
+      ${alts.length?`<div class="step-sub">Alt: ${alts.map(a=>`${a.category} (${Math.round((a.confidence||0)*100)}%)`).join(", ")}</div>`:""}`;
+
+  } else if (primitive==="verify") {
+    const conforms=output.conforms, viols=output.violations||[], rules=output.rules_checked||[];
+    det=`<div style="display:flex;align-items:center;gap:10px;margin-top:3px">
+      <span style="font-family:var(--mono);font-size:12px;color:${conforms?"var(--green)":"var(--red)"}">${conforms?"✓ conforms":"✗ violations"}</span>
+      ${rules.length?`<span style="font-size:11px;color:var(--muted)">${rules.length} rules checked</span>`:""}
+    </div>`;
+    viols.forEach(v=>{
+      const rule=typeof v==="object"?(v.rule||""):String(v);
+      const desc=typeof v==="object"?(v.description||""):"";
+      const sev=typeof v==="object"?(v.severity||""):"";
+      det+=`<div class="check-row"><span class="check-fail">✗</span><span style="color:var(--text)">[${sev}] ${rule}</span></div>`;
+      if(desc) det+=`<div style="padding-left:22px;font-size:11px;color:var(--muted);margin-top:1px">${desc}</div>`;
+    });
+    if(conforms&&!viols.length) det+=`<div class="check-row"><span class="check-pass">✓</span><span>All rules passed</span></div>`;
+
+  } else if (primitive==="govern") {
+    const tier=String(output.tier_applied||output.tier||"").replace("GovernanceTier.","");
+    const disp=output.disposition||"", rat=output.tier_rationale||output.rationale||"";
+    const wo=output.work_order||{};
+    det=`<div style="display:flex;align-items:center;gap:10px;margin-top:3px">
+      <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${tierColor(tier)}">${tier}</span>
+      ${disp?`<span style="font-size:12px;color:var(--muted)">${disp}</span>`:""}
+    </div>`;
+    if(rat) det+=`<div class="step-sub">${rat}</div>`;
+    if(wo.instructions) det+=`<div class="sec-label">Review instructions</div>
+      <div class="step-full" style="background:rgba(88,166,255,.04);padding:6px 8px;border-radius:5px;border:1px solid rgba(88,166,255,.12)">${wo.instructions}</div>`;
+
+  } else if (primitive==="retrieve") {
+    const data=output.data||{}, sources=output.sources_queried||[];
+    const nOk=sources.filter(s=>s.status==="success").length||Object.keys(data).length;
+    det=`<div style="font-size:12px;color:var(--muted);margin-top:3px">${nOk}/${sources.length||nOk} sources &nbsp;·&nbsp; ${Object.keys(data).length} data keys</div>`;
+
+  } else if (primitive==="deliberate") {
+    const action=output.recommended_action||output.recommendation||"";
+    const conf=parseFloat(output.confidence||0), p=Math.round(conf*100);
+    const cls=conf>=0.75?"":conf>=0.55?"med":"low";
+    const warrant=output.warrant||output.rationale||"";
+    const situation=output.situation_summary||"";
+    const rq=output.reasoning_quality, oc=output.outcome_certainty;
+    det=`<div class="conf-bar">
+      <div class="conf-track"><div class="conf-fill ${cls}" style="width:${p}%"></div></div>
+      <span class="conf-label">${p}% confidence</span>
+      ${rq!=null?`<span class="conf-label" style="color:${sc(rq)}">rq ${pp(rq)}</span>`:""}
+      ${oc!=null?`<span class="conf-label" style="color:${sc(oc)}">oc ${pp(oc)}</span>`:""}
+    </div>`;
+    if(action) det+=`<div class="step-full">${action}</div>`;
+    if(warrant) det+=`<div class="sec-label">Warrant</div><div class="step-sub">${warrant}</div>`;
+    if(situation) det+=`<div class="sec-label">Situation</div><div class="step-sub">${situation}</div>`;
+
+  } else if (primitive==="investigate") {
+    const finding=output.finding||"";
+    const flags=output.evidence_flags||[], missing=output.evidence_missing||[];
+    const conf=parseFloat(output.confidence||0), p=Math.round(conf*100);
+    const cls=conf>=0.75?"":conf>=0.55?"med":"low";
+    det=`<div class="conf-bar"><div class="conf-track"><div class="conf-fill ${cls}" style="width:${p}%"></div></div><span class="conf-label">${p}%</span></div>`;
+    if(finding) det+=`<div class="step-full">${finding}</div>`;
+    if(flags.length) det+=`<div class="step-sub">Flags: ${flags.join(", ")}</div>`;
+    if(missing.length) det+=`<div class="step-sub">Missing: ${missing.slice(0,2).map(m=>typeof m==="object"?m.description:m).join("; ")}</div>`;
+
+  } else if (primitive==="generate") {
+    const art=output.artifact||"";
+    const s=typeof art==="string"?art:JSON.stringify(art);
+    det=`<div style="font-size:12px;color:var(--muted);margin-top:3px">${s.length.toLocaleString()} chars</div>
+      ${s?`<div class="step-sub">${s.slice(0,400).replace(/\n/g," ")}${s.length>400?"…":""}</div>`:""}`;
+  }
+
+  if (["deliberate","verify","govern","investigate","classify"].includes(primitive) && ep) {
+    det += epStepHtml(ep);
+  }
+
+  div.innerHTML=`<div class="step-icon">${primIcon(primitive)}</div>
+    <div class="step-body">
+      <div class="step-header">
+        <span class="step-name">${stepName}</span>
+        <span class="step-primitive">${primitive}</span>
+        <span class="step-elapsed">${fmtMs(elapsed)}</span>
+      </div>
+      ${det?`<div class="step-detail">${det}</div>`:""}
+    </div>`;
+
+  container.appendChild(div);
+  allSteps.push({type:"step",name:stepName,el:div});
+}
+
+async function renderHITLPanel() {
+  mode="hitl";
+  const container=document.getElementById("hitl-container");
+  container.innerHTML="";
+
+  let wo={}, inst={};
+  try { const r=await fetch(`${API_BASE}/api/instances/${INSTANCE_ID}/workorder`); if(r.ok) wo=await r.json(); } catch(e) {}
+  try { const r=await fetch(`${API_BASE}/api/instances/${INSTANCE_ID}`); if(r.ok) inst=await r.json(); } catch(e) {}
+
+  const tier=wo.governance_tier||"GATE";
+  const brief=wo.brief||"This workflow requires human review before proceeding.";
+  const options=wo.decision_options||["approve","deny"];
+  const epPayload=wo.epistemic||null;
+  const ep=epPayload||(wfEp.flags.length||!wfEp.warranted?wfEp:null);
+  const woInstr=wo.work_order_instructions||wo.instructions||"";
+  const escBrief=wo.escalation_brief||{};
+  const focusQ=escBrief.focus_questions||wo.focus_questions||[];
+
+  // Epistemic block
+  let epHtml="";
+  if (ep) {
+    const flags=ep.coherence_flags||ep.flags||[];
+    const gaps=ep.open_evidence_gaps||ep.gaps||[];
+    const warranted=ep.warranted!==false;
+    const overall=ep.workflow_overall??ep.overall;
+    const lowSteps=ep.low_confidence_steps||ep.lowSteps||[];
+    if (flags.length||!warranted||lowSteps.length||gaps.length) {
+      epHtml=`<div class="ep-hitl">
+        <div class="ep-hitl-title">◈ Epistemic state
+          ${warranted?`<span style="font-size:10px;color:var(--green);font-family:var(--mono)">✓ warranted</span>`:`<span style="font-size:10px;color:var(--red);font-family:var(--mono)">⚠ not warranted</span>`}
+        </div>
+        ${overall!=null?`<div class="ep-hitl-overall">
+          <span style="font-size:11px;color:var(--muted);width:60px">overall</span>
+          <div class="ep-hitl-bar"><div class="ep-hitl-fill" style="width:${Math.round(overall*100)}%;background:${sc(overall)}"></div></div>
+          <span style="font-family:var(--mono);font-size:11px;color:${sc(overall)};width:32px;text-align:right">${pp(overall)}</span>
+        </div>`:""}
+        ${flags.length?`<div style="margin-bottom:6px">${flags.map(f=>`<span class="ep-hitl-flag">⚑ ${f}</span>`).join("")}</div>`:""}
+        ${gaps.map(g=>`<div class="ep-hitl-gap">${g}</div>`).join("")}
+        ${lowSteps.map(s=>`<div class="ep-hitl-step">
+          <div class="ep-hitl-step-name">${s.step||s.step_name||""} (${s.primitive||""})</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            ${s.overall!=null?`<span style="font-size:11px"><span style="color:var(--muted)">overall</span> <span style="color:${sc(s.overall)};font-family:var(--mono)">${pp(s.overall)}</span></span>`:""}
+            ${s.evidence_completeness!=null?`<span style="font-size:11px"><span style="color:var(--muted)">evidence</span> <span style="color:${sc(s.evidence_completeness)};font-family:var(--mono)">${pp(s.evidence_completeness)}</span></span>`:""}
+            ${s.rule_coverage!=null?`<span style="font-size:11px"><span style="color:var(--muted)">rules</span> <span style="color:${sc(s.rule_coverage)};font-family:var(--mono)">${pp(s.rule_coverage)}</span></span>`:""}
+          </div>
+          ${(s.flags||[]).map(f=>`<span class="ep-flag" style="margin-top:3px">⚑ ${f}</span>`).join("")}
+        </div>`).join("")}
+      </div>`;
+    }
+  }
+
+  // Work order instructions
+  const woHtml=woInstr?`<div class="wo-instr"><div class="wo-instr-title">Review instructions</div>${woInstr}</div>`:"";
+
+  // Focus questions
+  const qHtml=focusQ.length?`<div style="margin-bottom:14px">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px">Focus</div>
+    ${focusQ.map(q=>`<div style="display:flex;gap:8px;margin-bottom:5px;font-size:12px;color:var(--text)"><span style="color:var(--accent)">→</span>${q}</div>`).join("")}
+  </div>`:"";
+
+  // Reasoning trace (from workorder or result steps)
+  const trace=wo.reasoning_trace||(inst.result?.steps||[]);
+  let traceHtml="";
+  if (trace.length) {
+    const rows=trace.map(t=>{
+      const out=t.output||t, p=t.primitive||"";
+      const tep=t.epistemic||null;
+      let det="";
+      if(p==="classify"&&(out.category||out.classification)) {
+        const conf=parseFloat(out.confidence||0);
+        det=`<span style="color:var(--text)">${out.category||out.classification}</span> <span style="color:var(--muted)">(${Math.round(conf*100)}%)</span>`;
+      } else if(p==="investigate"&&out.finding) {
+        const flags=out.evidence_flags||[];
+        det=`<span style="color:var(--text)">${out.finding}</span>`+(flags.length?`<div style="color:var(--muted);font-size:11px;margin-top:2px">flags: ${flags.join(", ")}</div>`:"");
+      } else if(p==="deliberate"&&(out.recommended_action||out.recommendation)) {
+        const rq=out.reasoning_quality, oc=out.outcome_certainty;
+        det=`<span style="color:var(--text)">${out.recommended_action||out.recommendation}</span>`
+          +(out.warrant?`<div style="color:var(--muted);font-size:11px;margin-top:2px"><span style="color:var(--accent)">warrant:</span> ${out.warrant}</div>`:"")
+          +(rq!=null?`<div style="font-size:11px;margin-top:2px"><span style="color:var(--muted)">rq</span> <span style="color:${sc(rq)};font-family:var(--mono)">${pp(rq)}</span> <span style="color:var(--muted)">oc</span> <span style="color:${sc(oc)};font-family:var(--mono)">${pp(oc)}</span></div>`:"");
+      } else if(p==="verify") {
+        const viols=out.violations||[], rules=out.rules_checked||[];
+        det=out.conforms!==false?`<span style="color:var(--green)">✓ conforms (${rules.length} rules)</span>`
+          :`<span style="color:var(--red)">✗ ${viols.length} violation(s), ${rules.length} rules checked</span>`
+          +viols.map(v=>`<div style="font-size:11px;color:var(--muted);margin-top:2px">↳ [${v.severity||""}] ${v.rule||""}: ${v.description||""}</div>`).join("");
+      } else if(p==="govern"&&(out.tier_applied||out.tier)) {
+        const t2=String(out.tier_applied||out.tier||"").replace("GovernanceTier.","");
+        det=`<span style="font-family:var(--mono);color:${tierColor(t2)}">${t2}</span> <span style="color:var(--muted)">${out.disposition||""}</span>`
+          +(out.tier_rationale?`<div style="color:var(--muted);font-size:11px;margin-top:2px">${out.tier_rationale}</div>`:"");
+      } else if(p==="generate") {
+        const a=typeof out.artifact==="string"?out.artifact:JSON.stringify(out.artifact||"");
+        det=`<span style="color:var(--muted)">${a.length.toLocaleString()} chars — ${a.slice(0,120).replace(/\n/g," ")}${a.length>120?"…":""}</span>`;
+      }
+      if(!det) return "";
+      const stepFlags=(tep?.coherence_flags||[]).map(f=>`<span class="ep-flag" style="display:inline-flex;margin-left:4px">⚑ ${f}</span>`).join("");
+      return `<div class="rtrace-row">
+        <span class="rtrace-icon">${primIcon(p)}</span>
+        <span class="rtrace-name">${t.step_name||t.step||""}</span>
+        <div class="rtrace-detail">${det}${stepFlags}</div>
+      </div>`;
+    }).filter(Boolean).join("");
+    if(rows) traceHtml=`<div class="rtrace"><div class="rtrace-title">Reasoning trace</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 12px;max-height:320px;overflow-y:auto">${rows}</div></div>`;
+  }
+
+  const btnMap={approve:{cls:"btn-approve",label:"Approve"},approve_modified:{cls:"btn-approve-mod",label:"Approve Modified"},deny:{cls:"btn-deny",label:"Deny"},refer:{cls:"btn-refer",label:"Refer"},escalate:{cls:"btn-refer",label:"Escalate"},release:{cls:"btn-approve",label:"Release"}};
+  const btns=options.map(opt=>{const b=btnMap[opt]||{cls:"btn-ghost",label:opt};return `<button class="btn ${b.cls}" onclick="submitDecision('${opt}')" id="btn-${opt}">${b.label}</button>`;}).join("");
+
+  container.innerHTML=`<div id="hitl-panel">
+    <h2>⏸ ${wo.queue?wo.queue.replace(/_/g," ").toUpperCase():"HUMAN REVIEW REQUIRED"} &nbsp;<span class="hitl-tier">${tier}</span></h2>
+    <div class="hitl-brief">${brief}</div>
+    ${epHtml}${woHtml}${qHtml}${traceHtml}
+    <div class="reviewer-row"><label for="reviewer">Reviewer ID</label><input id="reviewer" type="text" value="reviewer" placeholder="reviewer"></div>
+    <label style="font-size:12px;color:var(--muted);margin-bottom:6px;display:block" for="rationale">Rationale</label>
+    <textarea id="rationale" placeholder="Enter your rationale…"></textarea>
+    <div class="hitl-actions">${btns}</div>
+    <div id="hitl-status" style="margin-top:12px;font-size:12px;color:var(--muted)"></div>
+  </div>`;
+}
+
+async function submitDecision(decision) {
+  const rationale=document.getElementById("rationale")?.value||"";
+  const reviewer_id=document.getElementById("reviewer")?.value||"reviewer";
+  const statusEl=document.getElementById("hitl-status");
+  document.querySelectorAll(".hitl-actions .btn").forEach(b=>b.disabled=true);
+  statusEl.innerHTML=`<span class="spinner"></span> Submitting…`;
+  try {
+    const r=await fetch(`${API_BASE}/api/instances/${INSTANCE_ID}/decision`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({decision,rationale,reviewer_id})});
+    if(!r.ok){const e=await r.json().catch(()=>({}));statusEl.textContent=`Error: ${e.detail||r.statusText}`;document.querySelectorAll(".hitl-actions .btn").forEach(b=>b.disabled=false);return;}
+    statusEl.innerHTML=`<span class="spinner"></span> Decision submitted — resuming…`;
+    document.getElementById("hitl-container").innerHTML="";
+    mode="watch"; startSSE();
+  } catch(e){statusEl.textContent=`Network error: ${e.message}`;document.querySelectorAll(".hitl-actions .btn").forEach(b=>b.disabled=false);}
+}
+
+async function renderResultBar(inst) {
+  mode="result";
+  document.getElementById("export-btn").classList.add("visible");
+  const rc=document.getElementById("result-container");
+  const ok=inst.status==="completed";
+  const result=inst.result||{};
+  const steps=result.steps||[];
+  const govStep=steps.find(s=>s.primitive==="govern")||{};
+  const delStep=steps.find(s=>s.primitive==="deliberate")||{};
+  const disposition=result.disposition||govStep.disposition||delStep.recommended_action||"";
+  const ledger=inst.ledger||[];
+  const humanDeny=ledger.find(e=>e.action_type==="human_decision"&&["deny","reject"].includes((e.details?.decision||"").toLowerCase()));
+  const isTerminated=inst.status==="terminated";
+  const isDenied=isTerminated&&!!humanDeny;
+  const humanApproval=ledger.find(e=>e.action_type==="human_decision"&&["approve","approve_modified","release","refer"].includes((e.details?.decision||"").toLowerCase()));
+  let oi,oc2,ol;
+  if(ok){oi="✓";oc2="";ol="COMPLETE";}
+  else if(isDenied){oi="✗";oc2="denied";ol="DENIED";}
+  else if(isTerminated){oi="—";oc2="failed";ol="TERMINATED";}
+  else{oi="✗";oc2="failed";ol="FAILED";}
+  const dispDisplay=isDenied?(humanDeny.details?.rationale||""):(humanApproval?.details?.decision||disposition||"");
+  const hasEpIssues=wfEp.flags.length||!wfEp.warranted;
+  const epSum=hasEpIssues?`<div style="margin-top:5px;display:flex;gap:5px;flex-wrap:wrap">
+    ${!wfEp.warranted?`<span style="color:var(--red);font-family:var(--mono);font-size:11px">⚠ not warranted</span>`:""}
+    ${wfEp.flags.map(f=>`<span class="ep-flag">⚑ ${String(f).split(" ")[0]}</span>`).join("")}
+  </div>`:"";
+  rc.innerHTML=`<div id="result-bar" class="${oc2}">
+    <div class="result-icon">${oi}</div>
+    <div class="result-body">
+      <div class="result-title">${ol}${dispDisplay?" — "+dispDisplay:""}</div>
+      <div class="result-meta">elapsed ${fmtElapsed(inst.elapsed_seconds)} &nbsp;·&nbsp; ${inst.step_count||0} steps</div>
+      ${epSum}
+      ${inst.error&&!isDenied?`<div style="font-size:12px;color:var(--red);margin-top:4px">${inst.error}</div>`:""}
+    </div>
+  </div>`;
+  try {
+    const vr=await fetch(`${API_BASE}/api/instances/${INSTANCE_ID}/verify`);
+    if(vr.ok){const vd=await vr.json();const vb=document.getElementById("verify-badge");vb.style.display="inline-flex";
+      if(vd.valid){vb.className="verify-badge verify-ok";vb.textContent=`✓ ledger verified (${vd.entries_checked} entries)`;}
+      else{vb.className="verify-badge verify-bad";vb.textContent="✗ ledger tampered (entry "+vd.first_invalid_entry+")";}}
+  } catch(e){}
+}
+
+function startSSE() {
+  if(eventSource){eventSource.close();eventSource=null;}
+  eventSource=new EventSource(`${API_BASE}/api/instances/${INSTANCE_ID}/stream?since_id=${lastLedgerId}`);
+  ["step_started","step_completed","governance_decision","hitl_requested","hitl_resolved","workflow_completed","workflow_failed","step_failed","human_decision","evidence_supplied","suspended_for_approval","orchestrator_decision"].forEach(evt=>{
+    eventSource.addEventListener(evt,e=>{
+      let data={};try{data=JSON.parse(e.data);}catch(_){}
+      if(data.ledger_id&&data.ledger_id>lastLedgerId)lastLedgerId=data.ledger_id;
+      pollInstance();
+      if(evt==="hitl_requested"||evt==="governance_decision"||evt==="suspended_for_approval"){renderStep({action_type:"governance_suspension",details:data});renderHITLPanel();eventSource.close();eventSource=null;return;}
+      if(evt==="workflow_completed"||evt==="workflow_failed"){pollInstance().then(i=>{if(i)renderResultBar(i);});eventSource.close();eventSource=null;return;}
+      if(evt==="human_decision"){renderStep({action_type:"human_decision",details:data});return;}
+      if(["step_completed","step_started","step_failed"].includes(evt))renderStep({action_type:evt,details:data});
+    });
+  });
+  eventSource.onerror=()=>{if(eventSource){eventSource.close();eventSource=null;}startPolling();};
+}
+
+async function pollInstance() {
+  try{const r=await fetch(`${API_BASE}/api/instances/${INSTANCE_ID}`);if(!r.ok)return null;const i=await r.json();updateSidebar(i);return i;}catch(e){return null;}
+}
+
+async function startPolling() {
+  if(pollTimer)return;
+  pollTimer=setInterval(async()=>{
+    const inst=await pollInstance();if(!inst)return;
+    const ledger=inst.ledger||[];
+    for(const e of ledger){if((e.id||0)>lastLedgerId){lastLedgerId=e.id;renderStep(e);}}
+    if(inst.status==="suspended"&&mode==="watch"){clearInterval(pollTimer);pollTimer=null;renderHITLPanel();}
+    if(["completed","failed","terminated"].includes(inst.status)){clearInterval(pollTimer);pollTimer=null;if(mode!=="result")renderResultBar(inst);}
+  },1500);
+}
+
+async function exportTrace() {
+  let inst={};try{const r=await fetch(`${API_BASE}/api/instances/${INSTANCE_ID}`);if(r.ok)inst=await r.json();}catch(_){}
+  const ledger=inst.ledger||[],result=inst.result||{},steps=result.steps||[];
+  const govStep=steps.find(s=>s.primitive==="govern")||{};
+  const delStep=steps.find(s=>s.primitive==="deliberate")||{};
+  const finalDisp=govStep.disposition||delStep.recommended_action||"";
+  const isCompleted=inst.status==="completed";
+  const humanDeny=ledger.find(e=>e.action_type==="human_decision"&&["deny","reject"].includes((e.details?.decision||"").toLowerCase()));
+  const isDenied=inst.status==="terminated"&&!!humanDeny;
+  const outcomeLabel=isCompleted?"COMPLETE":isDenied?"DENIED":(inst.status||"").toUpperCase();
+  const outcomeColor=isCompleted?"#3fb950":isDenied?"#db6d28":"#f85149";
+  let stepRows="";
+  for(const s of steps){
+    const ep=s.epistemic;
+    let det="";
+    if(s.primitive==="classify"&&s.category) det=`${s.category} (${Math.round((s.confidence||0)*100)}%)`;
+    else if(s.primitive==="deliberate"){const rq=s.reasoning_quality,oc=s.outcome_certainty;det=`${s.recommended_action||""}\nWarrant: ${s.warrant||""}\n`+(rq!=null?`rq: ${pp(rq)}  oc: ${pp(oc)}`:"");}
+    else if(s.primitive==="verify") det=s.conforms?`✓ conforms (${(s.rules_checked||[]).length} rules)`:`✗ ${(s.violations||0)} violation(s), ${(s.rules_checked||[]).length} rules`;
+    else if(s.primitive==="investigate"&&s.finding) det=s.finding+((s.evidence_flags||[]).length?`\nFlags: ${s.evidence_flags.join(", ")}`:"");
+    else if(s.primitive==="govern") det=`Tier: ${String(s.tier_applied||"").replace("GovernanceTier.","")}  Disposition: ${s.disposition||"—"}\n${s.tier_rationale||""}`;
+    else if(s.primitive==="retrieve"&&s.sources?.length) det=`Sources: ${s.sources.join(", ")}`;
+    else if(s.primitive==="generate"){const a=typeof s.artifact==="string"?s.artifact:JSON.stringify(s.artifact||"");det=a.slice(0,300)+(a.length>300?"…":"");}
+    const epFlags=(ep?.coherence_flags||[]);
+    const epBadge=epFlags.length?`<div style="margin-top:3px">${epFlags.map(f=>`<span style="font-size:10px;font-family:monospace;padding:2px 5px;border-radius:3px;background:rgba(248,81,73,.1);color:#f85149;border:1px solid rgba(248,81,73,.2);margin-right:3px">⚑ ${f}</span>`).join("")}</div>`:"";
+    const epW=ep?(ep.warranted===false?`<span style="color:#f85149;font-size:10px;font-family:monospace"> ⚠</span>`:""): "";
+    stepRows+=`<tr><td style="padding:8px 12px;font-family:monospace;font-size:13px">${primIcon(s.primitive)} ${s.step_name||""}</td>
+      <td style="padding:8px 12px;font-family:monospace;font-size:11px;color:#7d8590">${s.primitive||""}</td>
+      <td style="padding:8px 12px;font-size:12px;color:#e6edf3;white-space:pre-wrap">${det}${epW}${epBadge}</td></tr>`;
+  }
+  let humanRows="";
+  for(const e of ledger){if(e.action_type!=="human_decision")continue;const d=e.details||{};humanRows+=`<tr style="background:rgba(63,185,80,.06)"><td colspan="3" style="padding:10px 12px;font-size:12px"><span style="color:#3fb950;font-weight:700">◉ HUMAN DECISION</span> &nbsp;reviewer: ${d.reviewer_id||"—"} &nbsp;${new Date((e.created_at||0)*1000).toLocaleTimeString()}<br><span style="color:#e6edf3">${d.decision||""}</span>${d.rationale?` — ${d.rationale}`:""}</td></tr>`;}
+  const ep=wfEp;
+  const epExport=(ep.flags.length||!ep.warranted)?`<div style="background:rgba(188,140,255,.07);border:1px solid rgba(188,140,255,.2);border-radius:6px;padding:12px 14px;margin-bottom:16px"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#bc8cff;margin-bottom:7px">Epistemic state</div>${!ep.warranted?`<div style="color:#f85149;font-size:12px;margin-bottom:5px">⚠ not warranted</div>`:""}<div>${ep.flags.map(f=>`<div style="font-size:11px;font-family:monospace;color:#f85149;margin-bottom:2px">⚑ ${f}</div>`).join("")}</div></div>`:"";
+  const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Cognitive Core Trace — ${INSTANCE_ID}</title>
+<style>body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;padding:32px;max-width:960px;margin:0 auto}h1{font-size:18px;font-weight:700;margin-bottom:4px}.meta{color:#7d8590;font-size:12px;font-family:monospace;margin-bottom:16px}.result{background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.25);border-radius:8px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:14px}.result-title{font-size:15px;font-weight:700;color:${outcomeColor}}.result-meta{font-size:12px;color:#7d8590;font-family:monospace;margin-top:2px}table{width:100%;border-collapse:collapse;margin-bottom:16px}th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#7d8590;padding:6px 12px;border-bottom:1px solid #30363d}td{border-bottom:1px solid #21262d}.footer{font-size:11px;color:#7d8590;font-family:monospace;margin-top:24px;border-top:1px solid #30363d;padding-top:12px}</style>
+</head><body>
+<h1>Cognitive Core — Workflow Trace</h1>
+<div class="meta">Instance: ${INSTANCE_ID} &nbsp;·&nbsp; Workflow: ${inst.workflow_type||""} &nbsp;·&nbsp; Domain: ${inst.domain||""}</div>
+<div class="result"><div style="font-size:20px">${isCompleted?"✓":isDenied?"✗":"—"}</div><div><div class="result-title">${outcomeLabel}${finalDisp?" — "+finalDisp:""}</div><div class="result-meta">elapsed ${fmtElapsed(inst.elapsed_seconds)} &nbsp;·&nbsp; ${inst.step_count||0} steps &nbsp;·&nbsp; tier: ${inst.governance_tier||"—"}</div></div></div>
+${epExport}
+<table><thead><tr><th>Step</th><th>Primitive</th><th>Output</th></tr></thead><tbody>${stepRows}${humanRows}</tbody></table>
+<div class="footer">Exported: ${new Date().toISOString()} &nbsp;·&nbsp; Cognitive Core v0.1.0-technical-preview</div>
+</body></html>`;
+  const blob=new Blob([html],{type:"text/html"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`trace-${INSTANCE_ID.slice(0,12)}.html`;a.click();
+}
+
+async function init() {
+  const inst=await pollInstance();
+  if(!inst){document.getElementById("trace-container").innerHTML=`<div class="empty">Instance ${INSTANCE_ID} not found.</div>`;return;}
+  try{const l=inst.ledger||[];const se=l.find(e=>e.action_type==="start");if(se?.details){const d=typeof se.details==="string"?JSON.parse(se.details):se.details;if(d.case_input)inst._caseInput=d.case_input;}}catch(_){}
+  updateSidebar(inst);
+  const ledger=inst.ledger||[];
+  for(const e of ledger){if((e.id||0)>lastLedgerId)lastLedgerId=e.id;renderStep(e);}
+  if(inst.status==="suspended")renderHITLPanel();
+  else if(["completed","failed","terminated"].includes(inst.status))renderResultBar(inst);
+  else startSSE();
+}
+init();
+</script>
+</body>
+</html>

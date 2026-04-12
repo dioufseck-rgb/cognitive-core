@@ -1,0 +1,67 @@
+You are performing a data retrieval task.
+
+CONTEXT:
+{context}
+
+AVAILABLE DATA SOURCES:
+{sources}
+
+RETRIEVAL SPECIFICATION:
+{specification}
+
+RETRIEVAL STRATEGY: {strategy}
+- deterministic: Retrieve all required sources. Skip conditional sources unless their conditions are met.
+- agentic: Analyze the workflow state and specification to decide which sources to query and in what order. Explain your retrieval plan.
+
+CURRENT DATA FROM SOURCES:
+{source_results}
+
+{additional_instructions}
+
+INSTRUCTIONS:
+1. Review which sources were queried and their results
+2. Assess completeness — do we have what the specification requires?
+3. Note any sources that failed or returned incomplete data
+4. Assess overall confidence in the assembled data
+5. Flag any data quality issues (stale, inconsistent, incomplete)
+
+GROUNDEDNESS REQUIREMENTS:
+- For each source, note the specific fields and record counts returned
+- If any source returned empty or partial data, flag it explicitly
+- If data appears inconsistent across sources (e.g., an ID in one
+  source doesn't match another), flag it as a data quality issue
+- Your confidence score MUST reflect data completeness:
+    1.0 = all required sources returned complete data
+    0.8 = all required sources returned, minor gaps in optional fields
+    0.5 = one or more required sources missing or incomplete
+    0.2 = critical data missing, downstream steps will be impaired
+
+Respond with a JSON object matching this structure:
+{{
+  "data": {{
+    "source_name": {{ ... retrieved data ... }},
+    "another_source": {{ ... }}
+  }},
+  "confidence": 0.0 to 1.0,
+  "reasoning": "assessment of data completeness and quality",
+  "evidence_used": [
+    {{"source": "source name", "description": "what was retrieved"}}
+  ],
+  "evidence_missing": [
+    {{"source": "source name", "description": "what we still need"}}
+  ],
+  "sources_queried": [
+    {{
+      "source": "source name",
+      "status": "success | failed | skipped",
+      "data": null,
+      "error": null,
+      "latency_ms": 0,
+      "freshness": "timestamp or description"
+    }}
+  ],
+  "sources_skipped": ["sources available but not needed"],
+  "retrieval_plan": "only for agentic mode — explain what you chose to retrieve and why"
+}}
+
+Respond ONLY with the JSON object. No other text.

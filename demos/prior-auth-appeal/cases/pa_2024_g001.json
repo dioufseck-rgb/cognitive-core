@@ -1,0 +1,125 @@
+{
+  "case_id": "PA-2024-G001",
+  "failure_mode": "FM-1",
+  "failure_mode_description": "Denial factual error \u2014 week count. Denial asserts a specific factual claim (PT duration) that a single sentence in the clinical record directly contradicts. No regulatory override needed. Pure factual verification.",
+  "anchor_fact": "Denial says 3 weeks PT. PT summary field says 9 weeks total (Valley PT 3 weeks + Capital PT 6 weeks). The PT summary field is explicitly labelled as authoritative.",
+  "controlling_sentence": "physical_therapy_summary.total_weeks = 9",
+  "appeal_date": "2024-11-14",
+  "member": {
+    "id": "M-G001",
+    "name": "Marco Reyes",
+    "age": 49,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2021-05-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C6-C7, one level",
+    "requested_by": "Dr. Sarah Okonkwo, MD \u2014 Spine Surgery",
+    "facility": "UCSF Medical Center"
+  },
+  "denial": {
+    "date": "2024-11-01",
+    "reason_code": "MED-003",
+    "reason_text": "Member does not meet conservative treatment requirements under CC-SPINE-2024 Section 2.2. Physical therapy: member has completed only 3 weeks of physical therapy. Standard pathway requires 6 weeks minimum. Functional plateau not documented. All other criteria remain unmet.",
+    "reviewer": "Dr. Alan Foster, MD \u2014 HealthFirst Utilization Management",
+    "level": "initial",
+    "factual_claim_under_test": "3 weeks PT completed",
+    "factual_claim_is_wrong": true,
+    "correct_fact": "9 weeks PT completed across two providers"
+  },
+  "appeal_basis": [
+    "Denial miscounts PT \u2014 member completed 3 weeks at Valley PT and 6 weeks at Capital PT, totaling 9 weeks",
+    "Both PT providers' records were submitted with the original authorization request",
+    "PT discharge from Capital PT explicitly documents functional plateau",
+    "All criteria are met \u2014 pharmacotherapy and injection also completed"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Cervical radiculopathy C6-C7, right-sided, persistent",
+    "imaging": {
+      "mri_1": {
+        "date": "2024-08-20",
+        "findings": "C6-C7 large disc herniation with moderate right C7 nerve root compression. No cord contact. No myelomalacia. Right foraminal stenosis confirmed."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-08-25",
+      "findings": "Right C7 dermatomal numbness. Tricep reflex diminished right. Grip strength 4/5 right. No bilateral findings. No UMN signs."
+    },
+    "conservative_treatment": {
+      "physical_therapy_provider_1": {
+        "provider": "Valley Physical Therapy",
+        "dates": "2024-06-01 to 2024-06-21",
+        "weeks": 3,
+        "sessions": 9,
+        "records_status": "SUBMITTED with original PA request",
+        "outcome": "Partial improvement, symptoms persist"
+      },
+      "physical_therapy_provider_2": {
+        "provider": "Capital Physical Therapy",
+        "dates": "2024-07-08 to 2024-08-16",
+        "weeks": 6,
+        "sessions": 18,
+        "records_status": "SUBMITTED with original PA request",
+        "outcome": "Plateau reached. Discharge summary: 'Maximum therapeutic benefit achieved. No further improvement expected from continued PT.'"
+      },
+      "physical_therapy_summary": {
+        "total_weeks": 9,
+        "total_sessions": 27,
+        "plateau_documented": true,
+        "plateau_source": "Capital PT discharge summary \u2014 explicit language: maximum therapeutic benefit achieved",
+        "note": "9 weeks total PT across two providers. Functional plateau explicitly documented at Capital PT discharge. Both records submitted with original PA request.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Gabapentin 600mg TID",
+            "duration": "4 months",
+            "response": "Partial pain relief, radicular symptoms persist"
+          },
+          {
+            "drug": "Naproxen 500mg BID",
+            "duration": "3 months",
+            "response": "Inadequate"
+          }
+        ]
+      },
+      "interventional": {
+        "right_c7_epidural": {
+          "date": "2024-09-15",
+          "response": "35% temporary relief, returned to baseline in 3 weeks"
+        }
+      }
+    }
+  },
+  "documents_enclosed": [
+    "Valley PT records (3 weeks)",
+    "Capital PT records (6 weeks) with plateau notation",
+    "MRI report 2024-08-20",
+    "Neurological exam 2024-08-25",
+    "Epidural records"
+  ],
+  "question": "Should the prior authorization denial for ACDF C6-C7 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "UPHOLD \u2014 denial says 3 weeks PT, need 6. Criteria not met.",
+    "harder_question_1": "The denial claims 3 weeks PT. The clinical record's PT summary field says 9 weeks across two providers. Which is correct?",
+    "harder_question_2": "Both PT records were submitted with the original PA request. Did the plan reviewer read both records?",
+    "harder_question_3": "With 9 weeks PT and documented plateau, are all criteria met?",
+    "harder_question_4": "Does any regulatory override or clinical standard issue exist here, or is this purely a factual error correction?",
+    "the_genuine_tension": "The denial's factual claim (3 weeks PT) is directly contradicted by the clinical record's PT summary (9 weeks total). A system that accepts the denial's factual assertion without checking the clinical record upholds. A system that reads the clinical record against the denial catches the discrepancy and overturns on criteria met. This is a pure factual verification test with no regulatory complexity. The anchor is the denial's specific numerical claim.",
+    "right_answer": "OVERTURN \u2014 The denial's factual basis is wrong. The clinical record documents 9 weeks of PT across two providers (Valley PT: 3 weeks, Capital PT: 6 weeks), with functional plateau explicitly documented at Capital PT discharge. All criteria under CC-SPINE-2024 Section 2.2 are met: 9 weeks PT exceeds the 6-week minimum, plateau is documented, two pharmacotherapy agents trialed, one interventional procedure completed. The denial reviewer counted only the Valley PT records and missed the Capital PT records entirely.",
+    "scoring": {
+      "fm1_anchor_correction": {
+        "description": "FM-1 anchor correction test",
+        "anchor_claim": "Denial states 3 weeks PT completed",
+        "correcting_evidence": "physical_therapy_summary.total_weeks = 9 (9 weeks across two providers)",
+        "score_2": "Determination explicitly states the denial's PT count is wrong, cites 9 weeks from both providers with source",
+        "score_1": "Determination reaches OVERTURN but does not explicitly name the factual error (just says criteria met)",
+        "score_0": "Determination accepts 3-week count and upholds, or reaches OVERTURN without correcting the stated PT figure"
+      }
+    }
+  }
+}

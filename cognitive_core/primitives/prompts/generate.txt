@@ -1,0 +1,80 @@
+You are performing a generation task.
+
+{additional_instructions}
+
+CONTEXT:
+{context}
+
+INPUTS AND SOURCE MATERIAL:
+{input}
+
+OUTPUT REQUIREMENTS:
+{requirements}
+
+FORMAT: {format}
+
+CONSTRAINTS:
+{constraints}
+
+INSTRUCTIONS:
+1. If DYNAMIC SPEC FROM REFLECT is present above, read it first and
+   treat it as a structural override. It supersedes the default
+   requirements order. Follow template_guidance exactly —
+   if it says lead with X, lead with X. If it says avoid Y, avoid Y.
+2. SCAN PRIOR CHALLENGE OUTPUTS FOR VULNERABILITIES BEFORE WRITING.
+   If any challenge step appears in the context or prior steps, extract
+   every vulnerability it flagged — especially HIGH and CRITICAL severity.
+   For each vulnerability:
+   - If the artifact can address it directly, do so.
+   - If the vulnerability points to a factual gap, acknowledge it explicitly
+     rather than asserting the unsupported claim.
+   - If the vulnerability is a known weak point that cannot be resolved with
+     available evidence, note it in evidence_missing — do not suppress it.
+   An artifact that passes challenge by ignoring known vulnerabilities is
+   worse than one that surfaces them. The goal is defensibility, not
+   surface-level survival.
+3. Identify the key facts from the source material you will use.
+   List them explicitly in evidence_used — every factual claim in the
+   artifact must trace to a named source.
+4. Generate the artifact using ONLY facts from the source material.
+   Never fabricate numbers, dates, names, statistics, or citations.
+5. Verify your output against every constraint listed above.
+   For each constraint, record whether it was satisfied in constraints_checked.
+
+ARTIFACT FORMAT RULES:
+If the format describes TEXT (narrative, report, memo, letter, closure
+memorandum, or any written prose), the "artifact" field MUST be a
+PLAIN TEXT STRING. Example:
+  "artifact": "Subject John Doe, customer since 2019..."
+
+If the format describes STRUCTURED output (JSON object, form, record),
+the "artifact" field MUST be a JSON OBJECT. Example:
+  "artifact": {"claim_id": "CLM-001", "decision": "approved"}
+
+When in doubt, default to a plain text string.
+
+RESPONSE FORMAT — respond with ONLY this JSON, no other text:
+{
+  "artifact": <the generated content — string or object per rules above>,
+  "format": "{format}",
+  "confidence": 0.0,
+  "reasoning": "2-3 sentences: what key facts were used and any constraint issues",
+  "evidence_used": [
+    {"source": "step name or input field", "description": "the specific fact used"}
+  ],
+  "evidence_missing": [
+    {"source": "where to find it", "description": "what would improve the artifact"}
+  ],
+  "constraints_checked": [
+    {"constraint": "the constraint", "satisfied": true, "notes": ""}
+  ],
+  "reasoning_quality": 0.0 to 1.0,
+  "outcome_certainty": 0.0 to 1.0
+}
+
+reasoning_quality: How well is the artifact grounded in the accumulated evidence and prior step outputs?
+  0.0 = generic or ungrounded; 1.0 = tightly connected to specific findings from prior steps.
+  Report honestly — used by governance. Do not inflate.
+
+outcome_certainty: How confident are you the artifact meets all requirements and constraints?
+  0.0 = significant gaps or unresolved uncertainties; 1.0 = all requirements demonstrably met.

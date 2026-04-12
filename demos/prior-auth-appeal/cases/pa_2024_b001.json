@@ -1,0 +1,90 @@
+{
+  "case_id": "PA-2024-B001",
+  "appeal_date": "2024-11-10",
+  "member": {
+    "id": "M-556677",
+    "name": "Linda Park",
+    "age": 45,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2019-09-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C5-C6 AND C6-C7, two levels",
+    "requested_by": "Dr. James Wilson, MD \u2014 Spine Surgery",
+    "facility": "UCLA Medical Center"
+  },
+  "denial": {
+    "date": "2024-10-28",
+    "reason_code": "MED-003",
+    "reason_text": "Two-level ACDF not medically necessary. Imaging shows pathology at C5-C6 only. C6-C7 shows mild degenerative changes without significant compression or neurological deficit attributable to this level.",
+    "reviewer": "Dr. Alan Foster, MD",
+    "level": "initial"
+  },
+  "appeal_basis": [
+    "Member meets all plan criteria for at least the C5-C6 level",
+    "Surgeon believes both levels should be addressed to prevent adjacent segment disease",
+    "6 weeks PT completed, pharmacotherapy and injection done"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Cervical radiculopathy C5-C6 with adjacent C6-C7 degenerative disease",
+    "imaging": {
+      "mri_1": {
+        "date": "2024-09-01",
+        "findings": "C5-C6: large disc herniation with moderate-severe nerve root compression, moderate foraminal stenosis. Clear correlation with C6 radicular symptoms. C6-C7: mild disc bulge, minimal foraminal narrowing, no cord contact, no nerve root compression identifiable."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-09-05",
+      "findings": "Right C6 dermatomal numbness and tingling, bicep reflex diminished right, grip strength 4/5 right. No C7 findings documented. No bilateral findings. No upper motor neuron signs."
+    },
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 8,
+        "total_sessions": 24,
+        "note": "8 weeks PT across two providers. C6 radicular symptoms persist. C7 symptoms were never documented.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Gabapentin 600mg TID",
+            "duration": "4 months",
+            "response": "Partial relief"
+          },
+          {
+            "drug": "Cyclobenzaprine",
+            "duration": "6 weeks",
+            "response": "Minimal benefit"
+          }
+        ]
+      },
+      "interventional": {
+        "right_c6_epidural": {
+          "date": "2024-10-01",
+          "response": "50% temporary relief of right C6 symptoms, fully returned by week 4"
+        }
+      }
+    },
+    "surgeon_note": "Dr. Wilson: I recommend two-level fusion to address both C5-C6 pathology and prophylactically stabilize C6-C7 to prevent adjacent segment disease, which has a 25% 5-year incidence after single-level ACDF."
+  },
+  "documents_enclosed": [
+    "MRI report",
+    "PT records",
+    "Neurological exam",
+    "Epidural records",
+    "Surgeon operative plan"
+  ],
+  "question": "Should the prior authorization denial for two-level ACDF C5-C6 and C6-C7 (CPT 22551 x2) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "OVERTURN \u2014 member clearly meets all plan criteria: 8 weeks PT, two pharmacotherapy agents, injection, confirmed radiculopathy, imaging correlation.",
+    "harder_question_1": "The plan criteria are met for C5-C6. Are they met for C6-C7 when imaging shows only mild changes and there are no documented C7 symptoms?",
+    "harder_question_2": "Does prophylactic fusion of an asymptomatic level with mild imaging changes meet medical necessity standards?",
+    "harder_question_3": "The clinical standard requires imaging AND symptoms to correspond to each fused level \u2014 does C6-C7 meet this standard?",
+    "harder_question_4": "Adjacent segment disease prevention is a legitimate surgical consideration, but does it constitute medical necessity for the second level?",
+    "the_genuine_tension": "Plan criteria clearly met for the overall procedure. A single-pass system reads criteria met and OVERTURNs both levels. But the plan denied the C6-C7 level specifically because there are no symptoms and minimal imaging findings at that level. Clinical standards require symptom-imaging correlation for each fused level. The surgeon's prophylactic argument doesn't meet the medical necessity threshold for the second level.",
+    "right_answer": "PARTIAL \u2014 OVERTURN for C5-C6 (criteria met, symptoms documented, imaging correlation confirmed). UPHOLD for C6-C7 (no documented C7 symptoms, minimal imaging findings, prophylactic fusion alone does not meet medical necessity standard). Correct answer is PARTIAL, not full OVERTURN."
+  }
+}

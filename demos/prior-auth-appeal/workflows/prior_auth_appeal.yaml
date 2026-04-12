@@ -1,0 +1,51 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Workflow: Prior Authorization Appeal Review — Agentic Mode
+#
+# The orchestrator sequences primitives to review the appeal.
+# Constraints ensure all three knowledge sources are retrieved before
+# any analysis begins, and that cross-source conflicts are explicitly
+# verified before disposition.
+#
+# The architecture earns its cost here by:
+# 1. Completion contracts on retrieve prevent premature analysis
+# 2. Hypothesis testing in investigate applies each source independently
+# 3. Verify step surfaces cross-source conflicts explicitly
+# 4. Challenge tests the disposition from the losing party's perspective
+# 5. Govern applies the correct tier based on case complexity
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: prior_auth_appeal
+mode: agentic
+
+goal: "${domain.goal}"
+
+available_primitives:
+  - retrieve
+  - classify
+  - investigate
+  - verify
+  - deliberate
+  - generate
+  - challenge
+  - reflect
+  - govern
+
+constraints:
+  max_steps: 18
+  max_repeat: 2
+  must_include:
+    - retrieve
+    - classify
+    - investigate
+    - verify
+    - deliberate
+    - generate
+    - challenge
+    - govern
+  must_end_with: govern
+  challenge_must_pass: false
+
+orchestrator:
+  strategy: "${domain.orchestrator_strategy}"
+
+primitive_configs: "${domain.primitive_configs}"

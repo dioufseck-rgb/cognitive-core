@@ -1,0 +1,96 @@
+{
+  "case_id": "PA-2024-D002",
+  "appeal_date": "2024-11-22",
+  "member": {
+    "id": "M-445577",
+    "name": "Michael Green",
+    "age": 57,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2018-03-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C5-C6, one level",
+    "requested_by": "Dr. Sarah Kim, MD \u2014 Spine Surgery",
+    "facility": "Cedars-Sinai Medical Center"
+  },
+  "denial": {
+    "date": "2024-11-08",
+    "reason_code": "MED-003",
+    "reason_text": "Request denied. Member does not meet criteria for requested procedure under plan policy. See attached criteria document.",
+    "reviewer": "Dr. Patricia Huang, MD",
+    "level": "initial",
+    "imr_notice_included": false,
+    "criteria_document_attached": false,
+    "note": "Denial references attached criteria document but no document was attached. Member and provider confirm no attachment received."
+  },
+  "appeal_basis": [
+    "No criteria document was attached despite being referenced",
+    "IMR notice not included",
+    "Member cannot evaluate denial without the criteria that were applied"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Cervical radiculopathy C5-C6 with functional impairment",
+    "imaging": {
+      "mri_1": {
+        "date": "2024-09-20",
+        "findings": "C5-C6 large disc herniation, moderate left C6 nerve root compression. No cord contact."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-09-25",
+      "findings": "Left C6 dermatomal numbness, bicep reflex diminished left, bicep weakness 4/5 left"
+    },
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 7,
+        "total_sessions": 21,
+        "note": "7 weeks PT. PT notes document plateau at week 6. Radicular symptoms persist.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Gabapentin 600mg TID",
+            "duration": "4 months",
+            "response": "Partial relief"
+          },
+          {
+            "drug": "Naproxen 500mg BID",
+            "duration": "3 months",
+            "response": "Inadequate"
+          }
+        ]
+      },
+      "interventional": {
+        "left_c6_epidural": {
+          "date": "2024-10-28",
+          "response": "40% relief, returned to baseline in 3 weeks"
+        }
+      }
+    },
+    "procedural_defects": {
+      "imr_notice_missing": true,
+      "referenced_attachment_not_provided": true,
+      "denial_reason_generic": true
+    }
+  },
+  "documents_enclosed": [
+    "MRI report",
+    "PT records",
+    "Neurological exam",
+    "Epidural records"
+  ],
+  "question": "Should the prior authorization denial for ACDF C5-C6 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "This case actually meets plan criteria \u2014 7 weeks PT, 2 pharmacotherapy agents, injection, documented plateau. OVERTURN.",
+    "harder_question_1": "The member meets criteria on the merits \u2014 but the denial was procedurally defective. Does the procedural defect provide an independent ground for overturn?",
+    "harder_question_2": "Is this OVERTURN on merits, or OVERTURN on procedural grounds, or both \u2014 and does the basis matter?",
+    "harder_question_3": "The referenced criteria document was never provided \u2014 is this alone sufficient to void the denial?",
+    "harder_question_4": "IMR notice was missing \u2014 does this procedural failure independently require the plan to reprocess the denial?",
+    "the_genuine_tension": "Unlike D001, this case meets criteria on the merits. The correct clinical outcome is overturn regardless of the procedural defect. A single-pass system reads the clinical record and correctly overturns. But the procedural defects should be documented in the determination so the plan is put on notice of the statutory violations.",
+    "right_answer": "OVERTURN \u2014 on both clinical and procedural grounds. Clinically: all criteria met (7 weeks PT, 2 pharmacotherapy agents, injection, documented plateau, imaging correlation). Procedurally: denial notice violated CHSC 1374.31(b) \u2014 referenced attachment not provided, IMR notice absent. Both grounds should be documented."
+  }
+}

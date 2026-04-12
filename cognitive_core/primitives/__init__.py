@@ -1,0 +1,48 @@
+from cognitive_core.primitives.registry import (
+    list_primitives,
+    get_prompt_template,
+    get_schema_class,
+    get_config_spec,
+    render_prompt,
+    validate_use_case_step,
+)
+from cognitive_core.primitives.schemas import (
+    BaseOutput,
+    ClassifyOutput,
+    InvestigateOutput,
+    DeliberateOutput,
+    VerifyOutput,
+    GenerateOutput,
+    ChallengeOutput,
+    RetrieveOutput,
+    GovernOutput,
+    GovernanceTier,
+    WorkOrder,
+    AccountabilityChain,
+    SCHEMA_REGISTRY,
+)
+from cognitive_core.primitives.artifacts import ExecutionArtifact, ActOutput  # ActOutput = backward-compat alias
+
+__all__ = [
+    "list_primitives",
+    "get_prompt_template",
+    "get_schema_class",
+    "get_config_spec",
+    "render_prompt",
+    "validate_use_case_step",
+    "BaseOutput",
+    "ClassifyOutput",
+    "InvestigateOutput",
+    "DeliberateOutput",
+    "VerifyOutput",
+    "GenerateOutput",
+    "ChallengeOutput",
+    "RetrieveOutput",
+    "GovernOutput",
+    "GovernanceTier",
+    "WorkOrder",
+    "AccountabilityChain",
+    "ExecutionArtifact",
+    "ActOutput",
+    "SCHEMA_REGISTRY",
+]

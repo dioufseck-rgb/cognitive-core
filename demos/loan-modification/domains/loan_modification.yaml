@@ -1,0 +1,665 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Domain: Loan Modification — First-Instance Loss Mitigation Determination
+#
+# This domain governs first-instance evaluation of mortgage loan modification
+# applications. The analyst must determine what loss mitigation options, if any,
+# are available to the borrower by applying three independent frameworks:
+#
+#   1. Servicer loss mitigation policy (internal criteria, waterfall, DTI targets)
+#   2. Federal procedural requirements (CFPB Regulation X — 12 CFR 1024.41)
+#   3. Investor/GSE guidelines (option availability, principal reduction
+#      prohibition, income verification standards)
+#
+# These three frameworks may conflict or constrain each other. Where they
+# conflict, the hierarchy is:
+#   Federal regulation > Investor/GSE guidelines > Servicer policy
+#
+# CRITICAL DOMAIN DISTINCTION FROM APPELLATE REVIEW:
+# This is NOT an appeal. This is first-instance determination. The system
+# is producing the servicer's determination, not reviewing someone else's.
+# The output is a loss mitigation determination specifying what options are
+# available and why, not a disposition on whether a prior denial was correct.
+#
+# The primary sources of error in loss mitigation determinations are:
+#   1. Sympathy/hardship override — compelling hardship narrative causes the
+#      system to approve options the borrower does not qualify for
+#   2. Option evaluation truncation — system finds one viable option and stops
+#      without evaluating all required options
+#   3. Procedural/substantive conflation — servicer procedural obligation
+#      (must evaluate all options) is confused with substantive eligibility
+#   4. Investor restriction blindness — system recommends options that investor
+#      guidelines prohibit, creating a determination that cannot be executed
+#   5. Income calculation error — gross revenue used instead of net income for
+#      self-employed borrowers, producing an inflated GMI and false feasibility
+# ─────────────────────────────────────────────────────────────────────────────
+
+domain_name: loan_modification
+version: "1.0"
+
+goal: |
+  Produce a complete loss mitigation determination for this mortgage loan
+  application. The determination must:
+
+  (1) Evaluate the borrower for ALL available loss mitigation options in
+      the required sequence (retention options first, then non-retention)
+  (2) For each option: state whether the borrower qualifies, and if not,
+      the specific criterion not met with calculated values
+  (3) For loan modification: apply the full waterfall (rate reduction →
+      term extension → principal forbearance → principal reduction if
+      available) and state the resulting DTI at each step
+  (4) Identify any investor restrictions that limit available options
+  (5) State the final determination: which options are offered, which are
+      denied, and the specific documented reason for each denial
+
+  The determination output type depends entirely on the case facts:
+  - APPROVE [option]: borrower qualifies, option is offered
+  - DENY [option]: borrower does not qualify — specify criterion and values
+  - PEND: application is incomplete — specify missing documents
+  - REFER: option requires investor approval beyond servicer authority
+  - PARTIAL: some options available, others not — specify each
+
+  The determination must be executable: a denial must cite the specific
+  disqualifying criterion and calculated values. A determination that says
+  only "does not qualify" is not a valid output.
+
+# ── Orchestrator policy ────────────────────────────────────────────────────
+
+orchestrator_strategy: |
+  LOAN MODIFICATION — EVALUATION SEQUENCE:
+
+  1. VERIFY APPLICATION COMPLETENESS BEFORE ANY ELIGIBILITY ANALYSIS.
+     Before evaluating any option, confirm all required documents are present:
+     hardship letter, income documentation (pay stubs or tax returns), bank
+     statements, mortgage statement. If any required document is missing:
+     determination is PEND — list missing items specifically.
+     Do not proceed to eligibility analysis on an incomplete application.
+
+  2. CALCULATE GROSS MONTHLY INCOME CORRECTLY.
+     This is the single most common error source. For self-employed borrowers:
+     GMI = Schedule C net profit (not gross revenue) + depreciation +
+     depletion + amortization, divided by 24 months.
+     For wage earners: annualized base salary divided by 12.
+     GMI must be verified through at least two independent sources.
+     Document the specific income sources and calculation.
+
+  3. CLASSIFY THE HARDSHIP TYPE BEFORE EVALUATING OPTIONS.
+     Determine whether the hardship is:
+     - Temporary (income will recover): affects forbearance feasibility
+     - Permanent (income will not recover): affects modification vs non-retention
+     - Income elimination (death/disability of co-borrower): affects both
+       income calculation and which options are appropriate
+     Hardship type determines which options are plausibly feasible.
+     It does NOT override eligibility criteria or investor restrictions.
+
+  4. IDENTIFY INVESTOR/LOAN TYPE BEFORE EVALUATING WATERFALL.
+     The investor (Fannie Mae, Freddie Mac, FHA, VA, portfolio) determines
+     which waterfall steps are available. Critically:
+     - Principal reduction is PROHIBITED on Fannie/Freddie loans
+     - Failure to identify investor type before waterfall analysis produces
+       determinations that recommend unavailable options
+     Confirm loan type from the application record before Step 5.
+
+  5. EVALUATE ALL RETENTION OPTIONS IN SEQUENCE.
+     Evaluate in this exact order:
+     (a) Repayment plan — can borrower cure arrears while sustaining payment?
+     (b) Forbearance — is hardship temporary? Can borrower resume payment after?
+         IMPORTANT: If forbearance is evaluated, also evaluate what happens
+         at forbearance end. If borrower cannot resume the original payment,
+         forbearance alone does not resolve the hardship — a modification
+         will also be needed.
+     (c) Loan modification — apply full waterfall:
+         Step 1: Rate reduction to floor (3.50%)
+         Step 2: Term extension to 480 months
+         Step 3: Principal forbearance (if investor allows)
+         Step 4: Principal reduction (if investor allows — NOT Fannie/Freddie)
+         At each step: calculate resulting modified payment and DTI.
+         Stop when DTI reaches target range (29–33%) or waterfall is exhausted.
+     Do not stop after finding one feasible option. All options must be evaluated
+     and documented even if an earlier option is available.
+
+  6. EVALUATE NON-RETENTION OPTIONS IF RETENTION IS INFEASIBLE.
+     Only if no retention option is feasible, evaluate:
+     (a) Short sale
+     (b) Deed-in-lieu
+     These require borrower consent and are offered, not imposed.
+
+  7. CHALLENGE THE PROPOSED DETERMINATION.
+     Before finalizing: challenge from the perspective of a borrower advocate.
+     Did the income calculation use the correct methodology?
+     Were all investor restrictions correctly identified and applied?
+     Was the waterfall fully applied before denying modification?
+     Was hardship type correctly assessed (temporary vs permanent)?
+
+  8. GOVERN — ROUTE TO APPROPRIATE TIER.
+     Cases where modification is infeasible solely due to investor principal
+     reduction prohibition (not income insufficiency) warrant GATE routing —
+     the borrower may benefit from non-retention options and human review
+     of the complete picture. Clear approvals and clear denials with complete
+     waterfall documentation may route AUTO.
+
+# ── Domain knowledge index ─────────────────────────────────────────────────
+
+domain_knowledge:
+
+  income_calculation:
+    wage_earner: |
+      GMI = annual base salary / 12.
+      Overtime: include only if consistent over 2 years (use 2-year average).
+      Bonus: include only if consistent over 2 years (use 2-year average).
+      Source: pay stubs (current) + W-2 (prior year) for verification.
+    self_employed: |
+      CRITICAL — USE NET INCOME NOT GROSS REVENUE:
+      GMI = (Schedule C net profit + depreciation + depletion + amortization)
+            / 24 months.
+      Gross business revenue is NOT income. Net profit after deductions is income.
+      Two-year average required. If most recent year significantly lower, that
+      year may govern (income trending down = use lower figure).
+      Sources: 2 years personal tax returns (Schedule C) + business bank statements.
+      FAILURE MODE: Using gross revenue instead of net profit inflates GMI,
+      makes modification appear feasible when it is not, and produces a
+      determination that will not withstand investor review.
+    social_security_pension: |
+      GMI = monthly benefit amount per award letter.
+      If Social Security is the primary income, gross-up is not required for
+      Fannie/Freddie (unlike for qualification purposes).
+      Source: SS award letter or pension statement + bank statements confirming receipt.
+    combined_household: |
+      Only borrowers on the loan may have their income included.
+      Non-borrower household members' income may NOT be included.
+      If co-borrower is deceased: remove co-borrower income entirely.
+      The surviving borrower's income is the only income available.
+
+  dti_mechanics:
+    target: |
+      Target front-end DTI: 31% (±2%) = acceptable range 29% to 33%.
+      Front-end DTI = proposed modified monthly payment / GMI.
+      The target applies to the modified payment PITI (principal, interest,
+      taxes, insurance). HOA dues are included if applicable.
+    calculation: |
+      Modified payment = amortized payment on (UPB - principal forbearance amount)
+      at modified interest rate over modified term, plus taxes, insurance, HOA.
+      The DTI must be calculated at each waterfall step and documented.
+    feasibility_test: |
+      Modification is feasible if and only if the target DTI (29–33%) can be
+      achieved by applying some combination of available waterfall steps.
+      IMPORTANT: A modified payment that is lower than the current payment but
+      still above 33% DTI does NOT constitute a feasible modification.
+      The test is against the DTI target, not against the current payment.
+      A 38% DTI modified payment fails the test even if it represents a
+      $400/month improvement.
+
+  investor_restrictions:
+    fannie_freddie_principal_reduction: |
+      ABSOLUTE PROHIBITION: Fannie Mae and Freddie Mac do not permit principal
+      reduction on conventional loans they own or guarantee. No exception exists.
+      This prohibition is non-negotiable and cannot be overridden by:
+      - Servicer discretion
+      - Hardship severity (including death of co-borrower)
+      - Housing counselor advocacy
+      - Congressional inquiry
+      - Any other circumstance
+      If principal reduction would be required to achieve 31% DTI and the loan
+      is a Fannie/Freddie loan: modification is NOT feasible. Period.
+      Source: FHFA Guidance 2012-03, reaffirmed 2018.
+    principal_forbearance: |
+      Principal forbearance (deferring a portion interest-free to maturity) IS
+      available on Fannie/Freddie loans under the Flex Modification waterfall.
+      Maximum forbearance: 30% of current UPB.
+      Principal forbearance ≠ principal reduction.
+      Forborne principal is still owed — it is deferred, not forgiven.
+    portfolio_loans: |
+      Portfolio loans (servicer holds loan on balance sheet) have no GSE
+      restrictions. Principal reduction is available at servicer discretion,
+      subject to NPV test and VP-level approval.
+      NPV positive = should approve. NPV negative = may deny.
+
+  hardship_assessment:
+    hardship_as_threshold: |
+      Hardship is a threshold eligibility criterion. Documenting a qualifying
+      hardship satisfies one eligibility criterion. It does NOT:
+      - Override DTI target requirements
+      - Make an infeasible modification feasible
+      - Authorize options investor guidelines prohibit
+      A compelling hardship with documented income loss satisfies the hardship
+      criterion. It does not change the math of whether the modification waterfall
+      achieves 31% DTI. These are separate questions.
+    temporary_vs_permanent: |
+      Temporary hardship: income expected to recover within 12 months.
+        → Forbearance is potentially appropriate as a primary solution.
+        → Modification is a secondary option if payment remains unaffordable.
+      Permanent hardship: income reduced permanently (disability, retirement,
+        death of income-producing co-borrower).
+        → Forbearance alone is NOT an adequate solution — it defers but does
+          not resolve an unaffordable payment.
+        → Modification must be evaluated. If modification is infeasible,
+          non-retention options must be evaluated.
+      FAILURE MODE: Treating a permanent hardship as temporary leads to
+      approving forbearance as a complete solution when it is not.
+    death_of_co_borrower: |
+      Death of co-borrower is a qualifying hardship AND changes the income
+      calculation. Both effects must be applied simultaneously:
+      - Remove co-borrower income from GMI calculation entirely
+      - Apply hardship criterion as satisfied
+      - Evaluate all options based on surviving borrower's income only
+      A system that acknowledges the hardship but retains the co-borrower's
+      income in the GMI calculation will produce an inflated feasibility
+      assessment. The income reduction and the hardship acknowledgment must
+      both be applied.
+
+  procedural_obligations:
+    completeness_gate: |
+      An incomplete application must result in a PEND determination with
+      specific missing items listed. An incomplete application cannot be
+      denied on the merits — the borrower must be given the opportunity to
+      complete it first (§ 1024.41(b)(3)).
+      EXCEPTION: If the application is so incomplete that no eligibility
+      analysis can be performed, PEND is the only correct output.
+    all_options_required: |
+      The servicer must evaluate the borrower for ALL available options,
+      not just the option the borrower requested. Evaluating only the
+      requested option and stopping is a § 1024.41(c)(1) violation.
+      This means even if a modification is approved, the servicer must
+      still document evaluation of other options (repayment plan, forbearance)
+      in the evaluation record — though the borrower need not be offered
+      options they clearly do not want.
+    denial_notice_specificity: |
+      A denial for any option must state:
+      - The specific option denied
+      - The specific criterion not met
+      - The actual calculated value vs. the required value
+      A denial that says only "income insufficient" without stating the
+      calculated DTI and the target DTI is a defective denial notice
+      under § 1024.41(d) and the servicer's own policy § 5.1.
+
+  evaluation_traps:
+    forbearance_completeness: |
+      Forbearance evaluation is not complete when forbearance is approved.
+      The analyst must also evaluate: can the borrower resume the original
+      contractual payment at forbearance end?
+      If the answer is no (permanent income reduction, DTI too high at
+      original payment), then forbearance alone is not a complete solution.
+      The correct determination: offer forbearance AND evaluate modification
+      for what happens at forbearance end. Do not approve forbearance as a
+      complete solution when the underlying payment remains unaffordable.
+    partial_waterfall: |
+      A waterfall analysis is not complete if it stops before all available
+      steps are tried. Common truncation: analyst applies rate reduction and
+      term extension, finds DTI is still 38%, and denies modification without
+      checking principal forbearance availability.
+      Required: apply every available step. Document DTI at each step.
+      Only after all steps are exhausted and DTI is still above 33% is the
+      modification correctly denied as infeasible.
+
+# ── Primitive configs ──────────────────────────────────────────────────────
+
+primitive_configs:
+
+  retrieve_application_record:
+    primitive: retrieve
+    params:
+      specification: |
+        Source: case_record
+
+        Extract and structure the following from the case_record:
+
+        BORROWER AND LOAN FACTS:
+        - Borrower name, occupancy, property address
+        - Loan type, investor, current UPB, interest rate, remaining term
+        - Current monthly PITI payment
+        - Delinquency: months delinquent, total arrears
+        - Prior modification history
+
+        INCOME DOCUMENTATION (extract raw figures only — do not calculate GMI yet):
+        - Employment type
+        - For self-employed: Schedule C net profit and depreciation for each tax year
+          AND gross business revenue for each year (note these separately)
+        - Co-borrower status: alive or deceased
+        - YTD figures if provided: period covered, net income
+
+        HARDSHIP:
+        - Hardship type, onset date, temporary or permanent
+        - Documents provided
+
+        T&I: Extract property_taxes_monthly, insurance_monthly, total_ti_monthly.
+
+        Do not calculate GMI or DTI at this step. Extract and structure only.
+      strategy: deterministic
+      sources: case_record
+
+  retrieve_servicer_policy:
+    primitive: retrieve
+    params:
+      specification: |
+        Source: servicer_policy_document
+
+        Extract from the servicer_loss_mitigation_policy:
+        - Qualifying hardship types and documentation requirements (§ 1.1, 1.2)
+        - Gross monthly income definition and excluded income (§ 2.1, 2.2)
+        - Eligibility criteria for each option: repayment plan, forbearance,
+          modification (§ 3.1, 3.2, 3.3)
+        - Modification waterfall steps and DTI target (§ 3.3.2, 3.3.3)
+        - Investor restrictions on waterfall steps by loan type (§ 3.3.4)
+        - Application completeness checklist (§ 4.3)
+        - Denial notice content requirements (§ 5.1)
+      strategy: deterministic
+      sources: servicer_policy_document
+
+  retrieve_regulatory_framework:
+    primitive: retrieve
+    params:
+      specification: |
+        Source: regulatory_document
+
+        Extract from the cfpb_regulatory_framework:
+        - Acknowledgment and completeness requirements (§ 1024.41(b))
+        - All-options evaluation requirement (§ 1024.41(c)(1))
+        - Denial notice specificity requirements (§ 1024.41(d))
+        - Dual tracking prohibition (§ 1024.41(f))
+        - Good faith and reasonable diligence standard (§ 1024.41(b)(1))
+        - Defective denial notice consequences
+        - Appeal rights (§ 1024.41(h))
+      strategy: deterministic
+      sources: regulatory_document
+
+  retrieve_investor_guidelines:
+    primitive: retrieve
+    params:
+      specification: |
+        Source: investor_guidelines_document
+
+        Extract from the investor_gse_guidelines:
+        - Fannie Mae Flex Modification eligibility criteria (§ F1.2)
+        - Flex Modification waterfall steps and sequence (§ F1.3)
+        - Target payment ratio (§ F1.4)
+        - Principal reduction prohibition — exact scope and any exceptions (§ F1.5)
+        - Option availability matrix by loan type (Part II)
+        - Income verification requirements for self-employed (§ G3.1)
+        - What hardship does and does not authorize (§ G4.1, G4.2)
+        - Housing counselor authority limits (§ G5.2)
+      strategy: deterministic
+      sources: investor_guidelines_document
+
+  verify_application_completeness:
+    primitive: verify
+    params:
+      rules: |
+        RULE 1: A signed borrower hardship letter is present in the application documents.
+        RULE 2: Income documentation is present and appropriate for employment type.
+          Self-employed: 2 years personal tax returns (4506-C signed), year-to-date P&L,
+          2 months business bank statements. Wage earner: 2 recent pay stubs and W-2.
+          Retired/SS: award letter or pension statement.
+        RULE 3: 2 months personal bank statements are present.
+        RULE 4: IRS Form 4506-C is signed and present.
+        RULE 5: Hardship-type documentation is present (death certificate for co-borrower
+          death, medical letter for medical hardship, termination notice for job loss).
+        RULE 6: Most recent mortgage statement is present or available from servicer system.
+      subject: Application completeness against servicer policy § 4.3 checklist
+
+  classify_hardship_and_loan_type:
+    primitive: classify
+    params:
+      categories: |
+        temporary_income_reduction |
+        permanent_income_reduction |
+        income_elimination_co_borrower_death |
+        medical_hardship |
+        disaster |
+        insufficient_information
+      criteria: |
+        TEMPORARY_INCOME_REDUCTION: Income reduced but expected to recover within
+        12 months. Forbearance is potentially a standalone solution.
+
+        PERMANENT_INCOME_REDUCTION: Income reduced with no expected recovery
+        (disability, retirement, business failure). Forbearance alone is not
+        adequate — modification or non-retention must also be evaluated.
+
+        INCOME_ELIMINATION_CO_BORROWER_DEATH: Co-borrower who contributed to
+        household income has died. Income calculation must remove co-borrower
+        income entirely. This is a permanent hardship by definition.
+
+        MEDICAL_HARDSHIP: Documented illness reducing income or creating expenses
+        exceeding 10% GMI. May be temporary or permanent depending on prognosis.
+
+        DISASTER: Federally declared disaster affecting property or employer.
+
+        Classify based on hardship letter and documentation. Also identify loan
+        type: Fannie Mae, Freddie Mac, FHA, VA, or portfolio. Both pieces of
+        information are required before waterfall analysis.
+
+  calculate_verified_income:
+    primitive: investigate
+    params:
+      question: What is the borrower's verified gross monthly income using the correct methodology for their employment type?
+      scope: |
+        Use income_documentation field. Apply servicer policy § 2.1 and GSE guidelines § G3.1.
+
+        FOR SELF-EMPLOYED (Schedule C):
+        Step 1: For each tax year: adjusted net = Schedule C net profit + depreciation + amortization.
+          State gross revenue separately — it is NOT income.
+        Step 2: Calculate 2-year average: (Year 1 adjusted net + Year 2 adjusted net) / 24 months.
+        Step 3: Calculate current year annualized: (YTD net income / months covered) * 12.
+        Step 4: TRENDING DOWN RULE — if current year annualized < 2-year average, use current year.
+          State which figure governs and why.
+
+        CO-BORROWER DEATH: Remove deceased co-borrower income entirely.
+          Calculate GMI on surviving borrower only.
+
+        State the final GMI as $X,XXX/month with the calculation shown step by step.
+        State gross revenue explicitly alongside net income to make the distinction visible.
+
+  investigate_retention_options:
+    primitive: investigate
+    params:
+      question: Is the borrower eligible for any retention option — repayment plan, forbearance, or loan modification?
+      scope: |
+        Use the verified GMI from calculate_verified_income. Evaluate each option in order.
+
+        REPAYMENT PLAN (§ 3.1):
+        Is hardship permanent? If yes: ineligible — borrower cannot resume full payment.
+        Otherwise: calculate current PTI and repayment PTI. Ineligible if PTI >45% or arrears >12 months.
+        State conclusion and specific disqualifying value.
+
+        FORBEARANCE (§ 3.2):
+        Can the borrower resume the original contractual payment at forbearance end?
+        Calculate: original payment / GMI = PTI. If PTI >31%: borrower CANNOT resume.
+        If cannot resume: forbearance is available as short-term relief only — not a complete
+        solution. Modification must also be evaluated regardless.
+        State conclusion and resume-ability finding explicitly.
+
+        LOAN MODIFICATION — WATERFALL (§ 3.3):
+        Confirm investor type first. Apply waterfall steps in sequence until 29-33% DTI achieved.
+        Step 1: Rate reduction to 3.50%, current term and UPB. Calculate DTI.
+        Step 2: Rate 3.50%, extend term to 480 months. Calculate DTI.
+        Step 3: Rate 3.50%, 480 months, capitalize 30% of UPB as principal forbearance. Calculate DTI.
+        Step 4: Principal reduction — state whether available for this investor.
+          Fannie/Freddie: PROHIBITED (FHFA 2012-03). State prohibition explicitly.
+        Conclude: feasible at which step, or infeasible with DTI at each step documented.
+        If infeasible only because Step 4 is prohibited: state that principal reduction would
+        achieve target but is unavailable for this investor.
+
+  verify_determination_consistency:
+    primitive: verify
+    params:
+      rules: |
+        RULE 1 — INCOME METHODOLOGY: Was income calculated using net income
+        (not gross revenue) for self-employed borrowers? If gross revenue was used,
+        flag as calculation error.
+
+        RULE 2 — INVESTOR RESTRICTIONS: Were investor restrictions correctly applied?
+        If loan is Fannie/Freddie: confirm principal reduction was NOT offered.
+        If principal reduction was recommended on a Fannie/Freddie loan: flag as error.
+
+        RULE 3 — WATERFALL COMPLETENESS: Was the full waterfall applied before
+        denying modification? If modification was denied before Step 3 was evaluated
+        (where Step 3 is available): flag as incomplete waterfall.
+
+        RULE 4 — FORBEARANCE COMPLETENESS: If forbearance was approved: was the
+        resume-ability test conducted? If borrower cannot resume original payment
+        after forbearance: was modification also evaluated for post-forbearance?
+
+        RULE 5 — ALL OPTIONS EVALUATED: Were all retention options evaluated and
+        documented? (repayment plan + forbearance + modification minimum)
+
+        RULE 6 — HARDSHIP INCOME INTERACTION: If hardship involves death of
+        co-borrower: was co-borrower income removed from GMI calculation?
+
+        RULE 7 — DENIAL SPECIFICITY: For each denied option: does the denial
+        state the specific criterion not met with calculated values?
+      subject: Loss mitigation determination consistency and completeness
+
+  deliberate_determination:
+    primitive: deliberate
+    params:
+      instruction: |
+        Produce the loss mitigation determination. The determination must
+        specify for each option evaluated: approved, denied (with specific
+        reason and values), or pended (with missing items).
+
+        PEND: If application is incomplete, this is the only correct output.
+        State each missing item. Do not evaluate eligibility.
+
+        APPROVE [option]: Borrower meets all criteria. State which option and
+        the terms (for modification: proposed modified payment, rate, term,
+        DTI achieved). Note: approval is conditional on trial period plan
+        completion for modification.
+
+        DENY [option]: Borrower does not meet criteria for this option. State:
+        - The specific option
+        - The specific criterion not met
+        - The calculated value vs. the required value
+        Example: "DENY — Loan Modification: Waterfall exhausted. Maximum
+        achievable reduction (rate 3.50%, 480-month term, 30% principal
+        forbearance) produces modified DTI of 39%. Target range is 29-33%.
+        Principal reduction would be required to achieve target but is
+        prohibited on Fannie Mae loans (FHFA Guidance 2012-03)."
+
+        PARTIAL: Some options approved, others denied. List each separately.
+
+        REFER: Option requires investor/GSE approval beyond servicer authority.
+        State which option and why referral is needed.
+
+        KEY DELIBERATION QUESTIONS:
+        1. Was GMI calculated correctly? (Net vs gross for self-employed?)
+        2. Were all waterfall steps applied for modification?
+        3. Were investor restrictions correctly applied?
+        4. Is forbearance a complete solution or does modification also need
+           to be evaluated for post-forbearance?
+        5. Does the hardship acknowledgment change any of the math?
+           (It should not — hardship is a threshold criterion, not a merits override.)
+        6. Is the determination specific enough to be a valid denial notice
+           under § 1024.41(d) and § 5.1?
+      focus: |
+        The hardship narrative must not drive the determination. The determination
+        is driven by criteria, calculations, and investor restrictions.
+        A borrower with a compelling hardship who does not meet DTI targets after
+        a full waterfall does not qualify for modification. This is not a failure
+        of the evaluation — it is the correct determination. The compassionate
+        response is a specific, accurate, and complete determination that documents
+        all options evaluated and directs the borrower to non-retention alternatives
+        where appropriate.
+
+  generate_determination_notice:
+    primitive: generate
+    params:
+      requirements: |
+        Generate a complete loss mitigation determination notice that:
+        1. Identifies the borrower, loan, and application date
+        2. Lists all options evaluated
+        3. For each approved option: states the terms and any conditions
+           (e.g., trial period plan requirement for modification)
+        4. For each denied option: states the specific reason with
+           calculated values and the criterion not met (§ 1024.41(d))
+        5. States whether principal reduction was evaluated and, if not,
+           the investor restriction that prohibits it
+        6. Notifies borrower of 14-day appeal right (§ 1024.41(h))
+        7. States next steps for approved options (trial period plan dates
+           if modification offered) or non-retention referral if all
+           retention options denied
+        8. Includes servicer contact information for questions
+      format: formal_determination_letter
+      constraints: |
+        Every denial must cite a specific criterion with calculated values.
+        Investor restrictions must be identified by source (FHFA Guidance 2012-03).
+        Do not use conclusory language without supporting calculation.
+        The notice must be specific enough that a different analyst reviewing
+        the same application would reach the same conclusion.
+
+  challenge_determination:
+    primitive: challenge
+    params:
+      perspective: |
+        You are a HUD-approved housing counselor and a CFPB consumer attorney
+        representing the borrower. Challenge the determination from every angle:
+
+        1. INCOME CALCULATION: Was gross revenue used instead of net income for
+           any self-employed income? Was depreciation added back correctly?
+           Was co-borrower income correctly removed if co-borrower is deceased?
+
+        2. WATERFALL APPLICATION: Was the full waterfall applied? Were all steps
+           attempted before modification was denied? Was the maximum principal
+           forbearance (30% UPB) tried before concluding modification is infeasible?
+
+        3. INVESTOR RESTRICTIONS: Was the loan type correctly identified?
+           Are the investor restrictions being applied to the right loan type?
+           Could the borrower benefit from a different program (FHA, portfolio)?
+
+        4. FORBEARANCE AS COMPLETE SOLUTION: If forbearance was the only solution
+           offered, can the borrower actually resume the contractual payment?
+           If not, the evaluation is incomplete under § 1024.41(c)(1).
+
+        5. OPTION COVERAGE: Were all required options evaluated?
+           Was the denial notice specific enough under § 1024.41(d)?
+
+        6. SYMPATHY PRESSURE: Conversely — is the determination giving too much
+           weight to hardship narrative and approving options that the math does
+           not support? A determination approving modification when DTI is 42%
+           is equally wrong as one denying when DTI is 31%.
+      threat_model: |
+        This determination will face scrutiny from:
+        - CFPB examination (procedural compliance)
+        - Borrower's attorney (income calculation, waterfall completeness)
+        - Investor (unauthorized principal reduction, incorrect program application)
+        - Internal quality control (denial specificity, documentation)
+
+  reflect_after_challenge:
+    primitive: reflect
+    params:
+      scope: |
+        Examine the reasoning that produced the determination.
+        Was income calculated correctly? Was the waterfall fully applied?
+        Is the determination being driven by the hardship narrative rather
+        than the criteria? Are investor restrictions being correctly identified?
+        Is any option being omitted because the system stopped after finding
+        one feasible or infeasible result?
+
+  govern_determination_outcome:
+    primitive: govern
+    params:
+      workflow_state: "${accumulated}"
+      governance_context: |
+        Governance tier for loss mitigation determination:
+
+        AUTO: Determination is clear and well-supported — complete application,
+              correct income calculation, full waterfall documented, investor
+              restrictions correctly applied, specific denial reasons for each
+              denied option. Applies to any determination type when the finding
+              is unambiguous and documentation is complete.
+
+        SPOT_CHECK: Determination is supported but involves judgment calls.
+                    Income calculation has minor ambiguities. Waterfall is
+                    complete but results are close to the DTI boundary.
+
+        GATE: Human review required before determination is issued when:
+              - Modification is infeasible solely because investor prohibits
+                principal reduction that would otherwise make it feasible
+                (borrower may benefit from non-retention counseling)
+              - Income calculation involves significant self-employment
+                income with year-over-year variability >25%
+              - Hardship involves death of co-borrower with estate/legal
+                questions about loan assumption
+              - Challenge step identified potential income calculation error
+              - Forbearance is approved but resume-ability is unclear
+
+        HOLD: Insufficient documentation to complete evaluation.
+              Application is incomplete and PEND notice must be issued.
+              Additional documents required before any eligibility analysis.

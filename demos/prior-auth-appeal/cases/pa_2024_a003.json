@@ -1,0 +1,91 @@
+{
+  "case_id": "PA-2024-A003",
+  "appeal_date": "2024-10-28",
+  "member": {
+    "id": "M-334455",
+    "name": "Patricia Osei",
+    "age": 55,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2021-03-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C4-C5, one level",
+    "requested_by": "Dr. Michael Torres, MD \u2014 Neurosurgery",
+    "facility": "Cedars-Sinai Medical Center"
+  },
+  "denial": {
+    "date": "2024-10-15",
+    "reason_code": "MED-003",
+    "reason_text": "Member has not completed required conservative treatment. Physical therapy: 5 weeks completed, 6 required. No cervical epidural steroid injection on record. Member does not meet Section 2.2 requirements.",
+    "reviewer": "Dr. Alan Foster, MD",
+    "level": "initial"
+  },
+  "appeal_basis": [
+    "Member has pacemaker \u2014 cervical epidural steroid injection is medically contraindicated",
+    "Physician documented interventional contraindication in chart",
+    "APL 22-014 myelopathy provisions apply \u2014 myelomalacia documented"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Progressive cervical myelopathy C4-C5 with myelomalacia",
+    "comorbidities": [
+      "Permanent pacemaker (implanted 2019, Boston Scientific)",
+      "Type 2 diabetes",
+      "Hypertension"
+    ],
+    "imaging": {
+      "mri_1": {
+        "date": "2024-08-20",
+        "findings": "IMPORTANT: MRI performed with pacemaker-compatible protocol. C4-C5 severe central cord compression. T2 signal change (myelomalacia) confirmed. Progressive cord injury."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-08-25",
+      "findings": "Bilateral lower extremity spasticity, hyperreflexia, impaired fine motor bilateral hands, Lhermitte sign positive"
+    },
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 5,
+        "total_sessions": 15,
+        "note": "5 weeks PT. Stopped due to pacemaker precautions limiting certain modalities and physician determination that further PT was not addressing neurological progression.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Baclofen 10mg TID",
+            "duration": "3 months",
+            "response": "Partial spasticity relief"
+          },
+          {
+            "drug": "Methylprednisolone taper",
+            "duration": "10 days x2",
+            "response": "Temporary improvement only"
+          }
+        ]
+      },
+      "interventional": {
+        "reason_not_performed": "CONTRAINDICATED \u2014 Patient has permanent pacemaker. Fluoroscopy-guided cervical epidural steroid injection is contraindicated per anesthesiology consultation (Dr. Rivera, 2024-09-10). Written contraindication documented in chart."
+      }
+    }
+  },
+  "documents_enclosed": [
+    "MRI report",
+    "PT records",
+    "Pacemaker card",
+    "Anesthesiology contraindication letter",
+    "Neurological exam"
+  ],
+  "question": "Should the prior authorization denial for ACDF C4-C5 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "UPHOLD \u2014 5 weeks PT (need 6), no epidural injection completed.",
+    "harder_question_1": "Does a documented medical contraindication to the interventional requirement waive that requirement under the plan's own criteria?",
+    "harder_question_2": "Does the pacemaker-related inability to complete the injection constitute functional plateau or documented contraindication?",
+    "harder_question_3": "Does the myelomalacia finding trigger the regulatory override independently of the PT and interventional questions?",
+    "harder_question_4": "Can a plan deny based on a requirement that the member physically cannot meet due to a separate medical condition?",
+    "the_genuine_tension": "The plan denied on two grounds: incomplete PT (5 of 6 weeks) and no injection. But: (1) the injection is medically contraindicated due to pacemaker \u2014 the plan's own criteria include a physician-documented contraindication waiver; (2) myelomalacia triggers the regulatory override regardless; (3) 5 weeks PT is close enough that the physician's documented determination of PT futility may constitute functional plateau. Multiple independent pathways to overturn, none applied by initial reviewer.",
+    "right_answer": "OVERTURN \u2014 Multiple independent grounds: (1) Interventional requirement waived by documented medical contraindication (pacemaker); (2) Myelomalacia triggers CIC 10169.5(a)(3) regulatory override making PT requirement unenforceable; (3) Physician-documented PT futility may constitute functional plateau. Plan criteria were applied mechanically without considering documented contraindications or regulatory provisions."
+  }
+}

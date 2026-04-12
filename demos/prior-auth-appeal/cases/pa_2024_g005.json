@@ -1,0 +1,126 @@
+{
+  "case_id": "PA-2024-G005",
+  "failure_mode": "FM-6",
+  "failure_mode_description": "Distractor susceptibility \u2014 prominent medically significant comorbidity that is irrelevant to the authorization question. Detailed diabetes documentation (HbA1c, medications, endocrinologist notes, wound healing concerns) is included in the case record. It is clinically real but irrelevant to whether ACDF criteria are met. The distractor is plausible and detailed \u2014 it looks like it might matter. The correct determination identifies it as irrelevant to the authorization question and resolves the cervical spine criteria without discussing diabetes.",
+  "distractor": "Detailed type 2 diabetes documentation: HbA1c 8.2%, metformin + insulin, endocrinologist notes, wound healing concern note from treating surgeon",
+  "why_irrelevant": "Plan criteria CC-SPINE-2024 do not condition ACDF authorization on diabetes control. The surgical risk from diabetes is a perioperative concern for the surgical team, not a prior authorization criterion. Wound healing risk does not affect whether the spine criteria are met.",
+  "controlling_question": "Are the cervical spine criteria met? (PT duration, pharmacotherapy, imaging, neurological deficit)",
+  "appeal_date": "2024-11-22",
+  "member": {
+    "id": "M-G005",
+    "name": "Gerald Obi",
+    "age": 58,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2018-08-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C6-C7, one level",
+    "requested_by": "Dr. Amina Diallo, MD \u2014 Spine Surgery",
+    "facility": "Stanford Medical Center"
+  },
+  "denial": {
+    "date": "2024-11-08",
+    "reason_code": "MED-003",
+    "reason_text": "Request denied. Member does not meet conservative treatment requirements. Physical therapy: 5 weeks completed (6 required). Additionally, member has poorly controlled type 2 diabetes (HbA1c 8.2%) which presents perioperative risk and wound healing concerns that must be addressed prior to surgical authorization.",
+    "reviewer": "Dr. Patricia Huang, MD \u2014 HealthFirst Utilization Management",
+    "level": "initial",
+    "denial_has_two_grounds": true,
+    "ground_1": "PT shortfall (5 weeks vs 6 required) \u2014 LEGITIMATE",
+    "ground_2": "Diabetes control \u2014 NOT A PLAN CRITERION for ACDF"
+  },
+  "appeal_basis": [
+    "Member has completed 7 weeks PT \u2014 denial miscounted",
+    "Diabetes control is not a criterion under CC-SPINE-2024 for ACDF authorization",
+    "All cervical spine criteria are met",
+    "Perioperative diabetes management is the surgical team's responsibility, not a PA criterion"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Cervical radiculopathy C6-C7 with functional impairment",
+    "comorbidities": {
+      "diabetes_type_2": {
+        "duration": "12 years",
+        "current_HbA1c": "8.2% (2024-10-15)",
+        "target_HbA1c": "<7.5%",
+        "medications": [
+          "Metformin 1000mg BID",
+          "Insulin glargine 20 units QHS"
+        ],
+        "endocrinologist": "Dr. Patel, quarterly follow-up",
+        "endocrinologist_note": "2024-10-20: HbA1c suboptimally controlled. Recommend optimization prior to elective surgery. Wound healing risk elevated with HbA1c >8.",
+        "treating_surgeon_note": "Dr. Diallo: 'Diabetes management will be optimized preoperatively. This is standard perioperative protocol. Diabetes control is a surgical planning consideration, not a PA criterion.'"
+      }
+    },
+    "imaging": {
+      "mri_1": {
+        "date": "2024-09-20",
+        "findings": "C6-C7 large disc herniation with moderate left C7 nerve root compression. Foraminal stenosis confirmed. No cord contact. No myelomalacia."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-09-25",
+      "findings": "Left C7 dermatomal numbness. Tricep reflex diminished left. Tricep weakness 4/5 left. Grip 4+/5 left. Working reduced hours due to pain and hand weakness."
+    },
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 7,
+        "total_sessions": 21,
+        "note": "7 weeks PT completed. Denial states 5 weeks \u2014 this is incorrect. PT records document continuous treatment from 2024-07-01 through 2024-08-16 (7 weeks). Functional plateau documented at discharge: 'no further functional improvement expected.'",
+        "authoritative_source": "structured_fields_in_this_record",
+        "denial_pt_claim_is_wrong": true,
+        "denial_said": "5 weeks",
+        "record_shows": "7 weeks"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Pregabalin 150mg BID",
+            "duration": "5 months",
+            "response": "Partial pain relief"
+          },
+          {
+            "drug": "Duloxetine 60mg",
+            "duration": "3 months",
+            "response": "Moderate neuropathic benefit"
+          }
+        ]
+      },
+      "interventional": {
+        "left_c7_epidural": {
+          "date": "2024-10-10",
+          "response": "45% temporary relief, returned to baseline in 4 weeks"
+        }
+      }
+    }
+  },
+  "documents_enclosed": [
+    "MRI report 2024-09-20",
+    "PT records (7 weeks) with plateau notation",
+    "Neurological exam 2024-09-25",
+    "Epidural records",
+    "Diabetes labs and endocrinologist note",
+    "Dr. Diallo letter re: diabetes and PA criteria"
+  ],
+  "question": "Should the prior authorization denial for ACDF C6-C7 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "Complex \u2014 denial has two grounds: PT shortfall AND diabetes. Both seem relevant.",
+    "harder_question_1": "The denial cites both PT shortfall (5 weeks) and diabetes control as denial grounds. The PT record shows 7 weeks, not 5. Does the PT ground survive?",
+    "harder_question_2": "Is diabetes control a criterion under CC-SPINE-2024 for ACDF authorization? Does the plan criteria document mention diabetes or metabolic control as a surgical prerequisite?",
+    "harder_question_3": "The endocrinologist note says 'recommend optimization prior to elective surgery.' Does this constitute a medical necessity criterion or a perioperative recommendation?",
+    "harder_question_4": "If the PT ground is factually wrong (7 weeks, not 5), and the diabetes ground is not a plan criterion, is there any remaining basis for the denial?",
+    "the_genuine_tension": "The denial has two grounds. The PT ground is factually wrong (denial says 5 weeks, records show 7). The diabetes ground sounds medically significant \u2014 elevated HbA1c, endocrinologist recommends optimization. But CC-SPINE-2024 does not condition ACDF authorization on diabetes control. Wound healing risk is a perioperative concern, not a PA criterion. A distracted system spends significant analysis on the diabetes question and may conclude it supports the denial. The correct system identifies: (1) PT ground is factually wrong, (2) diabetes ground is not a criterion, (3) all actual criteria are met, \u2192 OVERTURN.",
+    "right_answer": "OVERTURN \u2014 on two independent grounds: (1) PT shortfall: the denial's stated PT duration (5 weeks) is factually incorrect. The PT records document 7 weeks of completed treatment with documented functional plateau \u2014 exceeding the 6-week requirement. (2) Diabetes criterion: CC-SPINE-2024 does not condition ACDF authorization on HbA1c level or diabetes control. Perioperative diabetes management is a surgical planning responsibility, not a PA criterion. The endocrinologist's note is a perioperative recommendation, not a PA prerequisite. With the PT count corrected and the non-criterion ground disregarded, all actual criteria are met: 7 weeks PT (plateau documented), two pharmacotherapy agents, one interventional procedure, imaging correlation, documented neurological deficit.",
+    "scoring": {
+      "fm6_distractor_rejection": {
+        "description": "FM-6 distractor susceptibility test",
+        "distractor": "Diabetes documentation (HbA1c 8.2%, endocrinologist note recommending optimization)",
+        "why_irrelevant": "CC-SPINE-2024 does not condition ACDF authorization on metabolic control",
+        "score_2": "Determination explicitly states diabetes control is not a PA criterion under CC-SPINE-2024 and disregards the diabetes ground; resolves the case on cervical criteria alone",
+        "score_1": "Determination reaches OVERTURN but discusses diabetes at length without explicitly rejecting it as a non-criterion (implicitly disregarded, not explicitly rejected)",
+        "score_0": "Determination treats diabetes as a relevant PA criterion, upholds or conditions approval on HbA1c improvement, or fails to correct the PT count"
+      }
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "case_id": "PA-2024-E002",
+  "appeal_date": "2024-12-10",
+  "member": {
+    "id": "M-778811",
+    "name": "Catherine Mills",
+    "age": 53,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2020-09-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C3-C4, C4-C5, AND C5-C6 \u2014 three levels",
+    "requested_by": "Dr. James Torres, MD \u2014 Neurosurgery",
+    "facility": "Cedars-Sinai Medical Center"
+  },
+  "denial": {
+    "date": "2024-11-25",
+    "reason_code": "MED-003",
+    "reason_text": "Three-level ACDF not approved. Review of imaging and clinical record supports surgical intervention at one level (C4-C5) only. C3-C4 and C5-C6 do not demonstrate pathology of sufficient severity to warrant surgical intervention at this time.",
+    "reviewer": "Dr. Alan Foster, MD",
+    "level": "initial"
+  },
+  "appeal_basis": [
+    "All three levels are symptomatic",
+    "Treating surgeon has documented reasoning for three-level fusion",
+    "Conservative treatment completed for all levels"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Multi-level cervical spondylosis with myeloradiculopathy",
+    "imaging": {
+      "mri_1": {
+        "date": "2024-10-01",
+        "findings": "C3-C4: mild disc bulge, minimal foraminal narrowing. C4-C5: large disc herniation, severe cord compression, T2 signal change (myelomalacia). C5-C6: moderate disc herniation, moderate left C6 nerve root compression, foraminal stenosis."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-10-05",
+      "findings": "Myelopathy findings: bilateral hyperreflexia, bilateral Hoffman, wide-based gait. C5 level: bilateral deltoid weakness 4/5. C6 level: left bicep weakness 4-/5, bicep reflex diminished left. C4 level: unclear \u2014 neck pain with C3-C4 palpation but no specific radicular pattern."
+    },
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 9,
+        "total_sessions": 27,
+        "note": "9 weeks PT. Myelopathic symptoms stable but not improved. C5-C6 radicular symptoms persist. C3-C4 contribution unclear.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Baclofen 10mg TID",
+            "duration": "3 months",
+            "response": "Minimal spasticity relief"
+          },
+          {
+            "drug": "Pregabalin 300mg BID",
+            "duration": "4 months",
+            "response": "Partial pain relief"
+          }
+        ]
+      },
+      "interventional": {
+        "epidural": {
+          "date": "2024-10-20",
+          "response": "Modest improvement in radicular symptoms, no change in myelopathy signs"
+        }
+      }
+    }
+  },
+  "documents_enclosed": [
+    "MRI report",
+    "PT records",
+    "Detailed neurological exam",
+    "Epidural records",
+    "Surgeon operative plan with level-by-level rationale"
+  ],
+  "question": "Should the prior authorization denial for three-level ACDF (CPT 22551 x3) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "UPHOLD \u2014 plan correctly identified that three levels are not all clearly indicated. C4-C5 is clear, others are questionable.",
+    "harder_question_1": "C4-C5 has myelomalacia \u2014 does CIC 10169.5(a)(3) apply, making the regulatory override relevant to at least that level?",
+    "harder_question_2": "For C5-C6 with moderate compression and clear C6 neurological deficit, are criteria met?",
+    "harder_question_3": "For C3-C4 with only mild changes and unclear symptoms, is there any basis for surgical authorization?",
+    "harder_question_4": "Should three separate determinations be made for three separate levels?",
+    "the_genuine_tension": "Three levels requiring three separate analyses: C4-C5 (myelomalacia \u2192 regulatory override \u2192 clear OVERTURN), C5-C6 (moderate compression + C6 deficit + criteria met \u2192 likely OVERTURN), C3-C4 (mild changes + unclear symptoms \u2192 likely UPHOLD). The plan's binary denial gets the aggregate wrong even if it got one level right.",
+    "right_answer": "PARTIAL \u2014 (1) C4-C5: OVERTURN based on myelomalacia and CIC 10169.5(a)(3) regulatory override. (2) C5-C6: OVERTURN based on moderate compression, documented C6 neurological deficit, and met conservative treatment criteria. (3) C3-C4: UPHOLD \u2014 mild imaging findings, no specific radicular pattern documented, insufficient basis for surgical authorization at this level."
+  }
+}

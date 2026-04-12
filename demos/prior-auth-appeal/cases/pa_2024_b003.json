@@ -1,0 +1,94 @@
+{
+  "case_id": "PA-2024-B003",
+  "appeal_date": "2024-10-15",
+  "member": {
+    "id": "M-778899",
+    "name": "Angela Morrison",
+    "age": 67,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2016-01-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C3-C4, one level",
+    "requested_by": "Dr. Paul Nguyen, MD \u2014 Neurosurgery",
+    "facility": "Cedars-Sinai Medical Center"
+  },
+  "denial": {
+    "date": "2024-10-01",
+    "reason_code": "MED-003",
+    "reason_text": "Member meets conservative treatment requirements. However, imaging does not show sufficient pathology at C3-C4 to support surgical intervention. MRI shows mild degenerative changes. Procedure not medically necessary.",
+    "reviewer": "Dr. Alan Foster, MD",
+    "level": "initial"
+  },
+  "appeal_basis": [
+    "Member completed all conservative treatment requirements",
+    "Surgeon says C3-C4 is symptomatic level based on clinical examination",
+    "CT myelogram confirms compression not visible on MRI due to hardware artifact"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Adjacent segment disease at C3-C4 following prior C4-C5 fusion (2019)",
+    "prior_surgical_history": "C4-C5 ACDF 2019, successful, member had good outcome for 4 years",
+    "imaging": {
+      "mri_1": {
+        "date": "2024-08-15",
+        "findings": "C3-C4 region: SIGNIFICANT ARTIFACT from C4-C5 hardware limiting evaluation. Mild degenerative signal changes visible. Cannot exclude moderate compression due to artifact."
+      },
+      "ct_myelogram": {
+        "date": "2024-09-10",
+        "findings": "CT myelogram performed due to MRI artifact limitation. C3-C4: moderate-severe left C4 nerve root compression confirmed. Significant foraminal stenosis. MRI underestimated pathology due to hardware artifact from prior fusion."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-08-20",
+      "findings": "Left C4 dermatomal distribution: shoulder and lateral arm numbness, deltoid weakness 3+/5 left, bicep reflex diminished left. New since 2023."
+    },
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 10,
+        "total_sessions": 30,
+        "note": "10 weeks PT. No improvement in left C4 radicular symptoms.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Pregabalin 300mg BID",
+            "duration": "6 months",
+            "response": "Partial relief"
+          },
+          {
+            "drug": "Duloxetine 60mg",
+            "duration": "3 months",
+            "response": "Minimal benefit"
+          }
+        ]
+      },
+      "interventional": {
+        "left_c4_epidural": {
+          "date": "2024-09-25",
+          "response": "Good initial relief (60%), returned to baseline by week 3"
+        }
+      }
+    }
+  },
+  "documents_enclosed": [
+    "MRI report with artifact notation",
+    "CT myelogram report",
+    "PT records",
+    "Neurological exam",
+    "Prior surgical records"
+  ],
+  "question": "Should the prior authorization denial for ACDF C3-C4 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "UPHOLD \u2014 MRI shows only mild degenerative changes at C3-C4. Plan criteria require imaging demonstrating significant pathology.",
+    "harder_question_1": "The MRI was limited by hardware artifact \u2014 is the MRI finding reliable, or should the CT myelogram govern?",
+    "harder_question_2": "The CT myelogram shows moderate-severe compression \u2014 does this supersede the MRI for imaging requirement purposes?",
+    "harder_question_3": "Adjacent segment disease after prior fusion is a recognized clinical entity \u2014 does it change the criteria analysis?",
+    "harder_question_4": "The initial reviewer based the denial on MRI findings while acknowledging hardware artifact \u2014 did the reviewer use the appropriate imaging study?",
+    "the_genuine_tension": "The MRI is the standard imaging, and it shows only mild changes \u2014 which supports the denial. But the MRI explicitly notes hardware artifact that may be masking pathology. The CT myelogram, obtained specifically because of the MRI limitation, shows moderate-severe compression. A reviewer who reads only the MRI upholds. A reviewer who reads both imaging reports and applies the appropriate one overturns.",
+    "right_answer": "OVERTURN \u2014 The CT myelogram supersedes the MRI for imaging assessment in this case because the MRI is explicitly limited by hardware artifact from the prior fusion. The CT myelogram shows moderate-severe compression at C3-C4, which meets the imaging threshold. Conservative treatment requirements are fully met. The initial reviewer's reliance on an imaging study acknowledged as unreliable due to artifact constitutes a procedural error."
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "case_id": "PA-2024-G002",
+  "failure_mode": "FM-1",
+  "failure_mode_description": "Denial factual error \u2014 wrong criteria pathway applied. Denial applies the radiculopathy pathway (6 weeks PT required). The clinical record clearly documents myelopathy as the confirmed diagnosis. The myelopathy pathway (Section 2.2A) requires only 4 weeks PT. Member completed 5 weeks. Under the correct pathway, criteria are met.",
+  "anchor_fact": "Denial cites Section 2.2 standard pathway (6 weeks PT). Clinical record diagnosis is myelopathy. Section 2.2A myelopathy pathway requires 4 weeks. Member completed 5 weeks. Under correct pathway: criteria met.",
+  "controlling_sentence": "Denial applied wrong section. Section 2.2A applies. 5 weeks > 4 weeks required.",
+  "appeal_date": "2024-11-08",
+  "member": {
+    "id": "M-G002",
+    "name": "Priya Nair",
+    "age": 56,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2019-11-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C5-C6, one level",
+    "requested_by": "Dr. James Chen, MD \u2014 Neurosurgery",
+    "facility": "Cedars-Sinai Medical Center"
+  },
+  "denial": {
+    "date": "2024-10-25",
+    "reason_code": "MED-003",
+    "reason_text": "Member does not meet conservative treatment requirements under CC-SPINE-2024 Section 2.2. Physical therapy: 5 weeks completed. Standard pathway requires 6 weeks minimum. Member has not completed the required minimum conservative treatment.",
+    "reviewer": "Dr. Patricia Huang, MD \u2014 HealthFirst Utilization Management",
+    "level": "initial",
+    "factual_claim_under_test": "Standard pathway (Section 2.2) requires 6 weeks PT",
+    "factual_claim_is_wrong": true,
+    "correct_fact": "Myelopathy pathway (Section 2.2A) applies and requires only 4 weeks PT. Member completed 5 weeks \u2014 exceeds the applicable requirement."
+  },
+  "appeal_basis": [
+    "Plan applied Section 2.2 standard pathway \u2014 myelopathy pathway (Section 2.2A) applies",
+    "Member has confirmed myelopathy diagnosis \u2014 bilateral UMN signs, cord compression on MRI",
+    "Myelopathy pathway requires 4 weeks PT minimum \u2014 member completed 5 weeks",
+    "Under the correct pathway, all criteria are met"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Cervical myelopathy C5-C6 \u2014 confirmed by neurological exam and MRI",
+    "imaging": {
+      "mri_1": {
+        "date": "2024-09-01",
+        "findings": "C5-C6 moderate central cord compression. No T2 signal change. No myelomalacia. Bilateral foraminal stenosis."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-09-05",
+      "findings": "Bilateral Hoffman signs. Bilateral hyperreflexia upper extremities. Tandem gait mildly impaired. Bilateral hand clumsiness documented. Upper motor neuron signs confirm myelopathy diagnosis. No lower extremity findings."
+    },
+    "diagnosis_confirmation": "Neurologist consultation 2024-09-12: 'Clinical picture consistent with cervical myelopathy. Bilateral UMN signs are pathognomonic. Diagnosis: cervical myelopathy, primary.' ICD-10: G35.89 cervical myelopathy.",
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 5,
+        "total_sessions": 15,
+        "note": "5 weeks PT under myelopathy protocol per treating neurologist. No improvement in UMN signs. Treating physician halted PT at 5 weeks given myelopathy diagnosis and lack of improvement.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Baclofen 10mg TID",
+            "duration": "3 months",
+            "response": "Minimal spasticity relief"
+          },
+          {
+            "drug": "Methylprednisolone dose pack",
+            "duration": "3 weeks",
+            "response": "Temporary improvement only"
+          }
+        ]
+      },
+      "interventional": {
+        "note": "Myelopathy pathway Section 2.2A waives interventional requirement when physician documents neurological urgency. Dr. Chen letter: 'Interventional procedure not indicated \u2014 cord compression with myelopathy requires surgical evaluation, not injection.'",
+        "physician_waiver_documented": true
+      }
+    }
+  },
+  "documents_enclosed": [
+    "MRI report 2024-09-01",
+    "Neurological exam 2024-09-05",
+    "Neurologist consultation 2024-09-12 confirming myelopathy",
+    "PT records (5 weeks)",
+    "Physician letter re: interventional waiver"
+  ],
+  "question": "Should the prior authorization denial for ACDF C5-C6 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "UPHOLD \u2014 only 5 weeks PT completed, plan requires 6 weeks under Section 2.2.",
+    "harder_question_1": "The plan applied Section 2.2 standard pathway. Should it have applied Section 2.2A myelopathy pathway given the confirmed myelopathy diagnosis?",
+    "harder_question_2": "Under the myelopathy pathway (2.2A), the PT requirement is 4 weeks. Member completed 5 weeks. Does the wrong pathway application change the outcome?",
+    "harder_question_3": "The interventional requirement is waived under 2.2A when physician documents neurological urgency \u2014 Dr. Chen's letter provides this. Is the interventional requirement met?",
+    "harder_question_4": "Is this a regulatory override case or a plain criteria-application error? No CIC override needed \u2014 the plan's own criteria, correctly applied, produce OVERTURN.",
+    "the_genuine_tension": "The plan applied Section 2.2 (standard/radiculopathy pathway) requiring 6 weeks PT to a member with confirmed myelopathy. Section 2.2A (myelopathy pathway) requires only 4 weeks PT. Member completed 5 weeks \u2014 exceeds the correct requirement. The denial's factual error is not a wrong number but a wrong section. A system that applies the denial's cited section without checking whether it applies to the member's diagnosis upholds. A system that reads the diagnosis and matches it to the correct criteria section overturns without any regulatory override needed.",
+    "right_answer": "OVERTURN \u2014 The plan applied the wrong criteria pathway. The member has confirmed myelopathy (bilateral UMN signs documented by neurologist, ICD-10 G35.89). The applicable pathway is Section 2.2A (myelopathy pathway), not Section 2.2 (standard pathway). Under Section 2.2A: PT requirement is 4 weeks (met: 5 weeks completed), interventional requirement is waived with physician documentation (met: Dr. Chen letter), pharmacotherapy requirements met (two agents documented). All criteria met under the correct pathway. No regulatory override required \u2014 this is a criteria-application error by the initial reviewer.",
+    "scoring": {
+      "fm1_anchor_correction": {
+        "description": "FM-1 anchor correction test",
+        "anchor_claim": "Denial applies Section 2.2 standard pathway (6 weeks PT required)",
+        "correcting_evidence": "Confirmed myelopathy diagnosis \u2192 Section 2.2A applies \u2192 4 weeks PT required \u2192 5 weeks completed = criteria met",
+        "score_2": "Determination explicitly identifies that the wrong pathway was applied, names Section 2.2A as the correct pathway, and resolves criteria under 2.2A",
+        "score_1": "Determination reaches OVERTURN citing myelopathy exception but does not explicitly name the pathway error",
+        "score_0": "Determination accepts Section 2.2 as applicable and upholds on PT shortfall"
+      }
+    }
+  }
+}
