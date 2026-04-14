@@ -1,0 +1,78 @@
+CASE: pa_2024_f001
+SYSTEM: PLANSOLVE
+DISPOSITION: OVERTURN
+GT: OVERTURN
+CORRECT: True
+ELAPSED: 54.4s
+========================================================================
+
+**FORMAL APPEAL DETERMINATION**
+
+**Case ID:** PA-2024-F001
+**Member:** Dorothy James (M-990033)
+**Plan:** HealthFirst PPO Gold — Group Plan 77441
+**Procedure Requested:** ACDF C6-C7, one level (CPT 22551)
+**Requested By:** Dr. Paul Adams, MD
+**Initial Denial Date:** 2024-11-02
+**Initial Denial Reason:** "Physical therapy requirement not met. Plan received PT records from Valley Physical Therapy documenting 4 weeks of treatment. Member claims 8 total weeks but second provider (Mountain PT) records not received by plan. Cannot verify claimed treatment without complete records."
+**Reviewer:** [Your Name/Reviewer Title]
+**Date of Determination:** 2024-11-09
+
+---
+
+**DISPOSITION: OVERTURN**
+
+The initial denial for an Anterior Cervical Discectomy and Fusion (ACDF) at C6-C7 is **OVERTURNED**. Authorization for the requested procedure is **APPROVED**.
+
+---
+
+**EVALUATION SUMMARY AND RATIONALE:**
+
+This appeal was reviewed in accordance with the HealthFirst PPO Gold plan criteria (HealthFirst CC-SPINE-2024), California state law (CIC § 10169.5, CHSC § 1374.31, CHSC § 1374.32, DMHC APL 22-014), and generally accepted standards of medical practice (AANS/CNS Joint Guidelines 2023, NASS Guidelines 2020, AO Spine Guidelines 2021). The hierarchy of authority applied is State Law > Clinical Standard > Plan Criteria.
+
+**Step 1: Procedural Adequacy of Denial Notice (CHSC § 1374.31(b))**
+The initial denial notice cited a reason code "MED-003" and the specific clinical reason: "Physical therapy requirement not met... Cannot verify claimed treatment without complete records." While the denial notice did not explicitly cite the specific section of the plan's clinical criteria (e.g., HealthFirst CC-SPINE-2024 Section 2.2(a)), it clearly articulated the clinical criterion for denial (insufficient PT duration due to missing records). The member's appeal directly addressed this by submitting the missing records, indicating that the notice was sufficient to allow for a proper appeal. Therefore, no procedural defect requiring remand was identified.
+
+**Step 2: Diagnosis Classification and Presence of Myelomalacia**
+The member's presenting diagnosis is "Cervical radiculopathy C6-C7, bilateral." Imaging (MRI 2024-09-01) reveals "C6-C7 large disc herniation, bilateral C7 nerve root compression, bilateral foraminal stenosis, mild cord contact without compression." The neurological exam (2024-09-05) documents "Bilateral C7 dermatomal symptoms: bilateral tricep weakness 4/5, bilateral tricep reflex diminished, bilateral finger tingling." These findings are consistent with cervical radiculopathy. There is no objective evidence of myelomalacia (T2 signal change) on MRI, nor are classic upper motor neuron signs of myelopathy clearly documented. Therefore, the primary diagnosis is classified as cervical radiculopathy, not primary myelopathy, and myelomalacia is absent.
+
+**Step 3: Application of HealthFirst Plan Criteria (HealthFirst CC-SPINE-2024)**
+For a primary diagnosis of cervical radiculopathy, the HealthFirst CC-SPINE-2024 policy (Section 2.2(a)) requires a minimum of 6 weeks of supervised physical therapy. The "Myelopathy Exception" (Section 2.2(A)) is not applicable as myelopathy is not the primary diagnosis (as determined in Step 2). The initial denial was based on receiving only 4 weeks of PT records. With this appeal, the records from "Mountain Physical Therapy" (4 weeks, 12 sessions) have been submitted and reviewed, confirming an **8-week total course of physical therapy** (4 weeks from Valley PT + 4 weeks from Mountain PT). The member also completed pharmacotherapy (Pregabalin 3 months, Naproxen 2 months) and an interventional procedure (bilateral C7 epidural), meeting the requirements of HealthFirst CC-SPINE-2024 Sections 2.2(b) and 2.2(c) respectively.
+
+Upon review of the complete documentation, the member has now met and exceeded the plan's 6-week physical therapy requirement, along with all other conservative treatment requirements. Therefore, the plan failed to correctly apply its own criteria once the complete documentation was provided on appeal.
+
+**Step 4: State Law Override — Physical Therapy Requirement (CIC § 10169.5)**
+California Insurance Code (CIC) § 10169.5(a) stipulates that a health insurer shall not condition approval of a surgical procedure on completion of physical therapy where certain conditions are met. Condition (2) states this applies if "The member has completed a course of physical therapy and the treating physician documents that the member reached a functional plateau without adequate resolution of symptoms."
+
+The clinical record explicitly states that Valley Physical Therapy documented "Moderate improvement then plateau" after 4 weeks. Mountain Physical Therapy records, now submitted, document "No improvement in neurological symptoms. Plateau documented by PT at discharge." The `physical_therapy_summary` confirms "Plateau documented at provider 2 discharge." This documentation, covering a total of 8 weeks of PT, clearly satisfies the condition of having reached a functional plateau.
+
+Therefore, under CIC § 10169.5(a)(2), the plan cannot legally condition approval of the requested ACDF on further physical therapy.
+
+**Step 5: State Law Override — Conservative Treatment Exceptions for Urgent Conditions (DMHC APL 22-014)**
+DMHC APL 22-014 Section II.2 outlines conditions for waiving conservative treatment requirements for urgent neurological conditions. Condition (a) requires "Objective imaging evidence demonstrates progressive pathology (cord signal change, myelomalacia, or progressive herniation on serial imaging)." As determined in Step 2, there is no documentation of myelomalacia or progressive pathology on MRI. Therefore, this state law override does not fully apply in this specific case.
+
+**Step 6: Clinical Standard Override Plan Criteria (CHSC § 1374.32(b) & Clinical Reference Summary)**
+CHSC § 1374.32(b) mandates that if a service meets generally accepted standards of medical practice, it shall be approved regardless of whether the plan's internal criteria are more restrictive. The member presents with cervical radiculopathy with objective neurological deficits (bilateral C7 weakness 4/5, diminished reflexes, tingling) and corresponding structural pathology on MRI (large disc herniation, bilateral C7 nerve root compression, bilateral foraminal stenosis). The member has undergone an adequate and comprehensive course of conservative treatment, including 8 weeks of physical therapy with documented functional plateau, a trial of two pharmacotherapies (Pregabalin 3 months, Naproxen 2 months), and an interventional procedure (epidural steroid injection) which provided only temporary relief.
+
+According to AANS/CNS Joint Section on Disorders of the Spine: Guidelines for Management of Degenerative Cervical Myelopathy (2023 Update) and NASS Evidence-Based Clinical Guidelines (2020), surgery for radiculopathy is a "Reasonable Indication" (Tier 2) when there are "persistent symptoms after 6-12 weeks conservative treatment" and "significant functional impairment not responding to conservative care." The member's clinical presentation, including objective weakness and diminished reflexes that have plateaued after an extensive conservative regimen, aligns with these generally accepted standards for surgical intervention.
+
+**Conclusion:**
+The initial denial was based on incomplete documentation of conservative treatment. With the submission of all physical therapy records, the member has completed 8 weeks of physical therapy, exceeding the plan's 6-week requirement for radiculopathy. Furthermore, the member has achieved a documented functional plateau, which under CIC § 10169.5(a)(2) prevents the plan from requiring additional physical therapy. Finally, the requested ACDF procedure is medically necessary and meets generally accepted standards of medical practice for persistent cervical radiculopathy with objective neurological deficits that have failed a comprehensive course of conservative treatment.
+
+Based on the hierarchy of authority, both state law and generally accepted clinical standards support approval of the requested service.
+
+---
+
+**AUTHORIZATION DETAILS:**
+**Procedure:** Anterior Cervical Discectomy and Fusion (ACDF) at C6-C7
+**CPT Code:** 22551
+**Approved Facility:** UCLA Medical Center
+**Effective Date:** This authorization is valid for 90 days from the date of this determination letter.
+
+This constitutes a final internal appeal determination. If you disagree with this determination, you may have the right to request an Independent Medical Review (IMR) through the California Department of Managed Health Care (DMHC) or California Department of Insurance (CDI), depending on your plan type. Information regarding IMR will be provided separately.
+
+Sincerely,
+
+[Reviewer's Name/Title]
+Expert Health Plan Appeals Reviewer
+HealthFirst Health Plan

@@ -1,0 +1,50 @@
+{
+  "dag_id": "fraud_dag_v1",
+  "description": "Causal DAG for payment fraud investigation: authorized push payment and unauthorized card fraud",
+  "nodes": [
+    {"id": "transaction_velocity", "type": "observable", "description": "Rate of transactions in a short window exceeds baseline"},
+    {"id": "geographic_anomaly", "type": "observable", "description": "Transaction location inconsistent with member's normal geography"},
+    {"id": "new_payee", "type": "observable", "description": "Recipient account first seen in this transaction"},
+    {"id": "member_initiated", "type": "observable", "description": "Member actively initiated the payment (vs system-generated)"},
+    {"id": "social_engineering_indicators", "type": "observable", "description": "Communication patterns consistent with romance/tech-support/impersonation scams"},
+    {"id": "account_testing", "type": "latent", "description": "Small probing transactions before a larger fraud attempt"},
+    {"id": "compromised_credentials", "type": "latent", "description": "Member's authentication credentials are in adversary control"},
+    {"id": "authorized_push_payment_fraud", "type": "latent", "description": "Member was deceived into authorizing a payment to a fraudster"},
+    {"id": "unauthorized_transaction", "type": "latent", "description": "Transaction executed without member's knowledge or consent"},
+    {"id": "confirmed_fraud", "type": "outcome", "description": "Transaction is confirmed fraudulent"}
+  ],
+  "edges": [
+    {"from": "transaction_velocity", "to": "account_testing", "strength": 0.75, "label": "velocity spike → probing behavior"},
+    {"from": "geographic_anomaly", "to": "compromised_credentials", "strength": 0.82, "label": "unusual location → credential theft indicator"},
+    {"from": "geographic_anomaly", "to": "unauthorized_transaction", "strength": 0.70, "label": "geographic impossibility → unauthorized use"},
+    {"from": "new_payee", "to": "authorized_push_payment_fraud", "strength": 0.65, "label": "unfamiliar recipient → APP fraud pattern"},
+    {"from": "member_initiated", "to": "authorized_push_payment_fraud", "strength": 0.80, "label": "member-authorized → APP fraud pathway"},
+    {"from": "social_engineering_indicators", "to": "authorized_push_payment_fraud", "strength": 0.90, "label": "scam communication → APP fraud"},
+    {"from": "account_testing", "to": "unauthorized_transaction", "strength": 0.85, "label": "probing confirms → unauthorized execution"},
+    {"from": "compromised_credentials", "to": "unauthorized_transaction", "strength": 0.92, "label": "credential theft → unauthorized access"},
+    {"from": "authorized_push_payment_fraud", "to": "confirmed_fraud", "strength": 0.88, "label": "APP fraud → confirmed fraud outcome"},
+    {"from": "unauthorized_transaction", "to": "confirmed_fraud", "strength": 0.95, "label": "unauthorized transaction → confirmed fraud"}
+  ],
+  "paths": [
+    {
+      "path_id": "app_fraud_path",
+      "label": "Authorized Push Payment Fraud",
+      "nodes": ["social_engineering_indicators", "member_initiated", "new_payee", "authorized_push_payment_fraud", "confirmed_fraud"],
+      "discriminating_feature": "member_initiated=true AND social_engineering_indicators=true"
+    },
+    {
+      "path_id": "unauthorized_card_path",
+      "label": "Unauthorized Card/Account Fraud",
+      "nodes": ["geographic_anomaly", "compromised_credentials", "unauthorized_transaction", "confirmed_fraud"],
+      "discriminating_feature": "member_initiated=false AND geographic_anomaly=true"
+    },
+    {
+      "path_id": "account_testing_path",
+      "label": "Account Testing Fraud",
+      "nodes": ["transaction_velocity", "account_testing", "unauthorized_transaction", "confirmed_fraud"],
+      "discriminating_feature": "transaction_velocity=high AND new_payee=true"
+    }
+  ],
+  "adjustment_set": ["transaction_velocity", "geographic_anomaly"],
+  "primary_outcome": "confirmed_fraud"
+}

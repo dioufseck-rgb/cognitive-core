@@ -6,33 +6,35 @@ Most enterprise AI work embeds language models inside patterns inherited from ea
 
 Cognitive Core treats AI-native workflow design as a first-class architectural problem:
 
-- **Typed cognitive primitives** — nine epistemic operations that compose into any reasoning workflow
+- **Typed cognitive primitives** — eight epistemic operations that compose into any reasoning workflow
 - **Configuration-first** — a new decision domain is a YAML file, not an application
 - **Structural governance** — escalation, human review, and audit trails are conditions of execution, not bolt-ons
 - **Demand-driven delegation** — agentic mode lets the orchestrator reason the path; the substrate enforces governance on whatever path it takes
 
 → **[Quickstart — run a governed workflow in five minutes](QUICKSTART.md)**  
-→ **[arXiv paper — Governed Reasoning for Institutional AI](https://arxiv.org/abs/PLACEHOLDER)**  
+→ **[Domain library — seven ready-to-run institutional decision packs](library/README.md)**  
+→ **[DDD agentic demo — autonomous trajectory demonstration](demos/loan-hardship-agentic/README.md)**  
+→ **[REST API reference](docs/api-reference.md)**  
+→ **[Operational notes — maturity, assumptions, known limitations](OPERATIONAL_NOTES.md)**  
 
 ---
 
-## The nine primitives
+## The eight primitives
 
-Every workflow is composed from nine typed epistemic operations. Each has a defined input contract, a structured output schema, a prompt template, and a three-layer epistemic state computation.
+Every workflow is composed from eight typed epistemic operations. Each has a defined input contract, a structured output schema, a prompt template, and a three-layer epistemic state computation.
 
 | Primitive | Epistemic function | Key output fields |
 |---|---|---|
 | `retrieve` | Acquire evidence from external sources | `data`, `sources_queried`, `confidence` |
 | `classify` | Categorical assignment under uncertainty | `category`, `alternative_categories`, `confidence` |
 | `investigate` | Goal-directed inquiry until threshold | `finding`, `hypotheses_tested`, `confidence` |
-| `verify` | Conformance check against a rule set | `conforms`, `violations`, `rules_checked` |
 | `challenge` | Adversarial examination of a conclusion | `survives`, `vulnerabilities`, `strengths` |
-| `reflect` | Metacognitive synthesis over accumulated reasoning state | `trajectory`, `revision_target`, `next_question` |
-| `deliberate` | Synthesis toward a warranted conclusion | `recommended_action`, `warrant`, `options_considered` |
+| `verify` | Conformance check against a rule set | `conforms`, `violations`, `rules_checked` |
+| `deliberate` | Meta-cognitive synthesis → warranted action | `recommended_action`, `warrant`, `options_considered` |
 | `generate` | Render reasoning into a communicable artifact | `artifact`, `format`, `constraints_checked` |
 | `govern` | Determine governance tier and disposition | `tier_applied`, `disposition`, `work_order` |
 
-All outputs inherit from `CognitiveOutput`: `confidence`, `reasoning`, `evidence_used`, `evidence_missing`. Six of nine primitives also elicit `reasoning_quality` and `outcome_certainty` — all except `retrieve` (quality measured mechanically) and `govern` (reads accumulated record rather than producing first-order reasoning). The `reflect` primitive reports `trajectory` and `revision_target` rather than scalar quality fields — its governance contribution is structural, not numeric.
+All outputs inherit from `CognitiveOutput`: `confidence`, `reasoning`, `evidence_used`, `evidence_missing`. Six of eight primitives also elicit `reasoning_quality` and `outcome_certainty` (all except `retrieve` and `govern` — see epistemic state section).
 
 ---
 
@@ -43,7 +45,7 @@ Every step produces a structured epistemic state — not a single confidence sca
 | Layer | Signals | How computed |
 |---|---|---|
 | Mechanical | `evidence_completeness`, `rule_coverage`, `citation_rate`, `alternative_separation` | Deterministic from observable output structure — cannot be inflated |
-| Judgment | `reasoning_quality`, `outcome_certainty` | Elicited from 6 of 9 primitive prompts with governance-aware framing (40% weight) |
+| Judgment | `reasoning_quality`, `outcome_certainty` | Elicited from 6 of 8 primitive prompts with governance-aware framing (40% weight). `retrieve` and `govern` use mechanical signals only. |
 | Coherence | Named flags: `CLASSIFY_DELIBERATE_MISMATCH`, `VERIFY_DELIBERATE_TENSION`, etc. | Computed cross-step — detects problems no single-step analysis can see |
 
 A flags-first governance cascade uses this state to determine tier. A `warranted` flag provides a hard governance stop independent of the aggregate score.
@@ -54,7 +56,7 @@ A flags-first governance cascade uses this state to determine tier. A `warranted
 
 **Workflow mode** — declare the epistemic sequence in YAML. The framework executes it with full governance, epistemic accounting, and audit ledger.
 
-**Agentic mode** — declare available primitives, constraints, and a goal. The orchestrator reasons the sequence from evidence at runtime. Hard constraints (`must_include`, `max_steps`, `must_end_with`) are enforced by the substrate — not communicated to the orchestrator as preferences it might override. The substrate controls the accountability.
+**Agentic mode** — declare available primitives, constraints, and a goal. The orchestrator reasons the sequence from evidence at runtime. The substrate enforces governance identically on whatever trajectory the orchestrator produces. The orchestrator controls the path; the substrate controls the accountability.
 
 Both modes use the same governance model, the same epistemic state architecture, and the same tamper-evident ledger.
 
@@ -70,7 +72,7 @@ Domain YAML     →  expertise, governance tier, evaluation criteria, primitive 
 Case JSON       →  runtime data, served as typed tool calls
 ```
 
-**A use case is a configuration, not an application.** No code is written per domain. Deploying a new institutional decision domain requires a workflow YAML, a domain YAML, and case JSON files — no framework changes.
+**A use case is a configuration, not an application.** No code is written per domain.
 
 ---
 
@@ -87,39 +89,37 @@ pip install -e .
 Set an API key:
 
 ```bash
-export GOOGLE_API_KEY=your_key      # Gemini (primary development provider)
 export ANTHROPIC_API_KEY=your_key   # Claude
+export GOOGLE_API_KEY=your_key      # Gemini
 export OPENAI_API_KEY=your_key      # OpenAI
 ```
 
-### Run the prior authorization appeal demo
+### Run a domain pack
 
 ```bash
-cd demos/prior-auth-appeal
-python run.py --case pa_2024_a001
+# Start the server pointed at the consumer-lending pack
+CC_COORD_CONFIG=library/domain-packs/consumer-lending/coordinator_config.yaml \
+CC_COORD_BASE=library/domain-packs/consumer-lending \
+uvicorn cognitive_core.api.server:app --port 8000
 ```
 
-### Run the benchmark (replicates paper results)
+Open `http://localhost:8000` — the landing page lists all instances. Submit a case at `/api/start`, then open the trace URL to watch execution live.
+
+Each domain pack includes a `run.py` for direct command-line execution without the server.
+
+### Run the agentic demonstration
 
 ```bash
-cd demos/prior-auth-appeal
-python run_benchmark.py          # runs all 11 benchmark cases
-python score_benchmark.py        # scores results against ground truth
-python compare_benchmark.py      # compares CC vs ReAct vs Plan-and-Solve
+python demos/loan-hardship-agentic/run.py
 ```
 
-### Run the loan modification demo
-
-```bash
-cd demos/loan-modification
-python run.py
-```
+Two hardship cases run against the same configuration with no declared sequence. The orchestrator produces materially different trajectories for each; governance fires identically on both. See [demos/loan-hardship-agentic/README.md](demos/loan-hardship-agentic/README.md).
 
 ---
 
 ## Governance model
 
-Four tiers. Tier escalation is strictly upward and locks for the instance lifetime.
+Four tiers. Tier escalation is strictly upward.
 
 | Tier | Meaning | Behavior |
 |---|---|---|
@@ -136,29 +136,36 @@ Every `govern` invocation produces a work order recorded in the tamper-evident S
 
 ```
 cognitive_core/           — installable package
-├── primitives/           — schemas, registry, nine prompt templates
+├── primitives/           — schemas, registry, eight prompt templates
 ├── engine/               — DEVS execution kernel, LLM providers, governance pipeline,
 │                           epistemic state computation
 ├── coordinator/          — runtime, store, tasks, delegation, policy, resilience
+├── analytics/            — artifact registry (causal DAGs, SDA policy models)
 └── api/
-    ├── server.py         — framework API server
+    ├── server.py         — framework API server (CC_COORD_CONFIG env var)
+    ├── main.py           — re-export of server.py
     └── trace.html        — single-source trace UI
 
 demos/
-├── prior-auth-appeal/    — benchmark domain: 26 cases, documents, domain config,
-│   ├── cases/            — run.py, run_benchmark.py, score_benchmark.py, compare_benchmark.py
-│   ├── documents/
-│   ├── domains/
-│   └── workflows/
-└── loan-modification/    — second demonstrated domain
-    ├── cases/
-    ├── documents/
-    ├── domains/
-    └── workflows/
+└── loan-hardship-agentic/  — DDD agentic mode demonstration (two live cases)
 
+library/                  — domain library
+├── domain-packs/         — seven ready-to-run packs
+│   ├── consumer-lending/
+│   ├── content-moderation/
+│   ├── clinical-triage/
+│   ├── compliance-review/
+│   ├── ecommerce-returns/
+│   ├── eligibility-check/
+│   └── fraud-investigation/
+├── patterns/             — five canonical workflow patterns
+├── overlays/             — five composable modifiers
+└── coordinator-templates/— seven structural templates
+
+configs/                  — default server configuration
+docs/                     — architecture and API reference
 tests/
-├── unit/                 — 153 unit tests (reflect, epistemic state, prompt behavior)
-├── smoke/                — 44 governance path tests (no LLM calls required)
+├── smoke/                — 44 governance path tests (no LLM required)
 └── test_devs_kernel.py   — 6 DEVS execution kernel tests
 ```
 
@@ -167,15 +174,17 @@ tests/
 ## Run the tests
 
 ```bash
-pytest tests/unit/ tests/smoke/ tests/test_devs_kernel.py
-# 203 tests, no LLM calls required
+pytest tests/smoke/ tests/test_devs_kernel.py
+# 50 tests, ~2 minutes, no LLM calls required
 ```
 
 ---
 
 ## LLM provider support
 
-Cognitive Core is provider-agnostic. The execution layer abstracts all LLM calls through a single `create_llm()` factory (`cognitive_core/engine/llm.py`).
+Cognitive Core is designed to be provider-agnostic. The execution layer abstracts all LLM calls through a single `create_llm()` factory (`cognitive_core/engine/llm.py`) that returns a LangChain `BaseChatModel`. Switching providers requires no changes to framework code — only environment variables or `llm_config.yaml`.
+
+**Supported providers**
 
 | Provider | Key variable | Status |
 |---|---|---|
@@ -186,7 +195,25 @@ Cognitive Core is provider-agnostic. The execution layer abstracts all LLM calls
 | Azure AI Foundry | `AZURE_AI_FOUNDRY_ENDPOINT` | Implemented, not yet tested end-to-end |
 | Amazon Bedrock | `AWS_DEFAULT_REGION` | Implemented, not yet tested end-to-end |
 
----
+**Known compatibility notes**
+
+The framework handles the two most common cross-provider response shape differences:
+
+- `response.content` as a list of blocks (Gemini multimodal, some Claude responses) is normalised to a plain string via `_extract_text()` at every LLM call site
+- Transient errors (timeout, rate limit, 5xx) are retried with exponential backoff via `invoke_with_retry()` in `protected_llm_call`
+
+Two failure modes are documented but not yet tested against non-Gemini providers:
+
+- **Wrapper keys**: some models respond with `{"output": {...}}` instead of a bare JSON object. If seen, add `"Return a bare JSON object with no wrapper key"` to the affected primitive prompt and open a PR.
+- **Schema compliance fidelity**: prompt compliance with the full JSON output contract varies across providers. The parser attempts five recovery strategies before falling back to `confidence=0.0`.
+
+**Community contributions**
+
+If you run Cognitive Core against a non-Gemini provider and find provider-specific parsing failures, please open an issue or PR. Include:
+1. The provider and model name
+2. The primitive that failed
+3. The raw LLM response (sanitised of any sensitive data)
+4. The fix — typically a prompt adjustment or an additional recovery strategy in `extract_json()`
 
 ## Design principles
 

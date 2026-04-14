@@ -557,13 +557,19 @@ primitive_configs:
         SPOT_CHECK: Disposition is supported but minor questions remain.
                     Sample for quality review.
 
-        GATE: Clinical or legal judgment is genuinely needed before the
-              disposition executes. Any of: sources conflict, challenge
-              found vulnerabilities, myelopathy classification uncertain,
-              member faces potential permanent neurological harm.
+        GATE: Epistemic uncertainty requires human review before the
+              disposition executes. Use GATE when ANY of: sources conflict
+              and the conflict is unresolved, challenge found vulnerabilities
+              that were not corrected, myelopathy classification is genuinely
+              uncertain, or critical evidence is missing or contradicted.
 
         HOLD: Insufficient information to determine any disposition.
-              Requires additional documentation.
+              Requires additional documentation before any review is possible.
 
-        For cases involving potential permanent neurological harm: always
-        at least GATE. The stakes of a wrong uphold are irreversible.
+        DEFAULT is AUTO for any disposition that is unambiguous across all
+        three sources with no unresolved conflicts. The clinical stakes of
+        the underlying condition do NOT independently determine governance
+        tier. A clear OVERTURN on a myelopathy case is AUTO. A clear UPHOLD
+        is AUTO. A clear REMAND is AUTO. GATE is for epistemic uncertainty,
+        not clinical severity. High-stakes conditions are handled by the
+        urgency provisions in state law — not by governance tier escalation.

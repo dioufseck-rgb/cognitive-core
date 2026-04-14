@@ -1,0 +1,80 @@
+[04:18:09] Starting 78 jobs across 5 workers
+[04:18:45] [  1/78] pa_2024_a002           react      ✓ OVERTURN   (GT:OVERTURN)  36s
+[04:18:45] [  2/78] pa_2024_a001           react      ✓ OVERTURN   (GT:OVERTURN)  37s
+[04:19:13] [  3/78] pa_2024_a001           plansolve  ✓ OVERTURN   (GT:OVERTURN)  65s
+[04:19:43] [  4/78] pa_2024_a003           react      ✓ OVERTURN   (GT:OVERTURN)  30s
+[04:19:58] [  5/78] pa_2024_a002           plansolve  ✓ OVERTURN   (GT:OVERTURN)  74s
+[04:20:35] [  6/78] pa_2024_a003           plansolve  ✓ OVERTURN   (GT:OVERTURN)  52s
+[04:21:07] [  7/78] pa_2024_a004           react      ✓ OVERTURN   (GT:OVERTURN)  32s
+[04:22:07] [  8/78] pa_2024_a004           plansolve  ✓ OVERTURN   (GT:OVERTURN)  60s
+[04:23:01] [  9/78] pa_2024_a001           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  292s
+[04:23:38] [ 10/78] pa_2024_b001           react      ✗ OVERTURN   (GT:PARTIAL)  37s
+[04:24:46] [ 11/78] pa_2024_a002           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  397s
+[04:24:53] [ 12/78] pa_2024_b001           plansolve  ✓ PARTIAL    (GT:PARTIAL)  75s
+[04:25:25] [ 13/78] pa_2024_b002           react      ✓ OVERTURN   (GT:OVERTURN)  32s
+[04:25:36] [ 14/78] pa_2024_a004           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  337s
+[04:26:31] [ 15/78] pa_2024_b002           plansolve  ✓ OVERTURN   (GT:OVERTURN)  65s
+[04:27:01] [ 16/78] pa_2024_b003           react      ✓ OVERTURN   (GT:OVERTURN)  30s
+[04:28:03] [ 17/78] pa_2024_b003           plansolve  ✓ OVERTURN   (GT:OVERTURN)  62s
+[04:29:38] [ 18/78] pa_2024_a003           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  652s
+[04:30:08] [ 19/78] pa_2024_b004           react      ✗ PARTIAL    (GT:OVERTURN)  31s
+[04:31:07] [ 20/78] pa_2024_b004           plansolve  ✓ OVERTURN   (GT:OVERTURN)  58s
+[04:31:08] [ 21/78] pa_2024_b001           cc         ✓ PARTIAL    (GT:PARTIAL) [gate]  541s
+[04:31:38] [ 22/78] pa_2024_c001           react      ✓ OVERTURN   (GT:OVERTURN)  30s
+[04:32:46] [ 23/78] pa_2024_c001           plansolve  ✓ OVERTURN   (GT:OVERTURN)  68s
+[04:32:59] [ 24/78] pa_2024_b004           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  297s
+[04:33:35] [ 25/78] pa_2024_c002           react      ✓ OVERTURN   (GT:OVERTURN)  36s
+[04:34:32] [ 26/78] pa_2024_c002           plansolve  ✓ OVERTURN   (GT:OVERTURN)  57s
+[04:35:31] [ 27/78] pa_2024_b003           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  596s
+[04:36:09] [ 28/78] pa_2024_c003           react      ✗ OVERTURN   (GT:UPHOLD)  38s
+[04:36:19] [ 29/78] pa_2024_b002           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  693s
+[04:36:59] [ 30/78] pa_2024_c001           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  352s
+[04:37:06] [ 31/78] pa_2024_c003           plansolve  ✗ OVERTURN   (GT:UPHOLD)  57s
+[04:37:40] [ 32/78] pa_2024_c004           react      ✗ OVERTURN   (GT:UPHOLD)  41s
+[04:38:06] [ 33/78] pa_2024_c004           plansolve  ✗ UNKNOWN    (GT:UPHOLD)  60s
+[04:39:10] [ 34/78] pa_2024_d001           react      ✗ OVERTURN   (GT:REMAND)  64s
+[04:39:21] [ 35/78] pa_2024_c002           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  396s
+[04:39:58] [ 36/78] pa_2024_d001           plansolve  ✓ REMAND     (GT:REMAND)  48s
+[04:40:58] [ 37/78] pa_2024_d002           react      ✓ OVERTURN   (GT:OVERTURN)  59s
+[04:41:23] [ 38/78] pa_2024_c004           cc         ✓ UPHOLD     (GT:UPHOLD) [gate]  304s
+[04:41:49] [ 39/78] pa_2024_d002           plansolve  ✓ OVERTURN   (GT:OVERTURN)  51s
+[04:42:37] [ 40/78] pa_2024_c003           cc         ✗ REMAND     (GT:UPHOLD) [gate]  485s
+[04:42:58] [ 41/78] pa_2024_d003           react      ✗ OVERTURN   (GT:REMAND)  69s
+[04:43:36] [ 42/78] pa_2024_d003           plansolve  ✓ REMAND     (GT:REMAND)  58s
+[04:43:53] [ 43/78] pa_2024_d002           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  272s
+[04:44:10] [ 44/78] pa_2024_e001           react      ✗ OVERTURN   (GT:PARTIAL)  34s
+[04:44:51] [ 45/78] pa_2024_e001           plansolve  ✗ REMAND     (GT:PARTIAL)  57s
+[04:45:44] [ 46/78] pa_2024_e002           react      ✗ OVERTURN   (GT:PARTIAL)  54s
+[04:46:38] [ 47/78] pa_2024_d001           cc         ✗ OVERTURN   (GT:REMAND) [gate]  538s
+[04:46:39] [ 48/78] pa_2024_e002           plansolve  ✗ OVERTURN   (GT:PARTIAL)  55s
+[04:47:13] [ 49/78] pa_2024_e003           react      ✓ OVERTURN   (GT:OVERTURN)  34s
+[04:47:55] [ 50/78] pa_2024_d003           cc         ✓ REMAND     (GT:REMAND) [gate]  392s
+[04:48:32] [ 51/78] pa_2024_e003           plansolve  ✓ OVERTURN   (GT:OVERTURN)  79s
+[04:49:14] [ 52/78] pa_2024_f001           react      ✓ OVERTURN   (GT:OVERTURN)  42s
+[04:49:17] [ 53/78] pa_2024_e001           cc         ✓ PARTIAL    (GT:PARTIAL) [gate]  379s
+[04:50:08] [ 54/78] pa_2024_f001           plansolve  ✓ OVERTURN   (GT:OVERTURN)  54s
+[04:50:31] [ 55/78] pa_2024_e002           cc         ✗ OVERTURN   (GT:PARTIAL) [gate]  381s
+[04:50:40] [ 56/78] pa_2024_f002           react      ✗ PARTIAL    (GT:OVERTURN)  32s
+[04:51:35] [ 57/78] pa_2024_f002           plansolve  ✗ REMAND     (GT:OVERTURN)  64s
+[04:52:07] [ 58/78] pa_2024_g001           react      ✓ OVERTURN   (GT:OVERTURN)  32s
+[04:52:26] [ 59/78] pa_2024_e003           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  348s
+[04:52:30] [ 60/78] pa_2024_f001           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  275s
+[04:52:59] [ 61/78] pa_2024_g001           plansolve  ✓ OVERTURN   (GT:OVERTURN)  52s
+[04:53:04] [ 62/78] pa_2024_g002           react      ✓ OVERTURN   (GT:OVERTURN)  34s
+[04:53:58] [ 63/78] pa_2024_f002           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  281s
+[04:54:09] [ 64/78] pa_2024_g002           plansolve  ✓ OVERTURN   (GT:OVERTURN)  70s
+[04:54:43] [ 65/78] pa_2024_g003           react      ✗ OVERTURN   (GT:UPHOLD)  45s
+[04:55:24] [ 66/78] pa_2024_g003           plansolve  ✗ REMAND     (GT:UPHOLD)  74s
+[04:55:55] [ 67/78] pa_2024_g004           react      ✓ UPHOLD     (GT:UPHOLD)  31s
+[04:56:58] [ 68/78] pa_2024_g004           plansolve  ✓ UPHOLD     (GT:UPHOLD)  64s
+[04:57:42] [ 69/78] pa_2024_g001           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  421s
+[04:58:13] [ 70/78] pa_2024_g005           react      ✓ OVERTURN   (GT:OVERTURN)  31s
+[04:59:15] [ 71/78] pa_2024_g005           plansolve  ✓ OVERTURN   (GT:OVERTURN)  63s
+[04:59:30] [ 72/78] pa_2024_g004           cc         ✓ UPHOLD     (GT:UPHOLD) [hold]  288s
+[04:59:59] [ 73/78] pa_2024_g006           react      ✓ OVERTURN   (GT:OVERTURN)  28s
+[05:01:04] [ 74/78] pa_2024_g006           plansolve  ✓ OVERTURN   (GT:OVERTURN)  65s
+[05:01:05] [ 75/78] pa_2024_g002           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  519s
+[05:02:07] [ 76/78] pa_2024_g003           cc         ✗ REMAND     (GT:UPHOLD) [gate]  543s
+[05:03:50] [ 77/78] pa_2024_g006           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  275s
+[05:06:06] [ 78/78] pa_2024_g005           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  548s
+[05:06:06] Done.

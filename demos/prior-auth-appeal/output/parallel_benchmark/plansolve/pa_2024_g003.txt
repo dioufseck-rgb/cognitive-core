@@ -1,0 +1,71 @@
+CASE: pa_2024_g003
+SYSTEM: PLANSOLVE
+DISPOSITION: REMAND
+GT: UPHOLD
+CORRECT: False
+ELAPSED: 74.3s
+========================================================================
+
+**FORMAL APPEAL DETERMINATION**
+
+**Case ID:** PA-2024-G003
+**Member:** Bernard Achebe (M-G003)
+**Procedure:** ACDF C5-C6, one level (CPT 22551)
+**Date of Review:** 2024-11-08
+
+**OVERVIEW:**
+This is an appeal regarding the denial of prior authorization for an Anterior Cervical Discectomy and Fusion (ACDF) at C5-C6 for Mr. Bernard Achebe. The initial denial, dated 2024-11-05, cited incomplete conservative treatment (3 weeks of physical therapy instead of 6 required, one pharmacotherapy agent instead of two, and no interventional procedure). The appeal asserts surgical urgency due to myelopathy and failed conservative treatment.
+
+**EVALUATION PLAN STEPS AND FINDINGS:**
+
+1.  **Procedural Adequacy of Denial Notice (CHSC § 1374.31(b)):**
+    *   **Finding:** **Defective.** The provided summary of the initial denial notice (as per case data) does not explicitly cite the specific Health Plan clinical criteria applied (e.g., HealthFirst CC-SPINE-2024, Section 2.2) nor does it explicitly include notice of Independent Medical Review (IMR) rights. CHSC § 1374.31(b) mandates that a denial notice include these elements. This renders the initial denial procedurally defective.
+
+2.  **Confirm Primary Diagnosis and Presence of Myelomalacia:**
+    *   **Finding:** **Positive Finding (Myelopathy without Myelomalacia).** The member's presenting diagnosis is "Mild cervical myelopathy C5-C6." The neurological exam shows bilateral Hoffman signs and mild hyperreflexia, consistent with myelopathy. MRI imaging confirms "C5-C6 moderate central cord compression" with "cord contact present." However, the MRI explicitly states "No T2 signal change. No myelomalacia." The mJOA score of 15/18 indicates mild myelopathy.
+
+3.  **Application of Plan's Own Criteria, including Myelopathy Exception (HealthFirst CC-SPINE-2024, Section 2.2 & 2.2A):**
+    *   **Finding:** **Negative Finding (Plan Misapplied its Own Criteria).** The member's diagnosis is Cervical Myelopathy. HealthFirst's own Clinical Coverage Criteria (CC-SPINE-2024, Section 2.2A) provides a "Myelopathy Exception" which *reduces the physical therapy requirement to a minimum of 4 weeks*. The denial, however, stated "Physical therapy: 3 weeks completed, 6 required under standard pathway," indicating the plan failed to apply its own myelopathy exception. The pharmacotherapy requirement (minimum 2 agents) remains unchanged under the myelopathy exception, and the member only completed one agent. The interventional treatment requirement is waived under the myelopathy exception if the physician documents risk of neurological deterioration. While Dr. Osei's letter states general risks of delay, it does not explicitly state that *interventional treatment* poses such a risk, so the waiver condition under the plan's criteria is not strictly met.
+
+4.  **State Law Override: Physical Therapy Requirement (CIC § 10169.5 & DMHC APL 22-014):**
+    *   **Finding:** **Negative Finding (PT Requirement Stands).**
+        *   **CIC § 10169.5(a):**
+            *   (1) While Dr. Osei halted PT citing "myelopathy concern" and declared surgical urgency, he did not explicitly document that the remaining physical therapy was "contraindicated or unlikely to benefit" the member for the entire course.
+            *   (2) The member completed only 3 weeks of PT, falling short of the plan's reduced 4-week myelopathy minimum, and no formal documentation of a functional plateau was provided per clinical standard.
+            *   (3) While there is objective cord compression, there is **no myelomalacia**. The absence of myelomalacia, combined with "mild" and "stable" myelopathy, means the structural neurological compromise is not of the severity (e.g., progressive pathology) that would unequivocally warrant a waiver under this provision, especially as exemplified by myelomalacia.
+        *   **DMHC APL 22-014 (II.2):** The conditions for waiver of conservative treatment are not met. There is **no objective imaging evidence of progressive pathology** (specifically no myelomalacia and no serial imaging showing progression). Furthermore, while Dr. Osei declared progression, the clinical record states "symptom duration: 6 months, stable," contradicting this claim for the purpose of APL 22-014.
+
+5.  **State Law Override: Interventional Procedure Requirement (DMHC APL 22-014 & HealthFirst CC-SPINE-2024 Section 2.2A):**
+    *   **Finding:** **Negative Finding (Interventional Stands).** As determined in Step 4, DMHC APL 22-014 (II.2) does not apply. HealthFirst's own Myelopathy Exception 2.2(A) waives interventional if the physician documents that "interventional treatment poses risk of neurological deterioration." Dr. Osei's letter emphasizes general surgical urgency and risks of *further delay*, but does not specifically document the risks of *interventional treatment* itself, precluding a waiver under the plan's criteria.
+
+6.  **State Law Override: Pharmacotherapy Requirement (DMHC APL 22-014 & CHSC § 1374.32(b)):**
+    *   **Finding:** **Negative Finding (Pharmacotherapy Stands).** DMHC APL 22-014 (II.2) is not applicable as the conditions (progressive pathology, myelomalacia) are not met. For mild, stable myelopathy without myelomalacia, clinical standards (AANS/CNS, NASS) indicate that conservative treatment may be considered as initial management. Therefore, the plan's requirement for a trial of two pharmacotherapy agents is not clearly overridden by state law or clinical standards for this specific presentation.
+
+7.  **Clinical Standard Override (CHSC § 1374.32(b) & DMHC APL 22-014 Part II.3):**
+    *   **Finding:** **Negative Finding (Clinical Standard Does Not Override).** The member has "mild cervical myelopathy" (mJOA 15/18) with "stable" symptoms and **no myelomalacia**. According to AANS/CNS guidelines, surgery is appropriate in mild myelopathy, but *urgency classification* for Tier 1 strong indication requires *acute progression or myelomalacia*, neither of which is present in the objective clinical record. NASS guidelines suggest conservative treatment may be considered for mild myelopathy as initial management with close monitoring. While Dr. Osei declared urgency, the objective clinical findings (stable, mild myelopathy without myelomalacia) do not align with the most urgent Tier 1 criteria that would unequivocally override all conservative treatment requirements. The clinical standards do not mandate immediate surgery for this specific presentation such that the plan's (correctly applied) conservative treatment requirements (e.g., a 4-week PT trial, 2 pharmacotherapy agents) would be deemed medically inappropriate.
+
+**CONFLICT RESOLUTION AND FINAL RECOMMENDATION:**
+
+**Governing Hierarchy:** State Law > Clinical Standard > Plan Criteria.
+
+1.  **Procedural Defects:** The initial denial notice is procedurally defective for failing to explicitly cite the specific clinical criteria applied and lacking notice of IMR rights, as required by CHSC § 1374.31(b).
+2.  **Plan's Internal Errors:** HealthFirst failed to apply its own "Myelopathy Exception" (CC-SPINE-2024 Section 2.2A), which reduces the physical therapy requirement to 4 weeks minimum for cervical myelopathy. The denial incorrectly stated a 6-week requirement.
+3.  **No Clear Clinical/Statutory Override for Immediate Surgery:** Despite the treating neurologist's declaration of urgency, the objective clinical record (mild, stable myelopathy; no myelomalacia; mJOA 15/18) does not meet the strong, unequivocal conditions under California state law (CIC § 10169.5, DMHC APL 22-014) or generally accepted clinical standards (AANS/CNS, AO Spine) that would mandate immediate surgical authorization and override all conservative treatment requirements. Clinical guidelines support an initial trial of conservative management for mild, stable myelopathy without myelomalacia.
+4.  **Incomplete Conservative Treatment:** Even if the plan had correctly applied its Myelopathy Exception, the member has completed only 3 weeks of physical therapy (against a 4-week minimum) and only one pharmacotherapy agent (against a 2-agent minimum), and the condition for interventional waiver was not strictly met. Therefore, the conservative treatment requirements (as per the plan's own correct criteria) would still be unmet, precluding an immediate **OVERTURN** based on medical necessity.
+
+**Disposition Decision Tree Application:**
+The denial is procedurally defective (Step 1) and the plan misapplied its own criteria (Step 3). While state law and clinical standards do not strongly override the requirement for *some* conservative treatment for this specific presentation of mild, stable myelopathy, the fundamental errors in the denial process by HealthFirst are significant. The plan needs to re-evaluate the request using its correct internal policy for myelopathy and issue a compliant denial notice.
+
+**DETERMINATION: REMAND**
+
+**RATIONALE:**
+The initial denial by HealthFirst is **REMANDED** for re-review and re-issuance of a compliant denial notice, for the following reasons:
+
+1.  **Procedural Defect of Denial Notice:** The provided denial notice summary fails to explicitly state the specific clinical criteria applied and to include notice of IMR rights, which is a violation of California Health & Safety Code § 1374.31(b).
+2.  **Misapplication of Internal Plan Criteria:** HealthFirst failed to apply its own "Myelopathy Exception" (CC-SPINE-2024 Section 2.2A), which modifies the conservative treatment requirements for cervical myelopathy. The denial incorrectly referenced a 6-week physical therapy requirement under the standard pathway, when the correct policy for myelopathy mandates a 4-week minimum.
+3.  **No Immediate Overriding Medical Necessity:** Based on the available clinical documentation (mild, stable myelopathy without myelomalacia), state law (CIC § 10169.5, DMHC APL 22-014) and generally accepted clinical standards (AANS/CNS, AO Spine) do not, at this time, provide a clear and compelling override for *all* conservative treatment requirements for this specific patient's condition. The objective findings do not indicate the acute urgency (e.g., progressive neurological deficit, myelomalacia) that would necessitate immediate surgical intervention without further conservative trial, even if modified.
+
+HealthFirst must re-evaluate Mr. Achebe's request against its correctly applied internal criteria (HealthFirst CC-SPINE-2024, Section 2.2A), and issue a new, procedurally compliant denial notice if the service is still deemed not medically necessary.
+
+Reviewer: [Expert Health Plan Appeals Reviewer Name/ID]
+Date: [Current Date]

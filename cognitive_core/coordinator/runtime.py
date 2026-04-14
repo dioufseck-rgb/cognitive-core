@@ -3672,6 +3672,9 @@ class Coordinator:
             "step_count": len(steps),
             "steps": [],
             "input": final_state.get("input", {}),
+            # Top-level fields populated below from deliberate/generate steps
+            "disposition": None,
+            "determination": None,
         }
 
         for step in steps:
@@ -3692,6 +3695,9 @@ class Coordinator:
                 step_summary["confidence_basis"] = str(output.get("confidence_basis", ""))[:500]
                 step_summary["options_considered"] = output.get("options_considered", [])
                 step_summary["confidence"] = output.get("confidence")
+                # Surface disposition at top level from deliberate's recommended_action
+                if output.get("recommended_action") and not summary["disposition"]:
+                    summary["disposition"] = output.get("recommended_action")
             elif prim == "govern":
                 step_summary["tier_applied"] = output.get("tier_applied")
                 step_summary["disposition"] = output.get("disposition")
@@ -3708,6 +3714,10 @@ class Coordinator:
                 step_summary["artifact_preview"] = str(output.get("artifact", ""))[:300]
                 step_summary["artifact"] = output.get("artifact")
                 step_summary["confidence"] = output.get("confidence")
+                # Surface determination at top level from generate's artifact
+                artifact = output.get("artifact") or output.get("content") or output.get("text")
+                if artifact:
+                    summary["determination"] = str(artifact)
             elif prim == "challenge":
                 step_summary["survives"] = output.get("survives")
                 step_summary["vulnerabilities"] = len(output.get("vulnerabilities", []))

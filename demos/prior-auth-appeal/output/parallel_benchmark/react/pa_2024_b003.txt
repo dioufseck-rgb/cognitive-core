@@ -1,0 +1,111 @@
+CASE: pa_2024_b003
+SYSTEM: REACT
+DISPOSITION: OVERTURN
+GT: OVERTURN
+CORRECT: True
+ELAPSED: 29.8s
+========================================================================
+
+## APPEAL DETERMINATION: Prior Authorization Request
+
+**HEALTHFIRST HEALTH PLAN**
+**APPEALS DEPARTMENT**
+
+**Date:** 2024-10-15
+**Case ID:** PA-2024-B003
+**Member Name:** Angela Morrison
+**Member ID:** M-778899
+**Plan:** HealthFirst PPO Gold — Group Plan 77441
+**Procedure Requested:** CPT 22551 (ACDF C3-C4, one level)
+**Requested By:** Dr. Paul Nguyen, MD — Neurosurgery
+**Facility:** Cedars-Sinai Medical Center
+**Review Level:** First-Level Internal Appeal
+
+---
+
+**I. CASE SUMMARY**
+
+Angela Morrison, a 67-year-old member, had a prior authorization request for an Anterior Cervical Discectomy and Fusion (ACDF) at C3-C4 denied on 2024-10-01. The denial (reason code MED-003) stated: "Member meets conservative treatment requirements. However, imaging does not show sufficient pathology at C3-C4 to support surgical intervention. MRI shows mild degenerative changes. Procedure not medically necessary."
+
+The appeal was submitted on the basis that the member completed all conservative treatment requirements, the surgeon identified C3-C4 as the symptomatic level based on clinical examination, and a CT myelogram confirmed compression not visible on the initial MRI due to hardware artifact from a prior C4-C5 fusion in 2019.
+
+**II. CLINICAL PRESENTATION & DIAGNOSIS**
+
+The member presents with adjacent segment disease at C3-C4 following a successful C4-C5 ACDF in 2019. Neurological examination (2024-08-20) reveals left C4 dermatomal numbness (shoulder and lateral arm), deltoid weakness (3+/5 left), and diminished left bicep reflex, new since 2023. These findings are consistent with **cervical radiculopathy** involving the left C4 nerve root. There is no documentation of upper motor neuron signs (Hoffman, hyperreflexia), bilateral symptoms, or gait disturbance that would indicate cervical myelopathy.
+
+**III. DENIAL REVIEW AND APPLICABLE CRITERIA**
+
+This review applies the three-source hierarchy: State law > Clinical standard > Plan criteria.
+
+**A. Application of HealthFirst Clinical Coverage Criteria (CC-SPINE-2024):**
+
+1.  **Diagnosis Requirement (Section 2.1):**
+    *   The member has a confirmed diagnosis of cervical radiculopathy with objective neurological deficits (left C4 dermatomal numbness, weakness, diminished reflex). This meets criterion 2.1(a) ("Cervical radiculopathy") and 2.1(c) ("Cervical disc herniation with objective neurological deficit").
+    *   *Finding:* **MET.**
+
+2.  **Conservative Treatment Requirement (Section 2.2):**
+    *   **Physical Therapy (2.2(a)):** The member completed 10 weeks (30 sessions) of PT, documented as showing "No improvement in left C4 radicular symptoms." This exceeds the plan's 6-week minimum requirement. This also indicates a functional plateau.
+    *   **Pharmacotherapy (2.2(b)):** The member underwent trials of Pregabalin (6 months, partial relief) and Duloxetine (3 months, minimal benefit), meeting the requirement for at least two agents for a minimum of 4 weeks each.
+    *   **Interventional Treatment (2.2(c)):** A left C4 epidural was performed (2024-09-25), providing initial 60% relief that returned to baseline by week 3. This meets the requirement for one interventional procedure.
+    *   *Myelopathy Exception (2.2(A)):* This exception is not applicable as the primary diagnosis is cervical radiculopathy, not myelopathy.
+    *   *Finding:* The initial denial letter explicitly stated, "Member meets conservative treatment requirements." This assessment is confirmed by the clinical record against the plan's criteria. **MET.**
+
+3.  **Imaging Requirement (Section 2.3):**
+    *   The initial MRI (2024-08-15) was limited by "SIGNIFICANT ARTIFACT from C4-C5 hardware limiting evaluation" and stated it "Cannot exclude moderate compression due to artifact."
+    *   A subsequent CT myelogram (2024-09-10), performed specifically due to the MRI limitations, unequivocally revealed "C3-C4: moderate-severe left C4 nerve root compression confirmed. Significant foraminal stenosis. MRI underestimated pathology due to hardware artifact from prior fusion."
+    *   The plan's denial reason was "imaging does not show sufficient pathology at C3-C4 to support surgical intervention. MRI shows mild degenerative changes." This denial relied on the *limited* MRI and failed to incorporate the conclusive findings of the CT myelogram, which clearly demonstrated structural pathology at the proposed surgical level consistent with the member's symptoms. The CT myelogram, performed within 6 months, satisfies the plan's imaging requirement.
+    *   *Finding:* The plan's initial denial incorrectly applied its own imaging criteria by overlooking the definitive CT myelogram findings. **MET (based on full imaging record).**
+
+4.  **Physician Documentation (Section 2.4):**
+    *   While not explicitly detailed as a separate section in the clinical record, the appeal basis confirms the surgeon's clinical rationale. The initial denial did not cite a lack of physician documentation.
+    *   *Finding:* **Assumed MET.**
+
+**B. Application of California Regulatory Framework:**
+
+1.  **CHSC § 1374.32(b) — Standard of Review for IMR:** This provision dictates that if a service meets "generally accepted standards of medical practice," it SHALL be approved regardless of whether the plan's internal criteria are more restrictive. Even if the plan's criteria were misapplied, this statute provides an overarching standard.
+
+2.  **CIC § 10169.5 — Physical Therapy as Prerequisite:** This section states that a plan cannot condition approval on completion of PT where the member has completed a course of PT and reached a functional plateau without adequate symptom resolution. The member completed 10 weeks of PT with "No improvement in left C4 radicular symptoms," which clearly indicates a functional plateau. The denial itself acknowledged that conservative treatment requirements were met, consistent with this statute.
+
+3.  **DMHC APL 22-014 — Myelopathy and Urgent Conditions:** While this APL primarily addresses myelopathy, its general principle (Section II.3) that "Plans shall not apply internal criteria that are more restrictive than generally accepted standards of medical practice" reinforces the mandate of CHSC § 1374.32(b).
+
+**C. Application of Clinical Standard (AANS/CNS 2023, NASS 2020, AO Spine 2021):**
+
+1.  **Diagnosis:** The clinical presentation (unilateral dermatomal weakness/numbness, diminished reflex, nerve root compression on imaging) is definitively consistent with cervical radiculopathy, not myelopathy (Clinical Reference Summary, Section 1.1).
+
+2.  **Surgical Indications:** For cervical radiculopathy, AANS/CNS Joint Guidelines (2023) classify "Radiculopathy with persistent symptoms after 6-12 weeks conservative tx" and "Significant functional impairment not responding to conservative care" as TIER 2 ("Reasonable Indication") for surgery (Clinical Reference Summary, Section 3.1). The member has completed 10 weeks of PT and multiple other conservative measures with persistent, objective neurological deficits (deltoid weakness 3+/5).
+
+3.  **Conservative Treatment Efficacy:** For radiculopathy, while conservative treatment is often effective, surgery is indicated when symptoms persist despite an adequate trial (NASS Guidelines 2020). The member's comprehensive, yet ineffective, conservative treatment trial, coupled with objective neurological deficit and clear pathology on imaging, meets this clinical standard.
+
+**IV. CONFLICT RESOLUTION AND DISPOSITION**
+
+The plan's denial was based on a flawed interpretation of the imaging record. The initial MRI was acknowledged to be limited by artifact, leading to the performance of a CT myelogram. The CT myelogram, which provides definitive evidence of "moderate-severe left C4 nerve root compression" and "significant foraminal stenosis" at the symptomatic C3-C4 level, directly contradicts the denial's assertion that "imaging does not show sufficient pathology."
+
+The member has cervical radiculopathy, not myelopathy. All plan criteria for diagnosis and conservative treatment have been satisfied. The imaging requirement is also satisfied by the CT myelogram.
+
+Under the hierarchy of authority, California state law and generally accepted clinical standards support approval:
+*   **Plan Criteria:** The plan's criteria (HealthFirst CC-SPINE-2024) for diagnosis (2.1), conservative treatment (2.2), and imaging (2.3) are met when the complete and accurate clinical record, including the CT myelogram, is considered. The initial denial failed to properly apply its own criteria.
+*   **Clinical Standard:** The service meets generally accepted clinical standards for surgical intervention for radiculopathy with objective neurological deficits unresponsive to a comprehensive conservative trial (AANS/CNS 2023, NASS 2020).
+*   **State Law:** CHSC § 1374.32(b) would mandate approval even if the plan's criteria were more restrictive, as the service meets generally accepted standards of medical practice. CIC § 10169.5 further reinforces that the conservative treatment, specifically physical therapy, was adequately completed and plateaued.
+
+**V. DETERMINATION**
+
+Based on a thorough review of the clinical record, HealthFirst's clinical coverage criteria, applicable state law, and generally accepted clinical standards of practice, the prior authorization denial for CPT 22551 (ACDF C3-C4) for Angela Morrison should be:
+
+**OVERTURNED.**
+
+**VI. WARRANT**
+
+The initial denial was based on an inaccurate assessment of the imaging studies, specifically by relying on a limited MRI while disregarding the definitive findings of the subsequent CT myelogram. The CT myelogram unequivocally confirms moderate-severe left C4 nerve root compression and significant foraminal stenosis at C3-C4, pathology consistent with the member's objective neurological deficits and symptoms of cervical radiculopathy. The member has also successfully completed and failed an extensive course of conservative treatment, meeting all requirements outlined in the HealthFirst Clinical Coverage Criteria (CC-SPINE-2024, Sections 2.1, 2.2, 2.3) and generally accepted clinical guidelines for cervical radiculopathy (AANS/CNS 2023, TIER 2 indication). Furthermore, California law (CHSC § 1374.32(b)) requires approval for services meeting generally accepted standards of medical practice, which this procedure does.
+
+---
+
+**Next Steps:**
+HealthFirst will reprocess this prior authorization request as an approval. The member and the requesting provider will be notified of this overturned decision within 2 business days.
+
+**Your Right to Independent Medical Review (IMR):**
+If you disagree with this appeal decision, you have the right to request an Independent Medical Review (IMR) from the Department of Managed Health Care (DMHC). An IMR is conducted by an independent panel of medical experts who will review your case. Information regarding how to apply for IMR will be included with your decision letter.
+
+**Reviewer:**
+[Reviewer Name/Signature]
+Expert Health Plan Appeals Reviewer
+HealthFirst Appeals Department

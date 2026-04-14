@@ -1,0 +1,78 @@
+{
+  "case_id": "PA-2024-88341",
+  "appeal_date": "2024-11-14",
+  "member": {
+    "id": "M-441892",
+    "name": "Patricia Chen",
+    "age": 58,
+    "plan": "HealthFirst PPO Gold — Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2020-01-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "Anterior cervical discectomy and fusion (ACDF), C5-C6, one level",
+    "requested_by": "Dr. James Okafor, MD — Neurosurgery",
+    "facility": "Pacific Spine Center, San Francisco, CA",
+    "requested_date": "2024-10-28",
+    "urgency": "elective"
+  },
+  "denial": {
+    "date": "2024-11-02",
+    "reason_code": "MED-001",
+    "reason_text": "Requested procedure does not meet medical necessity criteria. Conservative treatment requirements not satisfied. Member has not completed required course of physical therapy (minimum 6 weeks documented) prior to surgical intervention.",
+    "reviewer": "Dr. Sarah Mills, MD — HealthFirst Utilization Management",
+    "level": "initial"
+  },
+  "appeal_basis": [
+    "Member completed 8 weeks of physical therapy (June-August 2024) — records enclosed",
+    "MRI findings show severe C5-C6 disc herniation with cord compression — neurological urgency",
+    "California Insurance Code Section 10169 requires independent medical review for denials based on medical necessity",
+    "Treating physician declaration: delay of surgery risks permanent neurological deficit"
+  ],
+  "clinical_record": {
+    "chief_complaint": "Progressive cervical radiculopathy with bilateral hand weakness, 14 months duration",
+    "conservative_treatment": {
+      "physical_therapy": {
+        "start": "2024-06-03",
+        "end": "2024-08-09",
+        "weeks": 8,
+        "provider": "Bay Area Physical Therapy, San Francisco",
+        "notes": "Limited functional improvement. Pain reduced from 8/10 to 6/10. Weakness and paresthesias unchanged.",
+        "discharge_summary": "Patient reached plateau. Surgical consultation recommended."
+      },
+      "medications": [
+        {"drug": "Gabapentin 300mg TID", "duration": "6 months", "response": "Partial — pain reduced, neurological symptoms unchanged"},
+        {"drug": "Methylprednisolone dose pack x2", "duration": "2 courses", "response": "Temporary relief only"},
+        {"drug": "Naproxen 500mg BID", "duration": "4 months", "response": "Inadequate"}
+      ],
+      "epidural_steroid_injection": {
+        "date": "2024-09-15",
+        "provider": "Dr. Linda Park, Pain Management",
+        "response": "Minimal — 20% pain reduction, no improvement in motor weakness"
+      }
+    },
+    "imaging": {
+      "mri_cervical_spine": {
+        "date": "2024-09-28",
+        "findings": "Severe C5-C6 disc herniation with posterior disc-osteophyte complex. Central and right paracentral protrusion causing significant cord compression (cord signal change noted — myelomalacia). Moderate-severe right C6 neural foraminal stenosis. Mild C4-C5 and C6-C7 degenerative changes.",
+        "impression": "Cervical myelopathy at C5-C6 with evidence of cord injury. Surgical evaluation strongly recommended."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-10-15",
+      "findings": "Bilateral grip weakness (3+/5 right, 4/5 left). Hoffman sign positive bilaterally. Hyperreflexia bilateral upper extremities. Gait disturbance noted. Dermatomal sensory loss C6 distribution right.",
+      "impression": "Cervical myelopathy — progressive. Surgical risk of delay: permanent spinal cord injury."
+    },
+    "treating_physician_declaration": "Patient Patricia Chen presents with progressive cervical myelopathy secondary to severe C5-C6 disc herniation. MRI demonstrates cord compression with myelomalacia — evidence of existing cord injury. Conservative treatment has been exhausted including 8 weeks PT, 2 ESI, and 6 months pharmacotherapy. Delay of surgical decompression risks permanent neurological deficit and progressive disability. ACDF C5-C6 is medically necessary and time-sensitive."
+  },
+  "documents_enclosed": [
+    "physical_therapy_records_jun_aug_2024.pdf",
+    "mri_report_2024_09_28.pdf",
+    "neurological_exam_2024_10_15.pdf",
+    "treating_physician_declaration.pdf",
+    "plan_evidence_of_coverage_2024.pdf"
+  ],
+  "question": "Should the prior authorization denial for ACDF C5-C6 (CPT 22551) be overturned on appeal?"
+}

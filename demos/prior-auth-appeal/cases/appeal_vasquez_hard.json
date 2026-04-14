@@ -1,0 +1,161 @@
+{
+  "case_id": "PA-2024-91847",
+  "appeal_date": "2024-11-20",
+  "member": {
+    "id": "M-887234",
+    "name": "Robert Vasquez",
+    "age": 52,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2019-03-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "Anterior cervical discectomy and fusion (ACDF), C6-C7, one level",
+    "requested_by": "Dr. Elena Marchetti, MD \u2014 Neurosurgery, UCSF Spine Center",
+    "facility": "UCSF Medical Center, San Francisco, CA",
+    "requested_date": "2024-10-31",
+    "urgency": "elective"
+  },
+  "denial": {
+    "date": "2024-11-07",
+    "reason_code": "MED-003",
+    "reason_text": "Requested procedure does not meet medical necessity criteria under HealthFirst CC-SPINE-2024 Section 2.2. Member has completed only 3 weeks of physical therapy (documentation submitted covers June 2\u2013June 21, 2024). Standard pathway requires minimum 6 weeks. Myelopathy exception does not apply: primary diagnosis is cervical radiculopathy per treating physician's initial consultation note dated April 14, 2024. Member has not met conservative treatment requirements.",
+    "reviewer": "Dr. Patricia Huang, MD \u2014 HealthFirst Utilization Management (Orthopedic Surgery)",
+    "level": "initial"
+  },
+  "appeal_basis": [
+    "Member completed physical therapy but records were split across two providers due to insurance change \u2014 combined duration is 7 weeks",
+    "Diagnosis evolved from radiculopathy to myelopathy over treatment course \u2014 most recent clinical documentation confirms myelopathy",
+    "Treating physician declaration: myelomalacia present on MRI, surgical urgency",
+    "Second MRI (October 2024) shows interval progression of cord compression compared to first MRI (May 2024)",
+    "California law prohibits applying PT requirement when structural neurological compromise is present"
+  ],
+  "clinical_record": {
+    "chief_complaint": "Right arm weakness and hand clumsiness, 11 months duration. Recent onset of bilateral lower extremity heaviness and balance difficulty past 6 weeks.",
+    "symptom_timeline": {
+      "months_1_to_5": "Right-sided cervical radiculopathy pattern. C7 dermatomal distribution. Pain, numbness right arm and hand. No bilateral symptoms. No gait disturbance.",
+      "months_6_to_9": "Symptoms expanded. Bilateral arm involvement began month 7. Right grip weakness noted.",
+      "months_10_to_11": "New symptom onset: bilateral lower extremity heaviness, balance difficulty, clumsiness on stairs. Suggests possible myelopathy development."
+    },
+    "treating_physician_history": {
+      "initial_consultation": {
+        "date": "2024-04-14",
+        "provider": "Dr. Elena Marchetti, MD \u2014 UCSF Neurosurgery",
+        "diagnosis": "Cervical radiculopathy C6-C7, right-sided. Rule out early myelopathy.",
+        "note": "Presentation consistent with C7 radiculopathy. Single-level disc herniation C6-C7 on MRI. No upper motor neuron signs on exam today. Recommend conservative treatment with 6-week PT trial. Will reassess. If symptoms worsen or myelopathy develops, surgical consultation indicated."
+      },
+      "follow_up_1": {
+        "date": "2024-07-22",
+        "provider": "Dr. Elena Marchetti, MD",
+        "note": "Patient completed 3 weeks PT at Bay Area PT (June 2-21) before insurance transition. Limited improvement. Now enrolled with new PT provider Capital Physical Therapy. Will continue PT there. Right arm symptoms persist. No new bilateral findings today."
+      },
+      "follow_up_2": {
+        "date": "2024-10-08",
+        "provider": "Dr. Elena Marchetti, MD",
+        "note": "Significant interval change. Patient now reporting bilateral lower extremity symptoms \u2014 heaviness, balance difficulty. New finding on exam: bilateral lower extremity hyperreflexia, positive Babinski left side. Hoffman sign positive right hand. MRI October 2024 shows interval progression of cord compression with new T2 signal change (myelomalacia) at C6-C7. Diagnosis revised: cervical myelopathy, progressive, with superimposed radiculopathy. Recommend expedited surgical evaluation. Delay risks further cord injury."
+      },
+      "surgical_request_letter": {
+        "date": "2024-10-31",
+        "content": "I am requesting prior authorization for ACDF C6-C7 for Mr. Vasquez. His presentation has evolved from cervical radiculopathy to progressive cervical myelopathy with cord signal change (myelomalacia) on MRI. He completed physical therapy at two separate providers (Bay Area PT June 2-21, 2024 and Capital Physical Therapy July 8 - August 16, 2024) totaling approximately 7 weeks. Neurological examination now shows upper and lower motor neuron signs. Further conservative treatment is contraindicated given the cord signal change and progressive nature. Urgent surgical decompression is indicated."
+      }
+    },
+    "conservative_treatment": {
+      "physical_therapy_provider_1": {
+        "provider": "Bay Area Physical Therapy",
+        "start": "2024-06-02",
+        "end": "2024-06-21",
+        "weeks": 3,
+        "sessions": 9,
+        "reason_for_discontinuation": "Member's employer changed insurance carriers July 1, 2024. Bay Area PT not in network under new plan. Treatment transferred.",
+        "outcome_note": "Limited improvement. Pain 7/10 to 6/10. Radicular symptoms unchanged.",
+        "records_status": "SUBMITTED with appeal"
+      },
+      "physical_therapy_provider_2": {
+        "provider": "Capital Physical Therapy",
+        "start": "2024-07-08",
+        "end": "2024-08-16",
+        "weeks": 6,
+        "sessions": 16,
+        "reason_for_discontinuation": "Treating physician advised to stop PT after October MRI showed cord progression. Continuing PT deemed potentially harmful.",
+        "outcome_note": "Some pain improvement. Neurological symptoms (weakness, clumsiness) unchanged or worsening.",
+        "records_status": "SUBMITTED with appeal \u2014 NOTE: Capital PT records show treating diagnosis as 'cervical radiculopathy' throughout course. No myelopathy notation in PT records despite treating physician's October reassessment.",
+        "documentation_gap": "Capital PT records do not reference the October 2024 physician reassessment or myelopathy diagnosis. Therapist notes through August 16 consistently document 'cervical radiculopathy' as working diagnosis."
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Pregabalin 75mg BID",
+            "duration": "5 months",
+            "response": "Moderate pain reduction, no change in weakness"
+          },
+          {
+            "drug": "Naproxen 500mg BID",
+            "duration": "3 months",
+            "response": "Inadequate"
+          },
+          {
+            "drug": "Prednisone taper x2",
+            "duration": "2 courses",
+            "response": "Temporary relief only"
+          }
+        ]
+      },
+      "interventional": {
+        "cervical_epidural_steroid_injection": {
+          "date": "2024-08-28",
+          "provider": "Dr. James Park, Pain Management",
+          "response": "Moderate initial improvement (40% pain reduction). No improvement in bilateral weakness. Symptoms returned to baseline by week 4."
+        }
+      },
+      "physical_therapy_summary": {
+        "total_weeks": 9,
+        "total_sessions": 25,
+        "note": "Combined across both providers: Bay Area PT (3 weeks, 9 sessions, June 2\u201321) + Capital PT (6 weeks, 16 sessions, July 8 \u2013 Aug 16). Both sets of records submitted with appeal. Use 9 weeks as the authoritative total.",
+        "authoritative_source": "structured_fields_in_this_record"
+      }
+    },
+    "imaging": {
+      "mri_1": {
+        "date": "2024-05-06",
+        "findings": "C6-C7 disc herniation with right paracentral protrusion. Moderate right C7 foraminal stenosis. Mild cord contact without cord compression. No cord signal change. C5-C6 mild degenerative changes.",
+        "impression": "Right C7 radiculopathy etiology identified. No myelopathy. Surgical evaluation at discretion of treating physician after conservative trial."
+      },
+      "mri_2": {
+        "date": "2024-10-14",
+        "findings": "INTERVAL CHANGE from May 2024 study. C6-C7 disc herniation with posterior migration. Now causing moderate-severe central cord compression. NEW: T2 hyperintensity within cord at C6-C7 level consistent with myelomalacia \u2014 indicates cord signal change not present on prior study. C7 foraminal stenosis unchanged. New finding: mild cord compression C5-C6.",
+        "impression": "Progressive cervical myelopathy at C6-C7 with interval development of myelomalacia. Significant interval change from prior MRI. Surgical evaluation strongly recommended. Clinical urgency given cord signal change."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-10-08",
+      "findings": "Right grip weakness 4/5 (improved from prior). Left grip weakness 4-/5 (new finding). Bilateral lower extremity hyperreflexia. Positive Babinski reflex left lower extremity. Positive Hoffman sign right hand. Tandem gait mildly impaired. Romberg test borderline positive.",
+      "impression": "Mixed upper and lower motor neuron signs consistent with cervical myelopathy. Superimposed right C7 radiculopathy. Progressive course \u2014 new bilateral and lower extremity findings since April 2024."
+    },
+    "complicating_factor": {
+      "description": "Member has documented history of chronic pain disorder with prior cervical fusion at C4-C5 in 2018 (different institution, prior insurance). Post-surgical MRI from 2019 shows expected post-fusion changes. Member was enrolled in a pain management program 2019-2021 and was prescribed opioids for 18 months following the 2018 surgery before successful taper.",
+      "relevance": "Prior fusion at adjacent level (C4-C5) creates adjacent segment disease risk \u2014 C6-C7 pathology may be partially attributable to biomechanical stress from C4-C5 fusion. Some payers have specific criteria for adjacent segment surgery. HealthFirst CC-SPINE-2024 does not explicitly address adjacent segment disease.",
+      "treating_physician_note": "The C6-C7 pathology is consistent with adjacent segment disease following prior C4-C5 fusion. This does not change the surgical indication \u2014 myelopathy with myelomalacia requires decompression regardless of etiology. However, I note this for completeness."
+    }
+  },
+  "documents_enclosed": [
+    "bay_area_pt_records_jun_2024.pdf",
+    "capital_pt_records_jul_aug_2024.pdf",
+    "mri_report_may_2024.pdf",
+    "mri_report_oct_2024.pdf",
+    "neurological_exam_oct_2024.pdf",
+    "treating_physician_declaration.pdf",
+    "prior_fusion_records_2018_2019.pdf"
+  ],
+  "question": "Should the prior authorization denial for ACDF C6-C7 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "OVERTURN \u2014 PT was completed across two providers (7 weeks total), myelopathy is now confirmed, myelomalacia is present",
+    "harder_question_1": "Does PT completed under a different insurance carrier and different diagnosis (radiculopathy) count toward the myelopathy exception pathway? The myelopathy exception requires the diagnosis to be myelopathy \u2014 but when PT was done, the diagnosis was radiculopathy.",
+    "harder_question_2": "The Capital PT records consistently document 'cervical radiculopathy' through August 2024 \u2014 the same period claimed for the myelopathy pathway. If PT was done for radiculopathy, does it satisfy the myelopathy exception's PT requirement?",
+    "harder_question_3": "Adjacent segment disease: HealthFirst plan has no explicit criteria, but the prior fusion creates a question about whether standard criteria apply or whether this is a categorically different clinical situation.",
+    "harder_question_4": "The first MRI (May 2024) showed NO cord compression and NO myelomalacia. PT was completed between June and August. The myelomalacia appeared on the October MRI. Was PT 'contraindicated' during the period it was being performed, or only contraindicated after October? If contraindicated only after October, the PT completion question and the myelopathy question may be separate.",
+    "the_genuine_tension": "The plan denied on PT grounds using the April radiculopathy diagnosis. The treating physician now claims myelopathy with myelopathy exception. But the PT records themselves say radiculopathy throughout. The regulatory framework may mandate approval regardless. The clinical standard strongly supports surgery. But the factual record is genuinely inconsistent \u2014 the PT was done under a radiculopathy diagnosis, by a provider who documented radiculopathy throughout, and only after PT ended did the diagnosis change. A reviewer who catches this inconsistency faces a real question: does PT done for radiculopathy count toward a myelopathy exception pathway?",
+    "right_answer": "OVERTURN \u2014 but the warrant requires explicitly resolving the diagnosis timing question. The regulatory framework (CIC 10169.5(a)(3) and DMHC APL 22-014) overrides regardless of the PT classification question: myelomalacia with progressive cord compression means the PT requirement cannot be applied regardless of what diagnosis the PT was done under. The correct disposition reaches overturn through the regulatory pathway, not the plan criteria pathway. A system that reaches overturn through plan criteria alone has the right answer for the wrong reason and would fail at IMR if the plan challenged the PT classification."
+  }
+}

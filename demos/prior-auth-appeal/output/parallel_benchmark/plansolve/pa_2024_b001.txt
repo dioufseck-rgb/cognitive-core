@@ -1,0 +1,104 @@
+CASE: pa_2024_b001
+SYSTEM: PLANSOLVE
+DISPOSITION: PARTIAL
+GT: PARTIAL
+CORRECT: True
+ELAPSED: 75.1s
+========================================================================
+
+**HealthFirst Health Plan — Appeals Determination**
+
+**Case ID:** PA-2024-B001
+**Member:** Linda Park
+**Member ID:** M-556677
+**Date of Birth:** [Calculated from age 45, current year 2024, if needed for letter, but not essential for determination itself]
+**Plan:** HealthFirst PPO Gold — Group Plan 77441
+**Procedure Requested:** Anterior Cervical Discectomy and Fusion (ACDF) C5-C6 and C6-C7 (two levels)
+**Requesting Provider:** Dr. James Wilson, MD — Spine Surgery
+**Facility:** UCLA Medical Center
+
+**Date of Appeal Determination:** 2024-11-XX (Today's Date)
+
+**I. Introduction:**
+This letter serves as the formal determination of the appeal submitted by Linda Park (Member) regarding the denial of prior authorization for an Anterior Cervical Discectomy and Fusion (ACDF) at levels C5-C6 and C6-C7. This review was conducted by an expert health plan appeals reviewer, adhering to the submitted evaluation plan, relevant state and federal regulations, HealthFirst's clinical coverage criteria, and generally accepted standards of medical practice.
+
+**II. Original Denial Summary (Dated 2024-10-28):**
+HealthFirst's initial denial, issued by Dr. Alan Foster, MD, stated that the "Two-level ACDF not medically necessary. Imaging shows pathology at C5-C6 only. C6-C7 shows mild degenerative changes without significant compression or neurological deficit attributable to this level."
+
+**III. Appeal Basis:**
+The Member's appeal highlighted that:
+1.  Member meets all plan criteria for at least the C5-C6 level.
+2.  The surgeon believes both levels should be addressed to prevent adjacent segment disease.
+3.  6 weeks of physical therapy (PT) were completed, along with pharmacotherapy and an injection.
+
+**IV. Review Methodology:**
+This appeal was reviewed using the provided evaluation plan, applying the specified source hierarchy: **State Law > Clinical Standard > Plan Criteria**. Where sources conflict, the higher authority governs. All clinical information provided in the Member's record was meticulously reviewed against these standards.
+
+---
+
+**V. Findings of Review:**
+
+**Step 1: Procedural Adequacy of Denial Notice (CHSC §1374.31(b))**
+*   **Finding:** The original denial notice (dated 2024-10-28) specified a clinical reason for the denial ("Imaging shows pathology at C5-C6 only. C6-C7 shows mild degenerative changes without significant compression or neurological deficit attributable to this level."). However, it **failed to explicitly cite the specific clinical criteria applied** (e.g., "HealthFirst CC-SPINE-2024, Section 2.3") in addition to the clinical reason.
+*   **Conclusion:** This omission renders the denial notice **procedurally defective** as per California Health & Safety Code (CHSC) §1374.31(b). CHSC §1374.31(b) states that a denial notice failing to specify the clinical criteria applied shall be treated as if no denial was issued for purposes of appeal timelines. While this procedural defect is noted and requires correction by HealthFirst in future communications, sufficient clinical information is available in the Member's record to make a definitive medical necessity determination, precluding a full remand based solely on this defect.
+
+**Step 2: Establish Primary Diagnosis and Clinical Severity**
+*   **Finding:** Review of Dr. Wilson's notes, neurological exam (2024-09-05), and MRI (2024-09-01) confirms **Cervical Radiculopathy** as the primary diagnosis, specifically correlating with the C5-C6 level. The neurological exam documented right C6 dermatomal numbness and tingling, diminished right bicep reflex, and 4/5 right grip strength. There were **no documented C7 findings, no bilateral findings, and no upper motor neuron signs**, ruling out Cervical Myelopathy (HealthFirst CC-SPINE-2024, Section 2.1(b)). The MRI report did not indicate myelomalacia (T2 cord signal change) at either level.
+*   **Conclusion:** The primary diagnosis is Cervical Radiculopathy at C5-C6.
+
+**Step 3: Imaging Findings and Proposed Surgical Levels (HealthFirst CC-SPINE-2024, Section 2.3)**
+*   **Finding:** The MRI dated 2024-09-01 shows:
+    *   **C5-C6:** "large disc herniation with moderate-severe nerve root compression, moderate foraminal stenosis. Clear correlation with C6 radicular symptoms." This demonstrates objective structural pathology consistent with the Member's C6 radicular symptoms and proposed surgery at this level.
+    *   **C6-C7:** "mild disc bulge, minimal foraminal narrowing, no cord contact, no nerve root compression identifiable." This aligns with the plan's assessment of "mild degenerative changes without significant compression or neurological deficit" at C6-C7. There is no objective evidence of significant nerve root or spinal cord compression at this level.
+*   **Conclusion:** Objective structural pathology correlating with symptoms is present at C5-C6, but not at C6-C7.
+
+**Step 4: Application of Plan Criteria - Myelopathy Exception (HealthFirst CC-SPINE-2024, Section 2.2(A))**
+*   **Finding:** As determined in Step 2, the primary diagnosis is Cervical Radiculopathy, not Myelopathy.
+*   **Conclusion:** HealthFirst's Myelopathy Exception (Section 2.2(A)) for conservative treatment requirements is not applicable in this case.
+
+**Step 5: Compliance with Conservative Treatment Requirements vs. State Law/Clinical Standards (HealthFirst CC-SPINE-2024, Section 2.2; CIC 10169.5; DMHC APL 22-014; AANS/CNS 2023; AO Spine 2021)**
+*   **Finding:** The Member's clinical record documents completion of the following conservative treatment for the C5-C6 radiculopathy:
+    *   **Physical Therapy:** 8 weeks (24 sessions) of supervised PT were completed, exceeding HealthFirst's 6-week minimum (Section 2.2(a)). The surgeon's note and PT summary indicate C6 radicular symptoms persist, signifying a functional plateau despite therapy.
+    *   **Pharmacotherapy:** Trials of Gabapentin (4 months) and Cyclobenzaprine (6 weeks) were completed, meeting HealthFirst's requirement for at least two agents for a minimum of 4 weeks each (Section 2.2(b)).
+    *   **Interventional Treatment:** A Right C6 epidural steroid injection was administered, providing only 50% temporary relief that returned by week 4, satisfying HealthFirst's requirement for one interventional treatment (Section 2.2(c)).
+*   **Conclusion:** The Member has fully complied with HealthFirst's conservative treatment requirements for cervical radiculopathy. Furthermore, under California Insurance Code (CIC) §10169.5(a)(2), the documented persistence of symptoms after an 8-week course of PT indicates a functional plateau, which would waive any further PT requirement even if not explicitly met by plan duration. DMHC APL 22-014 and AANS/CNS/AO Spine guidelines primarily address myelopathy and do not alter the already met radiculopathy-specific conservative treatment requirements here.
+
+**Step 6: Medical Necessity under Generally Accepted Standards (CHSC §1374.32(b); AANS/CNS 2023; NASS 2020; AO Spine 2021)**
+*   **Finding:**
+    *   **For C5-C6:** The Member presents with objective imaging evidence of severe nerve root compression (large disc herniation, moderate-severe nerve root compression, moderate foraminal stenosis) correlating with clear, persistent C6 radicular symptoms (numbness, tingling, weakness, diminished reflex) that have failed an extensive course of conservative treatment. This presentation meets **Tier 2 ("Reasonable Indication") surgical criteria** per AANS/CNS Joint Guidelines (2023) and NASS (2020) for radiculopathy with persistent symptoms after adequate conservative treatment and significant functional impairment. Therefore, ACDF at C5-C6 is medically necessary under generally accepted standards of medical practice.
+    *   **For C6-C7:** Imaging demonstrates only "mild disc bulge, minimal foraminal narrowing, no cord contact, no nerve root compression identifiable," with no correlating C7 neurological findings. The surgeon's rationale for including C6-C7 is "prophylactically stabilize C6-C7 to prevent adjacent segment disease." While prevention of adjacent segment disease is a clinical consideration, **prophylactic fusion of an asymptomatic and non-pathologic segment (C6-C7) is generally not considered a standalone indication for surgical intervention under generally accepted standards of medical practice.** Per AANS/CNS Joint Guidelines (2023), surgical intervention for "Imaging findings without correlating symptoms" is categorized as **Tier 3 ("Surgery Not Indicated")**. Therefore, ACDF at C6-C7 is not medically necessary based on current clinical presentation and accepted standards.
+*   **Conclusion:** ACDF at C5-C6 is medically necessary. ACDF at C6-C7 is not medically necessary.
+
+---
+
+**VI. Determination Rationale:**
+
+The original denial was procedurally defective for failing to cite the specific clinical criteria, as required by CHSC §1374.31(b). HealthFirst must rectify this in future denial notices.
+
+Despite the procedural defect, a thorough review of the Member's clinical record against HealthFirst's policy, California state law, and generally accepted clinical standards demonstrates the following:
+
+*   **For the C5-C6 level:** There is clear medical necessity for ACDF. The Member has a confirmed diagnosis of cervical radiculopathy with objective evidence of severe nerve root compression on MRI, correlating C6 radicular symptoms, and has failed a comprehensive and extended course of conservative treatment, fully meeting HealthFirst's criteria and aligning with Tier 2 surgical indications under generally accepted standards (AANS/CNS 2023, NASS 2020).
+*   **For the C6-C7 level:** There is no medical necessity for ACDF. The imaging for C6-C7 shows only mild degenerative changes without nerve root or spinal cord compression, and there are no correlating C7 radicular or myelopathic symptoms. The request for prophylactic fusion to prevent adjacent segment disease, in the absence of current pathology or symptoms at this level, does not meet generally accepted standards of medical practice for surgical intervention (AANS/CNS 2023 Tier 3).
+
+Therefore, based on the **DISPOSITION DECISION TREE**, a **PARTIAL** approval is warranted. The procedural defect of the original denial does not alter the clear medical necessity finding for C5-C6 or the lack of medical necessity for C6-C7 based on clinical evidence and established standards.
+
+**VII. Final Determination:**
+
+**PARTIAL APPROVAL.**
+
+HealthFirst's denial for the requested two-level ACDF (C5-C6 and C6-C7) is **OVERTURNED IN PART**.
+
+*   **Authorization for Anterior Cervical Discectomy and Fusion (ACDF) at level C5-C6 is APPROVED.** This service is determined to be medically necessary.
+*   **Authorization for Anterior Cervical Discectomy and Fusion (ACDF) at level C6-C7 is UPHELD (DENIED).** This service is determined not to be medically necessary at this time, as there is no objective evidence of structural pathology or correlating neurological deficit to support surgical intervention at this level.
+
+**VIII. Action Required by HealthFirst:**
+HealthFirst is directed to immediately authorize the ACDF at C5-C6 for Linda Park (M-556677). HealthFirst is further directed to ensure that future denial notices for any services consistently comply with CHSC §1374.31(b) by explicitly stating the specific clinical criteria applied (e.g., plan policy document and section number) in addition to the clinical reason for the denial.
+
+**IX. Member Rights:**
+If you disagree with this determination, you have the right to request an Independent Medical Review (IMR) through the California Department of Managed Health Care (DMHC). You may contact the DMHC Help Center at 1-888-HMO-2219 or visit their website at www.dmhc.ca.gov for information and application forms.
+
+Sincerely,
+
+[Reviewer's Name/Title]
+Expert Health Plan Appeals Reviewer
+HealthFirst Appeals Department

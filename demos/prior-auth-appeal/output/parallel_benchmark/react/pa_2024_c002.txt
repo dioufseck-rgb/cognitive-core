@@ -1,0 +1,118 @@
+CASE: pa_2024_c002
+SYSTEM: REACT
+DISPOSITION: OVERTURN
+GT: OVERTURN
+CORRECT: True
+ELAPSED: 35.8s
+========================================================================
+
+**HealthFirst Health Plan — Appeals Determination**
+
+**Case ID:** PA-2024-C002
+**Member:** David Santos (ID: M-101122), Age 63
+**Plan:** HealthFirst PPO Gold — Group Plan 77441, California
+**Procedure:** Anterior Cervical Discectomy and Fusion (ACDF) C6-C7 (CPT 22551)
+**Requested By:** Dr. Lisa Wong, MD
+**Appeal Reviewer:** [Your Name/Reviewer Title], Expert Health Plan Appeals Reviewer
+**Date of Review:** [Current Date]
+**Original Denial Date:** 2024-10-05
+**Original Reviewer:** Dr. Patricia Huang, MD
+**Denial Level:** Initial
+
+---
+
+**I. Introduction and Summary of Request**
+
+This constitutes a first-level internal appeal review for a prior authorization request for CPT code 22551, Anterior Cervical Discectomy and Fusion (ACDF) at the C6-C7 level, for member David Santos. The initial request was denied by HealthFirst Health Plan on October 5, 2024, citing that while the myelopathy exception was considered, it was not fully met as the member's symptoms were primarily radicular, and myelopathy was not deemed the "primary diagnosis" per plan criteria. The member's appeal asserts that myelomalacia is present, regulatory overrides apply, and a mixed myelopathy/radiculopathy presentation should not preclude the myelopathy exception.
+
+Based on a comprehensive review of the member's clinical record, HealthFirst's clinical coverage criteria (CC-SPINE-2024), California state law (CIC, CHSC, DMHC APL), and generally accepted clinical standards (AANS/CNS, NASS, AO Spine guidelines), this reviewer finds that the original denial should be **OVERTURNED**.
+
+---
+
+**II. Clinical Background**
+
+Mr. David Santos, a 63-year-old male, presents with symptoms consistent with a mixed cervical myelopathy-radiculopathy.
+
+*   **Presenting Diagnosis:** Mixed cervical myelopathy-radiculopathy, with the primary diagnosis disputed by the plan.
+*   **Imaging (MRI 09/01/2024):** Reveals moderate cord compression at C6-C7 and, critically, **T2 signal change (myelomalacia) within the spinal cord**. Right C7 foraminal stenosis is noted as more prominent than left.
+*   **Neurological Exam (09/05/2024):** Demonstrates both radicular and myelopathic signs. Predominant right C7 distribution includes right tricep weakness (4/5) and right finger numbness, with 8/10 right-sided pain. However, significant myelopathic signs are also present: **bilateral hyperreflexia (right > left), positive right Hoffman sign, equivocal left Hoffman sign, and a mildly wide-based gait.**
+*   **Conservative Treatment:**
+    *   **Physical Therapy:** Completed 6 weeks (18 sessions) under a "myelopathy protocol." Documentation explicitly states "No improvement in bilateral neurological signs or right-sided radicular symptoms."
+    *   **Pharmacotherapy:** Trials of Pregabalin (3 months, partial right-sided pain relief) and Naproxen (2 months, inadequate).
+    *   **Interventional:** One right C7 epidural steroid injection, providing 50% right-sided relief for 3 weeks, but notably **"No change in bilateral hyperreflexia."**
+
+---
+
+**III. Reviewer Analysis**
+
+The denial hinged on the plan's interpretation of its Myelopathy Exception 2.2(A), specifically the clause: "The myelopathy exception applies only when myelopathy is the PRIMARY diagnosis. Cases where myelopathy is documented as a finding but radiculopathy is the primary complaint are subject to standard conservative treatment requirements."
+
+This analysis will apply the three-source hierarchy: State law > Clinical standard > Plan criteria.
+
+**A. Application of HealthFirst Plan Criteria (CC-SPINE-2024)**
+
+1.  **Diagnosis Requirement (2.1):** The member clearly meets the criteria for both cervical radiculopathy (2.1a) and cervical myelopathy (2.1b) based on imaging (cord compression, myelomalacia, foraminal stenosis) and clinical findings (UMN signs, gait disturbance, dermatomal symptoms).
+2.  **Conservative Treatment Requirement (2.2):**
+    *   **Standard Pathway:** The member *has completed* 6 weeks of PT, 2 pharmacotherapy agents for adequate durations, and 1 interventional procedure. Therefore, the *duration* requirements for the standard pathway are technically met.
+    *   **Myelopathy Exception (2.2A):** The plan acknowledged myelopathy but denied the *full application* of the exception due to the "primary diagnosis" clause. Had the exception been fully applied, the PT requirement would be reduced to 4 weeks (already exceeded), and the interventional requirement could be waived (though one was performed).
+    *   **Denial's Flaw:** The denial's assertion that "primary diagnosis remains radiculopathy" and that myelopathy is merely a "finding" ignores the severity of myelopathic signs (myelomalacia, bilateral hyperreflexia, positive Hoffman, gait disturbance).
+
+**B. Application of California Regulatory Requirements**
+
+California state law provides clear directives that override restrictive plan criteria in this specific clinical scenario.
+
+1.  **DMHC All-Plan Letter APL 22-014 — Myelopathy and Urgent Conditions:**
+    *   **II.1 Myelopathy Classification:** This regulation explicitly states that "cervical myelopathy with objective evidence of cord compression and myelomalacia on MRI constitutes a condition with potential for irreversible harm if untreated. Plans SHALL treat such cases as urgent unless compelling clinical evidence supports otherwise." Mr. Santos's MRI shows moderate cord compression and myelomalacia, fulfilling this criterion. The plan's attempt to categorize this as primarily radiculopathy for conservative treatment requirements is directly contrary to DMHC guidance.
+    *   **II.2 Conservative Treatment Exceptions:** For conditions risking irreversible harm (like myelopathy with myelomalacia), plans "SHALL NOT require completion of a full course of conservative treatment" when "objective imaging evidence demonstrates progressive pathology (cord signal change, myelomalacia)..." and "surgical intervention is indicated under generally accepted clinical guidelines." This directly applies to Mr. Santos's case due to the documented myelomalacia. The regulation further clarifies: "The presence of myelomalacia on MRI is specifically identified as a finding that may support waiver of standard conservative treatment requirements." This regulatory guidance explicitly overrides the plan's ability to enforce standard conservative treatment durations based on a "primary diagnosis" argument when myelomalacia is present.
+    *   **II.3 Plan Criteria vs. Clinical Standard:** "Plans shall not apply internal criteria that are more restrictive than generally accepted standards of medical practice... Where a conflict exists between plan criteria and generally accepted standards, the clinical standard governs." The plan's "primary diagnosis" clause, by enforcing a potentially harmful delay, is more restrictive than clinical standards, and thus is superseded.
+
+2.  **California Insurance Code (CIC) § 10169.5 — Physical Therapy as Prerequisite:**
+    *   **(a)(3):** This code states that a plan "shall not condition approval of a surgical procedure on completion of physical therapy where... [t]he condition involves objective evidence of structural neurological compromise that physical therapy cannot address." Mr. Santos's MRI with moderate cord compression and myelomalacia constitutes "objective evidence of structural neurological compromise." Physical therapy cannot reverse myelomalacia or cord compression.
+    *   **(a)(2):** Furthermore, this code waives the PT requirement if "the member has completed a course of physical therapy and the treating physician documents that the member reached a functional plateau without adequate resolution of symptoms." The physical therapy summary explicitly notes "No improvement in bilateral neurological signs or right-sided radicular symptoms," clearly indicating a functional plateau, particularly concerning the myelopathic signs.
+    *   **(c):** "A plan's internal requirement for a minimum number of weeks of physical therapy shall not be applied mechanically without reference to whether the member has achieved a functional plateau or whether the condition involves neurological urgency under subdivision (a)(3)." This reinforces that the plan's 6-week PT requirement, or its attempt to apply it via the "primary diagnosis" clause, is legally overridden.
+
+3.  **California Health & Safety Code (CHSC) § 1374.32(b) — Standard of Review for IMR:** This code specifies that the IMR standard is "NOT plan criteria." Services meeting "generally accepted standards of medical practice" SHALL be approved "regardless of whether the plan's internal criteria are more restrictive." This provision ensures that sound medical practice, as outlined in clinical guidelines, takes precedence over internal plan rules.
+
+**C. Application of Clinical Standard Knowledge (AANS/CNS 2023, NASS 2020, AO Spine 2021)**
+
+1.  **Diagnostic Classification:** Clinical guidelines clearly distinguish myelopathy from radiculopathy, noting that myelopathy involves spinal cord compression with bilateral symptoms, upper motor neuron signs (hyperreflexia, Hoffman), and gait disturbance. Mr. Santos's presentation perfectly aligns with cervical myelopathy, even with co-existing radiculopathy.
+2.  **Myelomalacia Significance:** Myelomalacia (T2 signal change) is highlighted as a "strong surgical indication" and a "contraindication to extended conservative treatment trials." It signifies existing cord injury and predicts permanent deficit if surgery is delayed. This renders the plan's "primary diagnosis" argument clinically indefensible, as myelomalacia indicates an urgent, myelopathic process irrespective of predominant pain distribution.
+3.  **Conservative Treatment for Myelopathy:** Clinical guidelines emphasize that for moderate-severe myelopathy, physical therapy does NOT produce meaningful functional improvement, and delaying surgery for a PT trial "is not supported by the evidence and may result in neurological deterioration" (AO Spine 2021). The 6-week PT requirement is noted as derived from radiculopathy evidence, not myelopathy, and its application to myelopathy is a "category error."
+4.  **Surgical Indications:** Per AANS/CNS (2023), Mr. Santos meets **TIER 1 — STRONG INDICATION** for ACDF based on:
+    *   (a) Moderate to severe myelopathy with objective cord compression on MRI.
+    *   (c) Myelomalacia on MRI (cord signal change).
+    *   The clinical standard "does NOT require completion of a minimum course of physical therapy as a prerequisite to surgery for this presentation."
+
+**D. Resolution of Conflicts and Conclusion**
+
+The HealthFirst denial, based on its restrictive "primary diagnosis" clause within its Myelopathy Exception (2.2A Note), directly conflicts with:
+
+*   **California State Law (DMHC APL 22-014 and CIC 10169.5):** These regulations mandate the waiver of standard conservative treatment requirements, including arbitrary PT durations, when objective evidence of myelomalacia and structural neurological compromise is present, and/or when a functional plateau has been reached. The plan's criterion is more restrictive and therefore overridden.
+*   **Generally Accepted Clinical Standards (AANS/CNS, NASS, AO Spine):** These guidelines unequivocally identify myelopathy with myelomalacia and objective UMN signs as a strong indication for surgical intervention, without requiring a specific minimum duration of conservative treatment. They warn against delaying surgery in such cases. The plan's criterion is inconsistent with prudent clinical judgment.
+
+The member's presentation of moderate cervical cord compression with myelomalacia and objective myelopathic signs (hyperreflexia, Hoffman, gait disturbance) constitutes a clear indication for surgical intervention per generally accepted standards of medical practice. State regulations explicitly prevent health plans from denying authorization based on conservative treatment requirements when such neurological compromise and urgency are present.
+
+---
+
+**IV. Disposition**
+
+The prior authorization denial for CPT 22551 (ACDF C6-C7) for member David Santos is **OVERTURNED**.
+
+**Warrant:** The denial by HealthFirst Health Plan is overturned because it relies on a plan criterion (the "primary diagnosis" clause in the myelopathy exception) that is superseded by both California state law and generally accepted clinical standards. David Santos exhibits unequivocal evidence of cervical myelopathy, including moderate cord compression and myelomalacia on MRI, coupled with objective upper motor neuron signs (bilateral hyperreflexia, positive Hoffman) and gait disturbance. The presence of myelomalacia, as specified in DMHC APL 22-014, mandates that the condition be treated as urgent and allows for the waiver of standard conservative treatment requirements, regardless of whether myelopathy is designated as the "primary diagnosis." Furthermore, CIC 10169.5 prohibits conditioning surgery on PT completion where objective structural neurological compromise (myelomalacia) exists or a functional plateau has been reached, both of which apply here. Per AANS/CNS 2023 and AO Spine 2021 guidelines, myelopathy with myelomalacia is a Tier 1 strong surgical indication, and delaying surgery for extended conservative therapy is not supported by evidence and carries a risk of neurological deterioration. Therefore, the requested ACDF is medically necessary and should be approved.
+
+---
+
+**V. Required Actions**
+
+HealthFirst Health Plan is required to:
+1.  Immediately approve the prior authorization request for CPT 22551 (ACDF C6-C7) for David Santos.
+2.  Communicate this approval to the member, Dr. Lisa Wong, and Cedars-Sinai Medical Center within 24 hours of this determination.
+3.  Ensure that all internal utilization review policies are updated to align with California state law and generally accepted clinical standards, particularly concerning myelopathy with myelomalacia, to prevent similar inappropriate denials.
+
+---
+
+Sincerely,
+
+[Your Name/Reviewer Title]
+Expert Health Plan Appeals Reviewer
+HealthFirst Health Plan

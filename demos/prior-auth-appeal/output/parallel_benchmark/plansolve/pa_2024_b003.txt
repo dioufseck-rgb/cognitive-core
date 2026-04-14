@@ -1,0 +1,119 @@
+CASE: pa_2024_b003
+SYSTEM: PLANSOLVE
+DISPOSITION: OVERTURN
+GT: OVERTURN
+CORRECT: True
+ELAPSED: 62.1s
+========================================================================
+
+**[HEALTH PLAN APPEAL REVIEWER LETTERHEAD]**
+
+**FORMAL APPEAL DETERMINATION**
+
+**Case ID:** PA-2024-B003
+**Date of Determination:** 2024-10-25
+
+**Member Information:**
+*   **Member Name:** Angela Morrison
+*   **Member ID:** M-778899
+*   **Date of Birth:** [Not provided, infer from age 67]
+*   **Plan:** HealthFirst PPO Gold — Group Plan 77441
+*   **State:** California
+
+**Procedure Requested:**
+*   **CPT Code:** 22551
+*   **Description:** Anterior Cervical Discectomy and Fusion (ACDF) C3-C4, one level
+*   **Requested By:** Dr. Paul Nguyen, MD — Neurosurgery
+*   **Facility:** Cedars-Sinai Medical Center
+
+**Initial Denial Details:**
+*   **Denial Date:** 2024-10-01
+*   **Reviewer:** Dr. Alan Foster, MD
+*   **Level:** Initial
+*   **Reason Code:** MED-003
+*   **Reason Text:** "Member meets conservative treatment requirements. However, imaging does not show sufficient pathology at C3-C4 to support surgical intervention. MRI shows mild degenerative changes. Procedure not medically necessary."
+
+**Appeal Basis (Submitted by Member/Provider):**
+1.  Member completed all conservative treatment requirements.
+2.  Surgeon states C3-C4 is symptomatic level based on clinical examination.
+3.  CT myelogram confirms compression not visible on MRI due to hardware artifact.
+
+---
+
+**APPEAL DETERMINATION: OVERTURN**
+
+The initial denial for an Anterior Cervical Discectomy and Fusion (ACDF) at C3-C4 for Angela Morrison is **OVERTURNED**. The requested procedure is found to be medically necessary.
+
+---
+
+**REASONING FOR DETERMINATION:**
+
+This determination is based on a comprehensive review of the submitted medical records, HealthFirst's Clinical Coverage Criteria (CC-SPINE-2024), relevant California state law, and generally accepted standards of medical practice.
+
+**1. Procedural Adequacy of Denial Notice (CHSC §1374.31(b)):**
+The initial denial notice cited reason code "MED-003" but failed to explicitly specify the particular section of the HealthFirst clinical criteria (e.g., CC-SPINE-2024, Section 2.3) upon which the denial was based. This constitutes a procedural defect in the denial notice as per California Health & Safety Code (CHSC) §1374.31(b). While this procedural defect could warrant a REMAND, the substantive findings below provide a stronger basis for an OVERTURN.
+
+**2. Review of Member's Clinical Presentation & Diagnosis (HealthFirst Criteria 2.1):**
+*   **Clinical Record:** The neurological examination dated 2024-08-20 documents "Left C4 dermatomal distribution: shoulder and lateral arm numbness, deltoid weakness 3+/5 left, bicep reflex diminished left. New since 2023." The presenting diagnosis is "Adjacent segment disease at C3-C4."
+*   **Analysis:** These findings are consistent with **cervical radiculopathy** (nerve root compression with dermatomal symptoms, weakness, and diminished reflex) rather than cervical myelopathy, which would involve upper motor neuron signs, bilateral symptoms, or gait disturbance.
+*   **Finding:** The member has a confirmed diagnosis of cervical radiculopathy (HealthFirst CC-SPINE-2024, Section 2.1(a)), meeting the plan's diagnostic requirement.
+
+**3. Review of Imaging Findings at C3-C4 (HealthFirst Criteria 2.3 & Initial Denial Reason):**
+*   **Initial Denial Reason:** The denial stated, "imaging does not show sufficient pathology at C3-C4... MRI shows mild degenerative changes."
+*   **Clinical Record:**
+    *   MRI (2024-08-15): Noted "SIGNIFICANT ARTIFACT from C4-C5 hardware limiting evaluation. Mild degenerative signal changes visible. Cannot exclude moderate compression due to artifact."
+    *   CT myelogram (2024-09-10): Performed due to MRI limitations. Findings: "C3-C4: moderate-severe left C4 nerve root compression confirmed. Significant foraminal stenosis. MRI underestimated pathology due to hardware artifact from prior fusion."
+*   **Analysis:** The CT myelogram, performed specifically to overcome the limitations of the MRI, provides clear and definitive evidence of structural pathology at the symptomatic level (C3-C4). The finding of "moderate-severe left C4 nerve root compression" and "significant foraminal stenosis" directly contradicts the plan's denial reason regarding "insufficient pathology" and "mild degenerative changes." This imaging evidence is current (within 6 months) and directly correlates with the member's reported symptoms.
+*   **Finding:** The member meets HealthFirst's imaging requirement (CC-SPINE-2024, Section 2.3), and the imaging unequivocally demonstrates significant structural pathology at C3-C4, directly refuting the plan's denial reason. There is no evidence of myelomalacia or spinal cord compression.
+
+**4. Evaluation of Conservative Treatment Status & Exceptions (HealthFirst Criteria 2.2):**
+*   **Initial Denial Statement:** The plan's initial denial explicitly stated, "Member meets conservative treatment requirements."
+*   **Clinical Record:**
+    *   Physical Therapy: 10 weeks (30 sessions), with documented "No improvement in left C4 radicular symptoms." This exceeds the plan's 6-week minimum (CC-SPINE-2024, Section 2.2(a)).
+    *   Pharmacotherapy: Pregabalin 300mg BID for 6 months (partial relief) and Duloxetine 60mg for 3 months (minimal benefit). This exceeds the plan's requirement of two agents for 4+ weeks each (CC-SPINE-2024, Section 2.2(b)).
+    *   Interventional Treatment: One left C4 epidural (good initial relief, returned to baseline by week 3). This meets the plan's requirement for one interventional treatment (CC-SPINE-2024, Section 2.2(c)).
+*   **Analysis:** The member has completed a comprehensive and appropriate course of conservative treatment that failed to provide lasting relief, as affirmed by the plan's own denial statement and thoroughly documented in the clinical record. The myelopathy exception (2.2(A)) does not apply as the primary diagnosis is radiculopathy.
+*   **Finding:** The member has fully met HealthFirst's conservative treatment requirements (CC-SPINE-2024, Section 2.2).
+
+**5. Application of Plan Criteria (Overall Compliance):**
+*   Based on the findings above, Angela Morrison meets all applicable HealthFirst CC-SPINE-2024 criteria:
+    *   Diagnosis Requirement (Section 2.1(a) for Radiculopathy): Met.
+    *   Conservative Treatment Requirement (Section 2.2): Met.
+    *   Imaging Requirement (Section 2.3): Met, as the CT myelogram confirms significant pathology consistent with symptoms, directly contradicting the basis of the initial denial.
+*   **Finding:** The initial denial was based on an inaccurate assessment of the available imaging, as all other plan criteria were demonstrably met.
+
+**6. Regulatory Override: California State Law (CIC 10169.5, DMHC APL 22-014, CHSC 1374.32(b)):**
+*   **Analysis:** While the specific provisions in DMHC APL 22-014 and CIC 10169.5 regarding waiver of conservative treatment due to myelopathy or myelomalacia are not directly applicable here (as the diagnosis is radiculopathy and conservative treatment was completed), California law still dictates the standard of review.
+*   CHSC §1374.32(b) states that for Independent Medical Review (IMR), "If the service meets the standard...the reviewer SHALL recommend approval regardless of whether the plan's internal criteria are more restrictive."
+*   **Finding:** While not a direct override of conservative treatment, the principle of CHSC §1374.32(b) mandates that if the service meets generally accepted standards of medical practice, it should be approved, which is relevant here due to the plan's misapplication of its own criteria.
+
+**7. Clinical Standard Override: Generally Accepted Medical Practice (AANS/CNS 2023):**
+*   **Analysis:** For cervical radiculopathy with objective neurological deficits and confirmed structural pathology, surgical decompression (such as ACDF) is considered a reasonable and effective treatment option when symptoms persist despite an adequate course of conservative management.
+*   The AANS/CNS Joint Guidelines for Management of Degenerative Cervical Myelopathy (2023 Update) also provide guidance for radiculopathy. Under TIER 2 — REASONABLE INDICATION for surgery: "(b) Radiculopathy with persistent symptoms after 6-12 weeks conservative tx" and "(c) Significant functional impairment not responding to conservative care."
+*   Ms. Morrison has persistent left C4 radicular symptoms (numbness, 3+/5 deltoid weakness, diminished bicep reflex) after 10 weeks of physical therapy, 6+ months of pharmacotherapy, and an epidural with transient effect, all correlating with moderate-severe nerve root compression on CT myelogram. This aligns with generally accepted medical practice for surgical intervention.
+*   **Finding:** The member's clinical presentation and imaging findings meet Tier 2 reasonable surgical indications per AANS/CNS guidelines for radiculopathy. The denial based on "insufficient pathology" is inconsistent with generally accepted standards of medical practice given the complete clinical picture.
+
+---
+
+**CONCLUSION:**
+
+The initial denial was predicated on the assertion of "insufficient pathology" at the C3-C4 level. However, the advanced imaging (CT myelogram) obtained due to the limitations of the initial MRI clearly and unequivocally demonstrates moderate-to-severe left C4 nerve root compression and significant foraminal stenosis, which correlates precisely with Ms. Morrison's documented left C4 radicular symptoms and objective neurological deficits. Furthermore, the member has fully completed and failed an extensive course of conservative treatment, as acknowledged by the plan's initial denial notice.
+
+Based on a thorough review, Angela Morrison meets all of HealthFirst's medical necessity criteria for cervical spine surgery (CC-SPINE-2024, Sections 2.1, 2.2, and 2.3) and the requested procedure is consistent with generally accepted standards of medical practice for symptomatic cervical radiculopathy after failed conservative treatment. The plan's denial reason is directly contradicted by the medical evidence.
+
+Therefore, the initial denial is **OVERTURNED**.
+
+---
+
+**ACTION REQUIRED:**
+
+HealthFirst PPO Gold is hereby directed to authorize CPT code 22551 (ACDF C3-C4, one level) for Angela Morrison.
+
+Sincerely,
+
+[Signature]
+
+**Expert Health Plan Appeals Reviewer**
+Health Plan Appeals Department
+[Reviewer's Contact Information]
+[Date]

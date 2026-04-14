@@ -7,7 +7,7 @@ Run a governed institutional AI workflow in five minutes.
 ## Prerequisites
 
 - Python 3.11+
-- An API key: Google Gemini, Anthropic, or OpenAI
+- An API key: **Anthropic**, Google, or OpenAI
 
 ---
 
@@ -24,8 +24,8 @@ pip install -e .
 ## 2. Set your API key
 
 ```bash
-export GOOGLE_API_KEY=your_key      # Gemini (primary development provider)
-# export ANTHROPIC_API_KEY=your_key # Claude
+export ANTHROPIC_API_KEY=your_key   # Claude
+# export GOOGLE_API_KEY=your_key    # Gemini
 # export OPENAI_API_KEY=your_key    # OpenAI
 ```
 
@@ -33,111 +33,153 @@ The framework auto-detects the provider from the key present in the environment.
 
 ---
 
-## 3. Run a prior authorization appeal case
+## 3. Start the server
+
+Point the server at any domain pack:
 
 ```bash
-cd demos/prior-auth-appeal
-python run.py --case pa_2024_a001
+CC_COORD_CONFIG=library/domain-packs/consumer-lending/coordinator_config.yaml \
+CC_COORD_BASE=library/domain-packs/consumer-lending \
+uvicorn cognitive_core.api.server:app --port 8000
 ```
 
-You will see steps completing in real time with epistemic state at each step:
+You should see:
 
 ```
-▶ retrieve_clinical_record       retrieve      1.2s   confidence=1.00
-▶ retrieve_plan_criteria         retrieve      0.9s   confidence=1.00
-▶ retrieve_regulatory_framework  retrieve      1.1s   confidence=1.00
-▶ retrieve_clinical_evidence     retrieve      0.8s   confidence=1.00
-▶ classify_clinical_presentation classify      1.4s   myelopathy_primary (1.00)
-    epistemic: SUPPORTED · warranted=✓ · rq=0.95 · oc=0.92
-▶ investigate_plan_criteria_met  investigate   3.1s
-    epistemic: SUPPORTED · warranted=✓ · rq=0.92 · oc=0.88
-▶ investigate_regulatory         investigate   2.8s
-    epistemic: SUPPORTED · warranted=✓ · rq=0.96 · oc=0.94
-▶ investigate_clinical_standard  investigate   2.6s
-    epistemic: SUPPORTED · warranted=✓ · rq=0.94 · oc=0.90
-▶ verify_cross_source            verify        1.3s   conforms=False
-▶ deliberate_disposition         deliberate    2.1s   OVERTURN (1.00)
-▶ generate_determination         generate      3.4s
-▶ challenge_determination        challenge     2.9s   survives=True
-▶ govern_appeal_outcome          govern        1.1s
-    ✓  SPOT_CHECK — determination survives challenge, high confidence
+[startup] Coordinator ready (config: coordinator_config.yaml)
+[startup] Action ledger hash chain enabled
+[startup] Thread pool ready (4 workers)
+INFO:     Uvicorn running on http://0.0.0.0:8000
 ```
 
-The orchestrator reasoned this path autonomously. No step sequence was declared.
+Open `http://localhost:8000` — the landing page shows all instances and auto-refreshes every 5 seconds.
 
 ---
 
-## 4. Run the full benchmark
+## 4. Submit a case
 
-Replicates the 11-case benchmark from the paper:
+In a second terminal:
 
-```bash
-cd demos/prior-auth-appeal
-python run_benchmark.py
+```python
+# submit_case.py
+import urllib.request, json
+
+case = {
+    "applicant_name": "Diane Whitfield", "applicant_age": 42,
+    "loan_amount": 8500, "loan_purpose": "Medical expenses",
+    "get_credit":     {"score": 614, "utilisation_pct": 68,
+                       "derogatory_marks_24mo": 3, "oldest_account_years": 7,
+                       "payment_history": "2 lates in 18 months"},
+    "get_financials": {"annual_income_verified": 42000, "dti_ratio": 0.48,
+                       "monthly_obligations": 1680, "requested_monthly_payment": 320},
+    "get_employment": {"status": "part_time", "employer": "Various",
+                       "tenure_years": 0.8, "income_source": "hourly",
+                       "verification_status": "unverified"},
+    "get_banking":    {"avg_monthly_balance": 1200, "nsf_events_12mo": 0,
+                       "account_age_years": 12},
+    "get_identity":   {"verification_status": "verified", "fraud_flag": False},
+}
+
+payload = json.dumps({
+    "workflow_type": "loan_application_review",
+    "domain": "consumer_lending",
+    "case_input": case,
+}).encode()
+
+req = urllib.request.Request(
+    "http://localhost:8000/api/start",
+    data=payload,
+    headers={"Content-Type": "application/json"},
+)
+resp = json.loads(urllib.request.urlopen(req).read())
+print(f"Instance: {resp['instance_id']}")
+print(f"Trace:    http://localhost:8000{resp['trace_url']}")
 ```
 
-This runs all 11 benchmark cases against CC. Results are saved to `output/benchmark/`.
-
-To score and compare against the ReAct and Plan-and-Solve baselines:
-
-```bash
-python score_benchmark.py
-python compare_benchmark.py
 ```
-
-Ground truth for each case is in the `ground_truth_complexity` block of each case JSON file under `cases/`.
+Instance: wf_a3f2c1b8
+Trace:    http://localhost:8000/instances/wf_a3f2c1b8/trace
+```
 
 ---
 
-## 5. Run the loan modification demo
+## 5. Watch it execute
 
-```bash
-cd demos/loan-modification
-python run.py
+Open the trace URL. Steps appear as they complete, with live epistemic state:
+
 ```
-
-This demonstrates the configuration economics claim: same framework, different domain YAML, different output vocabulary and failure mode profile.
+▶ gather_application        retrieve      312ms
+▶ classify_risk             classify      880ms   high_risk (0.81)
+    epistemic: SUPPORTED · overall=0.44 · warranted=✓ · rq=0.90 · oc=0.82 · sep=0.51
+▶ investigate_risk_factors  investigate   2.1s
+    epistemic: SUPPORTED · overall=0.43 · warranted=✓ · rq=0.92 · oc=0.85
+▶ deliberate_recommendation deliberate    1.8s    approve_modified
+    epistemic: SUPPORTED · overall=0.48 · warranted=✓ · rq=0.95 · oc=0.88
+▶ verify_compliance         verify        640ms   conforms=False (1 violation)
+▶ govern_decision           govern        490ms
+    ⏸  GATE — high_risk + approve_modified + unverified income
+```
 
 ---
 
-## 6. Verify ledger integrity
+## 6. Approve or deny at the governance gate
 
-Every run produces a hash-chained audit ledger. To verify a completed instance:
+When the workflow hits a GATE the page switches to Input mode. Enter a reviewer ID, optional rationale, and click a decision. The workflow resumes immediately.
+
+---
+
+## 7. Verify ledger integrity
 
 ```bash
-curl http://localhost:8000/api/instances/wf_<id>/verify
+curl http://localhost:8000/api/instances/wf_a3f2c1b8/verify
 ```
 
 ```json
-{"valid": true, "first_invalid_entry": null, "entries_checked": 13}
+{"valid": true, "first_invalid_entry": null, "entries_checked": 14}
 ```
 
-Or inspect the ledger directly from the SQLite database:
+Every ledger entry is `sha256(prior_hash + content)`. Modification of any record is detectable.
 
-```python
-import sqlite3, json
-conn = sqlite3.connect('cognitive_core.db')
-cur = conn.cursor()
-cur.execute('SELECT action_type, details FROM action_ledger WHERE instance_id=? ORDER BY id', ('wf_<id>',))
-for action_type, details in cur.fetchall():
-    print(action_type, json.loads(details).get('primitive',''))
+---
+
+## Run a domain pack directly (no server)
+
+Each domain pack includes a `run.py`:
+
+```bash
+python library/domain-packs/consumer-lending/run.py
+python library/domain-packs/content-moderation/run.py
+python library/domain-packs/clinical-triage/run.py
 ```
 
 ---
 
-## 7. Run the tests
+## Run the agentic demonstration
 
-No LLM calls required:
+Two hardship cases, no declared sequence, autonomous trajectory differentiation:
 
 ```bash
-pytest tests/unit/ tests/smoke/ tests/test_devs_kernel.py
-# 203 tests
+python demos/loan-hardship-agentic/run.py
+python demos/loan-hardship-agentic/run.py --case reeves
+python demos/loan-hardship-agentic/run.py --case webb
+```
+
+See [demos/loan-hardship-agentic/README.md](demos/loan-hardship-agentic/README.md) for full instructions and what to look for.
+
+---
+
+## Run the smoke tests
+
+```bash
+pytest tests/smoke/ tests/test_devs_kernel.py
+# 50 tests, ~2 minutes, no LLM calls required
 ```
 
 ---
 
 ## Architecture in one paragraph
 
-Nine typed epistemic primitives compose into workflows via YAML. A domain YAML injects expertise into those primitives at runtime. Two execution modes: workflow (declared sequence) and agentic (orchestrator reasons the path from goal and evidence, with hard constraints enforced by the substrate). A coordinator manages workflow lifecycle, governance tiers, and human-in-the-loop suspension. Every step produces a three-layer epistemic state (mechanical signals, judgment signals, coherence flags). Every governance decision is recorded in a tamper-evident SHA-256 hash chain ledger. The audit trail is endogenous to the computation.
+Eight typed epistemic primitives compose into workflows via YAML. A domain YAML injects expertise into those primitives at runtime. Two execution modes: workflow (declared sequence) and agentic (orchestrator reasons the path from goal and evidence). A coordinator manages workflow lifecycle, governance tiers, and human-in-the-loop suspension. Every step produces a three-layer epistemic state. Every governance decision is recorded in a tamper-evident SHA-256 hash chain ledger. The audit trail is endogenous to the computation.
 
-Full design: [arXiv paper](https://arxiv.org/abs/PLACEHOLDER)
+Full design: [docs/institutional-intelligence.md](docs/institutional-intelligence.md)  
+Maturity and assumptions: [OPERATIONAL_NOTES.md](OPERATIONAL_NOTES.md)

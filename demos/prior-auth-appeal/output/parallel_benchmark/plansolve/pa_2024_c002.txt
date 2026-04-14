@@ -1,0 +1,97 @@
+CASE: pa_2024_c002
+SYSTEM: PLANSOLVE
+DISPOSITION: OVERTURN
+GT: OVERTURN
+CORRECT: True
+ELAPSED: 57.0s
+========================================================================
+
+**HEALTHFIRST HEALTH PLAN**
+**APPEAL DETERMINATION LETTER**
+
+**Date:** October 26, 2024
+**Case ID:** PA-2024-C002
+**Member Name:** David Santos
+**Member ID:** M-101122
+**Date of Birth:** [Calculated as 1961-10-26, assuming current year is 2024 and member is 63 as of today]
+**Plan:** HealthFirst PPO Gold — Group Plan 77441
+**Procedure Requested:** ACDF C6-C7, one level (CPT 22551)
+**Treating Provider:** Dr. Lisa Wong, MD
+**Facility:** Cedars-Sinai Medical Center
+
+---
+
+**SUBJECT: Appeal Determination for Prior Authorization Denial of Cervical Spinal Surgery (ACDF C6-C7)**
+
+Dear Mr. Santos,
+
+This letter serves as the formal determination regarding the appeal of the prior authorization denial for your requested Anterior Cervical Discectomy and Fusion (ACDF) at levels C6-C7. HealthFirst Health Plan has completed a comprehensive internal appeal review of your case, PA-2024-C002, in accordance with our established policies, medical necessity criteria, California state law, and generally accepted clinical standards of medical practice.
+
+**Case Summary:**
+Your prior authorization request for ACDF C6-C7, one level (CPT 22551), was initially denied on October 5, 2024. The denial, issued by Dr. Patricia Huang, cited "Myelopathy exception applied but criteria not met" (Reason Code MED-003). The reason provided was that "MRI shows cord compression and T2 signal change. However, member's symptoms are primarily right-sided (radicular) with only mild bilateral components. Primary diagnosis remains radiculopathy. Myelopathy exception requires myelopathy as primary diagnosis."
+
+Your appeal highlighted the presence of T2 signal change (myelomalacia) triggering regulatory overrides, a mixed myelopathy/radiculopathy presentation, and the plan's inability to deny the myelopathy exception when myelomalacia is objectively documented.
+
+**Evaluation Plan Execution and Findings:**
+
+As an expert health plan appeals reviewer, I have meticulously followed the provided Evaluation Plan for PA-2024-C002. My determination is based on the hierarchy of authority: State Law > Clinical Standard > Plan Criteria.
+
+**1. Procedural Adequacy of Denial Notice (CHSC § 1374.31(b))**
+    *   **Action:** Reviewed the initial denial notice dated 2024-10-05.
+    *   **Finding:** The denial notice clearly specified that the "Myelopathy exception" was applied and provided a specific clinical reason for its non-application, citing "primarily right-sided (radicular) symptoms" and asserting "Primary diagnosis remains radiculopathy." Based on the information provided, the denial appears procedurally adequate as it specified the clinical criteria applied (implicitly CC-SPINE-2024 Section 2.2A NOTE) and a specific clinical reason. There is no indication of a material defect that would necessitate an overturn on procedural grounds alone.
+
+**2. Assessment of Member's Clinical Presentation and Diagnosis Classification (Clinical Standard & Plan Criteria)**
+    *   **Action:** Evaluated the comprehensive clinical documentation including imaging reports, neurological examination findings, and presenting diagnosis against HealthFirst's diagnostic criteria (CC-SPINE-2024 Section 2.1) and expert domain knowledge for myelopathy vs. radiculopathy.
+    *   **Finding:** The clinical record provides compelling objective evidence of cervical myelopathy. The MRI dated 2024-09-01 confirms "C6-C7 moderate cord compression" and, critically, "T2 signal change (myelomalacia) within cord." The neurological exam dated 2024-09-05 further supports myelopathy with findings of "bilateral hyperreflexia (right > left)," a "positive right Hoffman," an "equivocal left Hoffman," and a "gait mildly wide-based." While "pain predominantly right-sided" was noted, these objective findings are definitive signs of spinal cord involvement, specifically upper motor neuron dysfunction, which define myelopathy. Myelomalacia, representing existing cord injury, is a particularly strong indicator of myelopathy and a critical factor in treatment decisions. The presence of myelomalacia, cord compression, UMN signs, and gait disturbance meet or exceed the criteria for cervical myelopathy as defined in HealthFirst CC-SPINE-2024 Section 2.1(b).
+    *   **Conclusion:** The clinical documentation strongly supports a primary pathological diagnosis of cervical myelopathy, despite co-existing radicular symptoms.
+
+**3. Correct Application of HealthFirst's Myelopathy Exception (Plan Criteria CC-SPINE-2024 Section 2.2A NOTE)**
+    *   **Action:** Assessed whether HealthFirst correctly interpreted and applied its own Myelopathy Exception (CC-SPINE-2024 Section 2.2A NOTE), which states the exception applies "only when myelopathy is the PRIMARY diagnosis," and that "Cases where myelopathy is documented as a finding but radiculopathy is the primary complaint are subject to standard conservative treatment requirements."
+    *   **Finding:** The initial denial's assertion that "Primary diagnosis remains radiculopathy" constitutes a misapplication or an overly restrictive interpretation of the plan's own criteria, especially given the objective evidence of myelomalacia. When myelomalacia (T2 signal change) is present, it signifies direct injury to the spinal cord. From a pathological and prognostic perspective, spinal cord injury constitutes the primary and most urgent concern, regardless of the patient's most prominent *symptomatic complaint*. To classify myelopathy with documented cord injury (myelomalacia) as merely a "finding" secondary to radiculopathy is inconsistent with the severity of the objective pathology. Therefore, the myelopathy exception, which reduces PT to 4 weeks and waives interventional treatment, *should* have been applied.
+    *   **Conclusion:** The plan's internal application of its own myelopathy exception was incorrect. The evidence supports classifying myelopathy as the primary pathological diagnosis, necessitating the application of the exception.
+
+**4. Compliance with California Regulatory Requirements (State Law Override)**
+    *   **Action:** Determined if California state laws override the plan's conservative treatment requirements for this specific condition.
+    *   **Finding:** Yes, California state laws directly override the plan's conservative treatment requirements in this case.
+        *   **California Insurance Code (CIC) § 10169.5(a)(3):** This code states that a plan "shall not condition approval of a surgical procedure on completion of physical therapy where... [t]he condition involves objective evidence of structural neurological compromise that physical therapy cannot address." Mr. Santos's MRI findings of "moderate cord compression" and "T2 signal change (myelomalacia) within cord" unequivocally meet this criterion. Physical therapy cannot resolve spinal cord compression or reverse existing cord damage (myelomalacia).
+        *   **DMHC All-Plan Letter (APL) 22-014 (II.1 & II.2):** This guidance specifies that "cervical myelopathy with objective evidence of cord compression and myelomalacia on MRI constitutes a condition with potential for irreversible harm if untreated." It further mandates that plans "SHALL NOT require completion of a full course of conservative treatment" when such objective imaging evidence is present and surgical intervention is indicated. The presence of myelomalacia is specifically identified as a finding that supports waiver of standard conservative treatment requirements.
+    *   **Conclusion:** Both CIC § 10169.5(a)(3) and DMHC APL 22-014 render the plan's conservative treatment requirements, including the mandatory physical therapy duration, unenforceable for this specific clinical presentation.
+
+**5. Adherence to Generally Accepted Clinical Standards of Medical Practice (Clinical Standard Override)**
+    *   **Action:** Evaluated whether the plan's conservative treatment requirements align with or are more restrictive than generally accepted clinical standards for myelopathy with myelomalacia, per CHSC § 1374.32(b).
+    *   **Finding:** The plan's requirement for a minimum of 6 weeks (or even 4 weeks under the exception) of physical therapy is more restrictive than, and inconsistent with, generally accepted clinical standards for this condition.
+        *   **AANS/CNS Joint Section Guidelines (2023 Update, Section 3.1):** Patients with "Moderate to severe myelopathy with objective cord compression on MRI" and "Myelomalacia on MRI (cord signal change)" meet TIER 1 strong surgical indication criteria. These guidelines do not establish a minimum duration of conservative treatment for such severe presentations and recommend surgery as the primary treatment.
+        *   **AO Spine Guidelines (2021, Section 2.1):** Explicitly state, "There is no high-quality evidence supporting a mandatory course of physical therapy prior to surgical intervention for patients with moderate to severe cervical myelopathy. Delaying surgery in such patients to complete a physical therapy trial is not supported by the evidence and may result in neurological deterioration."
+        *   **Clinical Reference Summary (Section 1.2):** States myelomalacia is a "strong indication for surgical intervention and a contraindication to extended conservative treatment trials."
+    *   **Conclusion:** Applying a mandatory physical therapy duration for a patient with myelopathy and myelomalacia is not supported by the highest-level clinical evidence and is more restrictive than generally accepted standards. Per CHSC § 1374.32(b), the service must be approved if it meets generally accepted standards, regardless of more restrictive plan criteria.
+
+**Disposition Decision Tree — Final Determination:**
+
+Based on the comprehensive review and the findings from the evaluation plan, the criteria for **OVERTURN (Approve Surgery)** have been met:
+
+*   The objective clinical findings, specifically MRI evidence of cord compression and T2 signal change (myelomalacia) combined with clinical signs of myelopathy (hyperreflexia, positive Hoffman, gait disturbance), trigger an override by **California State Law**. Both CIC § 10169.5(a)(3) and DMHC APL 22-014 render the plan's conservative treatment requirements unenforceable due to objective structural neurological compromise and time-sensitive pathology.
+*   These findings also trigger an override by **Generally Accepted Clinical Standards**. AANS/CNS and AO Spine guidelines recommend surgery as primary treatment for myelopathy with myelomalacia and advise against mandatory physical therapy, making the plan's criteria more restrictive than accepted standards per CHSC § 1374.32(b).
+*   Furthermore, the plan's internal application of its own myelopathy exception (CC-SPINE-2024 Section 2.2A NOTE) was incorrect. The presence of myelomalacia elevates myelopathy to a primary pathological concern that mandates the application of the exception, if not a full waiver of conservative treatment due to state and clinical overrides.
+
+Therefore, the initial denial was inconsistent with California state law, generally accepted clinical standards of medical practice, and an accurate application of the plan's own criteria when considering the severity of the objective findings.
+
+**Determination:**
+
+**OVERTURN**
+
+HealthFirst Health Plan **OVERTURNS** the denial for prior authorization of CPT code 22551 (ACDF C6-C7, one level) for Mr. David Santos. The requested procedure is deemed medically necessary and approved.
+
+**Action Required:**
+Authorization for ACDF C6-C7, one level (CPT 22551), is hereby issued. Please work with Cedars-Sinai Medical Center and Dr. Lisa Wong's office to schedule the procedure.
+
+**Further Rights:**
+You have the right to request an Independent Medical Review (IMR) of this decision, even though it is an overturn. If you have any questions or require further assistance, please contact HealthFirst Member Services at the number on your ID card.
+
+Sincerely,
+
+[Signature]
+
+Expert Health Plan Appeals Reviewer
+HealthFirst Health Plan
+Department of Medical Appeals
+Review Date: October 26, 2024
