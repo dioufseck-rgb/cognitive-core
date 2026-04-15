@@ -127,20 +127,19 @@ domain_knowledge:
       more restrictive internal criteria.
       Plan criteria = reference only. Clinical standard = determinative.
     pt_requirement_limits: |
-      CIC 10169.5: Plan cannot require PT completion where:
-      (1) Physician documents PT contraindicated or unlikely to benefit, OR
-      (2) Member completed PT and reached functional plateau, OR
-      (3) Objective evidence of structural neurological compromise
-          that PT cannot address.
-      Myelomalacia with cord compression = (3) applies.
+      See regulatory_document: CIC 10169.5.
+      Three independent exceptions — evaluate each one separately against the
+      record before concluding any exception fires or does not fire.
+      Check the exact statutory language; do not apply paraphrased conditions.
+      Note the negative-space condition: absence of myelomalacia does not
+      automatically defeat exception (3) — read the statutory text precisely.
     myelopathy_urgency: |
-      DMHC APL 22-014: Myelopathy with cord signal change = urgent.
-      Plans SHALL NOT require full conservative treatment where:
-      objective imaging shows progressive pathology AND treating physician
-      documents conservative treatment failed to arrest progression AND
-      surgery indicated under generally accepted guidelines.
-      Myelomalacia specifically identified as supporting waiver of
-      standard conservative requirements.
+      See regulatory_document: DMHC APL 22-014.
+      Three conjunctive conditions — all three must be present; the absence
+      of any one defeats the provision. Read each condition as stated in the
+      document; do not infer satisfaction from physician declaration alone.
+      Stable symptom trajectory defeats this provision regardless of imaging
+      findings or physician characterisation of urgency.
     denial_defect: |
       CHSC 1374.31(b): Denial notice defective if it fails to specify
       clinical criteria applied or specific clinical reason.
@@ -236,80 +235,71 @@ domain_knowledge:
 
 primitive_configs:
 
-  retrieve_clinical_record:
+  # ── Retrieve defaults ───────────────────────────────────────────────────
+  # Named by source. Orchestrator uses params_key to reference these as a
+  # starting point; inline params override as needed.
+
+  retrieve:
     primitive: retrieve
     params:
+      strategy: deterministic
       specification: |
-        Source: case_record
+        Extract all content from the named source that is relevant to
+        authorization criteria, regulatory requirements, clinical findings,
+        or denial adequacy. Do not interpret — extract and structure only.
 
-        Extract and structure ALL of the following from the case_record:
-
-        CLINICAL FACTS:
-        - Diagnosis: primary and secondary
-        - Duration of symptoms
-        - Conservative treatment completed: exact dates, duration, response
-        - Imaging findings: specific MRI findings including cord signal change
-        - Neurological examination findings
-        - Treating physician's stated rationale and urgency assessment
-
-        ADMINISTRATIVE FACTS:
-        - Denial date and reason stated
-        - Appeal basis stated by member/physician
-        - Plan and state jurisdiction
-        - Documents enclosed
-
-        Do not interpret — extract and structure only.
+  retrieve_case_record:
+    primitive: retrieve
+    params:
       strategy: deterministic
       sources: case_record
+      specification: |
+        Source: case_record
+        Extract: diagnosis, symptom duration, conservative treatment completed
+        (exact dates and duration), imaging findings (including cord signal
+        change), neurological exam findings, physician rationale and urgency
+        assessment, denial date and reason, appeal basis, jurisdiction.
+        Do not interpret — extract and structure only.
 
   retrieve_plan_criteria:
     primitive: retrieve
     params:
-      specification: |
-        Source: plan_criteria_document
-
-        Extract from the plan_criteria_document:
-        - All requirements for CPT 22551 authorization
-        - The myelopathy exception (Section 2.2 Exception) — exact language
-        - Definition of functional plateau if stated
-        - Exclusions that could apply
-        - The specific criteria the plan used to deny (map denial reason to criteria section)
       strategy: deterministic
       sources: plan_criteria_document
+      specification: |
+        Source: plan_criteria_document
+        Extract: all authorization requirements for the requested procedure,
+        all pathway exceptions and their exact conditions, functional plateau
+        definition if stated, exclusions, and the specific criteria cited in
+        the denial. Preserve exact section references and language.
 
-  retrieve_regulatory_framework:
+  retrieve_regulatory:
     primitive: retrieve
     params:
-      specification: |
-        Source: regulatory_document
-
-        Extract from the regulatory_document:
-        - IMR right and when it applies
-        - The IMR standard of review (exact language from CHSC 1374.32)
-        - Physical therapy requirement limits (CIC 10169.5) — all three exceptions
-        - DMHC APL 22-014 provisions on myelopathy and conservative treatment
-        - Denial notice adequacy requirements
-        - Hierarchy: when regulatory standard overrides plan criteria
       strategy: deterministic
       sources: regulatory_document
+      specification: |
+        Source: regulatory_document
+        Extract: IMR right and standard of review (exact statutory language),
+        PT requirement limits and all exceptions, myelopathy urgency provisions,
+        denial notice adequacy requirements, and hierarchy rules for when
+        regulatory standard overrides plan criteria.
 
   retrieve_clinical_evidence:
     primitive: retrieve
     params:
-      specification: |
-        Source: clinical_evidence_document
-
-        Extract from the clinical_evidence_document:
-        - Distinction between myelopathy and radiculopathy treatment algorithms
-        - Evidence for PT in myelopathy (vs. radiculopathy)
-        - Surgical indications for myelopathy — tier classification
-        - Myelomalacia significance and urgency implications
-        - What "generally accepted standards of medical practice" require
-          for this presentation
       strategy: deterministic
       sources: clinical_evidence_document
+      specification: |
+        Source: clinical_evidence_document
+        Extract: treatment algorithm distinctions by diagnosis, surgical
+        indication tiers, PT evidence base for each diagnosis type, urgency
+        and myelomalacia significance, and what generally accepted standards
+        require for this class of presentation.
 
-  classify_clinical_presentation:
+  # ── Classify default ────────────────────────────────────────────────────
+
+  classify:
     primitive: classify
     params:
       categories: |
@@ -319,259 +309,168 @@ primitive_configs:
         axial_pain_only |
         insufficient_information
       criteria: |
-        MYELOPATHY_PRIMARY: Spinal cord compression on MRI + upper motor
-        neuron signs (Hoffman, hyperreflexia) + bilateral symptoms + gait
-        disturbance. Cord signal change (myelomalacia) = strong myelopathy indicator.
-
+        MYELOPATHY_PRIMARY: Cord compression on MRI + upper motor neuron signs
+        (Hoffman, hyperreflexia) + bilateral symptoms + gait disturbance.
+        Cord signal change (myelomalacia) = strong myelopathy indicator.
         RADICULOPATHY_PRIMARY: Nerve root compression + unilateral dermatomal
         symptoms + no or minimal upper motor neuron signs.
-
         MIXED: Both cord and nerve root compression with findings of both.
+        Classify strictly from clinical record. This determines which treatment
+        algorithm and which criteria govern the entire review.
 
-        Classify based on clinical record findings. This classification
-        determines which treatment algorithm applies and which criteria govern.
+  # ── Investigate defaults ────────────────────────────────────────────────
+  # Three named defaults — one per knowledge source. Orchestrator may call
+  # each once, or multiple times with inline params.question for finer
+  # granularity (e.g. per spinal level, per regulatory provision).
 
-  investigate_plan_criteria_met:
+  investigate_plan_criteria:
     primitive: investigate
     params:
-      question: Does the clinical record satisfy the plan's criteria for authorization, including any applicable exceptions?
+      question: Does the clinical record satisfy the plan's authorization criteria, including all applicable pathway exceptions?
       scope: |
-        Apply EACH criterion from plan Section 2.2 to the clinical record:
+        Apply each criterion from the plan document to the clinical record.
+        Test standard pathway requirements individually. Test each exception
+        condition independently. Note where the plan's own criteria were
+        misapplied or the wrong pathway was used. Do not merge with regulatory
+        or clinical standard analysis — plan criteria only.
 
-        Standard pathway:
-        - PT: Was 6 weeks completed? Document exact dates and duration.
-        - Pharmacotherapy: Were 2 agents trialed for 4+ weeks?
-        - Interventional: Was 1 procedure completed?
-
-        Myelopathy exception (Section 2.2 Exception):
-        - Does primary diagnosis qualify as myelopathy?
-        - If yes: PT requirement reduced to 4 weeks. Was it met?
-        - Interventional waived if physician documents risk?
-        - Did the denying reviewer apply this exception?
-
-        Functional plateau:
-        - Does PT discharge summary document functional plateau?
-        - Is there documented failure to improve neurological symptoms?
-
-        Do not merge with regulatory analysis. This step applies plan
-        criteria only. Note where the plan's own criteria were misapplied.
-
-  investigate_regulatory_compliance:
+  investigate_regulatory:
     primitive: investigate
     params:
       question: Does the denial comply with California regulatory requirements, and does state law override the plan's criteria?
       scope: |
-        Apply EACH regulatory provision independently:
-
-        CIC 10169.5 — PT Requirement Limits:
-        - Does exception (1) apply? (physician documents PT contraindicated)
-        - Does exception (2) apply? (functional plateau documented)
-        - Does exception (3) apply? (objective structural neurological compromise)
-        Test each. If any exception applies, plan cannot require more PT.
-
-        DMHC APL 22-014 — Myelopathy Urgency:
-        - Is there objective imaging evidence of progressive pathology?
-          (cord signal change = myelomalacia qualifies)
-        - Has treating physician documented conservative treatment failed?
-        - Is surgery indicated under generally accepted guidelines?
-        If all three present, plan SHALL NOT require full conservative treatment.
-
-        CHSC 1374.32(b) — IMR Clinical Standard:
-        - Does the service meet "generally accepted standards of medical practice"?
-        - If yes, approval is required regardless of plan's internal criteria.
-
-        CHSC 1374.31(b) — Denial Adequacy:
-        - Did the denial specify the exact criteria applied?
-        - Did it include IMR notice?
-        - Is the denial procedurally defective?
-
-        Document each provision and whether it supports overturn or uphold.
+        Apply each regulatory provision independently to the clinical record.
+        Test each exception condition separately — do not aggregate. Document
+        whether each provision supports overturn or uphold. Include procedural
+        adequacy of the denial notice. Do not merge with plan criteria or
+        clinical standard analysis.
 
   investigate_clinical_standard:
     primitive: investigate
     params:
-      question: Do generally accepted clinical standards require or support surgical authorization for this presentation?
+      question: Do generally accepted clinical standards require or support authorization for this presentation?
       scope: |
-        Apply published clinical guidelines to the clinical record:
+        Apply published guidelines to the clinical record. State the surgical
+        indication tier. Assess PT evidence base for this specific diagnosis.
+        State the clinical standard conclusion independently of plan criteria
+        and regulatory requirements.
 
-        Presentation classification:
-        - What tier does this case fall under (AANS/CNS 2023 Tier 1/2/3)?
-        - Does myelomalacia change the tier?
+  # ── Verify default ──────────────────────────────────────────────────────
 
-        PT evidence for this presentation:
-        - Is the 6-week PT requirement evidence-based for this diagnosis?
-        - What do guidelines say about PT for moderate-severe myelopathy?
-        - Has functional plateau been reached by clinical definition?
-
-        Surgical indication:
-        - Do AANS/CNS, NASS, and AO Spine guidelines support surgery here?
-        - Is there consensus across guidelines?
-
-        Urgency:
-        - Does the clinical presentation carry urgency per guidelines?
-        - Does "elective" scheduling status change the clinical urgency?
-
-        State the clinical standard conclusion independently of plan criteria.
-
-  verify_cross_source_consistency:
+  verify:
     primitive: verify
     params:
       rules: |
         RULE 1 — HIERARCHY: Where plan criteria and state law conflict,
-        state law governs. Document any such conflict explicitly.
-
+        state law governs. Document any conflict explicitly.
         RULE 2 — HIERARCHY: Where plan criteria and clinical standard conflict,
-        clinical standard governs (per CHSC 1374.32(b)). Document any conflict.
-
-        RULE 3 — INTERNAL CONSISTENCY: If plan applied criteria to deny,
-        verify those exact criteria are correctly stated in the plan document.
-        Verify the plan's own exceptions were evaluated.
-
-        RULE 4 — COMPLETENESS: All three sources (plan criteria, regulatory,
-        clinical standard) must have been applied. If any source was not
-        applied, flag as incomplete.
-
-        RULE 5 — CLINICAL CATEGORY MATCH: Criteria applied must match the
-        clinical category. If patient has myelopathy, radiculopathy criteria
-        cannot be the sole basis for denial.
-
-        RULE 6 — PROCEDURAL ADEQUACY: Denial notice must cite specific criteria
-        and include IMR notice. Verify compliance.
-
+        clinical standard governs per CHSC 1374.32(b). Document any conflict.
+        RULE 3 — INTERNAL CONSISTENCY: Verify criteria cited in the denial
+        are correctly stated in the plan document and that the plan's own
+        exceptions were evaluated.
+        RULE 4 — COMPLETENESS: All three sources must have been applied.
+        Flag any source not analyzed.
+        RULE 5 — CATEGORY MATCH: Criteria applied must match the clinical
+        category. Radiculopathy criteria cannot be the sole basis for denial
+        of a myelopathy case.
+        RULE 6 — PROCEDURAL ADEQUACY: Denial notice must cite specific
+        criteria and include IMR notice.
       subject: Cross-source analysis of plan criteria, regulatory framework, and clinical standard
 
-  deliberate_disposition:
+  # ── Deliberate default ──────────────────────────────────────────────────
+
+  deliberate:
     primitive: deliberate
     params:
       instruction: |
-        Determine the appeal disposition — OVERTURN, UPHOLD, PARTIAL, or REMAND.
-        The determination must apply the three-source hierarchy:
-        state law > clinical standard > plan criteria.
+        Determine the appeal disposition — OVERTURN, UPHOLD, PARTIAL, or REMAND
+        — applying the three-source hierarchy: state law > clinical standard
+        > plan criteria.
 
-        REMAND definition and when to use it:
-        REMAND means the plan must reissue a compliant denial notice before
-        any clinical determination can stand. It is NOT an overturn. It does
-        not authorize the procedure. It requires the plan to correct a
-        procedural violation and reissue. Use REMAND when:
-          (a) The denial notice violates CHSC §1374.31(b) — criteria not cited
-              in writing, IMR notice missing, referenced document not provided,
-              or criteria communicated verbally only
-          (b) The clinical merits, if the denial had been properly issued,
-              would support UPHOLD or are unclear
-        Use OVERTURN (not REMAND) when:
-          (a) There is a procedural defect AND
-          (b) The clinical merits independently require OVERTURN
-          In this case: document both grounds explicitly.
-        NEVER substitute clinical grounds for a procedural REMAND.
-        A correct denial with a defective notice is REMAND, not UPHOLD.
+        REMAND: Use when the denial notice is procedurally defective AND the
+        clinical merits support UPHOLD or are unclear. REMAND does not authorize
+        the procedure. If the notice is defective AND clinical merits independently
+        require OVERTURN, disposition is OVERTURN — document both grounds.
+
+        The warrant must be specific: cite the exact evidence, provision, and
+        logical bridge connecting them to the disposition.
       focus: |
-        Apply the denial_review_checklist in order. Step 1 is a gate —
-        if the denial notice is procedurally defective, determine whether
-        the clinical merits independently support OVERTURN or not.
-        If clinical merits support OVERTURN: disposition = OVERTURN,
-        warrant both procedural and clinical grounds.
-        If clinical merits support UPHOLD or are unclear: disposition = REMAND.
-
-        For non-procedural cases: what does each source independently require?
+        What does each source independently require?
         Where sources conflict, which governs and why?
         What is the warranted disposition and what is the explicit logical
-        bridge from the evidence to that disposition?
+        bridge from evidence to disposition?
 
-        The warrant must be specific enough to survive IMR scrutiny.
-        "Conservative treatment was completed" is insufficient.
-        "Member completed 8 weeks of PT (June-August 2024) exceeding the
-        plan's 6-week standard requirement and the myelopathy exception's
-        4-week requirement; myelomalacia on MRI independently triggers the
-        DMHC APL 22-014 exception regardless of PT duration; and the
-        clinical standard (AANS/CNS Tier 1) does not require PT as prerequisite
-        for moderate-severe myelopathy with cord signal change" is sufficient.
+  # ── Generate default ────────────────────────────────────────────────────
 
-  generate_appeal_determination:
+  generate:
     primitive: generate
     params:
       requirements: |
-        Generate a formal appeal determination letter that:
-        1. States the disposition clearly (OVERTURN / UPHOLD / PARTIAL / REMAND)
-        2. Summarizes the clinical findings that are material to the decision
-        3. Applies plan criteria with specific section references
-        4. Applies regulatory provisions with specific statute/regulation citations
-        5. Applies clinical standard with guideline citations
-        6. Resolves any cross-source conflicts using the hierarchy
-        7. States the warrant connecting evidence to disposition
-        8. Notifies member of IMR rights if denial upheld
-        9. States next steps
+        Generate a formal appeal determination letter stating the disposition
+        (OVERTURN / UPHOLD / PARTIAL / REMAND) with specific citations to plan
+        criteria, regulatory provisions, and clinical guidelines. Resolve any
+        cross-source conflicts explicitly using the hierarchy. Every conclusion
+        must cite a specific source and section. Include IMR rights notice if
+        denial upheld.
       format: formal_letter
       constraints: |
-        Every conclusion must cite a specific source (document + section).
-        Cross-source conflicts must be resolved explicitly, not ignored.
-        Do not use conclusory language without citation.
-        The determination must be reproducible — another reviewer with
-        the same documents should reach the same conclusion.
+        Do not use conclusory language without citation. The determination must
+        be reproducible — another reviewer with the same documents should reach
+        the same conclusion.
 
-  challenge_determination:
+  # ── Challenge default ───────────────────────────────────────────────────
+
+  challenge:
     primitive: challenge
     params:
       perspective: |
-        If OVERTURN: You are the plan's Medical Director and legal counsel.
-        Challenge every basis for overturning. Look for: clinical evidence
-        not actually supporting the finding, regulatory provisions
-        misread or misapplied, plan criteria exceptions not actually met.
-
-        If UPHOLD: You are the member's attorney and treating physician.
-        Challenge every basis for upholding. Look for: myelopathy exception
-        not applied, state law provisions not applied, clinical standard
-        not considered, denial procedurally defective.
+        If OVERTURN: challenge as the plan's Medical Director and legal counsel.
+        If UPHOLD: challenge as the member's attorney and treating physician.
+        Find the weakest factual or legal premise and press it.
       threat_model: |
-        This determination will face scrutiny at:
-        - Independent Medical Review (DMHC reviewer)
-        - Member's attorney if denial upheld
-        - Plan's legal team if denial overturned
-        - Potential regulatory audit
+        This determination will face scrutiny at Independent Medical Review,
+        member's legal counsel, plan's legal team, and potential regulatory
+        audit. It must survive all four.
 
-        The determination must survive all four.
+  # ── Reflect default ─────────────────────────────────────────────────────
 
-  reflect_after_challenge:
+  reflect:
     primitive: reflect
     params:
       scope: |
-        Examine the reasoning that produced the disposition.
-        What assumptions were made that haven't been verified across
-        all three sources? What questions were not asked?
-        Is the trajectory narrowing prematurely on one source
-        while ignoring another?
+        Examine the reasoning that produced the disposition. What assumptions
+        were made that haven't been verified across all three sources? What
+        questions were not asked? Is the trajectory narrowing prematurely on
+        one source while ignoring another?
 
-  govern_appeal_outcome:
+  # ── Govern default ──────────────────────────────────────────────────────
+
+  govern:
     primitive: govern
     params:
       workflow_state: "${accumulated}"
       governance_context: |
-        This is a health plan appeal determination with legal and
-        regulatory implications.
+        Health plan appeal determination with legal and regulatory implications.
 
-        Evaluate tiers in order AUTO then SPOT_CHECK then GATE then HOLD.
-        Stop at first match. Start by confirming correctness.
+        Evaluate tiers in order: AUTO → SPOT_CHECK → GATE → HOLD.
+        Stop at first match.
 
-        AUTO: All three sources applied and consistent or conflict resolved
-              cleanly by hierarchy. Challenge found no open vulnerability.
-              Direct reasoning chain, no inference gaps. Applies to any
-              disposition (OVERTURN, UPHOLD, PARTIAL, REMAND) when the
-              finding is unambiguous and the warrant is complete.
+        AUTO: All three sources applied, conflicts resolved by hierarchy,
+        challenge found no open vulnerability, direct reasoning chain.
+        Applies to any disposition when the warrant is complete.
 
-        SPOT_CHECK: Disposition supported but close factual question
-                    resolved by interpretation, single dominant source,
-                    or PARTIAL with level-by-level analysis.
+        SPOT_CHECK: Disposition supported but close factual question resolved
+        by interpretation, single dominant source, or PARTIAL with level-by-level
+        analysis.
 
-        GATE: Qualified-source contradiction on material finding;
-              physician urgency declaration conflicts with objective
-              clinical findings and is the fulcrum of the disposition;
-              classification genuinely uncertain; unresolved challenge
-              vulnerability; borderline level in multi-level case.
-              GATE does not suspend disposition — output committed
-              disposition (OVERTURN/UPHOLD/PARTIAL/REMAND) alongside GATE.
+        GATE: Qualified-source contradiction on material finding; physician
+        urgency declaration conflicts with objective findings and is the
+        fulcrum of the disposition; classification genuinely uncertain;
+        unresolved challenge vulnerability; borderline level in multi-level
+        case. GATE does not suspend disposition — commit the disposition
+        alongside GATE.
 
-        HOLD: Critical document missing or record irresolvably
-              contradictory.
+        HOLD: Critical document missing or record irresolvably contradictory.
 
-        Do not assign GATE for clinical severity or UPHOLD dispositions
-        alone. A clear UPHOLD passes AUTO. Clinical stakes are handled
-        by the urgency provisions in state law, not governance tier.
+        Do not assign GATE for clinical severity or UPHOLD dispositions alone.
+        A clear UPHOLD passes AUTO.

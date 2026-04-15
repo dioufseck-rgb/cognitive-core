@@ -31,7 +31,7 @@ available_primitives:
   - govern
 
 constraints:
-  max_steps: 18
+  max_steps: 25
   max_repeat: 2
   must_include:
     - retrieve
