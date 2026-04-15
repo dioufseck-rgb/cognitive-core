@@ -546,30 +546,32 @@ primitive_configs:
       workflow_state: "${accumulated}"
       governance_context: |
         This is a health plan appeal determination with legal and
-        regulatory implications. Governance tier based on:
+        regulatory implications.
 
-        AUTO: Disposition is certain — clear and consistent across all
-              three sources, no conflicts, no challenge vulnerabilities.
-              Applies to any disposition (OVERTURN, UPHOLD, PARTIAL,
-              REMAND) when the finding is unambiguous and the warrant
-              is complete.
+        Evaluate tiers in order AUTO then SPOT_CHECK then GATE then HOLD.
+        Stop at first match. Start by confirming correctness.
 
-        SPOT_CHECK: Disposition is supported but minor questions remain.
-                    Sample for quality review.
+        AUTO: All three sources applied and consistent or conflict resolved
+              cleanly by hierarchy. Challenge found no open vulnerability.
+              Direct reasoning chain, no inference gaps. Applies to any
+              disposition (OVERTURN, UPHOLD, PARTIAL, REMAND) when the
+              finding is unambiguous and the warrant is complete.
 
-        GATE: Epistemic uncertainty requires human review before the
-              disposition executes. Use GATE when ANY of: sources conflict
-              and the conflict is unresolved, challenge found vulnerabilities
-              that were not corrected, myelopathy classification is genuinely
-              uncertain, or critical evidence is missing or contradicted.
+        SPOT_CHECK: Disposition supported but close factual question
+                    resolved by interpretation, single dominant source,
+                    or PARTIAL with level-by-level analysis.
 
-        HOLD: Insufficient information to determine any disposition.
-              Requires additional documentation before any review is possible.
+        GATE: Qualified-source contradiction on material finding;
+              physician urgency declaration conflicts with objective
+              clinical findings and is the fulcrum of the disposition;
+              classification genuinely uncertain; unresolved challenge
+              vulnerability; borderline level in multi-level case.
+              GATE does not suspend disposition — output committed
+              disposition (OVERTURN/UPHOLD/PARTIAL/REMAND) alongside GATE.
 
-        DEFAULT is AUTO for any disposition that is unambiguous across all
-        three sources with no unresolved conflicts. The clinical stakes of
-        the underlying condition do NOT independently determine governance
-        tier. A clear OVERTURN on a myelopathy case is AUTO. A clear UPHOLD
-        is AUTO. A clear REMAND is AUTO. GATE is for epistemic uncertainty,
-        not clinical severity. High-stakes conditions are handled by the
-        urgency provisions in state law — not by governance tier escalation.
+        HOLD: Critical document missing or record irresolvably
+              contradictory.
+
+        Do not assign GATE for clinical severity or UPHOLD dispositions
+        alone. A clear UPHOLD passes AUTO. Clinical stakes are handled
+        by the urgency provisions in state law, not governance tier.
