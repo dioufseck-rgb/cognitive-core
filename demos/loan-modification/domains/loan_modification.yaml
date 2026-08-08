@@ -663,3 +663,10 @@ primitive_configs:
         HOLD: Insufficient documentation to complete evaluation.
               Application is incomplete and PEND notice must be issued.
               Additional documents required before any eligibility analysis.
+
+# Declared baseline governance tier (floor). The effective tier is
+# resolved upward-only from this floor by the govern primitive, coherence
+# flags, and quality gates. Without this key the runtime defaults the
+# floor to 'gate', which makes SPOT_CHECK/AUTO unreachable.
+governance:
+  tier: auto

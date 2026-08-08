@@ -474,3 +474,10 @@ primitive_configs:
 
         Do not assign GATE for clinical severity or UPHOLD dispositions alone.
         A clear UPHOLD passes AUTO.
+
+# Declared baseline governance tier (floor). The effective tier is
+# resolved upward-only from this floor by the govern primitive, coherence
+# flags, and quality gates. Without this key the runtime defaults the
+# floor to 'gate', which makes SPOT_CHECK/AUTO unreachable.
+governance:
+  tier: auto
