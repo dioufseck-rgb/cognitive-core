@@ -181,7 +181,7 @@ Output the plan only. Do not produce the final determination yet."""
     try:
         import google.generativeai as genai
         genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
-        model = genai.GenerativeModel("gemini-2.5-flash")
+        model = genai.GenerativeModel("gemini-3.5-flash")
 
         t0 = time.time()
         plan_response = model.generate_content(plan_prompt)
