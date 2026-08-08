@@ -501,6 +501,10 @@ primitive_configs:
         Do not assign GATE for clinical severity or UPHOLD dispositions alone.
         A clear UPHOLD passes AUTO.
 
+        A treating-physician declaration corroborated by objective clinical
+        findings is not a conflict; corroboration supports AUTO or SPOT_CHECK.
+        Verification findings that do not change the disposition do not by
+        themselves require GATE.
 # Declared baseline governance tier (floor). The effective tier is
 # resolved upward-only from this floor by the govern primitive, coherence
 # flags, and quality gates. Without this key the runtime defaults the

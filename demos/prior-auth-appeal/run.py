@@ -231,6 +231,7 @@ def run_cognitive_core(case_input: dict, verbose: bool = False) -> dict:
     ledger = coord.store.get_ledger(instance_id=instance_id)
     determination = ""
     typed_disposition_raw = ""
+    guard_trace = []
     trajectory = []
     for entry in ledger:
         if entry.get("action_type") == "step_completed":
@@ -238,6 +239,16 @@ def run_cognitive_core(case_input: dict, verbose: bool = False) -> dict:
             prim = d.get("primitive", "")
             if prim:
                 trajectory.append(prim)
+            if prim in ("deliberate", "challenge", "reflect"):
+                out = d.get("output", {})
+                if isinstance(out, dict):
+                    guard_trace.append({
+                        "step": d.get("step_name", prim), "primitive": prim,
+                        "recommended_action": out.get("recommended_action"),
+                        "survives": out.get("survives"),
+                        "vulnerabilities": str(out.get("vulnerabilities"))[:300],
+                        "trajectory": out.get("trajectory"),
+                        "reasoning": str(out.get("reasoning"))[:300]})
             if prim == "deliberate":
                 out = d.get("output", {})
                 if isinstance(out, dict) and out.get("recommended_action"):
@@ -259,6 +270,7 @@ def run_cognitive_core(case_input: dict, verbose: bool = False) -> dict:
     return {
         "determination": determination,
         "typed_disposition_raw": typed_disposition_raw,
+        "guard_trace": guard_trace,
         "tier": tier,
         "disposition": disposition,
         "elapsed": elapsed,

@@ -1,0 +1,107 @@
+{
+  "case_id": "PA-2024-F002",
+  "appeal_date": "2024-10-25",
+  "member": {
+    "id": "M-101133",
+    "name": "Steven Clark",
+    "age": 46,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2022-02-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C5-C6, one level",
+    "requested_by": "Dr. Sarah Nguyen, MD \u2014 Spine Surgery",
+    "facility": "Cedars-Sinai Medical Center"
+  },
+  "denial": {
+    "date": "2024-10-10",
+    "reason_code": "MED-003",
+    "reason_text": "Conflicting physical therapy documentation. PT provider 1 (Riverside PT) submitted records showing 6 weeks. PT provider 2 (Coastal PT) records submitted by member show 4 weeks. Records conflict on duration. Total claimed by member: 10 weeks. Total verifiable: uncertain. Plan requires verification of claimed PT duration before approval.",
+    "reviewer": "Dr. Patricia Huang, MD",
+    "level": "initial"
+  },
+  "appeal_basis": [
+    "Riverside PT and Coastal PT records are both authentic",
+    "Discrepancy explained: Coastal PT records submitted incomplete \u2014 final 2 weeks were faxed separately",
+    "Full Coastal PT records (6 weeks) now enclosed"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Cervical radiculopathy C5-C6 with functional impairment",
+    "imaging": {
+      "mri_1": {
+        "date": "2024-08-15",
+        "findings": "C5-C6 large disc herniation, severe right C6 nerve root compression, foraminal stenosis"
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-08-20",
+      "findings": "Right C6 dermatomal numbness, bicep weakness 4/5 right, bicep reflex absent right, positive Spurling right"
+    },
+    "conservative_treatment": {
+      "physical_therapy_provider_1": {
+        "provider": "Riverside Physical Therapy",
+        "start": "2024-04-01",
+        "end": "2024-05-10",
+        "weeks": 6,
+        "sessions": 18,
+        "records_status": "RECEIVED BY PLAN \u2014 COMPLETE",
+        "outcome_note": "Plateau documented. Symptoms persist."
+      },
+      "physical_therapy_provider_2_complete": {
+        "provider": "Coastal Physical Therapy",
+        "start": "2024-06-01",
+        "end": "2024-07-12",
+        "weeks": 6,
+        "sessions": 18,
+        "records_status": "COMPLETE RECORDS NOW SUBMITTED \u2014 initial submission was partial (weeks 1-4 only)",
+        "outcome_note": "No improvement in neurological deficit. Therapist documents functional plateau \u2014 maximum therapeutic benefit reached."
+      },
+      "physical_therapy_summary": {
+        "total_weeks": 12,
+        "total_sessions": 36,
+        "note": "12 weeks total PT, 6 weeks at each of two providers. Both sets now complete. Plateau documented at both providers.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Gabapentin 600mg TID",
+            "duration": "5 months",
+            "response": "Partial relief"
+          },
+          {
+            "drug": "Duloxetine 60mg daily",
+            "duration": "3 months",
+            "response": "Partial neuropathic benefit"
+          }
+        ]
+      },
+      "interventional": {
+        "right_c6_epidural": {
+          "date": "2024-08-28",
+          "response": "60% temporary relief, returned to baseline in 3 weeks"
+        }
+      }
+    }
+  },
+  "documents_enclosed": [
+    "MRI report",
+    "Riverside PT records (6 weeks) \u2014 complete",
+    "Coastal PT records (6 weeks) \u2014 COMPLETE VERSION",
+    "Neurological exam",
+    "Epidural records"
+  ],
+  "question": "Should the prior authorization denial for ACDF C5-C6 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "OVERTURN \u2014 with complete Coastal PT records, 12 weeks total PT, all other criteria met.",
+    "harder_question_1": "The discrepancy between the plan's received records (4 weeks Coastal) and member's claimed records (6 weeks Coastal) \u2014 who bears the burden of proof?",
+    "harder_question_2": "Is 6 weeks at Riverside PT alone sufficient to meet the 6-week requirement, making the Coastal PT records irrelevant?",
+    "harder_question_3": "If 6 weeks at Riverside meets the PT requirement independently, does the documentation dispute about Coastal PT even matter?",
+    "harder_question_4": "Should the determination address both the straightforward basis (Riverside PT alone meets criteria) and the documentation dispute?",
+    "the_genuine_tension": "The plan denied due to conflicting documentation. But Riverside PT alone provided 6 weeks \u2014 which meets the 6-week requirement independently. The dispute about Coastal PT duration is irrelevant to whether criteria are met. A single-pass system gets distracted by the documentation dispute. A system that identifies the controlling fact reaches overturn immediately.",
+    "right_answer": "OVERTURN \u2014 Riverside PT records (received and verified by plan) document 6 weeks of PT, meeting the 6-week requirement independently. The documentation dispute about Coastal PT duration is irrelevant \u2014 criteria are met regardless of how the Coastal PT discrepancy resolves. Two pharmacotherapy agents documented. Injection documented. Full criteria met on the undisputed record alone."
+  }
+}

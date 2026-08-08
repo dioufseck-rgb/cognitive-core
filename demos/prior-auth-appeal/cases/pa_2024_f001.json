@@ -1,0 +1,107 @@
+{
+  "case_id": "PA-2024-F001",
+  "appeal_date": "2024-11-16",
+  "member": {
+    "id": "M-990033",
+    "name": "Dorothy James",
+    "age": 51,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2019-04-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C6-C7, one level",
+    "requested_by": "Dr. Paul Adams, MD \u2014 Spine Surgery",
+    "facility": "UCLA Medical Center"
+  },
+  "denial": {
+    "date": "2024-11-02",
+    "reason_code": "MED-003",
+    "reason_text": "Physical therapy requirement not met. Plan received PT records from Valley Physical Therapy documenting 4 weeks of treatment. Member claims 8 total weeks but second provider (Mountain PT) records not received by plan. Cannot verify claimed treatment without complete records.",
+    "reviewer": "Dr. Alan Foster, MD",
+    "level": "initial"
+  },
+  "appeal_basis": [
+    "Mountain PT records enclosed with this appeal \u2014 4 additional weeks confirmed",
+    "Total 8 weeks PT completed across two providers",
+    "Records were submitted with initial request but may not have been received"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Cervical radiculopathy C6-C7, bilateral",
+    "imaging": {
+      "mri_1": {
+        "date": "2024-09-01",
+        "findings": "C6-C7 large disc herniation, bilateral C7 nerve root compression, bilateral foraminal stenosis, mild cord contact without compression"
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-09-05",
+      "findings": "Bilateral C7 dermatomal symptoms: bilateral tricep weakness 4/5, bilateral tricep reflex diminished, bilateral finger tingling"
+    },
+    "conservative_treatment": {
+      "physical_therapy_provider_1": {
+        "provider": "Valley Physical Therapy",
+        "start": "2024-06-01",
+        "end": "2024-06-28",
+        "weeks": 4,
+        "sessions": 12,
+        "records_status": "RECEIVED BY PLAN",
+        "outcome_note": "Moderate improvement then plateau"
+      },
+      "physical_therapy_provider_2": {
+        "provider": "Mountain Physical Therapy",
+        "start": "2024-07-15",
+        "end": "2024-08-09",
+        "weeks": 4,
+        "sessions": 12,
+        "records_status": "SUBMITTED WITH APPEAL \u2014 NOT RECEIVED AT INITIAL REVIEW",
+        "outcome_note": "No improvement in neurological symptoms. Plateau documented by PT at discharge."
+      },
+      "physical_therapy_summary": {
+        "total_weeks": 8,
+        "total_sessions": 24,
+        "note": "8 weeks total PT across two providers. Both sets of records now submitted. Plateau documented at provider 2 discharge.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Pregabalin 150mg BID",
+            "duration": "3 months",
+            "response": "Partial relief"
+          },
+          {
+            "drug": "Naproxen 500mg BID",
+            "duration": "2 months",
+            "response": "Inadequate"
+          }
+        ]
+      },
+      "interventional": {
+        "bilateral_c7_epidural": {
+          "date": "2024-09-20",
+          "response": "Left side: 50% temporary relief. Right side: 30% temporary relief. Both returned to baseline."
+        }
+      }
+    }
+  },
+  "documents_enclosed": [
+    "MRI report",
+    "Valley PT records (4 weeks)",
+    "Mountain PT records (4 weeks) \u2014 NEW",
+    "Neurological exam",
+    "Epidural records"
+  ],
+  "question": "Should the prior authorization denial for ACDF C6-C7 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "OVERTURN \u2014 additional PT records now submitted. 8 weeks total. All criteria met.",
+    "harder_question_1": "There was a 17-day gap in PT (June 28 to July 15) \u2014 does the gap break the continuity requirement for PT?",
+    "harder_question_2": "The plan denied because records were not received \u2014 if records were submitted but not received, is this a plan administrative failure or a member documentation failure?",
+    "harder_question_3": "Does the plan's failure to receive submitted records constitute a denial notice defect under CHSC 1374.31?",
+    "harder_question_4": "Is this a straightforward OVERTURN on the merits once the missing records are provided?",
+    "the_genuine_tension": "With the Mountain PT records, all criteria are met. The 17-day gap between providers does not break the PT requirement \u2014 plan criteria specify duration, not continuity. The administrative failure (records not received) is the plan's problem to explain.",
+    "right_answer": "OVERTURN \u2014 With Mountain PT records now submitted, member has completed 8 weeks PT, two pharmacotherapy agents, and interventional procedure. All criteria met. The 17-day gap between providers does not break the PT requirement. The initial denial was based on incomplete information due to record receipt failure."
+  }
+}

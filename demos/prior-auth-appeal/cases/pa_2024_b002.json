@@ -1,0 +1,88 @@
+{
+  "case_id": "PA-2024-B002",
+  "appeal_date": "2024-11-05",
+  "member": {
+    "id": "M-667788",
+    "name": "Thomas Reed",
+    "age": 52,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2020-07-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C6-C7, one level",
+    "requested_by": "Dr. Karen Liu, MD \u2014 Spine Surgery",
+    "facility": "Stanford Medical Center"
+  },
+  "denial": {
+    "date": "2024-10-20",
+    "reason_code": "MED-003",
+    "reason_text": "Member does not meet criteria for ACDF. Imaging shows C6-C7 disc herniation with mild cord contact but no measurable compression. No myelopathy findings on exam. PT not yet completed to functional plateau.",
+    "reviewer": "Dr. Patricia Huang, MD",
+    "level": "initial"
+  },
+  "appeal_basis": [
+    "Member completed 7 weeks PT with documented failure to improve",
+    "Functional plateau reached per PT discharge summary",
+    "Surgeon believes ACDF is indicated for persistent radiculopathy"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Cervical radiculopathy C6-C7, persistent after conservative treatment",
+    "imaging": {
+      "mri_1": {
+        "date": "2024-08-01",
+        "findings": "C6-C7 disc herniation. Mild cord contact without measurable compression. No cord signal change. No myelomalacia. Mild right C7 foraminal stenosis."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-08-05",
+      "findings": "Right C7 dermatomal distribution numbness. Tricep reflex diminished right. No bilateral findings. No upper motor neuron signs. Pain 7/10 at rest."
+    },
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 7,
+        "total_sessions": 21,
+        "note": "7 weeks PT completed. PT discharge summary explicitly states functional plateau reached \u2014 patient has not improved over final 3 sessions. Radicular symptoms persist unchanged.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Pregabalin 150mg BID",
+            "duration": "4 months",
+            "response": "Partial pain relief, radicular symptoms persist"
+          },
+          {
+            "drug": "Meloxicam 15mg",
+            "duration": "3 months",
+            "response": "Inadequate"
+          }
+        ]
+      },
+      "interventional": {
+        "right_c7_epidural": {
+          "date": "2024-09-20",
+          "response": "30% improvement lasting 3 weeks, then returned to baseline"
+        }
+      }
+    }
+  },
+  "documents_enclosed": [
+    "MRI report",
+    "PT discharge summary with plateau notation",
+    "Neurological exam",
+    "Epidural records"
+  ],
+  "question": "Should the prior authorization denial for ACDF C6-C7 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "UPHOLD \u2014 the plan says PT not completed to functional plateau. But the PT discharge summary explicitly documents functional plateau. This looks like a factual error in the denial.",
+    "harder_question_1": "The plan criteria require functional plateau \u2014 is the PT discharge summary notation sufficient documentation?",
+    "harder_question_2": "The imaging shows only mild cord contact \u2014 does this meet the imaging requirement for ACDF under the plan's criteria?",
+    "harder_question_3": "No myelopathy, no cord compression, no myelomalacia \u2014 is this a case where surgery is clinically indicated but the imaging threshold has not been met?",
+    "harder_question_4": "The clinical standard supports surgery given functional plateau, pain score, and symptom correlation \u2014 but does mild cord contact on imaging meet the plan's imaging requirement?",
+    "the_genuine_tension": "The denial states PT not completed to plateau \u2014 but the PT discharge summary explicitly says plateau reached. That is a factual error. A single-pass system corrects the factual error and OVERTURNs. But the plan also denied on imaging grounds: mild cord contact without measurable compression. The clinical standard supports surgery when functional plateau is reached with symptom-imaging correlation, but mild cord contact is borderline.",
+    "right_answer": "OVERTURN \u2014 The denial's factual basis (PT not completed to plateau) is contradicted by the PT discharge summary. The imaging shows C6-C7 pathology correlating with documented C7 symptoms and neurological deficit. Functional plateau is documented. Clinical standard supports surgery. Route GATE for physician review given borderline imaging findings."
+  }
+}
