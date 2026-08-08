@@ -1,0 +1,98 @@
+CASE: pa_2024_c001
+SYSTEM: REACT
+DISPOSITION: OVERTURN
+GT: OVERTURN
+CORRECT: True
+ELAPSED: 32.2s
+========================================================================
+
+**HealthFirst Health Plan**
+**Appeal Determination Letter**
+
+**Case ID:** PA-2024-C001
+**Member:** Frances Kim, M-990011, Age 58
+**Plan:** HealthFirst PPO Gold — Group Plan 77441, California
+**Procedure:** ACDF C5-C6, one level (CPT 22551)
+**Requested By:** Dr. Robert Adams, MD (Neurosurgery)
+**Facility:** UCSF Medical Center
+**Date of Denial:** 2024-10-30
+**Original Reviewer:** Dr. Alan Foster, MD
+**Appeal Level:** First-Level Internal Appeal
+**Date of Appeal Review:** 2024-11-08
+
+---
+
+**Summary of Original Denial:**
+Authorization for CPT 22551 (ACDF C5-C6) was denied based on reason code MED-003. The denial stated that the myelopathy exception does not apply because imaging shows only mild cord contact, without measurable cord compression or T2 signal change. The denial asserted that upper motor neuron (UMN) signs on examination are not conclusive for myelopathy in the absence of imaging confirmation. Consequently, the standard 6-week physical therapy (PT) requirement was applied, which the member did not meet (5 weeks completed).
+
+**Summary of Appeal Basis:**
+The appeal asserts that clinical myelopathy is established by the presence of three positive UMN signs, regardless of imaging findings. It argues that mild cord contact on MRI combined with UMN signs constitutes myelopathy per clinical definition. Additionally, the member completed 5 weeks of PT under a myelopathy pathway, which exceeds the 4-week minimum required by the plan's myelopathy exception.
+
+**Clinical Record Review:**
+*   **Diagnosis:** Suspected cervical myelopathy — imaging-negative UMN syndrome.
+*   **Imaging (MRI 2024-09-01):** C5-C6 disc herniation with "mild cord contact." No measurable cord compression. No T2 signal change (myelomalacia). Note explicitly states: "Cord contact is present but not quantifiable as compression on standard sequences."
+*   **Neurological Exam (2024-09-05):** Positive Hoffman bilateral, hyperreflexia bilateral upper extremities, sustained clonus at bilateral ankles (3 beats), positive finger escape sign, mildly wide-based gait. Patient denies lower extremity symptoms.
+*   **Conservative Treatment:**
+    *   **Physical Therapy:** 5 weeks, 15 sessions, completed under a "myelopathy protocol." Neurological signs remained unchanged. The treating physician halted PT, citing "myelopathy concern."
+    *   **Pharmacotherapy:** Baclofen 5mg TID for 2 months (minimal spasticity relief), Methylprednisolone taper for 10 days (no improvement in UMN signs).
+    *   **Interventional:** None.
+*   **Clinical Standard Note (from record):** AANS/CNS guidelines indicate that clinical myelopathy diagnosis requires UMN signs on examination, with imaging confirmation being supportive but not mandatory. "Imaging-negative myelopathy" is a recognized entity, and multiple positive UMN signs without other explanation establish clinical myelopathy.
+
+---
+
+**Reviewer Findings and Analysis:**
+
+As an expert health plan appeals reviewer, I have meticulously reviewed the submitted documentation, HealthFirst's clinical coverage criteria (CC-SPINE-2024), relevant California state law (CIC, CHSC, DMHC APL), and generally accepted clinical standards (AANS/CNS, NASS, AO Spine). My determination is based on the established hierarchy: **State Law > Clinical Standard > Plan Criteria.**
+
+**1. Myelopathy Diagnosis and Imaging Requirements:**
+*   **Plan's Denial:** The denial states, "Myelopathy exception does not apply. Imaging shows mild cord contact only — no cord compression, no cord signal change. Upper motor neuron signs on exam are not conclusive for myelopathy in the absence of imaging confirmation."
+*   **Clinical Standard (AANS/CNS 2023, Section 1.1; Clinical Record Note):** The AANS/CNS guidelines explicitly state that a clinical diagnosis of myelopathy requires upper motor neuron signs on examination. Imaging confirmation supports, but is *not required* for, the diagnosis. "Imaging-negative myelopathy" is a recognized entity where clinical signs precede MRI changes. Multiple positive UMN signs in the absence of other explanation establish clinical myelopathy.
+    *   **Application:** The member presents with **multiple classic UMN signs** (positive Hoffman bilateral, hyperreflexia bilateral upper extremities, sustained clonus at bilateral ankles, positive finger escape sign, mildly wide-based gait). The MRI confirms C5-C6 disc herniation with "mild cord contact," which, while not "measurable compression" in the denial's view, represents a structural pathology impinging on the cord, consistent with the clinical picture. The denial's assertion that UMN signs are not conclusive without imaging confirmation directly contradicts generally accepted clinical standards.
+*   **Plan Criteria (HealthFirst CC-SPINE-2024, Section 2.1(b)):** The plan's criteria define cervical myelopathy as "spinal cord compression with myelopathic symptoms." The member clearly has myelopathic symptoms, and "mild cord contact" from a disc herniation at C5-C6 represents spinal cord compression, even if not severe or with overt T2 signal change.
+*   **Conclusion on Diagnosis:** Based on the strong clinical presentation of UMN signs, recognized by clinical standards as sufficient for a myelopathy diagnosis even without classic imaging findings, and the presence of documented cord contact, the member has a confirmed diagnosis of cervical myelopathy. The denial's interpretation of imaging and UMN signs is overly restrictive and inconsistent with clinical standards.
+
+**2. Conservative Treatment — Physical Therapy Requirement:**
+*   **Plan's Denial:** The denial states, "Standard 6-week PT requirement applies; member completed 5 weeks." This implicitly denies the application of the plan's own myelopathy exception.
+*   **Plan Criteria (HealthFirst CC-SPINE-2024, Section 2.2(a) and Exception 2.2(A)):**
+    *   The standard pathway requires a minimum of 6 weeks of PT.
+    *   However, for confirmed cervical myelopathy (which we have established), the **Myelopathy Exception 2.2(A)** reduces the PT requirement to a **minimum of 4 weeks**.
+    *   **Application:** The member completed **5 weeks** of PT under a myelopathy protocol. This clearly **exceeds the 4-week minimum** stipulated by the plan's own myelopathy exception. Therefore, even by the plan's own criteria, the PT requirement has been satisfied. The denial incorrectly applied the standard 6-week requirement rather than the applicable myelopathy exception.
+*   **State Law (CIC § 10169.5(a) and (c); DMHC APL 22-014, Section II.3):**
+    *   **CIC § 10169.5(a):** A plan cannot condition approval on PT where:
+        *   (1) Physician documents PT is unlikely to benefit: The physician halted PT after 5 weeks, noting "Neurological signs unchanged. Physician halted PT citing myelopathy concern." This indicates that PT was not benefiting the myelopathic condition.
+        *   (2) Member reached a functional plateau: The clinical standard defines a functional plateau as <10% improvement or therapist documentation of maximum benefit. The "Clinical Standard Knowledge" explicitly states that "Neurological symptoms in myelopathy (weakness, hyperreflexia) are not expected to respond to PT regardless of duration." The unchanged neurological signs after 5 weeks of dedicated PT indicate a functional plateau was reached for the myelopathic symptoms.
+        *   (3) Objective evidence of structural neurological compromise that PT cannot address: The combination of mild cord contact on MRI and multiple UMN signs establishes objective neurological compromise (cervical myelopathy) which PT is not designed to address in terms of reversing neurological deficits.
+    *   **CIC § 10169.5(c):** Plan's minimum PT weeks shall not be applied mechanically without reference to functional plateau or neurological urgency.
+    *   **DMHC APL 22-014, Section II.3:** Plans shall not apply internal criteria more restrictive than generally accepted standards. Where conflict exists, clinical standard governs.
+*   **Clinical Standard (AO Spine 2021, NASS 2020, Cochrane 2021, Section 2.1 & 2.2):**
+    *   "There is no high-quality evidence supporting a mandatory course of physical therapy prior to surgical intervention for patients with moderate to severe cervical myelopathy."
+    *   "Delaying surgery in such patients to complete a physical therapy trial is not supported by the evidence and may result in neurological deterioration."
+    *   "The 6-week PT requirement in many payer policies derives from radiculopathy evidence, NOT myelopathy evidence. Applying radiculopathy-derived PT requirements to myelopathy patients is a category error not supported by evidence."
+    *   **Application:** For established myelopathy, extended PT is not supported by evidence to improve neurological deficits. The member's 5 weeks of PT with unchanged neurological signs further confirms its limited efficacy for this condition.
+*   **Conclusion on PT:** The member fulfilled the PT requirement under the plan's own myelopathy exception (5 weeks completed > 4 weeks required). Furthermore, even if the exception were not applied, state law and clinical standards provide multiple overriding reasons to deem the conservative treatment requirement satisfied, given the confirmed myelopathy, lack of neurological improvement with PT, and the physician's decision to halt therapy.
+
+**3. Overall Medical Necessity and Clinical Indication:**
+*   **Clinical Standard (AANS/CNS 2023, Section 3.1):** Surgical intervention for ACDF is a TIER 1 strong indication for "Moderate to severe myelopathy with objective cord compression on MRI" and "Progressive neurological deficit despite conservative treatment." The member's presentation of significant UMN signs, gait disturbance, and documented cord contact, combined with failure of conservative treatment to improve neurological signs, places this squarely within a strong surgical indication. The clinical standard explicitly states that for this presentation, a minimum course of PT is NOT required.
+
+**Disposition:**
+**OVERTURNED**
+
+**Warrant:**
+The denial for ACDF C5-C6 for Frances Kim is **OVERTURNED**. This determination is based on the following findings, prioritizing State Law, then Clinical Standards, and finally Plan Criteria:
+
+1.  **Diagnosis of Myelopathy:** The member's clinical presentation with multiple objective upper motor neuron signs (bilateral Hoffman's, hyperreflexia, clonus, finger escape, wide-based gait) unequivocally establishes a diagnosis of cervical myelopathy. Generally accepted clinical standards (AANS/CNS 2023) confirm that clinical signs are paramount for diagnosing myelopathy, and imaging confirmation, while supportive, is not strictly required. The plan's assertion that UMN signs are not conclusive without imaging confirmation is more restrictive than, and directly contradicted by, accepted clinical standards. The MRI finding of "mild cord contact" further supports the structural basis for the clinical myelopathy.
+2.  **Physical Therapy Requirement Met (Plan Criteria):** HealthFirst's own Clinical Coverage Criteria (CC-SPINE-2024, Section 2.2(A)) specifies a reduced physical therapy requirement of 4 weeks minimum for cases of confirmed cervical myelopathy. The member completed 5 weeks of physical therapy under a myelopathy protocol. Therefore, the member met and exceeded the plan's *own* criteria for conservative treatment under the myelopathy exception. The original denial's application of the standard 6-week PT requirement was an incorrect application of the plan's own policy.
+3.  **Physical Therapy Requirement Waived (State Law & Clinical Standard):** Even if the plan's specific myelopathy exception were disregarded, California state law (CIC § 10169.5) permits waiver of physical therapy requirements where the physician documents PT is unlikely to benefit or the member has reached a functional plateau, or where objective neurological compromise exists that PT cannot address. The physician's documentation of unchanged neurological signs after 5 weeks of PT for myelopathy, and the decision to halt therapy due to "myelopathy concern," strongly align with these waiver conditions. Clinical standards (AO Spine 2021) further state that there is no high-quality evidence supporting mandatory PT prior to surgery for moderate-to-severe cervical myelopathy, and delaying surgery may result in deterioration. State law (DMHC APL 22-014, CHSC 1374.32(b)) mandates that plans not apply criteria more restrictive than generally accepted clinical standards.
+
+For these reasons, the requested ACDF C5-C6 is medically necessary and meets the criteria for approval when applying the established hierarchy of authority.
+
+**Action:**
+Authorization for CPT 22551 (ACDF C5-C6, one level) for Frances Kim is APPROVED.
+
+---
+**Appeal Reviewer:**
+[Your Name/Title - Expert Health Plan Appeals Reviewer]
+HealthFirst Health Plan
+Date: 2024-11-08
+
+**Member Rights:** You have the right to request an Independent Medical Review (IMR) of this decision by the California Department of Managed Health Care (DMHC) if you are dissatisfied with this determination. Information regarding IMR will be provided to you separately or can be obtained from the DMHC website.

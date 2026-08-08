@@ -1,0 +1,37 @@
+========================================================================
+  BENCHMARK SUMMARY
+========================================================================
+
+11-case balanced set (paper benchmark)
+------------------------------------------------------------
+  System        Correct  Total   Accuracy  Silent errors
+  --------------------------------------------------------
+  cc                  7     11        63%              0
+  react               5     11        45%              6
+  plansolve           6     11        54%              5
+
+  Dispositions by system:
+    cc         OVERTURN:7  PARTIAL:1  REMAND:1  UPHOLD:2
+    react      OVERTURN:8  PARTIAL:1  UNKNOWN:1  UPHOLD:1
+    plansolve  ERROR:1  OVERTURN:7  UPHOLD:3
+
+All 26 cases
+------------------------------------------------------------
+  System        Correct  Total   Accuracy  Silent errors
+  --------------------------------------------------------
+  cc                 18     26        69%              0
+  react              19     26        73%              7
+  plansolve          20     26        76%              6
+
+  Dispositions by system:
+    cc         ERROR:1  OVERTURN:19  PARTIAL:2  REMAND:1  UNKNOWN:1  UPHOLD:2
+    react      OVERTURN:21  PARTIAL:3  UNKNOWN:1  UPHOLD:1
+    plansolve  ERROR:1  OVERTURN:22  UPHOLD:3
+
+  CC governance tier distribution (all cases):
+    auto         4
+    gate         20
+    hold         1
+    spot_check   1
+
+========================================================================

@@ -1,0 +1,124 @@
+CASE: pa_2024_b002
+SYSTEM: PLANSOLVE
+DISPOSITION: OVERTURN
+GT: OVERTURN
+CORRECT: True
+ELAPSED: 54.9s
+========================================================================
+
+# HEALTHFIRST HEALTH PLAN — PRIOR AUTHORIZATION APPEAL DETERMINATION
+
+**Date of Determination:** November 12, 2024  
+**Case ID:** PA-2024-B002  
+**Member Name:** Thomas Reed  
+**Member ID:** M-667788  
+**Age:** 52  
+**Plan:** HealthFirst PPO Gold — Group Plan 77441  
+**State of Residence:** California  
+**Coverage Effective Date:** July 1, 2020  
+**Requested Procedure:** CPT 22551 — Anterior Cervical Discectomy and Fusion (ACDF), C6-C7, single level  
+**Requesting Surgeon:** Dr. Karen Liu, MD — Spine Surgery, Stanford Medical Center  
+**Prior Decision Date:** October 20, 2024  
+**Prior Reviewer:** Dr. Patricia Huang, MD (Initial Review)  
+**Denial Reason Code:** MED-003 (Incomplete Conservative Therapy / PT)  
+
+---
+
+### FINAL APPEAL DISPOSITION
+**DECISION:** **OVERTURN INITIAL DENIAL (FULL APPROVAL)**
+
+The initial denial of prior authorization for CPT 22551 (ACDF C6-C7) is **OVERTURNED**. Clinical and administrative review establishes that the member satisfies all plan clinical coverage criteria for cervical radiculopathy. Furthermore, the plan’s physical therapy requirement is legally satisfied under California statutory protections (CIC § 10169.5) due to a documented functional plateau, and the procedure is medically necessary under generally accepted clinical standards. 
+
+The requested surgical procedure at Stanford Medical Center is **APPROVED** for a standard authorization window of 90 days.
+
+---
+
+### I. EXECUTIVE CLINICAL & LEGAL SUMMARY
+This case involves a 52-year-old male with a documented diagnosis of persistent, severe right C6-C7 cervical radiculopathy (pain rated 7/10 at rest) that has failed exhaustive conservative management. The initial medical necessity denial on October 20, 2024, asserted that the member did not meet clinical criteria because "PT [was] not yet completed to functional plateau" and because there were no findings of spinal cord compression or clinical myelopathy. 
+
+An expert clinical review of the complete medical record reveals that the initial denial was **factually and clinically incorrect** under both the plan's own criteria and California law:
+1. **Fact Deficit:** The member completed **7 weeks of supervised physical therapy (21 sessions)**. The physical therapy discharge summary explicitly documented that the member reached a **functional plateau**, exhibiting no improvement over his final three consecutive sessions. 
+2. **Regulatory Override:** Under **California Insurance Code (CIC) § 10169.5(a)(2)**, a health plan is legally prohibited from conditioning surgical approval on additional physical therapy once a member has completed a course of PT and a functional plateau is documented.
+3. **Plan Criteria Compliance:** The member fully met the standard conservative treatment requirements of HealthFirst Clinical Policy **CC-SPINE-2024**, including a completed PT course (>6 weeks), multi-agent pharmacotherapy (>4 weeks each), and a cervical epidural steroid injection.
+
+---
+
+### II. CLINICAL RECORD & EVIDENCE REVIEW
+
+#### 1. Presenting Diagnosis and Clinical History
+* **Symptomatology:** Intractable right-sided neck and arm pain radiating in a C7 dermatomal pattern. Baseline pain is documented as 7/10 at rest, causing substantial functional impairment.
+* **Neurological Examination (August 5, 2024):** 
+  * Objective right C7 dermatomal numbness.
+  * Diminished right triceps reflex (consistent with C7 radiculopathy).
+  * No bilateral motor/sensory deficits, no hyperreflexia, no positive Hoffman's sign, and no gait instability (absence of Upper Motor Neuron [UMN] signs).
+
+#### 2. Diagnostic Imaging (MRI, August 1, 2024)
+* **Findings:** Right-sided C6-C7 disc herniation resulting in mild spinal cord contact without measurable compression. No abnormal T2 spinal cord signal changes or myelomalacia are present. Mild right C7 foraminal stenosis.
+* **Imaging Consistency:** Structural pathology at the C6-C7 level directly correlates with the member's clinical presentation of right-sided C7 radicular pain, numbness, and triceps reflex depression.
+
+#### 3. Conservative Treatment Record
+The member's medical record documents an exhaustive, multi-modal conservative management timeline:
+* **Physical Therapy:** Completed **7 weeks (21 total sessions)** of supervised physical therapy directed at the cervical spine. The PT discharge summary explicitly states that a **functional plateau was reached**, with the patient's radicular symptoms remaining unchanged and showing zero improvement over the final 3 consecutive treatment sessions.
+* **Pharmacotherapy:** 
+  * *Pregabalin (Neuropathic Agent):* 150mg BID for **4 months** (provided only partial pain relief; radicular symptoms persisted).
+  * *Meloxicam (NSAID):* 15mg daily for **3 months** (inadequate relief).
+* **Interventional Therapy:** Right C7 epidural steroid injection performed on September 20, 2024. The member experienced brief, 30% pain improvement lasting only 3 weeks before symptoms returned to baseline.
+
+---
+
+### III. STEP-BY-STEP EVALUATION & HIERARCHY ANALYSIS
+
+Applying the mandated health plan evaluation framework under the **California Source Hierarchy of Authority** (State Law > Clinical Standards > Plan Criteria):
+
+#### Step 1: Procedural Adequacy and Defect Check (CHSC § 1374.31(b))
+* **Finding:** The initial denial notice dated October 20, 2024, met the procedural notice requirements of California Health & Safety Code (CHSC) § 1374.31(b). It cited the clinical criteria applied (HealthFirst CC-SPINE-2024), provided specific medical reasons for the denial (lack of myelopathy, lack of cord compression, and claimed lack of PT plateau), and detailed the member’s Independent Medical Review (IMR) rights. 
+* **Conclusion:** Procedurally adequate. The review proceeds to substantive clinical evaluation.
+
+#### Step 2: Diagnostic Classification (Myelopathy vs. Radiculopathy)
+* **Finding:** The initial reviewer denied the request in part because "imaging shows... mild cord contact but no measurable compression" and "no myelopathy findings on exam." 
+* **Clinical Synthesis:** 
+  * *Cervical Myelopathy* requires objective spinal cord compression with corresponding upper motor neuron signs (e.g., hyperreflexia, positive Hoffman's sign, gait disturbances) or MRI evidence of cord damage (myelomalacia). The member's exam was entirely negative for UMN signs, and the MRI showed no myelomalacia or cord compression.
+  * *Cervical Radiculopathy* is defined as nerve root compression with corresponding dermatomal sensory, motor, or reflex changes (unilateral numbness, depressed triceps reflex, right foraminal stenosis).
+* **Conclusion:** The member's diagnostic classification is **Cervical Radiculopathy**. The plan’s initial reviewer committed a clinical error by using the absence of myelopathy as a basis for denial, as ACDF is an established and primary treatment for persistent radiculopathy when standard conservative criteria are met.
+
+#### Step 3: Plan Criteria Analysis (HealthFirst CC-SPINE-2024, Section 2)
+To obtain authorization for CPT 22551 for cervical radiculopathy, the member must meet sections 2.1, 2.2, and 2.3 of the HealthFirst clinical coverage criteria:
+* **Section 2.1 (Diagnosis Requirement):** Met. Confirmed diagnosis of cervical radiculopathy based on a matching C6-C7 herniation with foraminal stenosis on MRI and right C7 dermatomal sensory/reflex deficits on neurological exam.
+* **Section 2.2 (Conservative Treatment Requirement):**
+  * *(a) Physical Therapy:* Requires a minimum of 6 weeks of supervised PT. **Met.** The member completed 7 weeks (21 sessions).
+  * *(b) Pharmacotherapy:* Requires a trial of at least two covered agents for a minimum of 4 weeks each. **Met.** The member completed a 4-month trial of Pregabalin 150mg BID and a 3-month trial of Meloxicam 15mg.
+  * *(c) Interventional Treatment:* Requires at least one cervical epidural steroid injection. **Met.** The member underwent a right C7 epidural steroid injection on September 20, 2024.
+* **Section 2.3 (Imaging Requirement):** Met. Current MRI (August 1, 2024) demonstrates structural pathology (C6-C7 herniation and right foraminal stenosis) directly correlating with symptoms.
+* **Conclusion:** The member satisfied **100% of the plan's medical necessity criteria**. The initial reviewer's assertion that the physical therapy trial was incomplete is directly refuted by the structured clinical record, which documents 7 weeks of completed PT and a formal discharge due to reaching a functional plateau.
+
+#### Step 4: Statutory Override Analysis (CIC § 10169.5)
+* **Finding:** The initial denial was based on the premise that the member must continue physical therapy because they had "not yet completed to functional plateau." 
+* **Statutory Application:** Under **California Insurance Code § 10169.5(a)(2)**, a health plan *shall not* condition approval of a surgical procedure on the completion of physical therapy if "the member has completed a course of physical therapy and the treating physician [or therapist] documents that the member reached a functional plateau without adequate resolution of symptoms."
+* **Conclusion:** The physical therapist's discharge summary explicitly documented a functional plateau, noting zero improvement over the final 3 sessions. Under California law, the plan's insistence on further physical therapy is legally unenforceable and invalid. The statutory override protects the member from being forced to undergo futile conservative therapy.
+
+#### Step 5: Clinical Standards Review (AANS/CNS Guidelines & AO Spine Standards)
+* **Finding:** Under CHSC § 1374.32(b), the standard of review for medical necessity is governed by generally accepted clinical standards of medical practice, which supersede restrictive internal plan guidelines.
+* **Clinical Standard Application:** 
+  * The **AANS/CNS Joint Guidelines (2023)** and **North American Spine Society (NASS) Guidelines (2020)** establish that surgical decompression (ACDF, CPT 22551) is highly indicated for patients with persistent, medically refractory cervical radiculopathy who have failed 6 to 12 weeks of comprehensive conservative treatment.
+  * The **AO Spine Guidelines (2021)** note that extending conservative therapy beyond 6 to 8 weeks in a patient who has reached a documented functional plateau with persistent severe pain (7/10) provides no therapeutic benefit and delays necessary care, increasing the risk of chronic neuropathic pain.
+* **Conclusion:** Performing a single-level ACDF C6-C7 is medically necessary and strongly indicated under Tier 2 of the AANS/CNS 2023 clinical standards.
+
+---
+
+### IV. DISPOSITION DETERMINATION
+Pursuant to the **HealthFirst CC-SPINE-2024** clinical policy, the **California Insurance Code § 10169.5**, and generally accepted clinical guidelines (**AANS/CNS 2023**), the initial denial is **OVERTURNED**. 
+
+The requested surgical procedure is approved as clinically indicated and medically necessary.
+
+#### Authorization Details:
+* **Approved Procedure:** CPT 22551 (ACDF C6-C7, one level)
+* **Provider/Facility:** Dr. Karen Liu, MD — Stanford Medical Center
+* **Authorization Validity Period:** 90 Days from the date of this letter (Valid through February 10, 2025)
+* **Plan Criteria Applied:** HealthFirst CC-SPINE-2024
+* **Governing Statutes:** California Insurance Code § 10169.5; California Health & Safety Code § 1374.32
+
+---
+**Reviewer Signature:**  
+*Expert Health Plan Appeals Reviewer*  
+*Board Certified Medical Director, Neurological & Spine Surgery*  
+*HealthFirst Appeal & Grievance Division*

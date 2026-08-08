@@ -1,0 +1,135 @@
+CASE: pa_2024_d001
+SYSTEM: PLANSOLVE
+DISPOSITION: REMAND
+GT: REMAND
+CORRECT: True
+ELAPSED: 62.2s
+========================================================================
+
+# HEALTH PLAN APPEALS & GRIEVANCES RESOLUTION
+**Mailing Address:** P.O. Box 9000, San Francisco, CA 94120  
+**Clinical Appeals Unit | Independent Review Division**
+
+---
+
+### FORMAL APPEAL DETERMINATION
+
+| Case Information | |
+| :--- | :--- |
+| **Case ID:** | PA-2024-D001 |
+| **Member Name:** | Sandra White |
+| **Member ID:** | M-334466 |
+| **Plan Type:** | HealthFirst PPO Gold — Group Plan 77441 (Plan Year: 2024) |
+| **State of Residency:** | California |
+| **Coverage Effective Date:** | November 1, 2020 |
+| **Requested Procedure:** | Anterior Cervical Discectomy and Fusion (ACDF) C6-C7, One Level (CPT 22551) |
+| **Requesting Physician:** | Dr. Paul Lee, MD — Neurosurgery |
+| **Facility:** | UCLA Medical Center |
+| **Initial Denial Date:** | October 5, 2024 |
+| **Initial Reviewer:** | Dr. Alan Foster, MD |
+| **DISPOSITION:** | **REMANDED TO THE PLAN WITH DIRECTIVE** |
+
+---
+
+### I. EXECUTIVE SUMMARY & DISPOSITION
+
+As an expert health plan appeals reviewer, I have evaluated the prior authorization appeal for CPT 22551 (ACDF C6-C7) requested on behalf of member Sandra White. 
+
+Applying the **Governing Hierarchy of Authority** (California State Law & Regulations > Generally Accepted Clinical Standards > HealthFirst Plan Clinical Criteria), the initial denial issued on October 5, 2024, is **legally defective** under California Health & Safety Code (CHSC) § 1374.31(b) due to critical procedural omissions, including the failure to cite specific clinical criteria and the complete omission of the mandatory Independent Medical Review (IMR) notice. 
+
+Under California law, a defective notice is treated as if no denial was issued for purposes of appeal timelines. However, because the current clinical record is insufficient to establish medical necessity for immediate surgical intervention (representing stable radiculopathy rather than myelopathy, with incomplete conservative trials), an outright Overturn is not clinically warranted. 
+
+Therefore, the final disposition of this appeal is a **REMAND** to the plan. The plan is directed to vacate the defective denial, outreach to the provider to secure any unsubmitted clinical records, and—if medical necessity is still not met—issue a procedurally compliant determination that fully satisfies California statutory notice requirements.
+
+---
+
+### II. GOVERNING HIERARCHY OF AUTHORITY
+
+In resolving conflicts between clinical, administrative, and legal sources, the following hierarchy is strictly applied:
+1. **California State Law & Regulations** (California Insurance Code [CIC], California Health & Safety Code [CHSC], Department of Managed Health Care [DMHC] All-Plan Letters [APL]) — *Highest Authority*
+2. **Generally Accepted Clinical Standards** (AANS/CNS Guidelines, AO Spine Guidelines, NASS Guidelines) — *Intermediate Authority*
+3. **HealthFirst Plan Clinical Criteria** (Document: CC-SPINE-2024) — *Lowest Authority*
+
+Where the plan's internal clinical criteria are more restrictive than California law or generally accepted clinical standards, the plan criteria are superseded and cannot be the sole basis for denial.
+
+---
+
+### III. STEP-BY-STEP EVALUATION
+
+#### Step 1: Procedural Adequacy & Defect Check
+*   **Objective:** Review the initial denial notice dated October 5, 2024, for statutory compliance under CHSC § 1374.31(b).
+*   **Finding:** **Negative Finding (Procedural Defect).** 
+    The initial denial notice issued by Dr. Alan Foster, MD, on October 5, 2024, is legally defective under **CHSC § 1374.31(b)**. Specifically, the notice:
+    1. Failed to cite the exact clinical coverage criteria applied (containing only a generic reference to "plan criteria" without document titles, section numbers, or specific criteria).
+    2. Failed to articulate the specific clinical reason for the denial in relation to the member's clinical presentation.
+    3. Failed to include the mandatory **Independent Medical Review (IMR)** rights and application forms required by California law.
+    
+    Under CHSC § 1374.31(b), a denial notice that fails to specify the clinical criteria applied or the specific clinical reason is defective and must be treated as if no denial was issued. The member's appeal basis is fully sustained on this point: the member cannot meaningfully appeal without knowing which specific criteria failed.
+
+#### Step 2: Diagnostic Classification & Severity Assessment
+*   **Objective:** Analyze the clinical documentation and MRI findings to distinguish between cervical radiculopathy and cervical myelopathy, and check for the presence of myelomalacia.
+*   **Finding:** **Negative Finding (Radiculopathy Classification).**
+    The clinical record supports a diagnostic classification of **cervical radiculopathy**, not cervical myelopathy.
+    *   **Imaging (MRI 2024-08-15):** Shows a C6-C7 disc herniation causing moderate right C7 nerve root compression. Crucially, the MRI notes *no cord contact* and *no myelomalacia* (no T2-weighted cord signal change).
+    *   **Neurological Examination (2024-08-20):** Demonstrates right C7 dermatomal numbness, right tricep motor weakness of 4/5, and a diminished tricep reflex. These are classic lower motor neuron signs indicating single nerve root compression (radiculopathy).
+    *   **Myelopathic Check:** There is no evidence of upper motor neuron signs (e.g., bilateral symptoms, hyperreflexia, positive Hoffman sign, clonus, gait disturbance, or bowel/bladder dysfunction). Thus, the member does not have cervical myelopathy.
+
+#### Step 3: Plan-Level Criteria & Exceptions Review
+*   **Objective:** Evaluate the member's clinical trial of conservative therapy against HealthFirst Clinical Coverage Criteria CC-SPINE-2024 Section 2.2 and the Section 2.2(A) Myelopathy Exception.
+*   **Finding:** **Negative Finding (Criteria Not Met; Exception Inapplicable).**
+    *   **Standard Pathway (Section 2.2):**
+        *   *Physical Therapy (2.2a):* Requires a minimum of 6 weeks of supervised PT. The clinical record shows the member completed only 4 weeks (12 sessions).
+        *   *Pharmacotherapy (2.2b):* Requires a trial of at least two agents for a minimum of 4 weeks each. The member only trialed one agent (Ibuprofen 800mg TID for 6 weeks, yielding partial relief). No second agent (such as muscle relaxants, gabapentin, or oral steroids) was trialed.
+        *   *Interventional Treatment (2.2c):* Requires at least one injection (epidural steroid injection, medial branch block, or trigger point series). The member has had *no* interventional treatments (documented as null).
+    *   **Myelopathy Exception (Section 2.2A):** The member does not qualify for this exception because myelopathy is not the primary diagnosis, nor is there any documented spinal cord compression or risk of neurological deterioration from interventional treatments.
+    *   **Functional Plateau:** While the member claims a "functional plateau," the physical therapy discharge summary does not use that language, and there is no corroborating documentation from the physical therapist or physician defining a functional plateau as required under Section 2.2.
+
+#### Step 4: Statutory Override & Regulatory Compliance Review
+*   **Objective:** Apply California statutory protections regarding mandatory conservative therapy requirements under CIC § 10169.5 and DMHC APL 22-014.
+*   **Finding:** **Negative Finding (No Statutory Overrides Apply).**
+    *   **CIC § 10169.5:** Physical therapy requirements cannot be mechanically applied if there is objective evidence of structural neurological compromise that PT cannot address, or if a functional plateau is documented. 
+        *   Here, there is *no* cord compression or myelomalacia (the structural compromise is nerve root compression, which clinically can respond to conservative management).
+        *   The treating physician has *not* documented that PT is contraindicated or unlikely to benefit the member.
+        *   No formal functional plateau was documented by the physical therapist or physician under the statutory definition in § 10169.5(b).
+    *   **DMHC APL 22-014:** This protective waiver applies specifically to time-sensitive neurological conditions with progressive pathology (e.g., myelomalacia with cord compression). Because the member's MRI confirms no cord contact and no myelomalacia, the progressive pathology protections of APL 22-014 do not apply to bypass conservative therapy.
+
+#### Step 5: Generally Accepted Clinical Standards Review
+*   **Objective:** Evaluate the medical necessity of the ACDF procedure under clinical guidelines from AANS/CNS (2023), NASS (2020), and AO Spine (2021) as mandated by CHSC § 1374.32(b).
+*   **Finding:** **Negative Finding (Surgical Criteria Not Met under Clinical Standards).**
+    *   Under **AANS/CNS (2023)** and **AO Spine (2021)** guidelines, immediate surgical intervention without exhausting conservative therapy is a **Tier 1 (Strong Indication)** only for moderate-to-severe myelopathy, progressive severe motor deficits, or myelomalacia. Sandra White has stable radiculopathy with mild tricep weakness (4/5) and no cord involvement.
+    *   For stable cervical radiculopathy, **NASS (2020)** guidelines establish that surgical intervention (ACDF) is a **Tier 2 (Reasonable Indication)** only *after* persistent symptoms fail to respond to a full 6 to 12 weeks of structured conservative care (including physical therapy, multi-agent pharmacotherapy, and interventional blocks/injections). 
+    *   Because the member has only completed 4 weeks of PT, 1 medication, and 0 injections, proceeding directly to surgery does not meet generally accepted clinical standards at this time. Conservative management remains the clinically accepted standard of care.
+
+---
+
+### IV. DISPOSITION RESOLUTION MATRIX
+
+Applying the formal **Disposition Decision Tree**:
+1. **Step 1 (Procedural Adequacy):** Defective notice identified under CHSC § 1374.31(b).
+2. **Sufficient Clinical File Check:** The clinical file is *insufficient* to establish medical necessity for immediate surgery under Step 2 (Radiculopathy), Step 3 (Plan Criteria Not Met), Step 4 (No Statutory Overrides), and Step 5 (Does not meet Tier 1 clinical standards).
+3. **Outcome:** Because the notice was defective, but the current clinical file does not support medical necessity for surgery, the correct disposition is **REMAND** with directives to the plan to correct both the procedural and clinical information gaps.
+
+---
+
+### V. BINDING DIRECTIVES TO THE PLAN
+
+HealthFirst is hereby ordered to take the following corrective actions within **five (5) business days** of receipt of this determination:
+
+1.  **Vacate the Denial:** Immediately vacate the defective initial denial notice dated October 5, 2024.
+2.  **Provider Outreach & Records Acquisition:** Contact Dr. Paul Lee’s office and the physical therapy provider to request and obtain any additional clinical documentation that may not have been submitted in the initial review. This must include:
+    *   Any documentation of a second pharmacotherapy agent trial.
+    *   Any history of cervical injections or interventional blocks.
+    *   Any physical therapist or physician documentation demonstrating a "functional plateau" under CIC § 10169.5.
+3.  **Issue a Legally Compliant Decision:**
+    *   If the acquired records demonstrate that the conservative treatment requirements are met, or that a statutory exception applies, the plan shall **approve** CPT 22551.
+    *   If the records confirm conservative treatment remains incomplete and no exceptions apply, the plan may issue a new denial. However, this new notice **must** be procedurally compliant under CHSC § 1374.31(b) by:
+        *   Citing the exact document and section of the criteria applied (**HealthFirst CC-SPINE-2024, Section 2.2**).
+        *   Articulating the precise clinical omissions (e.g., specifying the exact missing weeks of PT, the lack of a second medication trial, and the lack of an injection).
+        *   Including the mandatory **DMHC Independent Medical Review (IMR)** notice and application forms.
+
+Failure to comply with these directives within the statutory timeline will result in the referral of this matter to the Department of Managed Health Care (DMHC) for administrative enforcement and potential statutory penalties.
+
+---
+**Reviewer Signature:**  
+*Clinical Appeals Unit | Independent Review Division*  
+*Date of Determination: October 24, 2024*

@@ -1,0 +1,98 @@
+CASE: pa_2024_a002
+SYSTEM: PLANSOLVE
+DISPOSITION: OVERTURN
+GT: OVERTURN
+CORRECT: True
+ELAPSED: 45.6s
+========================================================================
+
+# HEALTH INSURANCE APPEAL DETERMINATION
+
+**CASE ID:** PA-2024-A002  
+**MEMBER:** Marcus Webb  
+**AGE:** 47  
+**PLAN:** HealthFirst PPO Gold — Group Plan 77441  
+**STATE:** California  
+**PLAN YEAR:** 2024  
+**REQUESTED PROCEDURE:** Anterior Cervical Discectomy and Fusion (ACDF) C6-C7, One Level (CPT 22551)  
+**REQUESTING PHYSICIAN:** Dr. Sarah Chen, MD — Spine Surgery, UCSF Medical Center  
+**FACILITY:** UCSF Medical Center  
+**INITIAL DENIAL DATE:** November 5, 2024  
+**INITIAL REVIEWER:** Dr. Patricia Huang, MD  
+**DENIAL REASON CODE:** MED-003 (Incomplete Conservative Therapy / Myelopathy Exception Discrepancy)  
+
+---
+
+## CLINICAL DETERMINATION: OVERTURNED
+
+The denial of prior authorization for CPT 22551 (ACDF C6-C7, one level) is **OVERTURNED**. HealthFirst Health Plan is directed to approve and authorize the requested surgical procedure immediately.
+
+---
+
+## 1. PROCEDURAL ADEQUACY & DEFECT CHECK (CHSC § 1374.31(b))
+The initial denial notice issued by Dr. Patricia Huang on November 5, 2024, was evaluated for compliance with California Health & Safety Code (CHSC) § 1374.31(b). 
+* **Findings:** The denial notice cited the specific clinical policy ("CC-SPINE-2024"), provided a clinical rationale (completion of only 4 weeks of physical therapy instead of the standard 6 weeks, and failure to meet the primary diagnosis billing requirement for the myelopathy exception), and enclosed mandatory Independent Medical Review (IMR) notification rights.
+* **Conclusion:** The denial notice is procedurally adequate. The review proceeds to clinical and regulatory evaluation (Step 2).
+
+---
+
+## 2. PLAN CRITERIA EVALUATION (HealthFirst CC-SPINE-2024)
+Under the plan’s clinical coverage policy **CC-SPINE-2024**, standard authorization for cervical spine fusion requires 6 weeks of physical therapy (Section 2.2(a)), trials of two pharmacotherapy agents for 4 weeks each (Section 2.2(b)), and at least one interventional procedure (Section 2.2(c)). 
+
+The plan provides an exception to these conservative measures under **Exception 2.2(A) (Myelopathy Pathway)**, which reduces the physical therapy requirement to 4 weeks and waives the interventional treatment requirement if a risk of deterioration is documented. However, the plan's policy states: *"The myelopathy exception applies only when myelopathy is the PRIMARY diagnosis."*
+
+* **Plan's Application:** The initial reviewer, Dr. Huang, denied the request because the treating physician utilized the ICD-10 billing code **M47.812** ("cervical spondylosis with radiculopathy") on the physical therapy referral and administrative forms. Because the administrative primary diagnosis code reflected radiculopathy rather than myelopathy, the plan strictly applied the 6-week conservative therapy standard and denied the request since only 4 weeks of physical therapy were completed.
+* **Clinical Appeal Review Finding:** While the initial reviewer applied the literal, highly restrictive administrative text of the plan’s internal policy, this application ignored the clinical reality documented in the narrative medical records. The treating physician’s clinical notes from July 1, 2024, onward consistently describe a clinical presentation of **cervical spondylotic myelopathy**, which was objectively confirmed via magnetic resonance imaging (MRI) on July 10, 2024. 
+
+---
+
+## 3. STATE REGULATORY OVERRIDES (CIC § 10169.5 & DMHC APL 22-014)
+Under the Hierarchy of Authority governing health plan reviews in California, state statutory and regulatory provisions represent the highest level of authority and strictly supersede more restrictive plan criteria. Two critical regulatory provisions override the plan's denial:
+
+### A. California Insurance Code (CIC) § 10169.5 — Physical Therapy Waiver
+CIC § 10169.5(a) mandates that a health insurer **shall not** condition the approval of a surgical procedure on the completion of physical therapy if any of the following apply:
+1. **Contraindication (Subdivision (a)(1)):** Dr. Chen documented in writing that physical therapy was halted after 4 weeks (12 sessions) because the July 10, 2024, MRI confirmed myelomalacia. Dr. Chen explicitly stated that further physical therapy was contraindicated due to the risk of irreversible spinal cord damage.
+2. **Structural Neurological Compromise (Subdivision (a)(3)):** The member has objective clinical and imaging evidence of structural neurological compromise that physical therapy cannot address—specifically, a C6-C7 disc herniation with moderate cord compression and early myelomalacia (T2 signal change within the cord).
+
+### B. DMHC All-Plan Letter (APL) 22-014 — Time-Sensitive Neurological Conditions
+APL 22-014 establishes that cervical myelopathy with objective cord compression and myelomalacia on MRI represents a time-sensitive condition with potential for irreversible harm. Under APL 22-014:
+* Plans **shall not** require a full course of conservative treatment (including physical therapy and interventional procedures) when imaging demonstrates progressive pathology (such as cord signal change or myelomalacia), the physician documents conservative failure, and surgery is indicated under generally accepted guidelines.
+* The presence of **myelomalacia on MRI** is explicitly identified by the State of California as a finding that mandates a waiver of standard conservative treatment requirements.
+
+Because the member possesses documented, objective T2-weighted cord signal changes (early myelomalacia) and severe structural compression, California law **prohibits** HealthFirst from mechanically enforcing its 6-week physical therapy or interventional treatment requirements.
+
+---
+
+## 4. GENERALLY ACCEPTED CLINICAL STANDARDS (AANS/CNS 2023, AO Spine 2021)
+Pursuant to California Health & Safety Code (CHSC) § 1374.32(b), medical necessity must be determined in accordance with generally accepted standards of medical practice, which supersede restrictive internal plan criteria.
+
+### A. Clinical Presentation vs. Payer Category Error
+The clinical record establishes that Marcus Webb presents with classic, objective symptoms of **Cervical Spondylotic Myelopathy**:
+* **Bilateral upper extremity motor deficits:** 3/5 grip strength bilateral.
+* **Upper Motor Neuron (UMN) signs:** Positive Hoffman sign bilaterally and hyperreflexia in the bilateral upper extremities.
+* **Gait disturbance:** Impaired tandem gait.
+* **Objective Imaging:** C6-C7 disc herniation causing moderate spinal cord compression with T2 signal change within the cord, consistent with early **myelomalacia**.
+
+To apply a 6-week conservative physical therapy requirement to this patient based on an administrative billing code (M47.812) is a clinical category error. The evidence base supporting mandatory physical therapy trials is derived from *radiculopathy* studies, not moderate-to-severe *myelopathy*. 
+
+### B. National Spine Guidelines
+* **AANS/CNS Joint Guidelines (2023):** Moderate-to-severe cervical myelopathy with objective spinal cord compression and myelomalacia on MRI constitutes a **Tier 1 — Strong Indication** for surgical decompression. There is no evidence-based support for delaying surgical decompression to undergo physical therapy in the presence of myelomalacia and upper motor neuron signs.
+* **AO Spine Clinical Practice Guidelines (2021):** These guidelines explicitly state: *"There is no high-quality evidence supporting a mandatory course of physical therapy prior to surgical intervention for patients with moderate to severe cervical myelopathy. Delaying surgery in such patients to complete a physical therapy trial is not supported by the evidence and may result in permanent neurological deterioration."*
+* **NASS Guidelines (2020):** While conservative care may be trialed in very mild, stable myelopathy, surgical decompression is recommended as the primary treatment for moderate-to-severe myelopathy. Marcus Webb's 3/5 grip weakness and impaired tandem gait place him firmly in the moderate-to-severe category, rendering extended conservative therapy clinically inappropriate.
+
+The clinical standards established by AANS/CNS, AO Spine, and NASS all dictate that surgical decompression (ACDF C6-C7) is the standard of care. Requiring further conservative therapy poses a severe, unwarranted risk of permanent, irreversible neurological deficit.
+
+---
+
+## FINAL DECISION SUMMARY
+1. **Procedural Review:** The initial denial notice was procedurally adequate.
+2. **Plan Criteria:** The plan's mechanical application of its internal physical therapy requirement based on an administrative billing code, while ignoring consistent clinical narrative documentation of myelopathy, represents an inappropriate denial of the Myelopathy Exception.
+3. **State Law Overrides:** **CIC § 10169.5** and **DMHC APL 22-014** legally override the plan’s physical therapy and conservative treatment criteria due to the objective presence of C6-C7 cord compression, bilateral upper motor neuron signs, and MRI-documented myelomalacia.
+4. **Clinical Standards:** Under **AANS/CNS 2023** and **AO Spine 2021** clinical guidelines, the member meets Tier 1 criteria for surgical decompression. Delaying surgery for physical therapy is medically contraindicated.
+
+Therefore, the health plan's initial decision is **OVERTURNED**. Prior authorization for **CPT code 22551 (ACDF C6-C7, one level)** is **APPROVED** for the requested date of service.
+
+**Authorized by:**  
+*California-Licensed Physician Reviewer*  
+*Board-Certified in Neurological Surgery / Spine Surgery*  
+*Date of Determination: November 12, 2024*

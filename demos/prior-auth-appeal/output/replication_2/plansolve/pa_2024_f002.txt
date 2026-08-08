@@ -1,0 +1,102 @@
+CASE: pa_2024_f002
+SYSTEM: PLANSOLVE
+DISPOSITION: OVERTURN
+GT: OVERTURN
+CORRECT: True
+ELAPSED: 50.8s
+========================================================================
+
+# PRIOR AUTHORIZATION APPEAL DETERMINATION
+
+**Date:** October 24, 2024  
+**Case ID:** PA-2024-F002  
+**Member:** Steven Clark  
+**Age:** 46  
+**Plan:** HealthFirst PPO Gold — Group Plan 77441  
+**State of Jurisdiction:** California  
+**Coverage Effective Date:** February 1, 2022  
+**Plan Year:** 2024  
+
+**Proposed Procedure:** CPT 22551 — Anterior Cervical Discectomy and Fusion (ACDF), C5-C6, Single Level  
+**Requesting Provider:** Dr. Sarah Nguyen, MD — Spine Surgery  
+**Facility:** Cedars-Sinai Medical Center  
+
+---
+
+### DETERMINATION: OVERTURN INITIAL DENIAL
+**The initial denial of coverage for CPT 22551 (ACDF C5-C6) is hereby OVERTURNED. HealthFirst is directed to authorize the requested procedure immediately.**
+
+---
+
+### GOVERNING HIERARCHY OF AUTHORITY
+In accordance with California regulatory mandates, this review applies the following strict hierarchy of authority to resolve conflicts between plan criteria and clinical guidelines:
+1. **State Law and Regulatory Mandates:** California Health & Safety Code (CHSC) and California Insurance Code (CIC) — *Highest Authority*
+2. **Generally Accepted Clinical Standards:** AANS/CNS 2023 Guidelines, NASS 2020 Guidelines, and AO Spine 2021 Guidelines — *Intermediate Authority*
+3. **Plan Coverage Criteria:** HealthFirst CC-SPINE-2024 — *Lowest Authority*
+
+---
+
+### REVIEW & EVALUATION PATHWAY
+
+#### Step 1: Procedural Adequacy and Defect Review (CHSC § 1374.31(b))
+The initial denial notice issued on October 10, 2024, by Dr. Patricia Huang, MD, cited reason code **MED-003**, pointing exclusively to "conflicting physical therapy documentation" between Riverside PT (6 weeks) and Coastal PT (4 weeks in initial submission). 
+
+*   **Finding of Procedural Defect:** Under **CHSC § 1374.31(b)**, a denial notice is legally defective if it fails to specify the precise clinical coverage criteria applied (such as failing to cite *HealthFirst CC-SPINE-2024 Section 2.2*) or fails to provide the specific clinical reasons for requiring additional PT verification in the context of the member’s documented neurological deficit. 
+*   **Impact:** Because the denial was issued on purely administrative/verification grounds without citing the governing medical policy or detailing the clinical standard, the denial notice is **procedurally defective**. Under California law, this constitutes primary grounds for an overturn, treating the service as if no valid denial was issued. However, to ensure clinical safety and standard compliance, a full diagnostic and clinical review is executed below.
+
+#### Step 2: Diagnostic Classification and Severity Assessment
+A thorough review of the medical record is required to classify the member's condition as either Radiculopathy or Myelopathy.
+*   **Clinical Presentation:** The member presents with cervical pain, right C6 dermatomal numbness, bicep weakness (4/5 right), and an absent right bicep reflex. Spurling's maneuver is positive on the right.
+*   **Imaging (MRI dated 2024-08-15):** Demonstrates a large C5-C6 disc herniation causing severe right C6 nerve root compression and foraminal stenosis. Crucially, there is no evidence of spinal cord compression, hyperreflexia, bilateral upper extremity deficits, Hoffman's sign, or cord signal changes (myelomalacia).
+*   **Classification:** The member's clinical presentation and imaging confirm a primary diagnosis of **Cervical Radiculopathy C5-C6 with functional impairment**. There is no clinical or radiological evidence of Cervical Myelopathy. 
+*   **Path Selection:** Because the pathology is pure radiculopathy, we skip standard myelopathy pathways and proceed directly to **Step 5 (Standard Plan Criteria Track)**.
+
+#### Step 3 & Step 4: Statutory and Clinical Standard Alignment
+*(Note: Step 3 and Step 4 statutory overrides for myelomalacia/myelopathy under DMHC APL 22-014 do not apply to this pure radiculopathy case. However, the standards for radiculopathy under CIC § 10169.5 and AANS/CNS clinical guidelines are assessed below).*
+*   Under **CIC § 10169.5(a)(2)**, a health plan cannot mechanically enforce a physical therapy duration requirement if the member has completed a course of therapy and the provider documents that the member reached a **functional plateau** without adequate symptom resolution.
+*   Under **AANS/CNS 2023 Guidelines (Tier 2 Surgical Indications)**, surgery is highly recommended and clinically appropriate for patients with cervical radiculopathy who exhibit persistent objective neurological deficits (such as 4/5 motor weakness and reflex loss) and have failed a 6-to-12-week course of conservative management.
+
+#### Step 5: Plan Criteria and PT Verification Analysis (CC-SPINE-2024)
+To qualify for surgical authorization under the standard radiculopathy pathway of **HealthFirst CC-SPINE-2024 Section 2.2**, the member must satisfy criteria for conservative therapy, pharmacotherapy, interventional treatment, and imaging. 
+
+The member's medical record has been fully reconciled against these requirements:
+
+1.  **Physical Therapy Requirement (Section 2.2(a)):** 
+    *   *Initial Plan Finding:* The plan claimed the duration was unverifiable due to receiving only 4 weeks of records from Coastal PT, despite a claim of 10 weeks.
+    *   *Appeal Reconciliation:* The member has submitted the complete, certified clinical records for both PT courses.
+        *   **Riverside Physical Therapy:** Completed 6 weeks (18 sessions) from April 1, 2024, to May 10, 2024. A functional plateau was formally documented, noting persistent radicular symptoms.
+        *   **Coastal Physical Therapy:** Completed 6 weeks (18 sessions) from June 1, 2024, to July 12, 2024. The complete records (including the previously missing weeks 5 and 6) are now verified. The treating therapist formally documented a functional plateau with no improvement in the member's neurological deficit.
+    *   *Resolution:* The member completed a total of **12 weeks (36 sessions) of supervised physical therapy**, with both providers documenting a formal **functional plateau** (meeting the clinical definition of <10% improvement over 3 sessions / maximum therapeutic benefit reached). This fully satisfies Section 2.2(a) and matches the statutory protections of **CIC § 10169.5(a)(2)**.
+
+2.  **Pharmacotherapy Requirement (Section 2.2(b)):**
+    *   The member completed a 5-month trial of **Gabapentin 600mg TID** (neuropathic agent) with only partial relief.
+    *   The member completed a 3-month trial of **Duloxetine 60mg daily** (neuropathic agent) with partial neuropathic benefit.
+    *   *Resolution:* Both trials exceeded the plan's 4-week minimum requirement for two agents, satisfying Section 2.2(b).
+
+3.  **Interventional Treatment Requirement (Section 2.2(c)):**
+    *   The member underwent a **right C6 epidural steroid injection** on August 28, 2024, which provided 60% temporary relief before symptoms returned to baseline within 3 weeks.
+    *   *Resolution:* This satisfies the requirement for at least one interventional procedure under Section 2.2(c).
+
+4.  **Imaging & Documentation Requirements (Section 2.1, 2.3, & 2.4):**
+    *   The MRI dated August 15, 2024 (within 6 months) demonstrates severe right C6 nerve root compression correlating perfectly with the member's right C6 radiculopathy and bicep weakness.
+    *   Dr. Nguyen has provided clinical documentation outlining the surgical risks, functional limitations, and clinical rationale for C5-C6 decompression and fusion.
+
+---
+
+### CLINICAL & LEGAL SUMMARY
+
+The plan's initial denial was based solely on an administrative document discrepancy regarding physical therapy duration. With the submission of the final, complete records from Coastal Physical Therapy, this discrepancy has been fully resolved. 
+
+The clinical record establishes that Mr. Clark has a severe, structurally correlated cervical radiculopathy with objective neurological deficits (motor weakness and reflex loss) that have failed to improve despite an exhaustive, 12-week course of physical therapy, multiple long-term pharmacotherapy trials, and an epidural steroid injection.
+
+To delay surgical decompression in the face of persistent 4/5 motor weakness and documented functional plateaus violates:
+1.  **HealthFirst Plan Criteria (CC-SPINE-2024 Section 2.2):** All conservative, pharmacotherapy, interventional, and imaging criteria are now fully verified and met.
+2.  **California Insurance Code § 10169.5:** Mechanical denial based on PT duration is unlawful when a functional plateau has been verified by the treating providers.
+3.  **Generally Accepted Standards of Medical Practice (AANS/CNS 2023 / CHSC § 1374.32(b)):** Standard neurosurgical practice dictates surgical intervention (ACDF) for persistent, structurally compromised radiculopathy with progressive/stable motor deficit after conservative failure. Delaying surgery risks permanent neurological damage to the C6 nerve root.
+
+### FINAL DISPOSITION
+The decision of the health plan is **OVERTURNED**. Approval for CPT code 22551 at Cedars-Sinai Medical Center, as requested by Dr. Sarah Nguyen, MD, is **AUTHORIZED**.
+
+**Reviewer:**  
+Health Plan Appeals Resolution Committee  
+*Authorized Signature in accordance with California DMHC & CDI Regulations*

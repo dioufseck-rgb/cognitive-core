@@ -1,0 +1,70 @@
+CASE: pa_2024_d001
+SYSTEM: REACT
+DISPOSITION: OVERTURN
+GT: REMAND
+CORRECT: False
+ELAPSED: 56.3s
+========================================================================
+
+## HealthFirst PPO Gold — Prior Authorization Appeal Determination
+
+**Case ID:** PA-2024-D001
+**Member:** Sandra White, M-334466, 44 years old
+**Procedure:** CPT 22551 (ACDF C6-C7, one level)
+**Requested By:** Dr. Paul Lee, MD (Neurosurgery)
+**Date of Denial:** 2024-10-05
+**Reviewer:** Dr. Alan Foster, MD (Expert Health Plan Appeals Reviewer)
+**Appeal Determination Date:** 2024-11-20
+
+---
+
+### DISPOSITION: OVERTURNED
+
+---
+
+### WARRANT:
+
+The denial for prior authorization of CPT 22551 for member Sandra White is **OVERTURNED** based on significant procedural defects in the initial denial notice, which constitute a direct violation of California state law.
+
+**1. Procedural Defect (State Law Violation):**
+California Health & Safety Code (CHSC) § 1374.31(b) mandates that when a health plan issues a denial based on medical necessity, the written notice *shall* include: (1) the specific criteria applied, (2) the specific clinical reason for the denial, and (3) notice of Independent Medical Review (IMR) rights. Furthermore, CHSC § 1374.31(b) explicitly states that "A denial notice that fails to specify the clinical criteria applied or the specific clinical reason for the denial is DEFECTIVE and shall be treated as if no denial was issued for purposes of appeal timelines."
+
+In this case:
+*   The denial notice provided only a "Generic reference to plan criteria" and failed to cite specific section numbers or criteria (as noted in the "Denial" and "Procedural Defects" sections of the clinical record).
+*   The denial notice did not include an IMR notice (as noted in the "Denial" and "Procedural Defects" sections of the clinical record).
+*   The denial reason "Conservative treatment incomplete. Physical therapy and medication requirements not satisfied" lacks the specificity required by CHSC § 1374.31(b), particularly in the absence of cited plan criteria.
+
+These omissions render the denial notice procedurally defective under California law. A denial that fails to comply with state requirements for adequate notice and appeal rights cannot be upheld, as it obstructs the member's ability to meaningfully understand the basis of the denial and pursue their appeal rights. Therefore, the denial must be overturned on this procedural basis.
+
+**2. Clinical Review (For Context, Not Primary Driver for Overturn):**
+
+While the procedural defect is the sole basis for this overturn, a substantive review of the clinical information and plan criteria provides additional context:
+
+*   **Diagnosis and Presentation:** The member's presenting diagnosis is Cervical Radiculopathy C6-C7. The MRI findings show C6-C7 disc herniation and moderate right C7 nerve root compression, with **no cord contact and no myelomalacia**. The neurological exam reveals unilateral symptoms (right C7 dermatomal numbness, tricep weakness 4/5 right, tricep reflex diminished). This clinical picture consistently points to cervical radiculopathy, not myelopathy (refer to "DOMAIN KNOWLEDGE — CLASSIFICATION" and "CLINICAL REFERENCE SUMMARY, Section 1.1"). Consequently, specific state laws and plan exceptions related to myelopathy (e.g., DMHC APL 22-014, HealthFirst CC-SPINE-2024 Exception 2.2(A)) are not applicable to this case.
+
+*   **Plan Criteria (HealthFirst CC-SPINE-2024) - Conservative Treatment for Radiculopathy:**
+    *   **Physical Therapy (Section 2.2a):** The plan requires a "minimum 6 weeks of supervised physical therapy." The member completed 4 weeks (12 sessions). This requirement was not met.
+    *   **Pharmacotherapy (Section 2.2b):** The plan requires a "trial of at least two... for minimum 4 weeks each." The member received only one agent (Ibuprofen 800mg TID for 6 weeks). This requirement was not met.
+    *   **Interventional Treatment (Section 2.2c):** The plan requires "one of the following interventional treatments." The member had no documented interventional treatment. This requirement was not met.
+    *   **Conclusion:** Based on HealthFirst's stated criteria for radiculopathy, the member did not meet the conservative treatment requirements.
+
+*   **State Law (CIC § 10169.5) - Physical Therapy as Prerequisite:**
+    *   CIC § 10169.5(a)(2) states that a plan cannot condition approval on PT completion if the member reached a "functional plateau" as documented by the treating physician or physical therapist. While the member claims a functional plateau, the "PT discharge does not use that language," and the clinical record does not definitively establish a documented plateau by the therapist or physician at 4 weeks, according to the clinical standard definition ("<10% improvement over 3 sessions OR therapist documents maximum benefit reached" - CLINICAL REFERENCE SUMMARY, Section 5).
+    *   CIC § 10169.5(a)(3) states that PT cannot be required if there's "objective evidence of structural neurological compromise that physical therapy cannot address." Given the absence of cord contact or myelomalacia, this condition is not met for this radiculopathy case.
+
+*   **Clinical Standard (AANS/CNS, NASS, AO Spine) - Conservative Treatment for Radiculopathy:**
+    *   For cervical radiculopathy, clinical guidelines recommend "6-12 weeks conservative tx" before surgical consideration (CLINICAL REFERENCE SUMMARY, Section 3.1, Tier 2(b) and Section 4). The member's 4 weeks of PT and single pharmacotherapy agent would generally be considered insufficient by these standards for an elective radiculopathy case.
+
+**Conclusion on Medical Necessity:**
+While the plan's denial for incomplete conservative treatment appears to align with both its own criteria and generally accepted clinical standards for cervical radiculopathy, the foundational problem remains the legally non-compliant denial notice. The plan's substantive denial, even if it could potentially be supported by evidence, cannot stand due to its procedural inadequacy.
+
+### DISPOSITION RATIONALE:
+
+The denial is OVERTURNED solely due to the procedural non-compliance with CHSC § 1374.31(b). The plan failed to provide a denial notice that specifies the exact clinical criteria applied, the specific clinical reason for the denial, and the member's right to IMR. This procedural defect prevents a fair and transparent appeal process.
+
+The plan is directed to process the prior authorization request again, ensuring any subsequent denial notice fully complies with California Health & Safety Code § 1374.31(b) by specifying the exact clinical criteria applied (including section numbers), the specific clinical reason for the denial, and including the member's right to Independent Medical Review.
+
+---
+
+**Expert Health Plan Appeals Reviewer**
+Dr. Alan Foster, MD

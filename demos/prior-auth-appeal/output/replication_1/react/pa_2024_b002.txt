@@ -1,0 +1,138 @@
+CASE: pa_2024_b002
+SYSTEM: REACT
+DISPOSITION: OVERTURN
+GT: OVERTURN
+CORRECT: True
+ELAPSED: 29.4s
+========================================================================
+
+## APPEAL DETERMINATION: Prior Authorization for ACDF C6-C7
+
+**Case ID:** PA-2024-B002
+**Member:** Thomas Reed (M-667788)
+**Procedure:** Anterior Cervical Discectomy and Fusion (ACDF) C6-C7 (CPT 22551)
+**Requested By:** Dr. Karen Liu, MD
+**Original Denial Date:** 2024-10-20
+**Original Reviewer:** Dr. Patricia Huang, MD
+**Level of Review:** First-Level Appeal
+
+---
+
+**I. EXECUTIVE SUMMARY**
+
+The denial for C6-C7 ACDF for member Thomas Reed is **OVERTURNED**. The initial denial stated that "PT not yet completed to functional plateau" and that the member "does not meet criteria for ACDF." However, a review of the clinical record demonstrates that the member has, in fact, met the physical therapy requirement by achieving a documented functional plateau, which aligns with the plan's own criteria, California state law, and generally accepted clinical standards. The member has also completed other required conservative treatments without adequate resolution of symptoms.
+
+---
+
+**II. CLINICAL PRESENTATION AND INITIAL DENIAL REASON**
+
+**Presenting Diagnosis:** Cervical radiculopathy C6-C7, persistent after conservative treatment.
+**Imaging (MRI 2024-08-01):** C6-C7 disc herniation, mild cord contact *without measurable compression*, *no cord signal change (myelomalacia)*, mild right C7 foraminal stenosis.
+**Neurological Exam (2024-08-05):** Right C7 dermatomal numbness, diminished right triceps reflex, *no bilateral findings, no upper motor neuron signs*. Pain 7/10.
+
+**Analysis of Clinical Presentation:** Based on the absence of measurable cord compression, myelomalacia, bilateral symptoms, and upper motor neuron signs, the primary diagnosis in this case is **Cervical Radiculopathy**, not Myelopathy. This is consistent with the treating physician's diagnosis and the initial denial's finding of "No myelopathy findings on exam." This distinction is critical as treatment algorithms and prior authorization criteria differ significantly for these two conditions (Domain Knowledge - Classification).
+
+**Original Denial Reason (2024-10-20):** "Member does not meet criteria for ACDF. Imaging shows C6-C7 disc herniation with mild cord contact but no measurable compression. No myelopathy findings on exam. PT not yet completed to functional plateau."
+
+---
+
+**III. APPEAL BASIS**
+
+The appeal asserts that:
+1.  Member completed 7 weeks PT with documented failure to improve.
+2.  Functional plateau reached per PT discharge summary.
+3.  Surgeon believes ACDF is indicated for persistent radiculopathy.
+
+---
+
+**IV. REVIEW AGAINST HIERARCHY OF AUTHORITY**
+
+**Hierarchy:** State Law > Clinical Standard > Plan Criteria
+
+**A. Review Against Plan Criteria (HealthFirst CC-SPINE-2024)**
+
+1.  **2.1 DIAGNOSIS REQUIREMENT:**
+    *   **Plan:** Requires confirmed diagnosis of cervical radiculopathy (2.1a).
+    *   **Case:** Member has "Cervical radiculopathy C6-C7, persistent after conservative treatment" with supporting imaging of C6-C7 disc herniation and mild right C7 foraminal stenosis.
+    *   **Finding:** **MET**.
+
+2.  **2.2 CONSERVATIVE TREATMENT REQUIREMENT:**
+    *   **(a) Physical therapy:** Requires "minimum 6 weeks of supervised physical therapy with documented functional outcomes."
+        *   **Plan's Denial:** "PT not yet completed to functional plateau."
+        *   **Case:** Member completed 7 weeks of PT (21 sessions). The PT discharge summary explicitly states "functional plateau reached – patient has not improved over final 3 sessions. Radicular symptoms persist unchanged."
+        *   **Plan's Definition of Functional Plateau (Domain Knowledge / Plan Criteria):** "<10% improvement over 3 sessions OR therapist documents maximum benefit reached."
+        *   **Finding:** The member completed more than the 6-week minimum. Crucially, the documentation of a functional plateau directly satisfies the plan's own definition of PT completion, which includes reaching a functional plateau. Therefore, the **plan incorrectly applied its own criteria** regarding the PT requirement. **MET**.
+    *   **(b) Pharmacotherapy:** Requires "trial of at least two... for minimum 4 weeks each."
+        *   **Case:** Pregabalin 150mg BID for 4 months (partial relief, radiculopathy persists); Meloxicam 15mg for 3 months (inadequate). Both agents and durations are compliant.
+        *   **Finding:** **MET**.
+    *   **(c) Interventional Treatment:** Requires "One of the following."
+        *   **Case:** Right C7 epidural performed (30% improvement lasting 3 weeks, then returned to baseline).
+        *   **Finding:** **MET**.
+    *   **EXCEPTION 2.2(A) — MYELOPATHY PATHWAY:** This exception modifies conservative treatment requirements for *confirmed cervical myelopathy*.
+        *   **Finding:** As established, this is a case of radiculopathy, not primary myelopathy. Therefore, the myelopathy exception **does not apply**.
+
+3.  **2.3 IMAGING REQUIREMENT:**
+    *   **Plan:** Current imaging demonstrating structural pathology consistent with symptoms.
+    *   **Case:** MRI (2024-08-01) shows C6-C7 disc herniation and mild right C7 foraminal stenosis, consistent with C6-C7 radiculopathy.
+    *   **Finding:** **MET**.
+
+**B. Review Against California Regulatory Framework**
+
+1.  **CIC § 10169.5 (Physical Therapy as Prerequisite):**
+    *   **Law:** "A health insurer... shall not condition approval of a surgical procedure on completion of physical therapy where... (2) The member has completed a course of physical therapy and the treating physician documents that the member reached a functional plateau without adequate resolution of symptoms." (CIC § 10169.5(a)(2)).
+    *   **Case:** The member completed 7 weeks of PT, and the PT discharge summary explicitly documented that a functional plateau was reached.
+    *   **Finding:** The denial directly violates **CIC § 10169.5(a)(2)**. State law prohibits denying coverage for surgical procedures based on an unfulfilled PT requirement when a functional plateau has been documented. This provision overrides any plan interpretation to the contrary.
+
+2.  **DMHC APL 22-014 (Conservative Treatment Exceptions / Plan Criteria vs. Clinical Standard):**
+    *   **Law (II.3):** "Plans shall not apply internal criteria that are more restrictive than generally accepted standards of medical practice..."
+    *   **Finding:** While this APL focuses on myelopathy (which is not the primary diagnosis here), its general principle reinforces that plan criteria should not be overly restrictive compared to clinical standards. In this case, the plan's misapplication of its own PT criteria constitutes an overly restrictive interpretation not aligned with clinical practice or state law.
+
+**C. Review Against Clinical Standard (AANS/CNS 2023, NASS 2020, AO Spine 2021)**
+
+1.  **Diagnosis Distinction (Section 1.1):** The clinical record clearly aligns with cervical radiculopathy.
+2.  **Conservative Treatment for Radiculopathy (Section 2.1, 2.2):** For radiculopathy, conservative treatment is typically recommended, and surgery is indicated after 6-12 weeks of failed conservative treatment.
+    *   **Case:** The member has undergone 7 weeks of PT (documented functional plateau), 4 months of Pregabalin (partial, non-sustained relief), 3 months of Meloxicam (inadequate), and a C7 epidural (30% improvement for 3 weeks, then returned to baseline). This constitutes an adequate trial of conservative therapy that has failed to provide sustained relief of persistent radicular symptoms.
+3.  **Functional Plateau Definition (Section 5):** "Less than 10% improvement in validated functional outcome measure... over 3 consecutive therapy sessions, OR therapist documentation that patient has reached maximum therapeutic benefit."
+    *   **Case:** The PT discharge summary stating "patient has not improved over final 3 sessions" and "functional plateau reached" directly meets the clinical definition of a functional plateau.
+4.  **Surgical Indications for ACDF (Section 3.1):**
+    *   **Guideline:** TIER 2 — REASONABLE INDICATION: "(b) Radiculopathy with persistent symptoms after 6-12 weeks conservative tx (c) Significant functional impairment not responding to conservative care."
+    *   **Case:** The member has persistent radiculopathy with pain 7/10, numbness, and diminished reflex after 7 weeks of PT (to plateau) and multiple other failed conservative modalities. This meets Tier 2 indications.
+
+**D. Conflict Resolution (State Law > Clinical Standard > Plan Criteria)**
+
+The plan's denial reason, "PT not yet completed to functional plateau," is directly contradicted by:
+1.  **Plan's Own Criteria:** The member's PT documentation meets the plan's definition of functional plateau (HealthFirst CC-SPINE-2024, Section 2.2(a) Note on Functional Plateau). The plan misapplied its own criteria.
+2.  **California State Law:** CIC § 10169.5(a)(2) explicitly prohibits denial for PT completion if a functional plateau has been documented. State law takes precedence over plan criteria.
+3.  **Clinical Standard:** The documentation of a functional plateau and extensive failed conservative treatment aligns with generally accepted clinical standards for proceeding to surgical intervention for persistent radiculopathy (AANS/CNS 2023, NASS 2020, AO Spine 2021).
+
+---
+
+**V. CONCLUSION**
+
+The HealthFirst PPO Gold denial for ACDF C6-C7 for member Thomas Reed is based on an erroneous interpretation of the physical therapy requirement. The clinical record unequivocally demonstrates that the member has completed a course of physical therapy and reached a documented functional plateau, which aligns with both the plan's own criteria and California state law. Furthermore, the member has completed other conservative treatments without sustained relief, making surgical intervention medically necessary under generally accepted clinical guidelines for persistent cervical radiculopathy.
+
+---
+
+**VI. DISPOSITION**
+
+**OVERTURNED.**
+
+The requested ACDF C6-C7 (CPT 22551) is deemed medically necessary and should be authorized.
+
+---
+
+**VII. WARRANT**
+
+The original denial stated that physical therapy was "not yet completed to functional plateau" (Denial, 2024-10-20). However, the member completed 7 weeks of physical therapy, and the physical therapist's discharge summary explicitly documents that a **functional plateau was reached** and that the patient had not improved over the final three sessions (Clinical Record, Physical Therapy Summary). This documentation directly satisfies HealthFirst's own definition of a functional plateau, which includes instances where a therapist documents that maximum benefit has been reached or there is <10% improvement over 3 sessions (HealthFirst CC-SPINE-2024, Section 2.2(a) Note; Domain Knowledge - Plan Criteria Knowledge). Therefore, the plan's denial incorrectly applied its own criteria.
+
+Furthermore, **California Insurance Code (CIC) § 10169.5(a)(2)** explicitly states that a health insurer shall not condition approval of a surgical procedure on completion of physical therapy where "the member has completed a course of physical therapy and the treating physician documents that the member reached a functional plateau without adequate resolution of symptoms." This state law takes precedence over any conflicting plan criteria and mandates approval in this circumstance.
+
+The member's persistent cervical radiculopathy, despite a comprehensive course of failed conservative management (7 weeks of physical therapy to functional plateau, 4 months of Pregabalin with partial relief, 3 months of Meloxicam with inadequate relief, and a cervical epidural with temporary relief), meets the generally accepted clinical standards for surgical intervention (AANS/CNS Joint Guidelines 2023, Section 3.1, Tier 2).
+
+Given the clear fulfillment of conservative treatment requirements under both the plan's own correctly interpreted criteria and California state law, and in alignment with clinical guidelines, the procedure is medically necessary.
+
+---
+
+**Appeals Reviewer Signature:**
+[Expert Health Plan Appeals Reviewer]
+Date: 2024-11-01

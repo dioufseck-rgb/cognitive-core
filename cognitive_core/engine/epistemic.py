@@ -578,7 +578,9 @@ def compute_step_epistemic_state(
         mechanical_scores.append(0.0)   # full parse failure
     elif output.get("_salvaged"):
         mechanical_scores.append(0.5)   # truncated, partial salvage
-    overall, warranted = compute_overall(mechanical_scores, [], coherence_flags)
+    judgment_scores = [v for v in (output.get("reasoning_quality"), output.get("outcome_certainty"))
+                       if isinstance(v, (int, float))]
+    overall, warranted = compute_overall(mechanical_scores, judgment_scores, coherence_flags)
 
     # Layer 2: pull judgment fields if LLM reported them
     reasoning_quality = output.get("reasoning_quality")

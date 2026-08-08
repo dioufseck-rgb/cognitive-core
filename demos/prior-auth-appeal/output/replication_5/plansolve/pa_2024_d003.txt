@@ -1,0 +1,130 @@
+CASE: pa_2024_d003
+SYSTEM: PLANSOLVE
+DISPOSITION: OVERTURN
+GT: REMAND
+CORRECT: False
+ELAPSED: 52.8s
+========================================================================
+
+# HEALTH PLAN APPEALS & GRIEVANCE DIVISION
+**FORMAL APPEAL DETERMINATION**
+
+---
+
+### CASE METADATA
+*   **Case ID:** PA-2024-D003
+*   **Member Name:** Jessica Turner
+*   **Member ID:** M-556688
+*   **Plan Type:** HealthFirst PPO Gold — Group Plan 77441
+*   **State of Residence:** California (CA)
+*   **Plan Year / Coverage Effective:** 2024 / 2023-07-01
+*   **Requested Procedure:** Anterior Cervical Discectomy and Fusion (ACDF) C6-C7, single level (CPT 22551)
+*   **Requesting Physician:** Dr. Robert Chen, MD — Spine Surgery
+*   **Facility:** Stanford Medical Center
+*   **Initial Reviewer:** Dr. Alan Foster, MD (Medical Director)
+*   **Initial Denial Date:** October 15, 2024
+*   **Reason Code / Written Basis:** MED-003 / Verbal peer-to-peer call only
+
+---
+
+### FINAL DISPOSITION
+**OVERTURN** (The initial medical necessity denial is reversed in its entirety on procedural and statutory grounds. The requested single-level ACDF C6-C7 [CPT 22551] is authorized for immediate scheduling.)
+
+---
+
+### SECTION I: EXECUTIVE SUMMARY
+This formal appeal review evaluates the prior authorization denial of an anterior cervical discectomy and fusion (ACDF) at C6-C7 (CPT 22551) requested by Dr. Robert Chen on behalf of Jessica Turner, a 39-year-old California enrollee. 
+
+The initial denial, issued on October 15, 2024, was based solely on a verbal peer-to-peer discussion between the plan's Medical Director, Dr. Alan Foster, and the requesting physician. No written clinical criteria or specific clinical reasons were provided to the member in the denial letter, and the mandatory Independent Medical Review (IMR) notice of rights was omitted.
+
+Applying the strict **Hierarchy of Authority** established for this evaluation—where **California State Law and Regulatory Mandates** represent the supreme tier over internal health plan clinical coverage policies—this review finds the plan’s initial denial to be legally and procedurally defective under **California Health & Safety Code (CHSC) § 1374.31(b)**. Because a procedurally defective denial must be treated as invalid under California law, the denial is **OVERTURNED on procedural grounds**. 
+
+A secondary clinical review confirms that while the member presents with Cervical Radiculopathy rather than Cervical Myelopathy, the mechanical application of the plan's 6-week physical therapy requirement violates **California Insurance Code (CIC) § 10169.5**, given the documented functional plateau achieved after 5 weeks (15 sessions) of structured therapy.
+
+---
+
+### SECTION II: EVALUATION PLAN STEP-BY-STEP ANALYSIS
+
+#### 1. Procedural Adequacy Assessment (CHSC § 1374.31(b))
+Under California managed care law, health plans must adhere to strict transparency and disclosure requirements when denying prior authorization requests based on medical necessity:
+*   **CHSC § 1374.31(a)(2)** explicitly mandates that any denial notice must provide the member and the treating physician with a written statement containing the **specific clinical criteria applied** and the **specific clinical reasons for the denial**, alongside the mandatory **Independent Medical Review (IMR) notice of rights**.
+*   **CHSC § 1374.31(b)** dictates that any denial notice failing to specify the clinical criteria or clinical reasons in writing is **procedurally defective** and must be legally treated as if no denial was issued.
+
+*Record Findings for Jessica Turner:*
+*   **Written Denial Basis:** "Verbal only — peer-to-peer call" (No written clinical criteria cited).
+*   **Specific Clinical Reason Cited in Writing:** None. The denial letter stated: *"Request denied based on peer-to-peer review... Detailed criteria review provided verbally during peer-to-peer call."*
+*   **IMR Notice Included:** False (`imr_notice_included: false` and verified as missing).
+*   **Criteria Communicated Verbally Only:** True.
+
+*Procedural Determination:*
+The plan failed to issue a legally adequate denial notice. Verbal communication during a peer-to-peer call cannot substitute for written, statutory disclosures to the member. Because the plan omitted both the written clinical rationale and the mandatory IMR notice, the denial of October 15, 2024, is **legally defective under CHSC § 1374.31(b)**. 
+
+Pursuant to the **Step 1 Procedural Adequacy Check** of the governing Disposition Decision Tree, a procedural defect requires an immediate **OVERTURN** of the denial.
+
+---
+
+#### 2. Clinical Classification and Pathology Verification (Clinical Standards)
+To establish a complete clinical record and address the medical necessity of the underlying request, the clinical documentation was reviewed to classify the patient's pathology as either Cervical Myelopathy or Cervical Radiculopathy. These conditions represent distinct clinical entities with independent therapeutic guidelines (AANS/CNS Guidelines; NASS Guidelines).
+
+*   **Imaging Review (MRI dated 2024-09-01):** Demonstrates a C6-C7 disc herniation resulting in right C7 nerve root compression and moderate foraminal stenosis. Crucially, there is *no* evidence of spinal cord compression, cord signal change, or myelomalacia.
+*   **Neurological Examination (2024-09-05):** Reveals right C7 dermatomal numbness and tingling, a diminished right tricep reflex (lower motor neuron sign), and mild grip weakness (4+/5). No upper motor neuron (UMN) signs—such as a positive Hoffman sign, hyperreflexia (clonus), bilateral upper extremity weakness, or gait disturbances—are documented.
+
+*Clinical Classification:*
+The member’s clinical and radiographical presentation is diagnostic of **Cervical Radiculopathy (C6-C7)**. There is no clinical or objective radiographical evidence of Cervical Myelopathy. Therefore, standard radiculopathy pathways apply.
+
+---
+
+#### 3. Statutory and Clinical Standard Override Analysis (CIC § 10169.5 & DMHC APL 22-014)
+Because the diagnosis is Cervical Radiculopathy without spinal cord compression, the urgent neurological carve-outs for myelomalacia under **DMHC All-Plan Letter (APL) 22-014** do not apply. 
+
+However, **California Insurance Code (CIC) § 10169.5** regulates health insurers' use of physical therapy (PT) as a mandatory prerequisite for surgical authorization:
+*   **CIC § 10169.5(a)(2)** prohibits a plan from conditioning surgical approval on the completion of physical therapy where the member has completed a course of PT and the treating physician documents that the member reached a **functional plateau** without adequate resolution of symptoms.
+*   **CIC § 10169.5(c)** establishes that a plan's internal minimum timeline for physical therapy (such as HealthFirst’s 6-week rule) **shall not be applied mechanically** without considering whether a functional plateau was achieved.
+
+*Conservative Treatment Record Findings:*
+*   **Physical Therapy:** The member completed **5 weeks (15 sessions)** of structured PT. The treating physician documented in the appeal letter that the member reached a functional plateau.
+*   **Pharmacotherapy:** Complied with a 3-month trial of Meloxicam 15mg daily (NSAID, partial relief) and a 2-week trial of Prednisone taper (Oral corticosteroid, temporary improvement).
+*   **Interventional Treatments:** None.
+
+*Override Determination:*
+Under HealthFirst's internal criteria (**CC-SPINE-2024 Section 2.2**), a member must complete 6 weeks of physical therapy. However, the patient completed 5 weeks (15 sessions)—a highly standard clinical duration—and her treating spine surgeon documented a functional plateau. Applying the 6-week clinical criteria mechanically to deny coverage directly violates **CIC § 10169.5(c)**. Under the Hierarchy of Authority, the statutory protections of **CIC § 10169.5** override the plan's 6-week policy limit, legally validating the physical therapy trial.
+
+---
+
+#### 4. Plan Criteria Compliance and Exceptions (HealthFirst CC-SPINE-2024)
+Applying HealthFirst's internal criteria strictly:
+*   **Section 2.1 (Diagnosis):** Met. The member has a confirmed diagnosis of cervical radiculopathy supported by an MRI within 6 months showing structural pathology consistent with symptoms (C6-C7 herniation and C7 root compression).
+*   **Section 2.2(a) (Physical Therapy):** Unmet under internal guidelines (5 weeks completed vs. 6 weeks required), but overridden by **CIC § 10169.5** as detailed above.
+*   **Section 2.2(b) (Pharmacotherapy):** Partially met. The member tried Meloxicam for 3 months (compliant) and Prednisone for 2 weeks (non-compliant with the plan's internal 4-week-per-agent minimum).
+*   **Section 2.2(c) (Interventional Treatment):** Unmet (no interventional trials documented).
+
+*Plan Criteria Determination:*
+Under a strict, non-statutory reading of the plan's internal guidelines, the request would be denied for failure to complete the 6-week PT course, 4 weeks of a second medication, and an interventional procedure. However, because **State Law (Tier 1)** overrides **Plan Criteria (Tier 3)**:
+1.  The procedural failure under **CHSC § 1374.31(b)** legally invalidates the denial itself, requiring an overturn.
+2.  The mechanical application of the PT timeline is legally prohibited under **CIC § 10169.5** due to the documented functional plateau.
+
+---
+
+### SECTION III: SUMMARY OF FINDINGS & LEGAL CITATIONS
+
+1.  **Procedural Violation (CHSC § 1374.31):** The plan issued a prior authorization denial without written clinical criteria or specific clinical reasons, relying on verbal peer-to-peer discussions. The plan also failed to issue the mandatory IMR notice of rights. Under **CHSC § 1374.31(b)**, the denial is legally defective and is treated as if no denial was issued.
+2.  **Statutory PT Override (CIC § 10169.5):** The patient trialed 5 weeks (15 sessions) of supervised PT and reached a functional plateau documented by her treating physician. Mechanical application of the plan's 6-week PT requirement is legally invalid under **CIC § 10169.5(c)**.
+3.  **Hierarchy of Authority Resolution:** The plan's internal clinical policy (**CC-SPINE-2024**) is more restrictive than California statutory mandates (**CHSC § 1374.31** and **CIC § 10169.5**). Therefore, State Law governs. The denial must be overturned on procedural and statutory grounds.
+
+---
+
+### SECTION IV: AUTHORIZATION & INSTRUCTIONS TO THE PLAN
+
+*   **Effective Date of Decision:** Immediate (October 25, 2024)
+*   **Approved Procedure:** Anterior Cervical Discectomy and Fusion (ACDF) C6-C7, single level
+*   **CPT Code authorized:** 22551
+*   **Provider/Facility authorized:** Dr. Robert Chen, MD / Stanford Medical Center
+*   **Authorization Period:** 90 Days from the date of this determination.
+
+**Action Required by Health Plan:**
+The health plan is directed to immediately update its claims and prior authorization systems to reflect **Approved** status for CPT code 22551 for member Jessica Turner (M-556688). An official written authorization letter must be issued to the member and Dr. Robert Chen within **2 business days** of this decision, satisfying all notice requirements under California managed care standards.
+
+---
+**Reviewer Signature:**  
+*Health Plan Appeals Reviewer, California Licensure Division*  
+*Date of Determination: October 25, 2024*

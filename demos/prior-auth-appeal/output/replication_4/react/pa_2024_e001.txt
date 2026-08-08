@@ -1,0 +1,125 @@
+CASE: pa_2024_e001
+SYSTEM: REACT
+DISPOSITION: PARTIAL
+GT: PARTIAL
+CORRECT: True
+ELAPSED: 41.9s
+========================================================================
+
+**HEALTHFIRST HEALTH PLAN APPEAL DETERMINATION**
+
+**Case ID:** PA-2024-E001
+**Member Name:** Victor Patel
+**Member ID:** M-667799
+**Procedure Requested:** Anterior Cervical Discectomy and Fusion (ACDF) C5-C6 and C6-C7, two levels (CPT 22552)
+**Treating Physician:** Dr. Lisa Park, MD
+**Facility:** UCSF Medical Center
+**Date of Initial Denial:** 2024-11-01
+**Reviewer of Initial Denial:** Dr. Patricia Huang, MD
+**Appeal Reviewer:** [Your Name/Title - Expert Health Plan Appeals Reviewer]
+**Date of Appeal Determination:** 2024-11-20
+
+---
+
+**I. INITIAL DENIAL REASON:**
+The initial denial, dated 2024-11-01, stated: "Two-level fusion not supported. C5-C6 level shows pathology consistent with surgical criteria. C6-C7 shows mild changes only. Two-level fusion not approved when one level meets criteria and one does not." (Reason Code: MED-003).
+
+**II. MEMBER'S APPEAL BASIS:**
+The member's appeal basis includes:
+1.  Both levels are symptomatic per treating physician.
+2.  Adjacent levels should be addressed simultaneously to prevent accelerated degeneration.
+3.  Member meets full criteria for both levels.
+
+**III. CLINICAL RECORD SUMMARY:**
+*   **Presenting Diagnosis:** Two-level cervical disc disease C5-C6 and C6-C7 – asymmetric severity.
+*   **Imaging (MRI 2024-09-15):**
+    *   **C5-C6:** Large disc herniation, moderate-severe right C6 nerve root compression, foraminal stenosis.
+    *   **C6-C7:** Small disc bulge, mild foraminal narrowing, no nerve root compression identifiable, no cord contact.
+*   **Neurological Exam (2024-09-20):**
+    *   **C6 level:** Right bicep weakness 3+/5, bicep reflex absent right, right C6 dermatomal numbness and tingling.
+    *   **C7 level:** Right tricep reflex slightly diminished. No definitive C7 dermatomal symptoms. Physician notes mild C7 symptoms possibly present but not clearly documented.
+*   **Conservative Treatment:**
+    *   **Physical Therapy:** 8 weeks, 24 sessions. C6 symptoms persist. C7 symptoms: minimal and possibly resolving per PT note at week 8.
+    *   **Pharmacotherapy:** Pregabalin 150mg BID (4 months, partial C6 relief, uncertain C7 contribution), Naproxen 500mg BID (3 months, moderate relief).
+    *   **Interventional:** Right C6 epidural (2024-10-15, good C6 relief 70%, fully returned in 4 weeks). No C7-specific injection performed.
+
+**IV. REVIEW AND ANALYSIS:**
+
+This appeal determination applies the established hierarchy: **State law > Clinical standard > Plan criteria.**
+
+**A. Clinical Presentation Assessment (Myelopathy vs. Radiculopathy):**
+The clinical record indicates **cervical radiculopathy** primarily affecting the C6 nerve root due to pathology at C5-C6.
+*   For **C5-C6**, there is objective evidence of nerve root compression (MRI: moderate-severe right C6 nerve root compression) correlating with definitive neurological deficits (exam: right bicep weakness, absent bicep reflex, C6 dermatomal symptoms). This aligns with the definition of cervical radiculopathy (Clinical Standard Section 1.1). There is no evidence of spinal cord compression or myelopathic symptoms.
+*   For **C6-C7**, the MRI explicitly states "no nerve root compression identifiable, no cord contact," and the neurological exam shows "no definitive C7 dermatomal symptoms" with C7 symptoms noted as "minimal and possibly resolving" by PT. This does not support a diagnosis of definitive radiculopathy or myelopathy at this level (Clinical Standard Section 1.1).
+*   **Conclusion:** This case is appropriately evaluated under radiculopathy criteria, as there is no evidence of cervical myelopathy (spinal cord compression with myelopathic signs) at either level. Therefore, the myelopathy exceptions in plan criteria or state regulations (e.g., DMHC APL 22-014) are not applicable.
+
+**B. Application of HealthFirst PPO Gold Plan Criteria (CC-SPINE-2024):**
+
+1.  **C5-C6 Level:**
+    *   **2.1 Diagnosis Requirement:** Met. Member has "Cervical radiculopathy" and "Cervical disc herniation with objective neurological deficit" (right C6 weakness, absent reflex, numbness) (HealthFirst CC-SPINE-2024 Section 2.1(a) & (c)). MRI findings are consistent.
+    *   **2.2 Conservative Treatment Requirement:** Met.
+        *   (a) Physical therapy: 8 weeks completed, exceeding the 6-week minimum. C6 symptoms persist (HealthFirst CC-SPINE-2024 Section 2.2(a)).
+        *   (b) Pharmacotherapy: Pregabalin (4 months) and Naproxen (3 months) meet the requirement for two agents for 4+ weeks each (HealthFirst CC-SPINE-2024 Section 2.2(b)).
+        *   (c) Interventional: One right C6 epidural steroid injection was performed (HealthFirst CC-SPINE-2024 Section 2.2(c)).
+    *   **2.3 Imaging Requirement:** Met. MRI shows large disc herniation and moderate-severe right C6 nerve root compression, consistent with symptoms (HealthFirst CC-SPINE-2024 Section 2.3).
+    *   **Conclusion for C5-C6:** This level meets all HealthFirst PPO Gold plan criteria for surgical authorization.
+
+2.  **C6-C7 Level:**
+    *   **2.1 Diagnosis Requirement:** Not met. MRI shows "no nerve root compression identifiable," and the neurological exam shows "no definitive C7 dermatomal symptoms." Physician's note of "mild C7 symptoms possibly present but not clearly documented" and PT note of "minimal and possibly resolving" do not establish a confirmed diagnosis of radiculopathy with objective neurological deficit at this level (HealthFirst CC-SPINE-2024 Section 2.1(a) & (c)).
+    *   **2.2 Conservative Treatment Requirement:** Not met. While PT and pharmacotherapy were administered generally, no C7-specific interventional treatment was performed (HealthFirst CC-SPINE-2024 Section 2.2(c)). Moreover, the reported C7 symptoms are minimal and possibly resolving, which does not constitute failure of conservative treatment warranting surgery.
+    *   **2.3 Imaging Requirement:** Not met. "Small disc bulge, mild foraminal narrowing" without identifiable nerve root compression or definitive corresponding symptoms does not meet the requirement for pathology consistent with the member's symptoms (HealthFirst CC-SPINE-2024 Section 2.3).
+    *   **Conclusion for C6-C7:** This level does not meet HealthFirst PPO Gold plan criteria for surgical authorization.
+
+**C. Application of California Regulatory Requirements:**
+
+1.  **CHSC § 1374.31(b) (Denial Notice Adequacy):** The initial denial notice explicitly stated the reason for denial (C6-C7 not meeting criteria, therefore two-level not approved). While it did not specifically cite a policy section, it provided a clinical reason and is not deemed procedurally defective under this statute.
+2.  **CIC § 10169.5 (Physical Therapy as Prerequisite):** For the C5-C6 level, the member completed 8 weeks of PT, and C6 symptoms (including objective weakness and reflex loss) persist. This would satisfy CIC § 10169.5(a)(2) (functional plateau) or (a)(3) (objective evidence of structural neurological compromise that PT cannot address), overriding any strict mechanical application of PT duration if the plan were to contend PT was insufficient despite completion. For C6-C7, this statute does not apply to justify surgery, as symptoms are minimal and resolving.
+3.  **DMHC APL 22-014 (Myelopathy and Urgent Conditions):** This All-Plan Letter is specific to cervical myelopathy and conditions with irreversible harm. As established, the member does not have myelopathy, so this APL is not applicable to this case.
+4.  **CHSC § 1374.32(b) (IMR Standard - Not Plan Criteria):** This critical statute mandates approval if a service meets "generally accepted standards of medical practice" regardless of more restrictive plan criteria. This will be considered in the clinical standard review.
+
+**D. Application of Clinical Standards (AANS/CNS 2023, NASS 2020, AO Spine 2021):**
+
+1.  **C5-C6 Level:**
+    *   The member's C6 radiculopathy with objective neurological deficit (3+/5 weakness, absent reflex) persisting after 8 weeks of PT, 4 months of neuropathic agents (partial relief), NSAIDs, and a C6 epidural (temporary relief) meets the AANS/CNS 2023 Tier 2 "Reasonable Indication" for "Radiculopathy with persistent symptoms after 6-12 weeks conservative tx" (Clinical Standard Section 3.1). The persistence of objective neurological symptoms after conservative care indicates failure to achieve meaningful functional improvement, consistent with a functional plateau (Clinical Standard Section 5).
+    *   **Conclusion for C5-C6:** Surgical intervention for C5-C6 is consistent with generally accepted standards of medical practice.
+
+2.  **C6-C7 Level:**
+    *   The findings for C6-C7 ("small disc bulge, mild foraminal narrowing, no nerve root compression identifiable, no cord contact") with "no definitive C7 dermatomal symptoms" and "minimal and possibly resolving" C7 symptoms (PT note) align with AANS/CNS 2023 Tier 3(b): "Imaging findings without correlating symptoms" (Clinical Standard Section 3.1). Surgery is "not indicated" under this tier.
+    *   The appeal basis regarding addressing adjacent levels simultaneously to prevent accelerated degeneration is not supported by the provided clinical standards as an indication for operating on an asymptomatic or minimally symptomatic level that does not meet established surgical criteria (Clinical Standard Section 3.1, Tier 3(b)).
+    *   **Conclusion for C6-C7:** Surgical intervention for C6-C7 is *not* consistent with generally accepted standards of medical practice.
+
+**V. CONFLICT RESOLUTION AND DISPOSITION:**
+
+*   **For C5-C6:** All three sources (HealthFirst plan criteria, California state law, and generally accepted clinical standards) support the medical necessity of ACDF at the C5-C6 level. The plan's initial denial implicitly acknowledged this level met criteria.
+*   **For C6-C7:** Both HealthFirst plan criteria and generally accepted clinical standards do *not* support the medical necessity of ACDF at the C6-C7 level. California state law does not override this lack of medical necessity. The clinical evidence does not support prophylactic fusion of an asymptomatic or minimally symptomatic level.
+
+The original request was for a *two-level* fusion (CPT 22552). The plan denied the *two-level* fusion because one level did not meet criteria. While the denial of the *two-level* procedure as requested is technically correct due to the lack of medical necessity for C6-C7, the C5-C6 level is clearly medically necessary and should be approved.
+
+Therefore, the appropriate disposition is a **PARTIAL OVERTURN** of the denial. The requested procedure will be approved for a single-level ACDF at C5-C6 (CPT 22551), but denied for the C6-C7 level.
+
+**VI. DETERMINATION:**
+
+The denial for CPT 22552 (two-level ACDF) is **PARTIALLY OVERTURNED**.
+
+**Warrant:**
+Based on a comprehensive review of the clinical record, HealthFirst PPO Gold Plan Criteria (CC-SPINE-2024), California regulatory requirements (CIC § 10169.5, CHSC § 1374.32(b)), and generally accepted clinical standards (AANS/CNS 2023, NASS 2020, AO Spine 2021), the following is determined:
+
+1.  **Medical Necessity for C5-C6:** The member demonstrates clear and persistent right C6 radiculopathy, evidenced by objective neurological deficits (right bicep weakness 3+/5, absent bicep reflex, C6 dermatomal symptoms) directly correlated with MRI findings of a large disc herniation and moderate-severe right C6 nerve root compression and foraminal stenosis. The member has undergone a failed course of conservative treatment, including 8 weeks of physical therapy with persistent symptoms, 4 months of neuropathic agents, NSAIDs, and a C6 epidural with temporary relief. This meets HealthFirst's diagnosis, imaging, and conservative treatment criteria (HealthFirst CC-SPINE-2024 Section 2.1(a)(c), 2.2, 2.3). Furthermore, this presentation meets the AANS/CNS 2023 Tier 2 "Reasonable Indication" for surgery (Clinical Standard Section 3.1) and satisfies California's CIC § 10169.5(a)(2) or (3) for waiver of further PT requirements given the persistent neurological compromise. Therefore, surgical intervention at C5-C6 is medically necessary.
+
+2.  **Lack of Medical Necessity for C6-C7:** The clinical record does not support a diagnosis of cervical radiculopathy or myelopathy at the C6-C7 level. The MRI shows only a "small disc bulge, mild foraminal narrowing" with "no nerve root compression identifiable" and "no cord contact." The neurological exam noted "no definitive C7 dermatomal symptoms," and the physical therapy record indicated C7 symptoms were "minimal and possibly resolving." This fails to meet HealthFirst's diagnostic and imaging requirements for surgical intervention (HealthFirst CC-SPINE-2024 Section 2.1, 2.3). From a clinical standard perspective, these findings fall under AANS/CNS 2023 Tier 3(b) ("Imaging findings without correlating symptoms") where surgery is "not indicated" (Clinical Standard Section 3.1). The argument for prophylactic fusion of an adjacent, minimally symptomatic level is not supported by the current clinical evidence provided.
+
+3.  **Disposition:** Since the C5-C6 level meets all criteria for medical necessity, but the C6-C7 level does not, the request for a *two-level* fusion (CPT 22552) is denied as submitted. However, authorization for a single-level ACDF at C5-C6 (CPT 22551) is approved.
+
+**Action:**
+Approve Anterior Cervical Discectomy and Fusion (ACDF) at **C5-C6 only** (CPT 22551).
+Deny Anterior Cervical Discectomy and Fusion (ACDF) at **C6-C7**.
+
+---
+**Right to Independent Medical Review (IMR):**
+In accordance with California Health and Safety Code § 1374.30 et seq., you have the right to request an Independent Medical Review (IMR) of this decision. An IMR application form and instructions for submitting your request are enclosed. You may request an IMR regardless of whether you choose to pursue a second-level internal appeal with HealthFirst.
+
+Sincerely,
+
+[Your Name]
+Expert Health Plan Appeals Reviewer
+HealthFirst PPO Gold

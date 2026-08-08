@@ -1,0 +1,93 @@
+CASE: pa_2024_g004
+SYSTEM: REACT
+DISPOSITION: UNKNOWN
+GT: UPHOLD
+CORRECT: False
+ELAPSED: 41.9s
+========================================================================
+
+**HEALTHFIRST HEALTH PLAN**
+**APPEAL DETERMINATION LETTER**
+
+**Date:** 2024-11-20
+**Case ID:** PA-2024-G004
+**Member Name:** Stephanie Oduya
+**Member ID:** M-G004
+**Treating Provider:** Dr. Patrick Walsh, MD
+**Procedure Code:** 22551 (ACDF C5-C6, one level)
+**HealthFirst Plan:** HealthFirst PPO Gold — Group Plan 77441
+
+**Subject: Appeal Determination for Prior Authorization Denial of ACDF C5-C6**
+
+Dear Stephanie Oduya, Dr. Patrick Walsh, and HealthFirst Team,
+
+This letter serves as the appeal determination for the prior authorization request for an Anterior Cervical Discectomy and Fusion (ACDF) at C5-C6 (CPT 22551) for member Stephanie Oduya. This appeal has been reviewed in accordance with HealthFirst's internal appeal processes, California regulatory requirements, and generally accepted clinical standards of medical practice.
+
+**I. BACKGROUND**
+
+*   **Initial Request Date:** On or before 2024-10-15
+*   **Procedure Requested:** ACDF C5-C6, one level (CPT 22551)
+*   **Presenting Diagnosis:** Cervical radiculopathy C5-C6, right-sided
+*   **Denial Date:** 2024-10-15
+*   **Denial Reason (Dr. Rivera, Neurosurgery):** "Imaging shows mild-moderate disc herniation with no cord compression and no neurological deficit on examination. Conservative treatment pathway not completed. Request does not meet medical necessity criteria for surgical intervention at this time." (Denial: Reason_text)
+*   **Appeal Basis (Dr. Walsh):** Disputes Dr. Rivera's interpretation, emphasizes treating surgeon's experience, claims patient will suffer permanent disability, and asserts treating surgeon's judgment should take precedence. (Appeal basis)
+
+**II. CLINICAL RECORD REVIEW**
+
+1.  **Presenting Diagnosis:** Cervical radiculopathy C5-C6, right-sided. (Clinical record: presenting_diagnosis)
+2.  **Imaging (MRI 2024-09-10):** C5-C6 mild to moderate disc herniation. Right C6 nerve root contact without measurable compression. **No cord contact. No cord compression. No T2 signal change. No myelomalacia.** Mild right foraminal narrowing. (Clinical record: imaging: mri_1)
+3.  **Neurological Exam (2024-09-15):** Right shoulder pain and neck pain (6/10). RIGHT C6 dermatomal tingling (mild). Bicep reflex 2+ bilateral, symmetric. Grip strength 5/5 bilateral. **No weakness. No UMN signs.** Functional assessment: working full-time, no activity limitations. (Clinical record: neurological_exam)
+4.  **Conservative Treatment Summary:**
+    *   **Physical Therapy (PT):** 4 weeks, 12 sessions. "Mild improvement in pain. No neurological deficit to track. Dr. Walsh elected to halt PT and seek surgical authorization." (Clinical record: conservative_treatment: physical_therapy_summary)
+    *   **Pharmacotherapy:** Naproxen 500mg BID for 8 weeks, with "Moderate pain relief." (Clinical record: conservative_treatment: pharmacotherapy)
+    *   **Interventional:** None documented. (Clinical record: conservative_treatment: interventional)
+5.  **Treating Surgeon's Statement (2024-10-18):** Dr. Walsh states patient "requires surgery now" due to "significant cervical pathology," and warns of "permanent disability" if denied. He disputes the remote review in favor of his clinical judgment. (Clinical record: treating_surgeon_statement)
+
+**III. APPEAL DETERMINATION**
+
+Based on a thorough review of the submitted documentation, the HealthFirst PPO Gold plan criteria, applicable California state regulations, and generally accepted clinical standards of medical practice, the denial for CPT 22551 for Stephanie Oduya is **UPHELD**.
+
+**WARRANT:**
+
+The denial is UPHELD because the member's clinical presentation, a right-sided C5-C6 cervical radiculopathy, does not meet the established medical necessity criteria for surgical intervention at this time, as supported by plan criteria, state regulations, and generally accepted clinical standards.
+
+1.  **Diagnosis and Clinical Presentation:**
+    *   The member's MRI and neurological examination confirm cervical radiculopathy (right C6 nerve root contact, right C6 dermatomal tingling) consistent with her symptoms. (Clinical Record: MRI 2024-09-10, Neuro Exam 2024-09-15).
+    *   Crucially, the objective clinical record explicitly demonstrates **no evidence of cervical myelopathy**. Findings include "No cord contact. No cord compression. No T2 signal change. No myelomalacia" on MRI, and "No weakness. No UMN signs" on neurological examination. (Clinical Record: MRI 2024-09-10, Neuro Exam 2024-09-15). This distinction is critical, as myelopathy and radiculopathy have different treatment algorithms and urgency. (Domain Knowledge: Classification; Clinical Standard: Section 1.1). The initial denial's clinical assessment ("no cord compression and no neurological deficit on examination") is accurate and supported by the record.
+
+2.  **Adherence to Plan Criteria (HealthFirst CC-SPINE-2024):**
+    *   **Diagnosis Requirement (Section 2.1):** The member meets criteria 2.1(a) for Cervical Radiculopathy.
+    *   **Conservative Treatment Requirement (Section 2.2):** This is the basis of the denial, and the member does not meet the full requirements for radiculopathy:
+        *   **(a) Physical Therapy:** A minimum of 6 weeks of supervised PT is required. The member completed only 4 weeks. (Clinical Record: PT Summary; Plan Criteria: Section 2.2(a)).
+        *   **(b) Pharmacotherapy:** A trial of at least two pharmacotherapy agents for a minimum of 4 weeks each is required. Only one agent (Naproxen for 8 weeks) was documented. (Clinical Record: Pharmacotherapy; Plan Criteria: Section 2.2(b)).
+        *   **(c) Interventional Treatment:** One interventional treatment is required. None was performed or documented. (Clinical Record: Interventional; Plan Criteria: Section 2.2(c)).
+    *   **Myelopathy Exception (Section 2.2(A)):** This exception, which reduces PT to 4 weeks and waives interventional treatment, specifically applies "For members with confirmed cervical myelopathy (criterion 2.1(b))." As established above, myelopathy is not confirmed by objective findings. Therefore, this exception does not apply to this case. (Plan Criteria: Section 2.2(A)).
+    *   The request therefore fails to meet the conservative treatment requirements per Section 2.2, leading to denial under Section 3.2 of the plan's criteria.
+
+3.  **Applicability of California Regulatory Requirements:**
+    *   **California Insurance Code (CIC) § 10169.5 (Physical Therapy as Prerequisite):** This statute specifies conditions under which a plan cannot require PT completion. None of these conditions are met in this case:
+        *   **(a)(1) Physician documentation of contraindication/unlikely benefit:** Dr. Walsh elected to halt PT, but did not document that PT was contraindicated or unlikely to benefit specifically for this radiculopathy condition, particularly as "mild improvement in pain" was noted. (Clinical Record: PT Summary; CIC § 10169.5(a)(1)).
+        *   **(a)(2) Functional plateau:** Only 4 weeks of PT were completed, not a full course. Furthermore, a functional plateau (defined as <10% improvement over 3 sessions or therapist documentation of maximum benefit) was not documented by the physical therapist or physician. (Clinical Record: PT Summary; CIC § 10169.5(a)(2); Clinical Standard: Section 5).
+        *   **(a)(3) Objective evidence of structural neurological compromise:** The MRI explicitly shows "No cord compression. No T2 signal change. No myelomalacia," thereby ruling out severe structural neurological compromise that PT cannot address. (Clinical Record: MRI 2024-09-10; CIC § 10169.5(a)(3)).
+    *   **DMHC All-Plan Letter APL 22-014 (Myelopathy and Urgent Conditions):** This guidance applies to "cervical myelopathy with objective evidence of cord compression and myelomalacia on MRI" for waiving conservative treatment requirements. As the member's clinical record demonstrates the absence of these critical myelopathic findings, the conservative treatment exceptions outlined in DMHC APL 22-014 are not applicable to this radiculopathy case. (Clinical Record: MRI 2024-09-10; DMHC APL 22-014: Sections II.1, II.2).
+    *   **CHSC § 1374.31(b) (Denial Notice Adequacy):** The denial notice explicitly cited "conservative treatment pathway not completed" and "no cord compression and no neurological deficit on examination," which are specific clinical reasons and implied criteria. The notice is procedurally adequate.
+
+4.  **Adherence to Clinical Standards (AANS/CNS 2023, NASS 2020, AO Spine 2021):**
+    *   For cervical radiculopathy, generally accepted clinical guidelines recommend a trial of conservative management, typically lasting **6-12 weeks**, prior to considering surgical intervention for persistent symptoms. (Clinical Standard: Section 1.1, 3.1 Tier 2(b), 4).
+    *   The member has completed only 4 weeks of PT, one pharmacotherapy agent, and no interventional treatment. This does not constitute an adequate conservative trial as recommended by clinical standards for radiculopathy.
+    *   The member's symptoms (mild tingling, 6/10 pain, working full-time with no activity limitations) do not present as an urgent condition warranting deviation from this standard conservative pathway for radiculopathy. The assertion by the treating surgeon that the patient "will suffer permanent disability without authorization" is not supported by the objective clinical evidence of radiculopathy presented in the medical record. (Clinical Standard: Section 3.1 Tier 3(c), 4; Clinical Record: Neuro Exam 2024-09-15).
+
+**V. CONCLUSION**
+
+Applying the hierarchy of authority (State law > Clinical standard > Plan criteria), the requirements of state law for waiving conservative treatment are not met in this radiculopathy case. The plan's conservative treatment criteria are consistent with generally accepted clinical standards for cervical radiculopathy, which recommend a trial of conservative therapy (typically 6-12 weeks) before surgical consideration. As the member has not completed the required conservative treatment pathway and does not meet exceptions for urgency or functional plateau, the denial is appropriate.
+
+Therefore, the decision to deny prior authorization for CPT 22551 is **UPHELD**. The member is encouraged to complete a full course of conservative treatment as outlined by the plan's criteria and clinical guidelines.
+
+Sincerely,
+
+Health Plan Appeals Reviewer
+HealthFirst PPO Gold
+California Department of Managed Health Care (DMHC) licensed plan
+
+**Notice of Independent Medical Review Rights:**
+You have the right to request an Independent Medical Review (IMR) of this decision. An IMR is a review by an independent physician or panel of physicians who are not associated with HealthFirst. This right is available to you regardless of whether you have completed HealthFirst's internal appeal process. If you wish to pursue an IMR, you must submit an application to the Department of Managed Health Care (DMHC) within 180 days of the date of this letter. You can find more information and the application form on the DMHC website or by calling their toll-free number.

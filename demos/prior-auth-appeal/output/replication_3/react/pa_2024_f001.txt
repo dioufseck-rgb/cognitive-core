@@ -1,0 +1,84 @@
+CASE: pa_2024_f001
+SYSTEM: REACT
+DISPOSITION: OVERTURN
+GT: OVERTURN
+CORRECT: True
+ELAPSED: 31.7s
+========================================================================
+
+**HEALTHFIRST HEALTH PLAN — PRIOR AUTHORIZATION APPEAL DETERMINATION**
+
+**CASE ID:** PA-2024-F001
+**MEMBER:** Dorothy James
+**MEMBER ID:** M-990033
+**PLAN:** HealthFirst PPO Gold — Group Plan 77441
+**DATE OF BIRTH:** [Calculated from age 51 in 2024: 1972/1973]
+**STATE:** California
+**PROCEDURE REQUESTED:** Anterior Cervical Discectomy and Fusion (ACDF) C6-C7, one level (CPT 22551)
+**REQUESTING PROVIDER:** Dr. Paul Adams, MD — Spine Surgery
+**FACILITY:** UCLA Medical Center
+**INITIAL DENIAL DATE:** 2024-11-02
+**INITIAL DENIAL REASON:** MED-003, "Physical therapy requirement not met. Plan received PT records from Valley Physical Therapy documenting 4 weeks of treatment. Member claims 8 total weeks but second provider (Mountain PT) records not received by plan. Cannot verify claimed treatment without complete records."
+**APPEAL BASIS:** Mountain PT records enclosed (4 additional weeks confirmed), Total 8 weeks PT completed, Records were submitted with initial request but may not have been received.
+**APPEAL REVIEW DATE:** [Current Date]
+**APPEAL REVIEWER:** [Your Name/Title - Expert Health Plan Appeals Reviewer]
+
+---
+
+**DECISION: OVERTURN**
+
+The initial denial for CPT 22551 (ACDF C6-C7, one level) for Dorothy James is hereby **OVERTURNED**. The requested service is determined to be medically necessary.
+
+---
+
+**WARRANT FOR DECISION:**
+
+This determination is based on a comprehensive review of the submitted clinical record, HealthFirst's Clinical Coverage Criteria (CC-SPINE-2024), California State Law, and generally accepted clinical standards of medical practice. The three-source hierarchy of authority (State law > Clinical standard > Plan criteria) was applied.
+
+1.  **Resolution of Initial Denial Reason (Plan Criteria):**
+    *   The initial denial on 2024-11-02 stated that the plan only received records for 4 weeks of physical therapy (PT) and could not verify the claimed 8 weeks without records from Mountain Physical Therapy.
+    *   The appeal submitted records from Mountain Physical Therapy, documenting an additional 4 weeks of treatment (July 15 - August 9, 2024). This, combined with the previously submitted 4 weeks from Valley Physical Therapy (June 1 - June 28, 2024), confirms a total of **8 weeks of supervised physical therapy**.
+    *   HealthFirst's Clinical Coverage Criteria (CC-SPINE-2024), Section 2.2(a), requires a "minimum 6 weeks of supervised physical therapy." The member has clearly met and exceeded this requirement with the submission of complete records. Therefore, the original reason for denial is no longer valid.
+
+2.  **Functional Plateau (State Law Override):**
+    *   Beyond simply meeting the duration requirement, both physical therapy providers documented that the member reached a functional plateau. Valley Physical Therapy noted "Moderate improvement then plateau," and Mountain Physical Therapy documented "No improvement in neurological symptoms. Plateau documented by PT at discharge."
+    *   This aligns with HealthFirst's definition of functional plateau (Section 2.2 NOTE) and, more importantly, triggers California Insurance Code (CIC) § 10169.5(a)(2). This state law explicitly mandates that a health insurer "shall not condition approval of a surgical procedure on completion of physical therapy where... the member has completed a course of physical therapy and the treating physician documents that the member reached a functional plateau without adequate resolution of symptoms."
+    *   CIC § 10169.5(c) further clarifies that "A plan's internal requirement for a minimum number of weeks of physical therapy shall not be applied mechanically without reference to whether the member has achieved a functional plateau."
+    *   Given the documented functional plateau, further requirements for physical therapy are overridden by state law, regardless of plan criteria.
+
+3.  **Medical Necessity and Clinical Indication (Clinical Standard):**
+    *   The member presents with a confirmed diagnosis of cervical radiculopathy C6-C7, bilateral, with objective neurological deficits including bilateral tricep weakness (4/5), diminished bilateral tricep reflex, and bilateral finger tingling.
+    *   MRI findings (2024-09-01) demonstrate C6-C7 large disc herniation, bilateral C7 nerve root compression, bilateral foraminal stenosis, and mild cord contact.
+    *   The member has undergone an extensive course of conservative treatment, including:
+        *   8 weeks of physical therapy with documented plateau.
+        *   Trial of two pharmacotherapy agents (Pregabalin for 3 months with partial relief, Naproxen for 2 months with inadequate relief).
+        *   One interventional procedure (bilateral C7 epidural) with only temporary, partial relief that returned to baseline.
+    *   These findings align with Tier 2 (Reasonable Indication) for ACDF as per the AANS/CNS Joint Section on Disorders of the Spine Guidelines (2023 Update) and NASS Evidence-Based Clinical Guidelines (2020), specifically for "Radiculopathy with persistent symptoms after 6-12 weeks conservative treatment" and "Significant functional impairment not responding to conservative care." The patient's bilateral weakness (4/5) represents significant functional impairment.
+
+4.  **Application of Hierarchy of Authority:**
+    *   The initial denial was based on a procedural documentation issue (missing records). With the missing records provided on appeal, the member now clearly meets the duration requirements of the plan's criteria (HealthFirst CC-SPINE-2024, Section 2.2(a)).
+    *   Furthermore, California State Law (CIC § 10169.5(a)(2) and (c)) explicitly overrides any mechanical application of physical therapy duration requirements when a functional plateau has been achieved, which is unequivocally documented in this case.
+    *   Finally, the clinical presentation and failed conservative treatment strongly support the medical necessity of the requested ACDF under generally accepted clinical standards of medical practice (AANS/CNS 2023, NASS 2020), further reinforcing the overturn decision.
+
+In summary, the member has completed and plateaued from physical therapy, which, under California state law, removes any further PT duration requirement. The clinical evidence supports the medical necessity of the ACDF for persistent, functionally impairing bilateral radiculopathy refractory to extensive conservative management.
+
+---
+
+**NEXT STEPS:**
+
+HealthFirst Health Plan is directed to authorize CPT 22551 (ACDF C6-C7, one level) for Dorothy James. The authorization is valid for 90 days from the date of this appeal determination.
+
+---
+
+**MEMBER RIGHTS:**
+
+You have the right to request an Independent Medical Review (IMR) of this decision by the California Department of Managed Health Care (DMHC). An IMR involves an impartial review of your case by external medical experts. You will receive information regarding your IMR rights with this determination letter.
+
+---
+
+**Reviewed by:**
+
+[Your Name/Title]
+Expert Health Plan Appeals Reviewer
+HealthFirst Health Plan
+Date: [Current Date]

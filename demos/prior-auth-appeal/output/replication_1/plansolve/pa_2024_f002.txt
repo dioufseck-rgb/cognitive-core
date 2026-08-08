@@ -1,0 +1,115 @@
+CASE: pa_2024_f002
+SYSTEM: PLANSOLVE
+DISPOSITION: OVERTURN
+GT: OVERTURN
+CORRECT: True
+ELAPSED: 61.9s
+========================================================================
+
+# Health Plan Appeals & Grievances Department
+**Formal Appeal Determination**
+
+*   **Case ID:** PA-2024-F002
+*   **Member Name:** Steven Clark
+*   **Member ID:** M-101133
+*   **Plan Type:** HealthFirst PPO Gold — Group Plan 77441
+*   **State of Residence:** California
+*   **Requested Procedure:** Anterior Cervical Discectomy and Fusion (ACDF) C5-C6, One Level (CPT 22551)
+*   **Requesting Physician:** Dr. Sarah Nguyen, MD — Spine Surgery
+*   **Facility:** Cedars-Sinai Medical Center
+*   **Date of Initial Denial:** October 10, 2024
+*   **Initial Reviewer:** Dr. Patricia Huang, MD
+*   **Date of Appeal Review:** October 24, 2024
+
+---
+
+## I. FINAL DETERMINATION DISPOSITION
+
+### **DECISION: OVERTURNED (Prior Authorization Approved)**
+
+Following a comprehensive clinical and regulatory review of the appeal submitted on behalf of Mr. Steven Clark, the initial adverse determination dated October 10, 2024, is hereby **OVERTURNED**. 
+
+The requested surgical procedure—**Anterior Cervical Discectomy and Fusion (ACDF) at C5-C6, Single Level (CPT 22551)**—is determined to be medically necessary and is **fully approved** for coverage. This decision is based on a full clinical audit of the complete medical record, which resolves the administrative discrepancy cited in the initial denial, and aligns with both California statutory mandates and national clinical guidelines.
+
+---
+
+## II. SOURCE HIERARCHY OF AUTHORITY
+In accordance with the evaluation plan, this appeal was reviewed under the following governing hierarchy of authority:
+$$\text{California State Law \& Regulations} > \text{Generally Accepted Clinical Standards} > \text{HealthFirst Plan Criteria (CC-SPINE-2024)}$$
+
+---
+
+## III. STEP-BY-STEP EVALUATION ANALYSIS
+
+### Step 1: Procedural Defect Check (CHSC § 1374.31(b))
+*   **Evaluation:** Under California Health and Safety Code (CHSC) § 1374.31(b), any medical necessity denial notice issued by a health plan must explicitly specify the clinical criteria applied and provide a clear, individualized clinical reason linked directly to the member’s clinical presentation. 
+*   **Finding:** The initial denial notice dated October 10, 2024, failed to cite the applicable HealthFirst Clinical Policy (CC-SPINE-2024). Furthermore, it did not address Mr. Clark’s severe neurological deficits (such as bicep weakness and absent reflex) or physical presentation. It was based entirely on an administrative discrepancy regarding physical therapy (PT) verification. 
+*   **Action:** The denial is determined to be **procedurally defective** under CHSC § 1374.31(b). While this procedural defect alone grounds a corrective pathway, we proceed with a full clinical audit to establish a definitive, clinical approval.
+
+### Step 2: Clinical Classification & Diagnosis Verification (CC-SPINE-2024 Section 2.1)
+*   **Evaluation:** Review of clinical records and MRI imaging obtained within 6 months of the request to establish the primary diagnosis.
+*   **Clinical Records & Imaging Audit:**
+    *   **MRI (August 15, 2024):** Demonstrates a large disc herniation at C5-C6, resulting in severe right C6 nerve root compression and foraminal stenosis. No spinal cord compression or myelomalacia (T2 cord signal change) is documented.
+    *   **Neurological Examination (August 20, 2024):** Shows right C6 dermatomal numbness, right bicep motor weakness graded at 4/5, an absent right bicep reflex, and a positive right Spurling sign. There are no signs of upper motor neuron pathology (no hyperreflexia, no Hoffman sign, no gait disturbance, and no bilateral symptoms).
+*   **Finding:** The patient's clinical presentation and imaging do not meet the criteria for Cervical Myelopathy. Instead, the findings confirm a primary diagnosis of **Cervical Radiculopathy (C5-C6) with objective focal neurological deficits** (motor weakness and reflex loss), satisfying Section 2.1(a) of the HealthFirst CC-SPINE-2024 criteria.
+*   **Action:** Condition classified as **Cervical Radiculopathy**. Proceed to Step 5 (Radiculopathy Pathway).
+
+### Step 3 & Step 4: Myelopathy Statutory Waivers & Clinical Standard Alignment
+*   **Finding:** Because the primary diagnosis is Cervical Radiculopathy and not Myelopathy, the automatic statutory waivers of conservative therapy under DMHC All-Plan Letter (APL) 22-014 do not apply. However, California physical therapy statutory protections under California Insurance Code (CIC) § 10169.5 remain fully applicable.
+
+### Step 5: Plan Criteria Compliance & PT Audit (CC-SPINE-2024 Section 2.2)
+*   **Evaluation:** A detailed audit of the complete clinical record was conducted to determine if the member satisfied the plan's conservative management criteria for cervical radiculopathy.
+*   **Audit Findings:**
+    1.  **Physical Therapy (CC-SPINE-2024 § 2.2(a)):** 
+        *   *Riverside Physical Therapy:* Completed 6 weeks (18 sessions) from April 1, 2024, to May 10, 2024. A clinical plateau was documented with persistent radicular symptoms.
+        *   *Coastal Physical Therapy:* On appeal, the complete records have been provided. These records verify an additional 6 weeks (18 sessions) of PT from June 1, 2024, to July 12, 2024. The physical therapist documented a functional plateau, noting no improvement in the C6 neurological deficit and that maximum therapeutic benefit was reached.
+        *   *PT Cumulative Audit:* The member completed a total of **12 weeks (36 sessions)** of supervised physical therapy across two providers, with documented functional plateaus at both. This far exceeds the plan’s 6-week minimum requirement.
+    2.  **Pharmacotherapy (CC-SPINE-2024 § 2.2(b)):** 
+        *   *Agent 1:* Gabapentin 600mg TID, taken for 5 months (exceeds the 4-week minimum), yielding only partial relief.
+        *   *Agent 2:* Duloxetine 60mg daily, taken for 3 months (exceeds the 4-week minimum), yielding partial neuropathic benefit.
+        *   *Pharmacotherapy Audit:* The member successfully trialed two separate neuropathic agents for greater than 4 weeks each, satisfying the plan's criteria.
+    3.  **Interventional Treatment (CC-SPINE-2024 § 2.2(c)):** 
+        *   The member underwent a right C6 epidural steroid injection on August 28, 2024. The procedure provided 60% temporary relief but symptoms returned to baseline within 3 weeks.
+        *   *Interventional Audit:* Satisfied.
+
+*   **Finding:** The clinical audit confirms that **all conservative treatment requirements of HealthFirst CC-SPINE-2024 Section 2.2 are fully met and verified**.
+
+---
+
+## IV. STATUTORY AND CLINICAL REASONING
+
+### 1. California Statutory Compliance (CIC § 10169.5)
+Under California Insurance Code (CIC) § 10169.5(a)(2), a health plan is legally prohibited from conditioning the approval of a surgical procedure on the completion of physical therapy if the member has already completed a course of physical therapy and the provider has documented a "functional plateau" without adequate resolution of symptoms.
+
+In this case, Mr. Clark completed two separate, authenticated courses of PT totaling 12 weeks. Both Riverside PT and Coastal PT documented that the patient reached a functional plateau, with the physical therapist at Coastal PT explicitly noting a "functional plateau — maximum therapeutic benefit reached" and "no improvement in neurological deficit." Mechanically denying or delaying this surgery to "verify" records that have now been fully submitted violates both the spirit and the letter of CIC § 10169.5.
+
+### 2. Alignment with Generally Accepted Clinical Standards
+According to the **Joint Section on Disorders of the Spine of the AANS/CNS (2023 Guidelines)** and the **North American Spine Society (NASS) 2020 Guidelines**, surgical decompression via ACDF is highly indicated (Tier 1/Tier 2 standard) for patients with:
+*   Clear MRI evidence of severe nerve root compression at the corresponding level (C5-C6).
+*   Corresponding objective neurological deficits (4/5 bicep weakness, absent bicep reflex, dermatomal numbness).
+*   Failure to respond to an appropriate conservative trial of 6 to 12 weeks (incorporating PT, neuropathic medications, and epidural injections).
+
+Mr. Clark has a persistent motor deficit (4/5 weakness) and an absent reflex. Delaying surgery in the presence of an active, progressive motor deficit when conservative treatment has already failed poses a clinical risk of permanent nerve root injury. Proceeding with surgery immediately is the clinical standard of care.
+
+---
+
+## V. DISPOSITION SUMMARY (APPLYING DECISION TREE)
+
+The appeal is resolved under **Condition B (Plan Criteria Satisfied via Clinical Audit)** of the Overturn Criteria:
+*   The primary diagnosis is established as **Cervical Radiculopathy** with corresponding imaging and clinical exam correlation.
+*   The clinical audit of the newly submitted, complete Coastal Physical Therapy records, alongside the Riverside Physical Therapy records, confirms a cumulative total of **12 weeks** of physical therapy.
+*   Documentation verifies the completion of two pharmacotherapy trials (Gabapentin and Duloxetine, both $>4$ weeks) and one interventional procedure (right C6 epidural steroid injection).
+*   Additionally, the initial denial was **procedurally defective** under CHSC § 1374.31(b) as it failed to cite the specific clinical coverage criteria applied.
+
+Because the clinical records are complete, authenticated, and satisfy all medical necessity requirements of CC-SPINE-2024, the administrative verification conflict is resolved.
+
+---
+
+## VI. AUTHORIZATION DETAILS
+*   **Approved Procedure:** Anterior Cervical Discectomy and Fusion (ACDF), C5-C6, single level.
+*   **CPT Code Approved:** 22551
+*   **Authorized Provider:** Dr. Sarah Nguyen, MD
+*   **Authorized Facility:** Cedars-Sinai Medical Center
+*   **Authorization Validity Period:** October 24, 2024, to January 22, 2025 (90 Days per Section 3.5)
+
+*Please provide a copy of this determination to the member, Steven Clark, and the requesting physician, Dr. Sarah Nguyen, MD, within the contractually mandated timeframes.*

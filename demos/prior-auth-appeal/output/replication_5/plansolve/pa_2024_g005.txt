@@ -1,0 +1,87 @@
+CASE: pa_2024_g005
+SYSTEM: PLANSOLVE
+DISPOSITION: OVERTURN
+GT: OVERTURN
+CORRECT: True
+ELAPSED: 63.6s
+========================================================================
+
+# HEALTH PLAN APPEALS & REVIEWS DIVISION
+**FORMAL APPEAL DETERMINATION**
+
+### CASE IDENTIFICATION
+*   **Case ID:** PA-2024-G005
+*   **Member:** Gerald Obi
+*   **Age:** 58
+*   **Health Plan:** HealthFirst PPO Gold — Group Plan 77441
+*   **State of Residence:** California
+*   **Requested Procedure:** Anterior Cervical Discectomy and Fusion (ACDF), C6-C7, One Level (CPT Code: 22551)
+*   **Requesting Physician:** Dr. Amina Diallo, MD — Spine Surgery
+*   **Facility:** Stanford Medical Center
+*   **Initial Denial Date:** November 8, 2024
+*   **Denial Reviewer:** Dr. Patricia Huang, MD — HealthFirst Utilization Management
+*   **Appeal Decision Date:** November 20, 2024
+
+---
+
+### FINAL DETERMINATION
+**DISPOSITION: OVERTURN IN FULL**
+
+The health plan’s initial denial of prior authorization for a single-level Anterior Cervical Discectomy and Fusion (ACDF) at C6-C7 (CPT 22551) is **OVERTURNED**. The health plan is directed to **AUTHORIZE** the requested procedure immediately. 
+
+This determination is governed by the statutory Hierarchy of Authority:
+$$\text{California State Law \& Regulations (CIC, CHSC, DMHC APL)} > \text{Generally Accepted Clinical Standards (AANS/CNS, NASS)} > \text{Plan Coverage Criteria (HealthFirst CC-SPINE-2024)}$$
+
+---
+
+### DETAILED FINDINGS & CLINICAL ANALYSIS
+
+#### 1. Procedural Defect and Notice Adequacy Check (CHSC § 1374.31(b))
+The health plan’s initial denial notice, issued on November 8, 2024, is **legally defective** under California Health and Safety Code (CHSC) § 1374.31(b). 
+*   The plan based its clinical denial, in part, on the member’s suboptimally controlled Type 2 diabetes (HbA1c 8.2%), citing perioperative and wound healing risks.
+*   A comprehensive review of the active plan Clinical Coverage Criteria (**HealthFirst CC-SPINE-2024**) reveals that diabetes management, glycemic thresholds, and HbA1c levels are **not** criteria, exclusions, or limitations for the authorization of cervical spinal surgery.
+*   By injecting extra-contractual clinical risk factors into the prior authorization determination, the plan applied a criterion that does not exist in its published medical policy. Under CHSC § 1374.31(b), a denial notice must specify only the contractually valid clinical criteria applied. The inclusion of non-contractual criteria renders the denial legally defective, requiring the immediate overturn of this secondary ground.
+
+#### 2. Clinical Classification Verification (Myelopathy vs. Radiculopathy)
+To establish the correct clinical pathway, the member’s pathology must be verified:
+*   **Imaging Findings:** The cervical spine MRI dated September 20, 2024, demonstrates a large disc herniation at C6-C7 with moderate left C7 nerve root compression and foraminal stenosis. Crucially, the radiologist documented: *"No cord contact. No myelomalacia."*
+*   **Neurological Examination:** Clinical examination on September 25, 2024, reveals unilateral left C7 dermatomal numbness, a diminished left tricep reflex, 4/5 left tricep weakness, and 4+/5 left grip strength. There are no upper motor neuron signs (e.g., hyperreflexia, positive Hoffman sign, clonus, or gait disturbance) and no bilateral upper extremity symptoms.
+*   **Classification Conclusion:** Because there is no spinal cord compression or corresponding upper motor neuron deficits, the primary clinical diagnosis is **Cervical Radiculopathy with motor deficit**, not cervical myelopathy. Therefore, standard radiculopathy criteria apply, and the Myelopathy Exception under Section 2.2(A) is not active.
+
+#### 3. Plan Criteria Compliance & Factual Audit (HealthFirst CC-SPINE-2024)
+A rigorous clinical audit of the member's medical record demonstrates that the plan committed a major factual error in assessing compliance with the standard conservative treatment requirements under **Section 2.2**:
+
+*   **Physical Therapy (Section 2.2(a)):** The plan denied the request claiming the member completed only "5 weeks of physical therapy (6 required)." However, the authoritative physical therapy records in the member's appeal file document continuous, supervised physical therapy from **July 1, 2024, through August 16, 2024**. This represents a total of **7 weeks** and **21 sessions**. The plan's utilization reviewer miscounted the duration. The member fully satisfied and exceeded the plan's 6-week requirement.
+*   **Pharmacotherapy (Section 2.2(b)):** The member completed a 5-month trial of Pregabalin 150mg BID (neuropathic agent) and a 3-month trial of Duloxetine 60mg daily (neuropathic agent), both exceeding the plan's requirement of two agents for a minimum of 4 weeks each.
+*   **Interventional Treatment (Section 2.2(c)):** The member underwent a left C7 cervical epidural steroid injection on October 10, 2024, which provided only 45% temporary pain relief before returning to baseline within 4 weeks.
+*   **Imaging & Documentation (Sections 2.3 & 2.4):** The MRI is current (within 6 months), and the treating surgeon, Dr. Diallo, provided a complete clinical note detailing functional impairment (the member is currently working reduced hours due to pain and hand weakness) and the clinical rationale for ACDF.
+
+The member met **100% of the medical necessity criteria** outlined in HealthFirst CC-SPINE-2024. The plan's physical therapy-based denial is factually incorrect and unsupported by the clinical record.
+
+#### 4. Statutory Physical Therapy Override Assessment (CIC § 10169.5)
+Even if the member had not reached the 6-week physical therapy mark, the plan’s physical therapy requirement is legally overridden by California Insurance Code (CIC) § 10169.5:
+*   **CIC § 10169.5(a)(2) [Functional Plateau]:** The law prohibits plans from conditioning surgical approval on further physical therapy if the patient has reached a documented functional plateau. The physical therapy discharge note on August 16, 2024, explicitly states: *"7 weeks PT completed... Functional plateau documented at discharge: 'no further functional improvement expected.'"*
+*   **CIC § 10169.5(a)(3) [Neurological Compromise]:** The clinical exam documents objective structural neurological compromise (unilateral tricep motor weakness graded at 4/5 and diminished reflexes) which physical therapy cannot mechanically resolve. Conditioning surgical decompression on further physical therapy in the presence of progressing motor weakness is legally and clinically prohibited.
+
+#### 5. Generally Accepted Clinical Standards Review (CHSC § 1374.32(b))
+Under CHSC § 1374.32(b), the standard of review for medical necessity is based on generally accepted standards of medical practice, which override restrictive or misapplied plan policies:
+*   According to the **American Association of Neurological Surgeons (AANS/CNS Joint Section, 2023 Guidelines)** and the **North American Spine Society (NASS, 2020 Guidelines)**, surgical decompression (ACDF) is a Tier 1 strong indication for patients with cervical radiculopathy who exhibit objective motor deficits (such as 4/5 tricep weakness) and have failed a comprehensive 6-week course of conservative therapy.
+*   To delay surgical decompression when a patient has a documented motor deficit and has reached a functional plateau is contrary to standard medical practice and introduces an unacceptable risk of permanent, irreversible nerve root injury.
+
+#### 6. Contractual Invalidity of Diabetes Ground
+The health plan’s reliance on the member’s HbA1c of 8.2% as a basis for denying prior authorization is contractually and clinically invalid:
+*   While perioperative glycemic optimization is an essential clinical consideration, it is the sole responsibility of the surgical team, the anesthesiologist, and the patient's endocrinologist (Dr. Patel). 
+*   Dr. Diallo’s note correctly identifies that *"Diabetes management will be optimized preoperatively. This is standard perioperative protocol. Diabetes control is a surgical planning consideration, not a PA criterion."*
+*   Using clinical risk management parameters as an administrative barrier to coverage is an extra-contractual application of policy and is disallowed.
+
+---
+
+### FINAL ORDER & DISPOSITION
+Pursuant to California Health and Safety Code and the clinical evidence submitted:
+1.  The initial prior authorization denial dated November 8, 2024, is **OVERTURNED**.
+2.  HealthFirst Health Plan is **ORDERED** to immediately approve and authorize CPT Code **22551** (Anterior Cervical Discectomy and Fusion, C6-C7, single level) for member **Gerald Obi**, to be performed by **Dr. Amina Diallo, MD** at **Stanford Medical Center**.
+3.  The health plan shall issue the formal authorization number within **24 hours** of this order to prevent further delay in necessary neurological care.
+
+**Reviewer Signature:**  
+*Health Plan Appeals & Reviews Division — Lead Independent Clinical Reviewer*  
+*Board-Certified Orthopaedic Spine Surgeon / Neurological Surgeon Advisory Panel*

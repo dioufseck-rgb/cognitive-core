@@ -1,0 +1,100 @@
+CASE: pa_2024_g001
+SYSTEM: PLANSOLVE
+DISPOSITION: OVERTURN
+GT: OVERTURN
+CORRECT: True
+ELAPSED: 55.3s
+========================================================================
+
+# FORMAL APPEAL DETERMINATION
+
+**CASE PROFILE**
+*   **Case ID:** PA-2024-G001
+*   **Member:** Marco Reyes (Age: 49)
+*   **Plan:** HealthFirst PPO Gold — Group Plan 77441
+*   **State of Jurisdiction:** California
+*   **Coverage Effective Date:** May 1, 2021
+*   **Plan Year:** 2024
+*   **Requested Procedure:** Anterior Cervical Discectomy and Fusion (ACDF) C6-C7, single-level (CPT 22551)
+*   **Requesting Physician:** Dr. Sarah Okonkwo, MD — Spine Surgery
+*   **Facility:** UCSF Medical Center
+*   **Date of Prior Authorization Denial:** November 1, 2024
+*   **Denial Reviewer:** Dr. Alan Foster, MD — HealthFirst Utilization Management
+*   **Level of Review:** First-Level Appeal
+
+---
+
+## I. DETERMINATION
+**DISPOSITION: OVERTURN IN FULL**
+
+The prior authorization denial issued by HealthFirst on November 1, 2024, is **OVERTURNED**. The requested single-level Anterior Cervical Discectomy and Fusion (ACDF) at C6-C7 (CPT 22551) is determined to be medically necessary under California law, generally accepted clinical standards, and the health plan's own clinical coverage criteria when evaluated against the complete clinical record. HealthFirst is directed to authorize the procedure immediately.
+
+---
+
+## II. CLINICAL & PROCEDURAL EVALUATION
+
+### Step 1: Procedural Adequacy Audit
+Under **California Health & Safety Code (CHSC) § 1374.31(b)**, a medical necessity denial must explicitly cite the clinical criteria applied, provide the specific clinical reasons for the denial, and include mandatory Independent Medical Review (IMR) notification. 
+
+*   **Findings:** The denial notice dated November 1, 2024, cited clinical criteria document *CC-SPINE-2024 Section 2.2*, stated a specific clinical reason (failure to meet the 6-week physical therapy requirement based on a documented 3 weeks of therapy), and included standard IMR notifications. 
+*   **Procedural Status:** The denial notice is procedurally adequate, meaning the evaluation must proceed to a substantive factual and clinical audit.
+
+### Step 2: Factual Verification Audit (Physical Therapy History)
+The plan's denial is built upon a single factual premise: *"Member has completed only 3 weeks of physical therapy... Functional plateau not documented."* A comprehensive audit of the submitted clinical record reveals this factual premise to be entirely incorrect.
+
+*   **Provider 1 (Valley Physical Therapy):** Completed 3 weeks of physical therapy from June 1, 2024, to June 21, 2024 (9 total sessions). Outcome: Partial improvement, symptoms persisted.
+*   **Provider 2 (Capital Physical Therapy):** Completed an additional 6 weeks of physical therapy from July 8, 2024, to August 16, 2024 (18 total sessions). Outcome: Functional plateau achieved. The discharge summary explicitly notes: *"Maximum therapeutic benefit achieved. No further improvement expected from continued PT."*
+*   **Audit Resolution:** The member completed a cumulative **9 weeks of supervised physical therapy (27 total sessions)**. Complete records from both Valley Physical Therapy and Capital Physical Therapy were submitted with the original prior authorization request. The plan's utilization reviewer, Dr. Alan Foster, failed to review the Capital Physical Therapy records, leading to a critical factual error. The factual claim under test is **proven false**.
+
+### Step 3: Clinical Classification & Plan Criteria Exception Audit
+To determine the correct evaluation pathway under *CC-SPINE-2024 Section 2.1*, the clinical presentation must be classified as either cervical myelopathy or cervical radiculopathy.
+
+*   **Clinical Presentation:** The member presents with persistent, right-sided C6-C7 radicular symptoms (pain, numbness, and motor weakness).
+*   **Objective Imaging (MRI dated August 20, 2024):** Demonstrates a large C6-C7 disc herniation with moderate right C7 nerve root compression and right foraminal stenosis. The report explicitly notes: *"No cord contact. No myelomalacia."*
+*   **Neurological Exam (August 25, 2024):** Confirms right C7 dermatomal numbness, a diminished right tricep reflex, and 4/5 grip strength on the right. There are no bilateral findings, no gait disturbances, and no upper motor neuron (UMN) signs (e.g., positive Hoffman sign, hyperreflexia, or clonus).
+*   **Classification:** The member has **Cervical Radiculopathy** without myelopathy. Therefore, the *Standard Pathway* under Section 2.2 applies (requiring a minimum of 6 weeks of physical therapy, trials of two pharmacotherapy agents, and one interventional procedure). The myelopathy exception (Section 2.2(A)) is not engaged.
+
+### Step 4: Statutory Override Analysis (California Law)
+Even if the plan's internal criteria asserted that the physical therapy course was incomplete or unsatisfactory, California statutory mandates override the mechanical application of plan-specific therapy timelines.
+
+*   **California Insurance Code (CIC) § 10169.5(a)(2):** Explicitly prohibits a health plan from conditioning the approval of a surgical procedure on the completion of physical therapy if the member has completed a course of physical therapy and the treating provider documents that the member reached a **functional plateau** without adequate resolution of symptoms.
+*   **Application:** The Capital Physical Therapy discharge summary explicitly documents that the member reached a functional plateau (*"Maximum therapeutic benefit achieved. No further improvement expected..."*). Consequently, under **CIC § 10169.5(c)**, the plan is legally barred from mechanically enforcing any further physical therapy requirements.
+
+### Step 5: Clinical Standard Reference Audit (AANS/CNS, NASS, & AO Spine Guidelines)
+Under **CHSC § 1374.32(b)**, the standard of review for medical necessity is governed by generally accepted standards of medical practice, which override restrictive health plan internal criteria.
+
+*   **Clinical Guidelines:** The American Association of Neurological Surgeons (AANS/CNS, 2023) and the North American Spine Society (NASS, 2020) clinical standards indicate that single-level ACDF (CPT 22551) is a Tier 2 "Reasonable Indication" for patients presenting with cervical radiculopathy, matching clinical symptoms, correlating MRI-confirmed nerve root compression, and persistent neurological deficits (reflex and grip strength deficits) that have failed to respond to 6 to 12 weeks of conservative care.
+*   **Application:** The member has a 9-week failure of physical therapy, has a persistent motor deficit (grip strength 4/5), and has failed extensive pharmacotherapy and interventional treatments. Delaying surgical decompression under these clinical circumstances is contrary to clinical standards and places the patient at risk for permanent neurological damage.
+
+---
+
+## III. PLAN COVERAGE CRITERIA ADHERENCE COMPLIANCE CHECK
+To establish if the member met the plan's own internal criteria (*CC-SPINE-2024 Section 2*), the full medical record is cross-referenced below:
+
+| Criteria Section | HealthFirst CC-SPINE-2024 Requirement | Member Clinical Record Evidence | Status |
+| :--- | :--- | :--- | :--- |
+| **2.1 Diagnosis** | Confirmed cervical radiculopathy with correlating MRI and neurological deficits. | MRI (08/20/2024) shows large C6-C7 herniation compressing C7 nerve root; Exam (08/25/2024) shows right C7 numbness, diminished tricep reflex, and 4/5 grip strength. | **MET** |
+| **2.2(a) PT** | Minimum 6 weeks of supervised physical therapy with documented outcomes. | **9 weeks completed** (3 weeks Valley PT + 6 weeks Capital PT) with documented functional plateau. | **MET** |
+| **2.2(b) Meds** | Trial of $\ge$ 2 agents (NSAIDs, muscle relaxants, neuropathic agents, steroids) for $\ge$ 4 weeks each. | (1) **Gabapentin 600mg TID** for 4 months.<br>(2) **Naproxen 500mg BID** for 3 months. | **MET** |
+| **2.2(c) Injection** | Minimum of 1 cervical epidural steroid injection or medial branch block. | **Right C7 epidural steroid injection** completed on September 15, 2024 (provided 35% temporary relief, returned to baseline). | **MET** |
+| **2.3 Imaging** | Current imaging (within 6 months) demonstrating correlating pathology. | MRI dated August 20, 2024 (within 3 months of request/denial) confirms right C6-C7 pathology matching clinical presentation. | **MET** |
+| **2.4 Physician** | Attestation of conservative failure, clinical rationale, functional limitations, and risk discussion. | Detailed clinical documentation and surgical recommendation provided by Dr. Sarah Okonkwo, MD (UCSF Spine Surgery). | **MET** |
+
+---
+
+## IV. CONCLUSION & APPEALS DISPOSITION
+
+The clinical and regulatory review demonstrates that the initial denial issued on November 1, 2024, was factually erroneous and legally non-compliant. 
+
+1.  **Factual Error:** The plan's reviewer completely overlooked the Capital Physical Therapy medical records, which documented 6 weeks of therapy and a clear functional plateau. This oversight led to the false claim that the member completed only 3 weeks of therapy.
+2.  **Plan Adherence:** With the factual record corrected, the member completed 9 weeks of PT, satisfying *Section 2.2(a)* of the plan’s *CC-SPINE-2024* guidelines. All other conservative criteria (pharmacotherapy and epidural injection) and diagnostic requirements were fully met.
+3.  **Statutory Violation:** Denying the request because of an allegedly incomplete PT trial when a certified physical therapist explicitly documented a functional plateau violates **California Insurance Code § 10169.5**.
+4.  **Clinical Necessity:** Under **California Health & Safety Code § 1374.32(b)** and national neurosurgical guidelines (AANS/CNS), the requested single-level ACDF is medically indicated to prevent progressive or permanent motor deficit (currently 4/5 grip strength).
+
+Following the clinical and regulatory hierarchy of authority (**California Law > Clinical Standards > Health Plan Criteria**), the denial is unsubstantiated.
+
+**DECISION:** The denial of CPT 22551 (ACDF C6-C7) is **OVERTURNED**. HealthFirst must authorize this procedure immediately.
+
+**Authorized Reviewer:**
+*Board-Certified Appeal Medical Director / Independent Review Specialist*
+*State of California Department of Managed Health Care (DMHC) / Expert Appeals Unit*

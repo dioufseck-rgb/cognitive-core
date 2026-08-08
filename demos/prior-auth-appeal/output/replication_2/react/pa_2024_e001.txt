@@ -1,0 +1,88 @@
+CASE: pa_2024_e001
+SYSTEM: REACT
+DISPOSITION: UNKNOWN
+GT: PARTIAL
+CORRECT: False
+ELAPSED: 29.2s
+========================================================================
+
+## APPEAL DETERMINATION: Prior Authorization Denial
+
+**Case ID:** PA-2024-E001
+**Member:** Victor Patel (M-667799), Age 60
+**Plan:** HealthFirst PPO Gold — Group Plan 77441, California
+**Procedure Requested:** ACDF C5-C6 AND C6-C7, two levels (CPT 22551 + 22552)
+**Treating Physician:** Dr. Lisa Park, MD
+**Facility:** UCSF Medical Center
+**Date of Initial Denial:** 2024-11-01
+**Initial Reviewer:** Dr. Patricia Huang, MD
+**Reason for Denial:** MED-003, "Two-level fusion not supported. C5-C6 level shows pathology consistent with surgical criteria. C6-C7 shows mild changes only. Two-level fusion not approved when one level meets criteria and one does not."
+**Appeal Basis:**
+1.  Both levels are symptomatic per treating physician.
+2.  Adjacent levels should be addressed simultaneously to prevent accelerated degeneration.
+3.  Member meets full criteria for both levels.
+
+---
+
+### EXECUTIVE SUMMARY
+
+The request for a two-level anterior cervical discectomy and fusion (ACDF) at C5-C6 and C6-C7 for Mr. Victor Patel was denied because the C6-C7 level was determined not to meet medical necessity criteria.
+
+Upon review of the clinical record, HealthFirst PPO Gold Plan Criteria (CC-SPINE-2024), California regulatory framework (CIC, CHSC, DMHC APL), and generally accepted clinical standards (AANS/CNS 2023, NASS 2020, AO Spine 2021), it is confirmed that the C5-C6 level meets the criteria for surgical intervention due to severe C6 radiculopathy and failed conservative treatment. However, the C6-C7 level does not demonstrate objective evidence of nerve root compression or definitive C7 radicular symptoms sufficient to warrant surgical intervention under either the plan's criteria or generally accepted clinical standards.
+
+No state law or clinical standard overrides the plan's determination for the C6-C7 level. Therefore, the requested two-level procedure, as a whole, is not medically necessary.
+
+**DISPOSITION: DENIAL UPHELD**
+
+---
+
+### WARRANT
+
+**1. Clinical Presentation and Diagnosis:**
+*   **C5-C6 Level:** The clinical record clearly documents a diagnosis of severe right C6 radiculopathy. The MRI (2024-09-15) shows a "large disc herniation, moderate-severe right C6 nerve root compression, foraminal stenosis." The neurological exam (2024-09-20) reveals objective findings of "right bicep weakness 3+/5, bicep reflex absent right, right C6 dermatomal numbness and tingling." These findings are consistent with cervical radiculopathy as defined by HealthFirst Plan Criteria Section 2.1(a) and generally accepted clinical standards (AANS/CNS 2023, Section 1.1).
+*   **C6-C7 Level:** For this level, the MRI shows only a "small disc bulge, mild foraminal narrowing, no nerve root compression identifiable, no cord contact." The neurological exam notes a "right tricep reflex slightly diminished" but "No definitive C7 dermatomal symptoms." The physician notes "mild C7 symptoms possibly present but not clearly documented."
+    *   **Analysis:** These findings for C6-C7 do not meet the diagnostic requirements for surgical intervention under HealthFirst Plan Criteria Section 2.1(a) (nerve root compression with radicular symptoms) or 2.1(c) (objective neurological deficit). The imaging explicitly states "no nerve root compression identifiable," and the symptoms are not definitive. There is no evidence of myelopathy for either level.
+
+**2. Conservative Treatment Review:**
+*   **Physical Therapy:** The member completed 8 weeks of PT (24 sessions). This exceeds the HealthFirst Plan Criteria requirement of 6 weeks (Section 2.2(a)). For C6 symptoms, PT notes indicate persistence, suggesting a functional plateau. For C7 symptoms, the PT note states "minimal and possibly resolving," which does not indicate failure or plateau for this level.
+*   **Pharmacotherapy:** The member completed trials of Pregabalin (4 months) and Naproxen (3 months), meeting the plan's requirement of two agents for a minimum of 4 weeks each (Section 2.2(b)).
+*   **Interventional Treatment:** A right C6 epidural was performed (2024-10-15), providing 70% relief that fully returned in 4 weeks. This meets the plan's requirement for one interventional treatment (Section 2.2(c)) for the C5-C6 level. No C7-specific injection was performed, which is reasonable given the lack of definitive C7 symptoms.
+*   **Myelopathy Exception:** The Myelopathy Pathway (HealthFirst Plan Criteria Section 2.2(A) Exception) is not applicable, as the member's diagnosis is primarily radiculopathy for C5-C6, and myelopathy criteria (spinal cord compression on MRI plus UMN signs, bilateral symptoms, gait disturbance) are not met (Domain Knowledge, Clinical Reference Summary Section 1.1). There is no myelomalacia documented in the MRI.
+
+**3. Application of HealthFirst Plan Criteria (CC-SPINE-2024):**
+*   **C5-C6 Level:** This level satisfies the diagnostic, conservative treatment, and imaging requirements (Sections 2.1, 2.2, 2.3). The plan's initial denial explicitly states, "C5-C6 level shows pathology consistent with surgical criteria."
+*   **C6-C7 Level:** This level does not satisfy the diagnostic or imaging requirements. Section 2.1 requires nerve root compression or objective neurological deficit, neither of which are definitively present for C6-C7. Section 2.3 requires imaging consistent with symptoms and proposed surgical level, which is lacking for C6-C7.
+*   **Two-Level Procedure:** The plan's denial reasoning, "Two-level fusion not approved when one level meets criteria and one does not," is consistent with its overall policy of ensuring medical necessity for *each* requested surgical level.
+
+**4. Application of California Regulatory Framework:**
+*   **CHSC § 1374.31(b) (Denial Notice Adequacy):** The denial notice provides a specific reason code (MED-003) and detailed text explaining why the C6-C7 level was not approved. This is procedurally adequate.
+*   **CIC § 10169.5 (Physical Therapy Prerequisite):** While this code allows for waiver of PT requirements under certain conditions (e.g., functional plateau, objective structural neurological compromise), the denial of the two-level fusion is primarily based on the lack of pathology and symptoms at the C6-C7 level, not a failure to complete PT. For C5-C6, PT requirements were met and symptoms persisted (plateau). This regulation does not create medical necessity for the C6-C7 level where it is otherwise absent.
+*   **DMHC APL 22-014 (Myelopathy and Urgent Conditions):** This All-Plan Letter specifically addresses myelopathy with objective evidence of cord compression and myelomalacia, permitting waiver of conservative treatment. As established, the member does not have confirmed myelopathy or myelomalacia. Therefore, this APL does not apply to this case.
+*   **CHSC § 1374.32(b) (IMR Standard vs. Plan Criteria):** This is the most crucial regulatory provision, stating that services meeting "generally accepted standards of medical practice" SHALL be approved regardless of more restrictive plan criteria. This requires evaluating the clinical standard.
+
+**5. Application of Clinical Standard (AANS/CNS 2023, NASS 2020, AO Spine 2021):**
+*   **C5-C6 Level:** Under AANS/CNS Joint Guidelines (2023), surgical intervention for C5-C6 falls under TIER 2(b) "Radiculopathy with persistent symptoms after 6-12 weeks conservative tx" and TIER 2(c) "Significant functional impairment not responding to conservative care." Given the severe objective weakness (3+/5) and absent reflex, this level would generally be considered medically necessary for surgery.
+*   **C6-C7 Level:** The clinical standards do NOT support surgical intervention for the findings at C6-C7. A "small disc bulge, mild foraminal narrowing, no nerve root compression identifiable, no cord contact" with "no definitive C7 dermatomal symptoms" falls under TIER 3 — SURGERY NOT INDICATED for "Imaging findings without correlating symptoms" (AANS/CNS 2023, Section 3.1). The appealing party's argument that "adjacent levels should be addressed simultaneously to prevent accelerated degeneration" is not explicitly cited in the provided clinical guidelines as a primary surgical indication that overrides a lack of direct pathology and symptoms at that specific level. The clinical evidence prioritizes addressing confirmed pathology and symptoms.
+
+**6. Conflict Resolution:**
+There is no conflict between the HealthFirst Plan Criteria and the generally accepted clinical standards regarding the lack of medical necessity for surgical intervention at the C6-C7 level. Both sources require objective evidence of pathology (nerve root compression or myelopathy) correlating with definitive symptoms and/or objective neurological deficits. The clinical record for C6-C7 does not meet these requirements. The California regulatory framework, while emphasizing clinical standards over restrictive plan criteria, does not override the consensus between the plan criteria and clinical standards in this specific instance.
+
+**Conclusion:**
+While the C5-C6 level clearly meets surgical indications, the C6-C7 level does not demonstrate medical necessity for surgical intervention based on objective imaging or neurological findings, under either HealthFirst Plan Criteria or generally accepted clinical standards. As the requested procedure was for a two-level fusion (ACDF C5-C6 AND C6-C7), and one of the requested levels lacks medical necessity, the denial of the *two-level* procedure is upheld. The member's treating physician may submit a new prior authorization request for a single-level ACDF at C5-C6 if deemed appropriate.
+
+---
+
+**CITED SOURCES:**
+1.  HealthFirst Health Plan Clinical Coverage Criteria, Document: CC-SPINE-2024, Sections 2.1, 2.2, 2.3, 3.2.
+2.  California Health & Safety Code (CHSC) § 1374.31(b).
+3.  California Health & Safety Code (CHSC) § 1374.32(b).
+4.  California Insurance Code (CIC) § 10169.5.
+5.  Department of Managed Health Care (DMHC) All-Plan Letter (APL) 22-014, Sections II.1, II.2.
+6.  AANS/CNS Joint Section on Disorders of the Spine: Guidelines for Management of Degenerative Cervical Myelopathy (2023 Update), Sections 1.1, 3.1.
+7.  North American Spine Society (NASS): Evidence-Based Clinical Guidelines (2020), Section 2.1.
+8.  AO Spine International: Clinical Practice Guideline (2021), Section 2.1.
+
+---
+
+**Reviewer:** [Your Name/Title - Expert Health Plan Appeals Reviewer]
+**Date:** [Current Date]

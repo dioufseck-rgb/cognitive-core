@@ -1,0 +1,109 @@
+CASE: pa_2024_c003
+SYSTEM: REACT
+DISPOSITION: OVERTURN
+GT: REMAND
+CORRECT: False
+ELAPSED: 37.2s
+========================================================================
+
+**APPEAL DETERMINATION LETTER**
+
+**Date:** 2024-12-05
+**Case ID:** PA-2024-C003
+**Member Name:** Helen Brooks
+**Member ID:** M-112244
+**Plan:** HealthFirst PPO Gold — Group Plan 77441
+**Requested Procedure:** ACDF C4-C5, one level (CPT 22551)
+**Treating Physician:** Dr. James Park, MD — Neurosurgery
+**Initial Denial Date:** 2024-11-20
+**Appeals Reviewer:** [Your Name/Title, e.g., Chief Appeals Officer]
+
+---
+
+**I. BACKGROUND**
+
+This is an internal first-level appeal of a prior authorization denial for an anterior cervical discectomy and fusion (ACDF) at C4-C5 for member Helen Brooks. The initial denial (2024-11-20) cited MED-003, stating that the myelopathy exception does not apply due to minimal T2 signal change (deemed below threshold for clinical significance or artifact by the plan's imaging reviewer) and that the standard pathway was not met due to the absence of an interventional procedure. The appeal asserts that T2 signal change is present (confirmed by a second radiologist as early myelomalacia), and the treating physician has documented clinical myelopathy independently of imaging.
+
+**II. CLINICAL SUMMARY**
+
+Helen Brooks is a 49-year-old member presenting with symptoms consistent with cervical myelopathy.
+*   **Diagnosis:** Early cervical myelopathy with C4-C5 disc herniation and cord contact.
+*   **Neurological Exam (2024-10-05):** Positive bilateral Hoffman signs, bilateral upper extremity hyperreflexia, and subtle balance impairment on tandem gait. These are objective Upper Motor Neuron (UMN) signs indicative of cervical myelopathy.
+*   **Imaging:**
+    *   Original MRI (2024-10-01): C4-C5 disc herniation with cord contact, "possible early T2 signal change — equivocal, may represent artifact."
+    *   Second MRI Read (2024-10-15, treating hospital): C4-C5 cord compression with "early myelomalacia." Notes "T2 hyperintensity is reproducible on multiple sequences and represents early cord signal change, not artifact. Consistent with early myelopathy."
+    *   Plan Radiologist Review (2024-11-05): "T2 signal change is below threshold for clinical significance. Not consistent with myelomalacia. Represents artifact or normal variant."
+*   **Conservative Treatment:**
+    *   **Physical Therapy:** 8 weeks (24 sessions) completed. Documented "No improvement in UMN signs."
+    *   **Pharmacotherapy:** Gabapentin 400mg TID for 3 months (partial benefit), Cyclobenzaprine for 6 weeks (minimal benefit).
+    *   **Interventional Procedures:** Not performed. The treating physician documented this was due to myelopathy concern, citing that epidural steroid injections are relatively contraindicated in cord compression.
+
+**III. REVIEW ANALYSIS & APPLICATION OF HIERARCHY**
+
+The review proceeds by applying the three-source hierarchy: **State law > Clinical standard > Plan criteria**.
+
+**A. Assessment of Plan Criteria (HealthFirst CC-SPINE-2024)**
+
+1.  **2.1 DIAGNOSIS REQUIREMENT — Cervical Myelopathy:** The member's neurological exam findings (bilateral Hoffman signs, hyperreflexia, subtle gait impairment) are definitive for myelopathy, in conjunction with documented C4-C5 cord compression on MRI. This fully satisfies HealthFirst's criterion 2.1(b) ("spinal cord compression with myelopathic symptoms [gait disturbance, bilateral upper extremity weakness, hyperreflexia, positive Hoffman sign]").
+    *   The plan's denial incorrectly focused solely on the degree of T2 signal change for myelomalacia when the clinical symptoms alone confirm myelopathy per its *own definition*.
+
+2.  **2.2 CONSERVATIVE TREATMENT REQUIREMENT:**
+    *   **Myelopathy Exception 2.2(A):** Since cervical myelopathy is the primary diagnosis, this exception applies.
+        *   **Physical Therapy:** The member completed 8 weeks of PT, exceeding the 4-week minimum required by the myelopathy exception.
+        *   **Pharmacotherapy:** Two agents (Gabapentin, Cyclobenzaprine) were trialed for sufficient durations (3 months, 6 weeks respectively), meeting the requirement.
+        *   **Interventional Treatment:** The myelopathy exception **waives** this requirement if the treating physician documents that interventional treatment poses a risk of neurological deterioration. The treating physician explicitly documented that epidural steroid injections are "relatively contraindicated in cord compression" due to myelopathy concern, thereby meeting the waiver condition.
+    *   **Conclusion on Plan Criteria:** The member meets all requirements under HealthFirst's own myelopathy exception (2.2A). The plan's initial denial failed to correctly apply its own criteria by not triggering the myelopathy exception, despite clear clinical and imaging evidence of myelopathy and a documented contraindication to interventional therapy.
+
+**B. Assessment of California Regulatory Requirements (State Law)**
+
+1.  **DMHC All-Plan Letter APL 22-014 (Myelopathy and Urgent Conditions):** This state regulation directly addresses cases like Helen Brooks'.
+    *   **II.1 Myelopathy Classification:** States that "cervical myelopathy with objective evidence of cord compression and myelomalacia on MRI constitutes a condition with potential for irreversible harm if untreated." The member has objective cord compression and a second radiologist confirmed early myelomalacia, which the APL identifies as supporting urgent treatment.
+    *   **II.2 Conservative Treatment Exceptions:** This APL states plans "SHALL NOT require completion of a full course of conservative treatment" when objective imaging shows progressive pathology (myelomalacia), the physician documents conservative failure, and surgery is indicated by accepted guidelines. The treating physician documented "no improvement in UMN signs" after 8 weeks of PT, and explicitly waived interventional therapy due to risk, indicating conservative failure and surgical indication. The presence of myelomalacia further strengthens this waiver.
+    *   **Conclusion:** The plan's denial for lack of an interventional procedure is directly contradicted by DMHC APL 22-014, which mandates waiving such requirements in cases of myelopathy where delay risks harm.
+
+2.  **CIC § 10169.5(a)(3) (Physical Therapy as Prerequisite):** This state law explicitly prohibits conditioning surgical approval on PT completion where "the condition involves objective evidence of structural neurological compromise that physical therapy cannot address."
+    *   Helen Brooks has objective cord compression and myelopathy with UMN signs. Clinical standards confirm PT does not effectively address myelopathy symptoms. Her 8 weeks of PT showed "no improvement in UMN signs," demonstrating PT's inability to address her neurological compromise.
+    *   **Conclusion:** Even if the PT duration criteria were at issue, this state law would override any mandatory PT requirement for this specific neurological condition.
+
+3.  **CHSC § 1374.32(b) (IMR Standard vs. Plan Criteria):** This section confirms that the Independent Medical Review standard is not bound by plan criteria. If the service meets generally accepted standards of medical practice, it SHALL be approved, regardless of more restrictive plan criteria.
+
+**C. Assessment of Clinical Standards (AANS/CNS 2023, NASS 2020, AO Spine 2021)**
+
+1.  **Diagnostic Classification:** The clinical findings (bilateral Hoffman signs, hyperreflexia, gait impairment) unequivocally classify Helen Brooks' condition as cervical myelopathy, not radiculopathy. The presence of myelomalacia (confirmed by second read) indicates existing cord injury and surgical urgency.
+2.  **Conservative Treatment for Myelopathy:**
+    *   "There is no high-quality evidence supporting a mandatory course of physical therapy prior to surgical intervention for patients with moderate to severe cervical myelopathy." (AO Spine 2021)
+    *   "Delaying surgery in such patients to complete a physical therapy trial is not supported by the evidence and may result in neurological deterioration." (AO Spine 2021)
+    *   For moderate-severe myelopathy, PT "does NOT produce meaningful functional improvement." (Cochrane Review 2021)
+    *   Helen's 8 weeks of PT with "no improvement in UMN signs" indicates functional plateau for her neurological condition, which by clinical standard warrants consideration of surgery (Source Doc 3, Section 5).
+3.  **Surgical Indications (ACDF):** Helen Brooks meets "TIER 1 — STRONG INDICATION" criteria for surgery (AANS/CNS Joint Guidelines 2023):
+    *   **(a) Moderate to severe myelopathy with objective cord compression on MRI.**
+    *   **(c) Myelomalacia on MRI (cord signal change).** (Confirmed by second radiologist, despite plan radiologist's dispute).
+    *   **Conclusion:** The requested ACDF is strongly indicated under generally accepted clinical standards of medical practice. The clinical standard does not support mandatory conservative treatment requirements (such as interventional procedures or extended PT) for this presentation.
+
+**IV. CONFLICT RESOLUTION**
+
+The plan's denial is based on an incorrect application of its own criteria regarding myelopathy confirmation and a subsequent insistence on an interventional procedure that is waived under its own myelopathy exception.
+
+Even if the plan's interpretation of its own criteria were to stand, both **California State Law (DMHC APL 22-014, CIC 10169.5)** and **generally accepted Clinical Standards (AANS/CNS 2023, AO Spine 2021)** clearly state that for cases of cervical myelopathy with objective cord compression and UMN signs (especially with myelomalacia), mandatory conservative treatment requirements (like interventional procedures or extended PT) are inappropriate, potentially harmful, and are superseded.
+
+Per the established hierarchy (State law > Clinical standard > Plan criteria), the state law and clinical standards supporting surgical intervention for Helen Brooks' condition, and waiving conservative treatment prerequisites, override the plan's restrictive application of its criteria.
+
+**V. DISPOSITION**
+
+**OVERTURN**
+
+**VI. WARRANT**
+
+The denial for CPT 22551 (ACDF C4-C5) for Helen Brooks is **OVERTURNED**.
+
+The member's clinical presentation, including bilateral Hoffman signs, hyperreflexia, and gait impairment, combined with C4-C5 cord compression on MRI, definitively establishes cervical myelopathy. This meets the HealthFirst Plan Criteria (Section 2.1(b)) for a confirmed diagnosis of cervical myelopathy. Consequently, the Myelopathy Exception (Section 2.2(A)) of HealthFirst's policy should have been applied. Under this exception, the interventional treatment requirement is waived when the treating physician documents that such treatment poses a risk of neurological deterioration, which was documented in this case ("epidural steroid injections are relatively contraindicated in cord compression"). Therefore, the initial denial based on the lack of an interventional procedure is inconsistent with HealthFirst's own modified criteria for myelopathy.
+
+Furthermore, applying the hierarchy of authority:
+1.  **State Law:** The **DMHC All-Plan Letter APL 22-014** mandates that plans SHALL NOT require a full course of conservative treatment when objective imaging (cord compression, myelomalacia confirmed by second read) and physician documentation demonstrate conservative failure for a time-sensitive neurological condition like myelopathy with risk of irreversible harm. Additionally, **CIC § 10169.5(a)(3)** states that PT cannot be a prerequisite when there is objective structural neurological compromise that PT cannot address, which is the case for myelopathy with UMN signs, and for which 8 weeks of PT showed "no improvement in UMN signs."
+2.  **Clinical Standard:** **AANS/CNS (2023) and AO Spine (2021) guidelines** consider moderate to severe myelopathy with objective cord compression (and especially myelomalacia) as a TIER 1 strong surgical indication. These guidelines explicitly state there is no high-quality evidence supporting mandatory physical therapy trials for such patients and warn that delaying surgery for conservative treatment may lead to neurological deterioration. The requested ACDF is consistent with these generally accepted standards of medical practice.
+
+Therefore, both HealthFirst's own myelopathy exception (correctly applied) and higher authorities (California State Law and Clinical Standards) support the medical necessity of the requested surgical procedure and waive the conservative treatment requirements cited in the denial. The denial is not supported by the evidence in the medical record, the plan's criteria (when correctly applied), or the governing state and clinical standards.
+
+---
+[Your Name/Title]
+Expert Health Plan Appeals Reviewer

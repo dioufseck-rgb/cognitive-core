@@ -1,0 +1,144 @@
+CASE: pa_2024_b002
+SYSTEM: REACT
+DISPOSITION: OVERTURN
+GT: OVERTURN
+CORRECT: True
+ELAPSED: 31.5s
+========================================================================
+
+## APPEAL DETERMINATION: Prior Authorization for ACDF C6-C7
+
+**Case ID:** PA-2024-B002
+**Member:** Thomas Reed (ID: M-667788)
+**Plan:** HealthFirst PPO Gold — Group Plan 77441 (California)
+**Procedure:** Anterior Cervical Discectomy and Fusion (ACDF) C6-C7, one level (CPT 22551)
+**Requested By:** Dr. Karen Liu, MD — Spine Surgery
+**Denial Date:** 2024-10-20
+**Initial Reviewer:** Dr. Patricia Huang, MD
+**Level of Review:** First-Level Appeal
+
+---
+
+### I. BACKGROUND
+
+Thomas Reed, a 52-year-old member, requested prior authorization for a one-level ACDF at C6-C7 for persistent cervical radiculopathy. The initial request was denied by HealthFirst on 2024-10-20, citing "MED-003: Member does not meet criteria for ACDF. Imaging shows C6-C7 disc herniation with mild cord contact but no measurable compression. No myelopathy findings on exam. PT not yet completed to functional plateau."
+
+The member's appeal is based on the following:
+1.  Member completed 7 weeks of PT with documented failure to improve.
+2.  Functional plateau reached per PT discharge summary.
+3.  Surgeon believes ACDF is indicated for persistent radiculopathy.
+
+This appeal determination is made using the hierarchy of authority: **State Law > Clinical Standard > Plan Criteria.**
+
+---
+
+### II. CLINICAL RECORD SUMMARY
+
+*   **Presenting Diagnosis:** Cervical radiculopathy C6-C7, persistent after conservative treatment.
+*   **Imaging (MRI 2024-08-01):** C6-C7 disc herniation. Mild cord contact without measurable compression. No cord signal change. No myelomalacia. Mild right C7 foraminal stenosis.
+*   **Neurological Exam (2024-08-05):** Right C7 dermatomal distribution numbness. Tricep reflex diminished right. No bilateral findings. No upper motor neuron signs. Pain 7/10 at rest.
+*   **Conservative Treatment:**
+    *   **Physical Therapy:** 7 weeks (21 sessions) completed. PT discharge summary explicitly states functional plateau reached — patient has not improved over final 3 sessions. Radicular symptoms persist unchanged.
+    *   **Pharmacotherapy:**
+        *   Pregabalin 150mg BID for 4 months (partial pain relief, radicular symptoms persist).
+        *   Meloxicam 15mg for 3 months (inadequate response).
+    *   **Interventional:** Right C7 epidural (2024-09-20) with 30% improvement lasting 3 weeks, then returned to baseline.
+
+---
+
+### III. ANALYSIS
+
+#### 1. Primary Clinical Presentation: Radiculopathy vs. Myelopathy
+
+Based on the clinical record:
+*   The member's presenting diagnosis is "Cervical radiculopathy C6-C7."
+*   Neurological exam findings (unilateral right C7 dermatomal numbness, diminished right tricep reflex, *no bilateral findings, no upper motor neuron signs*) are consistent with radiculopathy.
+*   MRI findings show "Mild right C7 foraminal stenosis" and "C6-C7 disc herniation." Crucially, the MRI also notes "No cord signal change. No myelomalacia," and the initial denial states "no measurable compression" and "No myelopathy findings on exam."
+
+Therefore, the primary clinical presentation is **Cervical Radiculopathy**, not Myelopathy. This distinction is critical, as treatment algorithms and conservative treatment requirements differ significantly for these two conditions (Clinical Reference Summary, Section 1.1).
+
+#### 2. Application of HealthFirst Plan Criteria (CC-SPINE-2024)
+
+The denial cited "PT not yet completed to functional plateau." Let's evaluate the member's case against the plan's criteria:
+
+*   **2.1 DIAGNOSIS REQUIREMENT:** Met. Member has confirmed Cervical Radiculopathy C6-C7 (2.1(a)). Imaging shows C6-C7 disc herniation consistent with symptoms (2.3).
+*   **2.2 CONSERVATIVE TREATMENT REQUIREMENT:**
+    *   **(a) Physical therapy:** Requires "minimum 6 weeks... with documented functional outcomes."
+        *   The member completed 7 weeks of PT (exceeds 6-week minimum).
+        *   The PT discharge summary explicitly states "functional plateau reached — patient has not improved over final 3 sessions."
+        *   HealthFirst's own criteria define "functional plateau" as "<10% improvement over 3 sessions OR therapist documents maximum benefit reached." The documentation clearly meets this definition.
+        *   **Finding:** The plan's denial stating "PT not yet completed to functional plateau" is factually incorrect based on the member's clinical record and the plan's own definition of functional plateau. This criterion *is met*.
+    *   **(b) Pharmacotherapy:** Requires "trial of at least two... for minimum 4 weeks each."
+        *   The member completed 4 months of Pregabalin and 3 months of Meloxicam.
+        *   **Finding:** This criterion *is met*.
+    *   **(c) One interventional treatment:** Requires "one of the following."
+        *   The member underwent a Right C7 epidural injection.
+        *   **Finding:** This criterion *is met*.
+
+*   **EXCEPTION 2.2(A) — MYELOPATHY PATHWAY:** This exception reduces PT to 4 weeks and waives interventional treatment for confirmed myelopathy.
+    *   **Finding:** As determined in Section III.1, the member's primary diagnosis is radiculopathy, not myelopathy. Therefore, this exception does not apply to this case, and the plan's initial reviewer correctly did not apply it.
+
+*   **2.4 PHYSICIAN DOCUMENTATION:** The surgeon's belief that ACDF is indicated for persistent radiculopathy suggests these documentation requirements are met or can be readily provided.
+
+**Conclusion on Plan Criteria:** The plan misapplied its own conservative treatment criteria, specifically regarding the physical therapy functional plateau. The member has fulfilled all requirements, including completing more than 6 weeks of PT and demonstrably reaching a functional plateau.
+
+#### 3. Application of California Regulatory Requirements
+
+*   **CIC § 10169.5 — Physical Therapy as Prerequisite:** This state law directly addresses the plan's denial reason.
+    *   Section (a) states that an insurer "shall not condition approval of a surgical procedure on completion of physical therapy where: (2) The member has completed a course of physical therapy and the treating physician documents that the member reached a functional plateau without adequate resolution of symptoms."
+    *   Section (b) defines "functional plateau" as "documented failure to achieve meaningful functional improvement after a course of therapy, as determined by the treating physical therapist or physician."
+    *   **Finding:** The clinical record unequivocally documents that the member completed 7 weeks of PT and reached a functional plateau ("patient has not improved over final 3 sessions," "Radicular symptoms persist unchanged"). Therefore, under CIC § 10169.5(a)(2), HealthFirst is *prohibited* from denying the ACDF based on the PT requirement. This state law directly overrides the plan's denial.
+
+*   **DMHC APL 22-014 — Myelopathy and Urgent Conditions:** This APL primarily addresses cases of myelopathy with myelomalacia.
+    *   **Finding:** As the member's primary diagnosis is radiculopathy without myelomalacia, the specific provisions of APL 22-014 regarding *myelopathy* do not directly apply here. However, APL 22-014 II.3 states, "Plans shall not apply internal criteria that are more restrictive than generally accepted standards of medical practice... Where a conflict exists between plan criteria and generally accepted standards, the clinical standard governs." This reinforces the hierarchy.
+
+*   **CHSC § 1374.32(b) — Standard of Review for IMR:** This provision states that the IMR standard does not require consistency with plan internal criteria, and if a service meets generally accepted standards of medical practice, it shall be approved regardless of more restrictive plan criteria. This principle is crucial in resolving conflicts.
+
+#### 4. Application of Clinical Standard
+
+*   **Diagnosis:** The member has cervical radiculopathy with objective neurological findings and persistent symptoms.
+*   **Conservative Treatment Effectiveness:** The Clinical Reference Summary (Section 1.1) notes that for radiculopathy, conservative treatment is "typically effective (70-80% resolution)." However, if symptoms persist after an adequate trial, surgery becomes an option.
+*   **Surgical Indications (AANS/CNS, NASS, AO Spine):** Section 3.1, TIER 2 — REASONABLE INDICATION (surgery reasonable option) includes: "(b) Radiculopathy with persistent symptoms after 6-12 weeks conservative tx."
+    *   The member has completed 7 weeks of PT, 4 months of Pregabalin, 3 months of Meloxicam, and an epidural, all with persistent radicular symptoms and a documented functional plateau. This course of conservative treatment (7 weeks of PT, prolonged pharmacotherapy, and interventional therapy) meets or exceeds the "6-12 weeks conservative tx" guideline for radiculopathy.
+*   **Functional Plateau (Clinical Standard):** Section 5 defines functional plateau as "<10% improvement... over 3 consecutive therapy sessions, OR therapist documentation that patient has reached maximum therapeutic benefit."
+    *   The PT discharge summary ("patient has not improved over final 3 sessions," functional plateau reached) aligns perfectly with this clinical definition.
+
+**Conclusion on Clinical Standard:** The clinical standard supports surgical intervention for radiculopathy that persists after an adequate trial of conservative treatment, especially when a functional plateau has been reached. The member's case meets this standard.
+
+#### 5. Conflict Resolution and Rationale
+
+The primary conflict arises from the plan's denial reason ("PT not yet completed to functional plateau") versus the objective clinical record and California state law.
+
+1.  **Plan Criteria vs. Clinical Record:** The clinical record directly contradicts the plan's assertion. The member *did* complete 7 weeks of PT and *did* reach a functional plateau as defined by HealthFirst's own criteria (CC-SPINE-2024, Section 2.2(a) and Functional Plateau definition).
+2.  **State Law Override:** Even if there were ambiguity in the plan's criteria (which there isn't, given the clear documentation), California Insurance Code § 10169.5(a)(2) explicitly prohibits a health insurer from conditioning approval of surgery on further PT when a functional plateau has been reached and documented. This state law is of higher authority than the plan's criteria.
+3.  **Clinical Standard Alignment:** The clinical standard (AANS/CNS, NASS, AO Spine) also supports surgical intervention for radiculopathy with persistent symptoms after 6-12 weeks of conservative treatment and documented functional plateau. The member's case aligns with this standard (Clinical Reference Summary, Section 3.1 TIER 2).
+
+Therefore, the plan's denial is invalid on multiple grounds: it misinterprets its own criteria, it violates state law, and it is inconsistent with generally accepted clinical standards of medical practice for managing persistent cervical radiculopathy after failed conservative treatment.
+
+---
+
+### IV. DISPOSITION
+
+**OVERTURN**
+
+---
+
+### V. WARRANT
+
+The prior authorization denial for CPT 22551 (ACDF C6-C7) for Thomas Reed is hereby **OVERTURNED**.
+
+The initial denial by HealthFirst cited "PT not yet completed to functional plateau" (Denial Reason: MED-003). This reason is demonstrably incorrect based on the submitted clinical documentation. The Physical Therapy discharge summary clearly states that 7 weeks of PT were completed and a "functional plateau reached — patient has not improved over final 3 sessions." This finding explicitly satisfies HealthFirst's own definition of "functional plateau" outlined in its Clinical Coverage Criteria CC-SPINE-2024.
+
+Furthermore, California Insurance Code (CIC) § 10169.5(a)(2) explicitly states that a health insurer "shall not condition approval of a surgical procedure on completion of physical therapy where... The member has completed a course of physical therapy and the treating physician documents that the member reached a functional plateau without adequate resolution of symptoms." The member's documentation directly meets this statutory requirement, making denial on this basis unlawful.
+
+The member's diagnosis is persistent cervical radiculopathy C6-C7 with objective neurological findings (right C7 dermatomal numbness, diminished right tricep reflex) and imaging correlation (C6-C7 disc herniation, mild right C7 foraminal stenosis). Conservative treatment, including 7 weeks of PT, 4 months of Pregabalin, 3 months of Meloxicam, and a cervical epidural injection, has been attempted and failed to provide adequate or lasting relief, with documented persistence of radicular symptoms and achievement of a functional plateau. This clinical presentation meets generally accepted standards of medical practice for surgical consideration for radiculopathy (AANS/CNS Joint Guidelines 2023, Section 3.1, TIER 2(b)).
+
+Based on the three-source hierarchy (State Law > Clinical Standard > Plan Criteria), the denial must be overturned as the member's condition and treatment history meet both California state law requirements and generally accepted clinical standards, and the plan's denial was based on an inaccurate assessment of its own criteria.
+
+---
+
+**Action Required:** HealthFirst PPO Gold is hereby directed to approve prior authorization for the requested ACDF C6-C7 (CPT 22551) for member Thomas Reed.
+
+**Reviewer:**
+[Your Name/Title - Expert Health Plan Appeals Reviewer]
+[Date of Determination]

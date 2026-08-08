@@ -1,0 +1,124 @@
+CASE: pa_2024_c001
+SYSTEM: PLANSOLVE
+DISPOSITION: UNKNOWN
+GT: OVERTURN
+CORRECT: False
+ELAPSED: 81.2s
+========================================================================
+
+# HEALTH PLAN APPEAL DETERMINATION
+
+**CASE ID:** PA-2024-C001  
+**MEMBER:** Frances Kim (ID: M-990011)  
+**AGE:** 58  
+**PLAN:** HealthFirst PPO Gold — Group Plan 77441 (California)  
+**COVERAGE EFFECTIVE:** January 1, 2017  
+**PLAN YEAR:** 2024  
+**REQUESTED PROCEDURE:** Anterior Cervical Discectomy and Fusion (ACDF) C5-C6, Single Level (CPT 22551)  
+**REQUESTING PROVIDER:** Dr. Robert Adams, MD — Neurosurgery, UCSF Medical Center  
+**FACILITY:** UCSF Medical Center  
+**INITIAL DENIAL DATE:** October 30, 2024  
+**INITIAL REVIEWER:** Dr. Alan Foster, MD  
+**APPEAL DETERMINATION DATE:** November 12, 2024  
+
+---
+
+## I. FORMAL DETERMINATION
+Pursuant to the California Health and Safety Code (CHSC) § 1374.30 et seq., and applying the governing hierarchy of authority (**California State Law > Clinical Standards > HealthFirst Plan Criteria**), the initial denial of prior authorization for CPT 22551 (ACDF C5-C6) is hereby **UPHELD**. 
+
+While the member exhibits clear clinical signs of an upper motor neuron (UMN) syndrome on physical examination, current objective imaging demonstrates an absence of structural spinal cord compression or myelomalacia at the proposed surgical level. Under generally accepted clinical standards and California regulatory frameworks, decompressive cervical spine surgery is not medically necessary in the absence of objective, correlating structural compromise of the spinal cord.
+
+---
+
+## II. PROCEDURAL ADEQUACY ASSESSMENT (Step 1)
+Under **California Health and Safety Code (CHSC) § 1374.31(b)**, a health plan's prior authorization denial must explicitly cite the specific clinical criteria applied and detail the specific clinical reasons for the determination. 
+
+A review of the initial denial notice dated October 30, 2024, reveals:
+1. The notice cited the applicable internal clinical guideline (**HealthFirst CC-SPINE-2024**).
+2. The notice detailed the specific clinical deficits preventing approval: a lack of objective imaging confirmation of spinal cord compression or cord signal change on MRI, and the failure to complete the standard 6-week physical therapy (PT) trial (5 of 6 weeks completed).
+
+**Finding:** The denial notice is procedurally adequate, meets all statutory notification standards under **CHSC § 1374.31(b)**, and is not defective. The review proceeds to clinical evaluation.
+
+---
+
+## III. CLINICAL CLASSIFICATION AND DIAGNOSIS VERIFICATION (Step 2)
+The requesting neurosurgeon (Dr. Adams) and the appellant argue that the member has established cervical myelopathy based on multiple upper motor neuron (UMN) signs on examination and mild cord contact on MRI. The health plan reviewer classified the case under radiculopathy standards due to the lack of objective cord compression on imaging.
+
+### Clinical and Imaging Findings:
+*   **MRI (September 1, 2024):** C5-C6 disc herniation with "mild cord contact." Crucially, the radiologist documented: *"No measurable cord compression. No T2 signal change. No myelomalacia. Note: Cord contact is present but not quantifiable as compression on standard sequences."*
+*   **Neurological Examination (September 5, 2024):** Demonstrates significant bilateral UMN signs, including bilateral positive Hoffman sign, hyperreflexia of the bilateral upper extremities, 3-beat sustained ankle clonus, positive finger escape sign, and a mildly wide-based gait.
+
+### Analysis of Diagnostic Conflict:
+By clinical guidelines (**AANS/CNS Joint Section Guidelines 2023**), clinical myelopathy requires UMN signs on examination. However, **cervical spondylotic myelopathy (CSM)**—the condition for which decompressive surgery (ACDF) is indicated—requires both clinical myelopathic signs *and* objective, correlating structural compression of the spinal cord on imaging. 
+
+While the member exhibits a clinical UMN syndrome, the MRI of September 1, 2024, explicitly rules out measurable spinal cord compression, myelomalacia, and cord signal changes. Under clinical guidelines, "imaging-negative myelopathy" (UMN signs without structural cord compression) cannot be assumed to be a structural, decompressive surgical issue. It requires diagnostic workup for non-compressive neurological etiologies (such as primary lateral sclerosis, amyotrophic lateral sclerosis, multiple sclerosis, or metabolic myelopathies). Decompressing a spinal cord that has "no measurable compression" on MRI is clinically unsupported.
+
+**Finding:** The diagnostic classification of structural cervical myelopathy is **not confirmed** by objective imaging. The clinical presentation is classified as an imaging-negative upper motor neuron syndrome, which is evaluated under standard cervical criteria.
+
+---
+
+## IV. PLAN CRITERIA APPLICATION & MYELOPATHY EXCEPTION ANALYSIS (Step 3)
+The appellant contends that the member meets the plan's modified conservative treatment criteria under **HealthFirst CC-SPINE-2024 Exception 2.2(A) (Myelopathy Pathway)** because she completed 5 weeks of PT (where only 4 weeks are required under the exception).
+
+### Evaluation of Exception 2.2(A) Requirements:
+1.  **Primary Diagnosis:** Exception 2.2(A) applies only to members with "confirmed cervical myelopathy" under criterion 2.1(b). Criterion 2.1(b) requires *"spinal cord compression with myelopathic symptoms"* supported by *"MRI... demonstrating structural pathology consistent with symptoms."* Because the MRI explicitly states there is no measurable cord compression, the primary diagnosis of structural cervical myelopathy is not confirmed under plan criteria.
+2.  **Physical Therapy:** The member completed 5 weeks of supervised PT (15 sessions). Under the myelopathy pathway, the minimum requirement is 4 weeks. This sub-criterion would be met if myelopathy were confirmed.
+3.  **Pharmacotherapy:** Section 2.2(b) requires a trial of at least two formulary agents for a minimum of **4 weeks each**. 
+    *   The member trialed Baclofen (5mg TID) for 2 months (8 weeks), which satisfies the trial duration for one muscle relaxant.
+    *   The member trialed a Methylprednisolone taper for **10 days**. This fails the mandatory 4-week minimum duration requirement for the second agent.
+4.  **Interventional Treatment:** Section 2.2(c) requires at least one interventional treatment (such as a cervical epidural steroid injection). Under Exception 2.2(A), this is waived *only* if the treating physician documents that interventional treatment poses an imminent risk of neurological deterioration. No such documentation or risk attestation was submitted in the prior authorization file.
+
+**Finding:** The member does not satisfy the criteria for Exception 2.2(A) due to: (1) lack of imaging-confirmed structural cord compression, (2) failure to complete a minimum 4-week trial of a second pharmacotherapy agent, and (3) lack of documented clinical contraindication/risk for interventional trials.
+
+---
+
+## V. STATUTORY OVERRIDE ANALYSIS (Step 4)
+Under California law, health plans cannot mechanically enforce conservative treatment guidelines if specific statutory exceptions are met.
+
+### 1. California Insurance Code (CIC) § 10169.5 Analysis:
+Under **CIC § 10169.5(a)**, a plan cannot condition surgical approval on physical therapy completion if:
+*   *(a)(1)* The physician documents that PT is contraindicated/unlikely to benefit. (The record states the physician halted PT at 5 weeks due to "myelopathy concern," which serves as clinical documentation of contraindication to further PT).
+*   *(a)(3)* The condition involves objective evidence of structural neurological compromise that PT cannot address.
+
+However, for *(a)(3)* to apply, there must be objective evidence of structural neurological compromise (such as spinal cord compression or myelomalacia). Because the MRI dated September 1, 2024, explicitly states there is *no measurable cord compression* and *no myelomalacia*, there is no objective structural compromise of the spinal cord for which PT is considered a structural hazard or ineffective. Therefore, the statutory waiver under **CIC § 10169.5(a)(3)** does not apply.
+
+### 2. Department of Managed Health Care (DMHC) APL 22-014 Analysis:
+**DMHC All-Plan Letter APL 22-014** mandates that health plans waive standard conservative treatment requirements for time-sensitive neurological conditions when:
+1.  Objective imaging demonstrates *progressive pathology* (such as myelomalacia, cord signal change, or progressive herniation on serial imaging), AND
+2.  The treating physician documents that conservative treatment has failed to arrest neurological deterioration.
+
+**Finding:** The member’s MRI shows *no* myelomalacia and *no* cord signal change. There is only a single MRI on file (September 1, 2024), meaning progressive pathology on serial imaging has not been demonstrated. Consequently, the statutory overrides under **APL 22-014** do not apply to this case.
+
+---
+
+## VI. CLINICAL STANDARDS AND MEDICAL NECESSITY EVALUATION (Step 5)
+Under **California Health and Safety Code (CHSC) § 1374.32(b)**, the standard for Independent Medical Review (IMR) requires that medical necessity be determined based on generally accepted standards of medical practice, independent of the health plan’s internal criteria.
+
+### 1. Review of Clinical Guidelines:
+*   **AANS/CNS Joint Guidelines (2023 Update):** Strong surgical recommendations (Tier 1) for ACDF are reserved for patients with *moderate-to-severe myelopathy with objective cord compression on MRI* or *myelomalacia (T2 cord signal change)*. 
+*   **AO Spine International Clinical Practice Guidelines (2021):** Surgical decompression is indicated as the primary treatment for patients with clinical cervical myelopathy when correlating structural spinal cord compression is documented on MRI. 
+
+### 2. Application to Clinical Facts:
+An ACDF (CPT 22551) is an invasive decompressive procedure designed to physically relieve mechanical pressure on a compressed spinal cord or nerve root, followed by stabilization (fusion). 
+
+In this case:
+1.  **No Structural Target:** The MRI of September 1, 2024, explicitly states there is *no quantifiable or measurable spinal cord compression* and *no myelomalacia*. Without structural mechanical compression, there is no clinical rationale for mechanical decompression. 
+2.  **Clinical Risk:** Performing a C5-C6 ACDF on a patient with clinical UMN signs but no imaging-confirmed cord compression introduces significant surgical risks (dysphagia, adjacent segment disease, hardware failure, neurological injury) without a reasonable clinical expectation of therapeutic benefit. 
+3.  **Alternative Etiologies:** The presence of a wide-based gait, bilateral upper extremity hyperreflexia, ankle clonus, and positive Hoffman signs—in the absence of correlating mechanical compression on MRI—points to an imaging-negative upper motor neuron syndrome. Generally accepted standards of medical practice require a comprehensive neurological evaluation to rule out intrinsic neurological disorders (e.g., motor neuron disease, demyelinating disease, metabolic spinal cord disorders) before contemplating spinal fusion.
+
+**Finding:** The requested C5-C6 ACDF does not meet the generally accepted standards of medical practice or the definition of medical necessity under **CHSC § 1374.32(b)** due to the absence of correlating, objective mechanical spinal cord compression or myelomalacia on current imaging.
+
+---
+
+## VII. CONCLUSION
+The medical necessity for an anterior cervical discectomy and fusion (ACDF) at C5-C6 is not established. 
+
+1.  The initial denial is procedurally adequate under **CHSC § 1374.31(b)**.
+2.  The health plan's internal criteria for the Myelopathy Exception (**CC-SPINE-2024**) are not met because the diagnosis of structural myelopathy is unconfirmed by MRI, and the pharmacotherapy/interventional requirements were not completed.
+3.  No statutory overrides under **CIC § 10169.5** or **DMHC APL 22-014** apply because there is no objective imaging evidence of mechanical cord compression, myelomalacia, or progressive pathology.
+4.  Under generally accepted clinical standards (**AANS/CNS 2023, AO Spine 2021**), decompressive spinal surgery is not indicated for a clinically manifest UMN syndrome when imaging confirms the absence of correlating spinal cord compression.
+
+Therefore, the decision to deny prior authorization for CPT 22551 is **UPHELD**.
+
+**Reviewer:** Board-Certified Review Specialist  
+**Date of Decision:** November 12, 2024

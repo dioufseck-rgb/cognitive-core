@@ -65,6 +65,16 @@ orchestrator_strategy: |
      must be surfaced and resolved using the hierarchy:
      state law > clinical standard > plan criteria.
 
+  4b. PER-COMPONENT CRITERIA VERIFICATION IS MANDATORY.
+     Before deliberating, run a verify step that checks the request against
+     the plan's clinical criteria RULE BY RULE. If the request contains
+     multiple components (multiple spinal levels, procedures, or items),
+     verify each component SEPARATELY and report conforms/violations per
+     component. Deliberate must then state a disposition PER COMPONENT; a
+     full OVERTURN is warranted only if every component independently
+     conforms. Cross-source consistency verification does not substitute
+     for criteria verification.
+
   5. CHALLENGE THE DISPOSITION EXACTLY ONCE.
      After deliberate and generate complete, run challenge once, from
      the perspective of the party that lost: if overturning, challenge

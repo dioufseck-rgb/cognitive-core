@@ -1,0 +1,1235 @@
+
+════════════════════════════════════════════════════════════════════════
+  PARALLEL PRIOR AUTH BENCHMARK
+  Systems: cc, react, plansolve
+  Cases: 26  ·  Jobs: 78  ·  Workers: 5
+  Output: C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\output\parallel_benchmark
+════════════════════════════════════════════════════════════════════════
+
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:42:17] Starting 78 jobs across 5 workers
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  Running... (single LLM call with all three documents)
+
+  → Generate → Challenge → Govern  Prompt size: 28,758 chars
+
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+  Same case · Same three documents · Same domain knowledge
+
+────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,544 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:182: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+  📥 retrieve_all_sources  [retrieve]  📥 retrieve_all_sources  [retrieve]  Elapsed: 27.0s
+  Output: 12,687 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:42:46] [  1/78] pa_2024_a002           react      ✓ OVERTURN   (GT:OVERTURN)  29s
+  Elapsed: 28.8s
+  Output: 15,431 chars
+[06:42:48] [  2/78] pa_2024_a001           react      ✓ OVERTURN   (GT:OVERTURN)  31s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  🏷  classify_clinical_presentation  [classify]  🏷  classify_clinical_presentation  [classify]  📥 retrieve_all_sources  [retrieve]  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_plan_criteria  [investigate]  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_plan_criteria  [investigate]  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:43:21] [  3/78] pa_2024_a001           plansolve  ✓ OVERTURN   (GT:OVERTURN)  64s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,146 chars
+  🏷  classify_clinical_presentation  [classify]  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_regulatory_requirements  [investigate]C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:43:39] [  4/78] pa_2024_a002           plansolve  ✓ OVERTURN   (GT:OVERTURN)  53s
+  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_plan_criteria_compliance  [investigate]  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  Elapsed: 28.1s
+  Output: 13,000 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:43:49] [  5/78] pa_2024_a003           react      ✓ OVERTURN   (GT:OVERTURN)  28s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  🔍 investigate_regulatory  [investigate]  📥 retrieve_all_sources  [retrieve]  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_clinical_standard  [investigate]  [coord]      epistemic: investigate_plan_criteria_compliance  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_regulatory  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_regulatory_compliance  [investigate]  🔍 investigate_clinical_standard  [investigate]  🏷  classify_clinical_presentation  [classify]C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:44:33] [  6/78] pa_2024_a003           plansolve  ✓ OVERTURN   (GT:OVERTURN)  54s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,588 chars
+  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_plan_criteria_compliance  [investigate]  ✅ verify_cross_source_conflicts  [verify]  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  ✅ verify_cross_source_conflicts  [verify]  [coord]      epistemic: investigate_regulatory_compliance  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_clinical_evidence_standard  [investigate]  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  Elapsed: 30.9s
+  Output: 13,861 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:45:04] [  7/78] pa_2024_a004           react      ✓ OVERTURN   (GT:OVERTURN)  31s
+  [coord]      epistemic: investigate_plan_criteria_compliance  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_cross_source_conflicts  [deliberate]  🔍 investigate_regulatory_compliance  [investigate]  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_on_conflicts  [deliberate]  [coord]      epistemic: investigate_clinical_evidence_standard  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: deliberate_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  ✅ verify_cross_source_conflicts  [verify]  📝 generate_final_determination  [generate]  [coord]      epistemic: investigate_regulatory_compliance  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_clinical_evidence_standard  [investigate]  [coord]      epistemic: deliberate_on_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:45:52] [  8/78] pa_2024_a004           plansolve  ✓ OVERTURN   (GT:OVERTURN)  49s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  📝 generate_draft_determination  [generate]  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_on_conflicts  [deliberate]  📥 retrieve_all_sources  [retrieve]  [coord]      epistemic: investigate_clinical_evidence_standard  SUPPORTED · overall=1.00 · warranted=✓
+  ✅ verify_cross_source_conflicts  [verify]  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: generate_final_determination  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]  🏷  classify_clinical_presentation  [classify]  [coord]      epistemic: deliberate_on_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: generate_draft_determination  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]  📝 generate_appeal_determination  [generate]  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_plan_criteria_application  [investigate]  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_on_disposition  [deliberate]  [coord]      epistemic: investigate_plan_criteria_application  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: deliberate_on_disposition  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  ⚖️  govern  [govern]  ⚖️  govern  [govern]  🔍 investigate_regulatory_requirements  [investigate]  [coord]      epistemic: generate_appeal_determination  SUPPORTED · overall=1.00 · warranted=✓
+  📝 generate_determination_document  [generate]  ⚔️  challenge  [challenge]  [coord]      epistemic: govern  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:47:30] [  9/78] pa_2024_a002           cc         ✓ OVERTURN   (GT:OVERTURN) [auto]  313s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,168 chars
+  [coord]      epistemic: govern  SUPPORTED · overall=1.00 · warranted=✓
+[06:47:32] [ 10/78] pa_2024_a001           cc         ✓ OVERTURN   (GT:OVERTURN) [auto]  315s
+  [coord]      epistemic: generate_determination_document  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  Elapsed: 27.7s
+  Output: 8,217 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:47:58] [ 11/78] pa_2024_b001           react      ✗ OVERTURN   (GT:PARTIAL)  28s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  ⚖️  govern  [govern]  📥 retrieve_all_sources  [retrieve]  [coord]      epistemic: investigate_clinical_evidence_standard  SUPPORTED · overall=1.00 · warranted=✓
+  ✅ verify_cross_source_conflicts  [verify]  [coord]      epistemic: govern  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:48:19] [ 12/78] pa_2024_a003           cc         ✓ OVERTURN   (GT:OVERTURN) [auto]  331s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 27,877 chars
+  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:48:34] [ 13/78] pa_2024_b001           plansolve  ✓ PARTIAL    (GT:PARTIAL)  62s
+  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  Elapsed: 27.1s
+  Output: 11,252 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:48:46] [ 14/78] pa_2024_b002           react      ✓ OVERTURN   (GT:OVERTURN)  27s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  🔍 investigate_plan_criteria  [investigate]  [coord]      epistemic: govern  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:48:49] [ 15/78] pa_2024_a004           cc         ✓ OVERTURN   (GT:OVERTURN) [auto]  300s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,164 chars
+  [coord]      epistemic: deliberate_on_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  Elapsed: 22.4s
+  Output: 5,807 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:49:12] [ 16/78] pa_2024_b003           react      ✓ OVERTURN   (GT:OVERTURN)  22s
+  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:49:29] [ 17/78] pa_2024_b002           plansolve  ✓ OVERTURN   (GT:OVERTURN)  55s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  📥 retrieve_all_sources  [retrieve]  🔍 investigate_plan_criteria  [investigate]  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_clinical_standard  [investigate]C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:49:57] [ 18/78] pa_2024_b003           plansolve  ✓ OVERTURN   (GT:OVERTURN)  45s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,224 chars
+  [coord]      epistemic: generate_disposition_determination  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]  🏷  classify_clinical_presentation  [classify]  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_plan_criteria  [investigate]  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_regulatory_requirements  [investigate]  ✅ verify_cross_source_conflicts  [verify]  Elapsed: 30.6s
+  Output: 12,335 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:50:28] [ 19/78] pa_2024_b004           react      ✗ PARTIAL    (GT:OVERTURN)  31s
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  ⚖️  govern  [govern]  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_regulatory_requirements  [investigate]  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_on_conflicts_and_disposition  [deliberate]  🔍 investigate_clinical_standard  [investigate]  [coord]      epistemic: govern  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:51:07] [ 20/78] pa_2024_b001           cc         ✗ OVERTURN   (GT:PARTIAL) [spot_check]  315s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  📥 retrieve_all_sources  [retrieve]  [coord]      epistemic: deliberate_on_conflicts_and_disposition  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  📝 generate_appeal_determination  [generate]C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:51:26] [ 21/78] pa_2024_b004           plansolve  ✓ OVERTURN   (GT:OVERTURN)  58s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,329 chars
+  🔍 investigate_clinical_standard  [investigate]  ✅ verify_cross_source_conflicts  [verify]  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  🏷  classify_clinical_presentation  [classify]  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  ✅ verify_cross_source_conflicts  [verify]  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_plan_criteria  [investigate]  🤔 deliberate_on_conflicts_and_disposition  [deliberate]  Elapsed: 40.8s
+  Output: 10,702 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:52:07] [ 22/78] pa_2024_c001           react      ✓ OVERTURN   (GT:OVERTURN)  41s
+  [coord]      epistemic: generate_appeal_determination  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_on_conflicts  [deliberate]  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: deliberate_on_conflicts_and_disposition  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_regulatory_requirements  [investigate]  📝 generate_determination  [generate]  [coord]      epistemic: deliberate_on_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  ⚖️  govern  [govern]  📝 generate_determination_report  [generate]  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_clinical_standard  [investigate]  [coord]      epistemic: govern  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:53:15] [ 23/78] pa_2024_b002           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  317s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  📥 retrieve_all_sources  [retrieve]  [coord]      epistemic: generate_determination  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  ✅ verify_cross_source_conflicts  [verify]  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: generate_determination_report  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]  🏷  classify_clinical_presentation  [classify]  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_plan_criteria  [investigate]  🤔 deliberate_disposition_and_conflicts  [deliberate]  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  ⚖️  govern  [govern]  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  🪞 reflect_on_challenge_failure  [reflect]  [coord]  parse error: deliberate_disposition_and_conflicts — ValueError: model_validate failed: ValidationError: 1 validation error for DeliberateOutput
+reasonin
+  [coord]  parse error: deliberate_disposition_and_conflicts — PARSED_KEYS: ['situation_summary', 'evaluation_criteria', 'options_considered', 'recommended_action'
+  [coord]  parse error: deliberate_disposition_and_conflicts — model_validate failed: ValidationError: 1 validation error for DeliberateOutput
+reasoning
+  Field re
+  [coord]      epistemic: deliberate_disposition_and_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: govern  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:54:34] [ 24/78] pa_2024_b003           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  348s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,114 chars
+  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: reflect_on_challenge_failure  SUPPORTED · overall=1.00 · warranted=✓
+  Elapsed: 27.7s
+  Output: 12,813 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:55:02] [ 25/78] pa_2024_c002           react      ✓ OVERTURN   (GT:OVERTURN)  28s
+  [coord]      epistemic: deliberate_disposition_and_conflicts_retry  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: deliberate_on_chronological_tension  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:56:00] [ 26/78] pa_2024_c002           plansolve  ✓ OVERTURN   (GT:OVERTURN)  58s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  📥 retrieve_all_sources  [retrieve]  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: generate_determination  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: regenerate_determination_report  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]  ⚔️  challenge  [challenge]  🤔 deliberate_on_conflicts  [deliberate]  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  🏷  classify_clinical_presentation  [classify]  [coord]      epistemic: deliberate_on_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  📝 generate_appeal_determination  [generate]  🔍 investigate_plan_criteria  [investigate]  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  🪞 reflect_on_second_challenge_failure  [reflect]  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  🪞 reflect_on_challenge_failure  [reflect]  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_regulatory_compliance  [investigate]  [coord]      epistemic: generate_appeal_determination  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]  [coord]      epistemic: reflect_on_second_challenge_failure  SUPPORTED · overall=1.00 · warranted=✓
+  ⚖️  govern_final_disposition  [govern]  [coord]      epistemic: reflect_on_challenge_failure  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_on_challenge_findings  [deliberate]  [coord]      epistemic: govern_final_disposition  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:57:57] [ 27/78] pa_2024_b004           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  508s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,480 chars
+  [coord]      epistemic: investigate_regulatory_compliance  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: deliberate_on_challenge_findings  SUPPORTED · overall=1.00 · warranted=✓
+  Elapsed: 37.2s
+  Output: 12,725 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:58:34] [ 28/78] pa_2024_c003           react      ✗ OVERTURN   (GT:REMAND)  37s
+  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: reflect_on_challenge_failure  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: regenerate_determination  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:59:24] [ 29/78] pa_2024_c003           plansolve  ✗ OVERTURN   (GT:REMAND)  50s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  📥 retrieve_all_sources  [retrieve]  [coord]      epistemic: govern_appeal_routing  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[06:59:39] [ 30/78] pa_2024_c002           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  384s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,332 chars
+  [coord]      epistemic: deliberate_disposition  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: govern  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:00:16] [ 31/78] pa_2024_c001           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  548s
+  Elapsed: 40.2s
+  Output: 11,997 chars
+[07:00:19] [ 32/78] pa_2024_c004           react      ✗ UNKNOWN    (GT:UPHOLD)  40s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  📥 retrieve_all_sources  [retrieve]  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_regulatory_requirements  [investigate]  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  🏷  classify_clinical_presentation  [classify]  [coord]      epistemic: generate_appeal_determination  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:00:57] [ 33/78] pa_2024_c004           plansolve  ✗ OVERTURN   (GT:UPHOLD)  41s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 27,851 chars
+  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_plan_criteria  [investigate]  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_clinical_standard  [investigate]  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  🪞 reflect_on_challenge_failure  [reflect]  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_regulatory_requirements  [investigate]  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  ✅ verify_cross_source_conflicts  [verify]  [coord]      epistemic: reflect_on_challenge_failure  SUPPORTED · overall=1.00 · warranted=✓
+  Elapsed: 62.2s
+  Output: 13,237 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:01:59] [ 34/78] pa_2024_d001           react      ✗ OVERTURN   (GT:REMAND)  62s
+  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_revised_disposition  [deliberate]  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:02:07] [ 35/78] pa_2024_c001           plansolve  ✗ ERROR      (GT:OVERTURN)  600s ERROR: abnormal termination: no parseable determination
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  🤔 deliberate_on_findings  [deliberate]  🔍 investigate_clinical_standard  [investigate]  📥 retrieve_all_sources  [retrieve]  [coord]      epistemic: deliberate_on_findings  SUPPORTED · overall=1.00 · warranted=✓
+  📝 generate_determination_letter  [generate]  [coord]  parse error: deliberate_revised_disposition — ValueError: model_validate failed: ValidationError: 1 validation error for DeliberateOutput
+reasonin
+  [coord]  parse error: deliberate_revised_disposition — PARSED_KEYS: ['situation_summary', 'evaluation_criteria', 'options_considered', 'recommended_action'
+  [coord]  parse error: deliberate_revised_disposition — model_validate failed: ValidationError: 1 validation error for DeliberateOutput
+reasoning
+  Field re
+  [coord]      epistemic: deliberate_revised_disposition  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_revised_disposition_retry  [deliberate]  🏷  classify_clinical_presentation  [classify]  ✅ verify_cross_source_conflicts  [verify]  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_plan_criteria  [investigate]  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: deliberate_revised_disposition_retry  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:03:01] [ 36/78] pa_2024_d001           plansolve  ✓ REMAND     (GT:REMAND)  62s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 27,817 chars
+  [coord]      epistemic: generate_determination_letter  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]  🤔 deliberate_on_regulatory_and_clinical_conflict  [deliberate]  📝 generate_revised_appeal_determination  [generate]  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_regulatory_requirements  [investigate]  [coord]      epistemic: deliberate_on_regulatory_and_clinical_conflict  SUPPORTED · overall=1.00 · warranted=✓
+  📝 generate_appeal_determination  [generate]  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  🪞 reflect_on_challenge_failure  [reflect]  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_clinical_standard  [investigate]  Elapsed: 61.1s
+  Output: 11,264 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:04:02] [ 37/78] pa_2024_d002           react      ✓ OVERTURN   (GT:OVERTURN)  61s
+  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: generate_appeal_determination  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]  ✅ verify_cross_source_conflicts  [verify]  [coord]      epistemic: reflect_on_challenge_failure  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: generate_revised_appeal_determination  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]  ⚖️  govern_case_routing  [govern]  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_on_conflicts  [deliberate]C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:04:42] [ 38/78] pa_2024_d002           plansolve  ✓ OVERTURN   (GT:OVERTURN)  39s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: govern_case_routing  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:04:47] [ 39/78] pa_2024_c004           cc         ✓ UPHOLD     (GT:UPHOLD) [gate]  323s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 27,844 chars
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: deliberate_on_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: govern  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:05:06] [ 40/78] pa_2024_c003           cc         ✓ REMAND     (GT:REMAND) [gate]  546s
+  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: reflect_on_failed_challenge  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  Elapsed: 50.7s
+  Output: 5,922 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:05:38] [ 41/78] pa_2024_d003           react      ✗ OVERTURN   (GT:REMAND)  51s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  📥 retrieve_case_record  [retrieve]  [coord]      epistemic: redeliberate_disposition_after_failed_challenge  SUPPORTED · overall=1.00 · warranted=✓
+  📝 regenerate_appeal_determination  [generate]  [coord]      epistemic: generate_draft_determination  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:05:55] [ 42/78] pa_2024_d003           plansolve  ✗ OVERTURN   (GT:REMAND)  49s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,042 chars
+  [coord]      epistemic: retrieve_case_record  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_regulatory_requirements  [investigate]  🏷  classify_clinical_presentation  [classify]  [coord]      epistemic: regenerate_appeal_determination  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_plan_criteria  [investigate]  Elapsed: 39.0s
+  Output: 12,008 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:06:34] [ 43/78] pa_2024_e001           react      ✓ PARTIAL    (GT:PARTIAL)  39s
+  🔍 investigate_clinical_standard  [investigate]  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  🪞 reflect_on_challenge_failure  [reflect]  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  ✅ verify_cross_source_conflicts  [verify]  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  🪞 reflect_on_second_failed_challenge  [reflect]  🔍 investigate_regulatory  [investigate]  [coord]      epistemic: reflect_on_challenge_failure  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_on_remand_disposition  [deliberate]  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: reflect_on_second_failed_challenge  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_disposition  [deliberate]C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:07:33] [ 44/78] pa_2024_e001           plansolve  ✗ OVERTURN   (GT:PARTIAL)  59s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  ⚖️  govern_appeal_determination  [govern]  [coord]      epistemic: deliberate_on_remand_disposition  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_regulatory  SUPPORTED · overall=1.00 · warranted=✓
+  📥 retrieve_all_sources  [retrieve]  🔍 investigate_clinical_standard  [investigate]  📝 generate_revised_determination  [generate]  [coord]      epistemic: govern_appeal_determination  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:07:54] [ 45/78] pa_2024_d001           cc         ✗ OVERTURN   (GT:REMAND) [gate]  455s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,057 chars
+  [coord]      epistemic: deliberate_disposition  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: generate_revised_determination  SUPPORTED · overall=1.00 · warranted=✓
+  Elapsed: 35.2s
+  Output: 14,442 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:08:29] [ 46/78] pa_2024_e002           react      ✗ OVERTURN   (GT:PARTIAL)  35s
+  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: generate_appeal_determination  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: deliberate_on_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_regulatory  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: reflect_on_challenge_failure  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:09:40] [ 47/78] pa_2024_e002           plansolve  ✗ OVERTURN   (GT:PARTIAL)  71s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  🤔 deliberate_revised_disposition  [deliberate]  📥 retrieve_all_sources  [retrieve]  [coord]      epistemic: reflect_on_second_challenge_failure  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: generate_determination  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]  [coord]      epistemic: deliberate_revised_disposition  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  ⚖️  govern_final_routing  [govern]  📝 generate_revised_appeal_determination  [generate]  ✅ verify_cross_source_conflicts  [verify]  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  🏷  classify_clinical_presentation  [classify]  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_plan_criteria  [investigate]  [coord]      epistemic: govern_final_routing  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:10:25] [ 48/78] pa_2024_d002           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  498s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,334 chars
+  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  Elapsed: 20.9s
+  Output: 6,369 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:10:45] [ 49/78] pa_2024_e003           react      ✓ OVERTURN   (GT:OVERTURN)  21s
+  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: generate_revised_appeal_determination  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: reflect_on_challenge  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: deliberate_on_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: deliberate_on_challenge_vulnerabilities  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:11:38] [ 50/78] pa_2024_e003           plansolve  ✓ OVERTURN   (GT:OVERTURN)  52s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  🪞 reflect_on_second_challenge_failure  [reflect]  📝 generate_revised_determination  [generate]  📥 retrieve_all_sources  [retrieve]  [coord]      epistemic: investigate_clinical_evidence_standard  SUPPORTED · overall=1.00 · warranted=✓
+  ✅ verify_cross_source_conflicts  [verify]  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: reflect_on_second_challenge_failure  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: generate_final_determination  SUPPORTED · overall=1.00 · warranted=✓
+  🏷  classify_clinical_presentation  [classify]  ⚔️  challenge  [challenge]  [coord]      epistemic: generate_revised_determination  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]  ⚖️  govern_appeal_determination  [govern]  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_on_conflicts  [deliberate]  🔍 investigate_plan_criteria  [investigate]  [coord]      epistemic: govern_appeal_determination  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:12:38] [ 51/78] pa_2024_d003           cc         ✗ OVERTURN   (GT:REMAND) [gate]  476s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,416 chars
+  [coord]      epistemic: deliberate_on_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: govern  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:13:08] [ 52/78] pa_2024_e002           cc         ✗ OVERTURN   (GT:PARTIAL) [spot_check]  334s
+  Elapsed: 31.7s
+  Output: 7,065 chars
+[07:13:10] [ 53/78] pa_2024_f001           react      ✓ OVERTURN   (GT:OVERTURN)  32s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  📥 retrieve_all_sources  [retrieve]  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: reflect_on_second_challenge  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_clinical_standard  [investigate]  [coord]      epistemic: generate_disposition_determination  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]  ⚖️  govern_disposition  [govern]  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  🏷  classify_clinical_presentation  [classify]  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:13:53] [ 54/78] pa_2024_f001           plansolve  ✓ OVERTURN   (GT:OVERTURN)  45s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,516 chars
+  ✅ verify_cross_source_conflicts  [verify]  🔍 investigate_plan_criteria  [investigate]  [coord]      epistemic: govern_disposition  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:14:00] [ 55/78] pa_2024_e001           cc         ✗ REMAND     (GT:PARTIAL) [gate]  502s
+  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  Elapsed: 28.6s
+  Output: 10,186 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:14:21] [ 56/78] pa_2024_f002           react      ✓ OVERTURN   (GT:OVERTURN)  29s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  ⚖️  govern  [govern]  🔍 investigate_regulatory_requirements  [investigate]  [coord]      epistemic: deliberate_on_disposition  SUPPORTED · overall=1.00 · warranted=✓
+  📥 retrieve_all_sources  [retrieve]  📝 generate_draft_determination  [generate]  [coord]      epistemic: govern  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:14:43] [ 57/78] pa_2024_e003           cc         ✓ OVERTURN   (GT:OVERTURN) [auto]  303s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,936 chars
+  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:15:02] [ 58/78] pa_2024_f002           plansolve  ✓ OVERTURN   (GT:OVERTURN)  62s
+  [coord]      epistemic: generate_draft_determination  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  Elapsed: 27.4s
+  Output: 7,626 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:15:10] [ 59/78] pa_2024_g001           react      ✓ OVERTURN   (GT:OVERTURN)  27s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  🔍 investigate_plan_criteria  [investigate]  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  📥 comprehensive_source_retrieval  [retrieve]  ✅ verify_cross_source_conflicts  [verify]  [coord]      epistemic: comprehensive_source_retrieval  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  🏷  classify_clinical_presentation  [classify]  🔍 investigate_regulatory_requirements  [investigate]  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_on_conflicts  [deliberate]  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_plan_criteria  [investigate]C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:15:57] [ 60/78] pa_2024_g001           plansolve  ✓ OVERTURN   (GT:OVERTURN)  55s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,830 chars
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  ⚖️  govern  [govern]  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: deliberate_on_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_clinical_standard  [investigate]  📝 generate_determination  [generate]  [coord]      epistemic: govern  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:16:24] [ 61/78] pa_2024_f001           cc         ✓ OVERTURN   (GT:OVERTURN) [auto]  286s
+  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  Elapsed: 31.7s
+  Output: 13,434 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:16:29] [ 62/78] pa_2024_g002           react      ✓ OVERTURN   (GT:OVERTURN)  32s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  📥 retrieve_all_sources  [retrieve]  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  ✅ verify_cross_source_conflicts  [verify]  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:16:56] [ 63/78] pa_2024_g002           plansolve  ✓ OVERTURN   (GT:OVERTURN)  32s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,443 chars
+  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  🏷  classify_clinical_presentation  [classify]  🔍 investigate_clinical_standard  [investigate]  [coord]      epistemic: generate_determination  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_on_conflicts  [deliberate]  🔍 investigate_plan_criteria_compliance  [investigate]  [coord]      epistemic: deliberate_on_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  📝 generate_determination  [generate]  ✅ verify_cross_source_conflicts  [verify]  Elapsed: 39.5s
+  Output: 8,725 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:17:36] [ 64/78] pa_2024_g003           react      ✓ UPHOLD     (GT:UPHOLD)  39s
+  [coord]      epistemic: investigate_plan_criteria_compliance  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_regulatory_compliance  [investigate]  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  🪞 reflect_on_challenge_failure  [reflect]  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_on_conflicts_and_disposition  [deliberate]  [coord]      epistemic: generate_determination  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]  [coord]      epistemic: reflect_on_challenge_failure  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: deliberate_on_conflicts_and_disposition  SUPPORTED · overall=1.00 · warranted=✓
+  📝 generate_appeal_determination  [generate]  🤔 deliberate_on_challenge_feedback  [deliberate]  [coord]      epistemic: investigate_regulatory_compliance  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_clinical_evidence_standard  [investigate]  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  ⚖️  govern  [govern]C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:18:42] [ 65/78] pa_2024_g003           plansolve  ✓ UPHOLD     (GT:UPHOLD)  66s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+Guardrail HIGH risk for prior_auth_appeal/prior_auth_appeal: ['force_approve']
+  [coord]      epistemic: deliberate_on_challenge_feedback  SUPPORTED · overall=1.00 · warranted=✓
+  📝 generate_revised_determination  [generate]  [coord]      epistemic: investigate_clinical_evidence_standard  SUPPORTED · overall=1.00 · warranted=✓
+  📥 retrieve_all_sources  [retrieve]  [coord]      epistemic: govern  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:18:57] [ 66/78] pa_2024_g001           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  276s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,756 chars
+  [coord]      epistemic: generate_appeal_determination  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  Elapsed: 37.7s
+  Output: 16,327 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:19:35] [ 67/78] pa_2024_g004           react      ✗ OVERTURN   (GT:UPHOLD)  38s
+  [coord]      epistemic: generate_revised_determination  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: deliberate_disposition_resolution  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: reflect_on_challenge_failure  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:20:18] [ 68/78] pa_2024_g004           plansolve  ✗ OVERTURN   (GT:UPHOLD)  43s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  🤔 re_deliberate_on_disposition  [deliberate]  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  ⚖️  govern  [govern]  📥 retrieve_all_sources  [retrieve]  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_clinical_standard  [investigate]  [coord]      epistemic: re_deliberate_on_disposition  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: govern  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:20:47] [ 69/78] pa_2024_f002           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  458s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 29,038 chars
+  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: generate_disposition_report  SUPPORTED · overall=1.00 · warranted=✓
+  Elapsed: 31.6s
+  Output: 12,277 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:21:19] [ 70/78] pa_2024_g005           react      ✓ OVERTURN   (GT:OVERTURN)  32s
+  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: deliberate_appeal_determination  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: regenerate_appeal_determination  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:22:12] [ 71/78] pa_2024_g005           plansolve  ✓ OVERTURN   (GT:OVERTURN)  54s
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  ⚖️  govern  [govern]  🔍 investigate_clinical_standard  [investigate]  📥 retrieve_case_record  [retrieve]  [coord]      epistemic: retrieve_case_record  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: govern  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:22:43] [ 72/78] pa_2024_g003           cc         ✗ OVERTURN   (GT:UPHOLD) [gate]  373s
+
+════════════════════════════════════════════════════════════════════════
+  REACT AGENT — Best-Practice Prompt Engineering
+  Same case · Same three documents · Same domain knowledge
+────────────────────────────────────────────────────────────────────────
+
+  Running... (single LLM call with all three documents)
+  Prompt size: 28,862 chars
+  [coord]      epistemic: generate_appeal_determination  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  Elapsed: 31.3s
+  Output: 14,426 chars
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:23:14] [ 73/78] pa_2024_g006           react      ✓ OVERTURN   (GT:OVERTURN)  31s
+  [coord]      epistemic: govern  SUPPORTED · overall=1.00 · warranted=✓
+[07:23:20] [ 74/78] pa_2024_g002           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  490s
+  [coord]      epistemic: deliberate_on_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: verify_classification  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: reflect_on_retrieval_needs  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: govern  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:24:04] [ 75/78] pa_2024_g004           cc         ✓ UPHOLD     (GT:UPHOLD) [hold]  322s
+  [coord]      epistemic: retrieve_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:24:15] [ 76/78] pa_2024_g006           plansolve  ✓ OVERTURN   (GT:OVERTURN)  61s
+  [coord]      epistemic: generate_draft_determination  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: verify_retrieval_status  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: reflect_on_regulatory_retrieval_needs  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: retrieve_regulatory  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: verify_clinical_evidence_retrieval  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: reflect_on_challenge_failure  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: reflect_on_clinical_evidence_retrieval_needs  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: retrieve_clinical_evidence  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: govern_determination  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:26:22] [ 77/78] pa_2024_g005           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  364s
+  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_regulatory  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: verify_cross_source_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: deliberate_on_determination  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: generate_determination  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: reflect_on_challenge_failure  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: deliberate_on_challenge_findings  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: regenerate_determination  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: reflect_on_second_challenge_failure  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: govern_determination  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[07:34:56] [ 78/78] pa_2024_g006           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  763s
+
+========================================================================
+  BENCHMARK SUMMARY
+========================================================================
+
+11-case balanced set (paper benchmark)
+------------------------------------------------------------
+  System        Correct  Total   Accuracy  Silent errors
+  --------------------------------------------------------
+  cc                  6     11        54%              1
+  react               4     11        36%              7
+  plansolve           6     11        54%              5
+
+  Dispositions by system:
+    cc         OVERTURN:7  REMAND:2  UPHOLD:2
+    react      OVERTURN:7  PARTIAL:2  UNKNOWN:1  UPHOLD:1
+    plansolve  OVERTURN:8  PARTIAL:1  REMAND:1  UPHOLD:1
+
+All 26 cases
+------------------------------------------------------------
+  System        Correct  Total   Accuracy  Silent errors
+  --------------------------------------------------------
+  cc                 20     26        76%              2
+  react              18     26        69%              8
+  plansolve          19     26        73%              7
+
+  Dispositions by system:
+    cc         OVERTURN:22  REMAND:2  UPHOLD:2
+    react      OVERTURN:22  PARTIAL:2  UNKNOWN:1  UPHOLD:1
+    plansolve  ERROR:1  OVERTURN:22  PARTIAL:1  REMAND:1  UPHOLD:1
+
+  CC governance tier distribution (all cases):
+    auto         6
+    gate         17
+    hold         1
+    spot_check   2
+
+========================================================================
+[07:34:56] Done.
+
+  Results: C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\output\parallel_benchmark\results.json
+  Summary: C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\output\parallel_benchmark\summary.txt
+  Log:     C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\output\parallel_benchmark\run_log.txt
+

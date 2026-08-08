@@ -1,0 +1,117 @@
+CASE: pa_2024_e002
+SYSTEM: PLANSOLVE
+DISPOSITION: OVERTURN
+GT: PARTIAL
+CORRECT: False
+ELAPSED: 58.8s
+========================================================================
+
+# PRIOR AUTHORIZATION APPEAL DETERMINATION
+
+**Date:** December 2, 2024  
+**Case ID:** PA-2024-E002  
+**Member:** Catherine Mills  
+**Age:** 53  
+**Plan:** HealthFirst PPO Gold — Group Plan 77441  
+**State:** California  
+**Coverage Effective Date:** September 1, 2020  
+**Requested Procedure:** Three-level Anterior Cervical Discectomy and Fusion (ACDF) (C3-C4, C4-C5, C5-C6) — CPT Code 22551  
+**Requesting Provider:** Dr. James Torres, MD — Neurosurgery  
+**Facility:** Cedars-Sinai Medical Center  
+**Initial Determination Date:** November 25, 2024  
+**Initial Reviewer:** Dr. Alan Foster, MD  
+**Appeal Determination:** **PARTIAL APPROVAL** (Modify Initial Decision: Approve C4-C5 and C5-C6; Uphold Denial of C3-C4)
+
+---
+
+### I. DETERMINATION SUMMARY
+
+Following a comprehensive clinical and administrative review of the appeal submitted on behalf of Catherine Mills, the initial determination is **PARTIALLY OVERTURNED**. 
+
+*   **C4-C5 Level:** **APPROVED** (As established in the initial determination).
+*   **C5-C6 Level:** **APPROVED** (Overturning the initial denial).
+*   **C3-C4 Level:** **DENIED** (Upholding the initial denial).
+
+This determination modifies the authorized procedure from a single-level ACDF (C4-C5) to a **two-level ACDF (C4-C5 and C5-C6)**. The clinical record demonstrates severe, progressive spinal cord injury (myelomalacia) at C4-C5 and clinically correlated, medically refractory radiculopathy at C5-C6. However, surgical intervention at C3-C4 remains unsupported as it is clinically silent, lacks correlating objective pathology, and does not meet established plan criteria or national standards.
+
+---
+
+### II. SOURCE HIERARCHY OF AUTHORITY
+
+In accordance with California regulatory requirements, this appeal was reviewed under the following strict hierarchy of authority. Where a conflict exists, the higher authority supersedes and overrides lower clinical or administrative criteria:
+
+1.  **State Law & Regulatory Mandates (Highest Authority):** California Insurance Code (CIC) § 10169.5; California Health & Safety Code (CHSC) § 1374.30–1374.32; Department of Managed Health Care (DMHC) All-Plan Letter (APL) 22-014.
+2.  **Generally Accepted Clinical Standards (Second Authority):** American Association of Neurological Surgeons (AANS) / Congress of Neurological Surgeons (CNS) Joint Section Guidelines (2023 Update); AO Spine Clinical Practice Guidelines (2021); North American Spine Society (NASS) Guidelines (2020).
+3.  **Plan Clinical Criteria (Lowest Authority):** HealthFirst Clinical Coverage Criteria, Spinal Surgery — Cervical Procedures (Document CC-SPINE-2024).
+
+---
+
+### III. STEP-BY-STEP EVALUATION ANALYSIS
+
+#### Step 1: Procedural Defect and Notice Adequacy Check (CHSC § 1374.31(b))
+The initial denial notice dated November 25, 2024, utilized reason code MED-003, stating that C3-C4 and C5-C6 "do not demonstrate pathology of sufficient severity." 
+
+*   **Finding:** The initial notice is *procedurally deficient* under CHSC § 1374.31(b). It failed to cite the specific clinical coverage criteria applied (HealthFirst CC-SPINE-2024) and failed to differentiate between the clinical presentations of C3-C4 and C5-C6, grouping them into a single denial rationale despite separate clinical presentations.
+*   **Impact:** Under CHSC § 1374.31(b), a defective notice allows the reviewer to evaluate the clinical merits of the entire requested procedure without giving deference to the plan's initial limitations.
+
+#### Step 2: Diagnostic Classification (Myelopathy vs. Radiculopathy)
+*   **Clinical Findings:** The neurological exam dated October 5, 2024, documents unequivocal upper motor neuron (UMN) signs: bilateral hyperreflexia, bilateral Hoffman sign, and a wide-based gait.
+*   **Imaging Findings:** The cervical MRI dated October 1, 2024, demonstrates a large disc herniation, severe spinal cord compression, and T2-weighted signal changes (myelomalacia) at C4-C5.
+*   **Conclusion:** The member's primary presenting diagnosis is **Multi-level cervical spondylosis with myelopathy** (specifically meeting Plan Criterion 2.1(b) and AANS/CNS diagnostic definitions).
+
+#### Step 3: Objective Evidence of Structural Neurological Compromise (Myelomalacia)
+*   **Clinical Findings:** The MRI reveals established myelomalacia (intrinsic cord damage evidenced by T2 signal changes) at C4-C5.
+*   **Legal & Clinical Implications:** 
+    *   Under **CIC § 10169.5(a)(3)**, a plan cannot condition surgical approval on physical therapy when there is "objective evidence of structural neurological compromise that physical therapy cannot address."
+    *   Under **DMHC APL 22-014**, the presence of myelomalacia constitutes a progressive, time-sensitive condition where delay risks irreversible neurological deterioration. Standard conservative therapy requirements (including standard PT durations and interventional injections) are legally waived.
+    *   According to **AANS/CNS (2023) and AO Spine (2021) Guidelines**, moderate-to-severe myelopathy with cord signal change constitutes a **Tier 1 Strong Surgical Indication** for which extended conservative therapy is contraindicated.
+
+#### Step 4: Multi-Level Pathology, Clinical Correlation, and Plan Criteria Compliance
+
+A level-by-level analysis was conducted to determine which of the three requested levels meet medical necessity standards:
+
+##### 1. C4-C5 Level (Approved)
+*   **Pathology:** Large disc herniation with severe cord compression and T2 signal change (myelomalacia).
+*   **Clinical Correlation:** Bilateral deltoid weakness (4/5), bilateral hyperreflexia, bilateral Hoffman sign, and gait instability.
+*   **Determination:** Approved. Meets Plan Criterion 2.1(b), AANS/CNS Tier 1 indications, and is protected from conservative delay by CIC § 10169.5 and DMHC APL 22-014.
+
+##### 2. C5-C6 Level (Overturned — Approved)
+*   **Pathology:** Moderate disc herniation, moderate left C6 nerve root compression, and foraminal stenosis.
+*   **Clinical Correlation:** Left bicep weakness (4-/5) and diminished left bicep reflex. Physical therapy records confirm that "C5-C6 radicular symptoms persist" and the member had only "modest improvement" from a cervical epidural injection on October 20, 2024.
+*   **Conservative Trial Evaluation:** 
+    *   **Physical Therapy:** The member completed 9 weeks (27 sessions) of supervised PT. This exceeds the 6-week requirement under Plan Criterion 2.2(a) and the 4-week modified myelopathy requirement under Exception 2.2(A). A functional plateau was documented (myelopathic and radicular symptoms persisted without functional improvement), satisfying **CIC § 10169.5(a)(2)**.
+    *   **Pharmacotherapy:** The member completed trials of Baclofen 10mg TID (3 months) and Pregabalin 300mg BID (4 months), satisfying Plan Criterion 2.2(b).
+    *   **Interventional Treatment:** The member underwent a cervical epidural injection on October 20, 2024, satisfying Plan Criterion 2.2(c).
+*   **Determination:** Approved. This level meets Plan Criterion 2.1(a) (Radiculopathy) and 2.2 (Conservative Treatment), and aligns with **AANS/CNS Tier 2 indications** (radiculopathy with persistent symptoms and motor deficit after >6 weeks of conservative treatment). Denying decompression at C5-C6 in the presence of an active motor deficit (4-/5 bicep weakness) and corresponding foraminal stenosis violates generally accepted standards of care (CHSC § 1374.32(b)).
+
+##### 3. C3-C4 Level (Upheld — Denied)
+*   **Pathology:** Mild disc bulge, minimal foraminal narrowing. No spinal cord compression, no severe stenosis.
+*   **Clinical Correlation:** Neurological exam notes "unclear — neck pain with C3-C4 palpation but no specific radicular pattern." Physical therapy notes state "C3-C4 contribution unclear."
+*   **Determination:** Denied. Under Plan Clinical Criteria Section 3.1 and 3.3, surgery is excluded when requested for axial neck pain alone or when imaging fails to show pathology correlating with the clinical presentation. This also falls under **AANS/CNS Tier 3 (Surgery Not Indicated)**. Fusing a level with only mild degenerative changes and no clinical correlation increases the risk of adjacent segment disease without clinical benefit.
+
+---
+
+### IV. STATUTORY AND CLINICAL REASONING FOR SYSTEM OVERRIDE
+
+Pursuant to **CHSC § 1374.32(b)**, the plan's internal criteria must yield to generally accepted clinical standards of medical practice. 
+
+For the **C5-C6 level**, the member presents with an active, structurally correlated motor deficit (left bicep weakness) and persistent radicular pain. She has completed an exhaustive 9-week conservative trial including physical therapy, double-agent pharmacotherapy, and an epidural injection, reaching a documented functional plateau. Under **CIC § 10169.5**, the plan cannot mechanically apply its criteria to deny this level when a functional plateau has been achieved. 
+
+For the **C4-C5 level**, the presence of myelomalacia represents a time-sensitive neurological emergency. Requiring or insisting upon further conservative trials for this level is a category error under **AANS/CNS Guidelines** and is explicitly prohibited by **DMHC APL 22-014**.
+
+Because a C4-C5 decompression and fusion is required for myelopathy, and an adjacent C5-C6 decompression and fusion is medically necessary for refractory radiculopathy, performing a contiguous two-level ACDF (C4-C6) is the standard of care to address the member's clinical presentation. Fusing C3-C4 is clinically contraindicated given the lack of structural pathology and absence of corresponding neurological deficits.
+
+---
+
+### V. FINAL DISPOSITION
+
+The prior authorization request for Catherine Mills is **PARTIALLY APPROVED**. 
+
+*   **Authorized CPT Code:** 22551 (and corresponding add-on code 22552 for the additional level) for a **two-level anterior cervical discectomy and fusion at C4-C5 and C5-C6**.
+*   **Denied Levels:** **C3-C4** remains denied under Plan Exclusions 3.1 and 3.3 and AANS/CNS Tier 3 clinical standards.
+
+The treating provider, Dr. James Torres, MD, may proceed with scheduling the two-level procedure at Cedars-Sinai Medical Center. This authorization is valid for 90 days from the date of this letter.
+
+**Reviewer:**  
+*Expert Health Plan Appeals Panel*  
+*Clinical Reviewer Signature (Authorized on behalf of California State Law & DMHC Guidelines)*

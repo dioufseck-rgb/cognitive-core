@@ -1,0 +1,102 @@
+CASE: pa_2024_b003
+SYSTEM: PLANSOLVE
+DISPOSITION: OVERTURN
+GT: OVERTURN
+CORRECT: True
+ELAPSED: 45.4s
+========================================================================
+
+# HEALTH INSURANCE APPEALS & REVIEW DIVISION
+**STATE OF CALIFORNIA**
+
+**CASE ID:** PA-2024-B003  
+**MEMBER:** Angela Morrison (ID: M-778899)  
+**PLAN:** HealthFirst PPO Gold — Group Plan 77441  
+**PLAN YEAR:** 2024 (Coverage Effective: 2016-01-01)  
+**REQUESTING PHYSICIAN:** Dr. Paul Nguyen, MD — Neurosurgery (Cedars-Sinai Medical Center)  
+**PROCEDURE REQUESTED:** CPT Code 22551 (Anterior Cervical Discectomy and Fusion [ACDF], C3-C4, single level)  
+**INITIAL DETERMINATION:** Denied (2024-10-01) by Dr. Alan Foster, MD (Reason Code: MED-003)  
+**APPEAL DETERMINATION DATE:** October 18, 2024  
+
+---
+
+### FINAL DISPOSITION: OVERTURN THE DENIAL
+
+---
+
+### I. EXECUTIVE SUMMARY & FINAL DETERMINATION
+
+Pursuant to California health insurance regulations and generally accepted clinical standards, a formal review of the prior authorization appeal has been conducted for the requested one-level Anterior Cervical Discectomy and Fusion (ACDF) at C3-C4 (CPT 22551). 
+
+The initial denial by HealthFirst was based on the premise that the member’s cervical MRI (dated August 15, 2024) demonstrated only "mild degenerative changes" and did not show sufficient pathology to justify surgical intervention. 
+
+Following a comprehensive review of the entire clinical record, this Division **OVERTURNS** the plan's denial. The clinical record demonstrates that the initial MRI was severely degraded by **hardware artifact** from the member’s prior 2019 C4-C5 fusion, leading to a significant underestimation of C3-C4 pathology. A subsequent diagnostic **CT Myelogram** (dated September 10, 2024) bypassed this artifact and confirmed **moderate-to-severe left C4 nerve root compression and significant foraminal stenosis** at the C3-C4 level. This structural pathology correlates perfectly with the member's objective neurological deficit (3+/5 left deltoid weakness). 
+
+Because the member has completed and failed a comprehensive course of conservative treatment, and because the objective clinical evidence confirms severe pathology correlating with motor weakness, the requested procedure is **medically necessary** under California law and clinical standards. The plan is ordered to authorize CPT code 22551 immediately.
+
+---
+
+### II. NUMBERED EVALUATION STEPS
+
+#### Step 1: Procedural Defect & Statutory Notice Check (CHSC § 1374.31(b))
+The initial denial notice issued on 2024-10-01 by Dr. Alan Foster cited reason code *MED-003* and stated: *"Member meets conservative treatment requirements. However, imaging does not show sufficient pathology... MRI shows mild degenerative changes."* 
+
+*   **Finding:** The denial notice failed to explicitly cite the plan's specific clinical coverage criteria document (e.g., *HealthFirst CC-SPINE-2024*), which is a technical procedural violation under **California Health & Safety Code (CHSC) § 1374.31(b)**. 
+*   **Clinical Impact:** More critically, the plan's reviewer failed to address or acknowledge the CT Myelogram dated September 10, 2024, which was performed specifically because the MRI was obscured by hardware. Relying on an artifact-obscured MRI while ignoring a definitive CT Myelogram violates the statutory requirement to provide a "specific clinical reason" based on the actual medical record. This constitutes a procedural defect. However, rather than remanding solely on procedural grounds, this division will proceed to resolve the clinical merits of the case to prevent further administrative delay for this symptomatic member.
+
+#### Step 2: Diagnostic Classification & Symptom Profile Analysis
+The member's clinical presentation must be classified to determine the appropriate clinical pathway:
+*   **Clinical Findings:** Dr. Nguyen's neurological examination (2024-08-20) documents a **new neurological deficit** in the left C4 dermatomal distribution:
+    *   Left deltoid weakness rated at **3+/5** (objective motor deficit).
+    *   Left bicep reflex diminished.
+    *   Left shoulder and lateral arm numbness.
+*   **Classification:** There are no documented upper motor neuron signs (such as a positive Hoffman sign, hyperreflexia, clonus, gait instability, or bilateral symptoms) that would classify this as Cervical Myelopathy. 
+*   **Result:** This clinical presentation is classified as **Cervical Radiculopathy** (adjacent segment disease at C3-C4 with objective motor weakness). The Radiculopathy clinical pathway governs this review.
+
+#### Step 3: Objective Imaging & Pathology Review (C3-C4 Level)
+The core of the plan’s denial was the lack of objective pathology at C3-C4. A comparative analysis of the imaging reports reveals:
+1.  **Cervical Spine MRI (2024-08-15):** Reported "mild degenerative signal changes." Crucially, the radiologist documented: *"SIGNIFICANT ARTIFACT from C4-C5 hardware limiting evaluation... Cannot exclude moderate compression due to artifact."*
+2.  **Cervical CT Myelogram (2024-09-10):** Ordered specifically due to the MRI limitation. The report states: *"C3-C4: moderate-severe left C4 nerve root compression confirmed. Significant foraminal stenosis. MRI underestimated pathology due to hardware artifact."*
+
+*   **Clinical Determination:** The plan's medical director relied exclusively on the compromised MRI and ignored the definitive CT Myelogram. In spinal surgery, when prior instrumentation (titanium screws/plates from a 2019 fusion) creates metallic artifact that obscures adjacent levels on MRI, a CT Myelogram is the gold standard diagnostic test. The CT Myelogram confirms **severe, objective, structural pathology at C3-C4** that directly correlates with the member’s clinical radiculopathy and deltoid weakness. The plan’s "insufficient pathology" finding is factually and clinically inaccurate.
+
+#### Step 4: Conservative Treatment Compliance & Statutory Waivers
+Under **HealthFirst Clinical Criteria CC-SPINE-2024 (Section 2.2)**, a member must complete conservative treatment consisting of: (a) 6 weeks of physical therapy, (b) 2 pharmacotherapy agents for 4+ weeks, and (c) 1 interventional treatment.
+*   **Physical Therapy:** The member completed **10 weeks (30 sessions)** of supervised physical therapy with no improvement in left C4 radicular symptoms. This exceeds the plan’s 6-week requirement.
+*   **Pharmacotherapy:** The member completed a **6-month trial of Pregabalin 300mg BID** (partial relief) and a **3-month trial of Duloxetine 60mg** (minimal benefit). This satisfies Section 2.2(b).
+*   **Interventional Treatment:** The member underwent a **left C4 epidural steroid injection on 2024-09-25**, resulting in good initial relief (60%) which deteriorated back to clinical baseline by week 3. This satisfies Section 2.2(c).
+*   **Result:** The member has fully satisfied all plan conservative treatment requirements. The initial denial also explicitly conceded: *"Member meets conservative treatment requirements."*
+
+#### Step 5: Clinical Standards vs. Plan Criteria Conflict Resolution (CHSC § 1374.32(b))
+Under **CHSC § 1374.32(b)**, the standard of review for medical necessity is based on generally accepted standards of medical practice, not the plan's internal guidelines.
+*   **Clinical Standards (AANS/CNS 2023 / NASS 2020):** Cervical spinal decompression and fusion (ACDF) is a **Tier 1 (Strong Indication)** or **Tier 2 (Reasonable Indication)** procedure for patients with cervical radiculopathy who present with:
+    1.  Objective nerve root compression confirmed on imaging (here, confirmed by CT Myelogram);
+    2.  Corresponding dermatomal symptoms and motor deficits (here, C4 dermatomal numbness and 3+/5 deltoid weakness); AND
+    3.  Failure of at least 6 weeks of conservative therapy (here, failed 10 weeks of PT, 2 neuropathic medications, and an epidural injection).
+*   **Risk of Delay:** The member has a documented motor deficit (3+/5 deltoid weakness). According to AANS/CNS guidelines, delaying surgery in the presence of an active, progressive motor deficit and confirmed structural compression increases the risk of irreversible axonal damage and permanent neurological weakness.
+
+---
+
+### III. STATUTORY AND REGULATORY AUTHORITY
+
+1.  **California Health & Safety Code § 1374.32(b):** Establishes that health plan medical necessity determinations must align with generally accepted clinical standards of medical practice, which override any more restrictive, literal, or misapplied interpretations of plan criteria.
+2.  **California Insurance Code (CIC) § 10169.5(a)(3):** Prohibits plans from mechanically enforcing conservative treatment rules or denial policies when objective evidence of structural compromise is present and conservative measures have failed to arrest the deficit.
+3.  **DMHC All-Plan Letter (APL) 22-014:** Mandates that plans must not apply internal criteria more restrictively than generally accepted clinical guidelines for time-sensitive neurological conditions. Persistent nerve root compression with objective motor weakness (3+/5 deltoid) constitutes a progressive deficit requiring timely intervention to prevent irreversible neurological injury.
+
+---
+
+### IV. CONCLUSION & ORDER
+
+The clinical record demonstrates a textbook case of **adjacent segment disease at C3-C4** following a successful 2019 C4-C5 fusion. The member’s clinical exam demonstrates an objective, severe radicular deficit (left deltoid weakness, diminished bicep reflex) matching the left C4 nerve root. 
+
+The plan’s initial denial of the ACDF at C3-C4 was based on an inaccurate reading of an MRI that was corrupted by metal artifact. The subsequent CT Myelogram conclusively proved the existence of the severe pathology that the plan claimed was absent. 
+
+Because the member has completed and failed a comprehensive course of conservative treatment, and because the clinical standards of the **AANS/CNS** and **NASS** support surgery to prevent permanent motor deficit, the requested procedure is highly medically necessary.
+
+**The plan's initial denial is hereby OVERTURNED.** HealthFirst is ordered to immediately authorize and cover **CPT code 22551 (ACDF C3-C4)** at Cedars-Sinai Medical Center as requested by Dr. Paul Nguyen, MD.
+
+---
+**Reviewer:**  
+*Independent Medical Appeals Reviewer*  
+*Board-Certified Consultant in Neurosurgery & Spine Surgery*  
+*State of California Health Plan Appeals Division*
