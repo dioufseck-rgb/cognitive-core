@@ -1,5 +1,5 @@
-# ─────────────────────────────────────────────────────────────────────────────
-# Cognitive Core — LLM Configuration
+﻿# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# Cognitive Core â€” LLM Configuration
 #
 # This file is the single source of truth for model names and provider settings.
 # Edit this file when models are deprecated or you want to use different models.
@@ -9,23 +9,23 @@
 #   LLM_DEFAULT_MODEL=<model>     override the default model
 #   LLM_PROVIDER=<provider>       override the provider
 #   LLM_CONFIG_PATH=<path>        load a different config file entirely
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-# ── Provider ──────────────────────────────────────────────────────────────────
+# â”€â”€ Provider â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Leave null to auto-detect from API key environment variables.
 # Set explicitly to force a specific provider.
 #
-#   null        → auto-detect (recommended)
-#   google      → requires GOOGLE_API_KEY
-#   openai      → requires OPENAI_API_KEY
-#   azure       → requires AZURE_OPENAI_ENDPOINT + AZURE_OPENAI_API_KEY
-#   bedrock     → requires AWS credentials
+#   null        â†’ auto-detect (recommended)
+#   google      â†’ requires GOOGLE_API_KEY
+#   openai      â†’ requires OPENAI_API_KEY
+#   azure       â†’ requires AZURE_OPENAI_ENDPOINT + AZURE_OPENAI_API_KEY
+#   bedrock     â†’ requires AWS credentials
 #
-default_provider: null
+default_provider: google
 
 
-# ── Model aliases ─────────────────────────────────────────────────────────────
-# Maps logical alias → provider → model name.
+# â”€â”€ Model aliases â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# Maps logical alias â†’ provider â†’ model name.
 # Workflows reference aliases ("default", "fast", "standard", "strong").
 # Changing a model here updates all workflows that use that alias.
 #
@@ -44,7 +44,7 @@ aliases:
     bedrock:      anthropic.claude-3-5-haiku-20241022-v1:0
 
   # Fast: used for low-latency steps (classify, verify).
-  # Uses the lite model for speed — these steps are deterministic and don't need full capacity.
+  # Uses the lite model for speed â€” these steps are deterministic and don't need full capacity.
   fast:
     anthropic:    claude-haiku-4-5-20251001
     google:       gemini-3.5-flash
@@ -72,7 +72,7 @@ aliases:
     bedrock:      anthropic.claude-3-5-sonnet-20241022-v2:0
 
 
-# ── Model → provider lookup ───────────────────────────────────────────────────
+# â”€â”€ Model â†’ provider lookup â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Used to infer the provider when a workflow specifies a model name directly.
 # Add entries here when using models not listed above.
 #
@@ -103,7 +103,7 @@ model_to_provider:
   anthropic.claude-3-7-sonnet-20250219-v1:0:  bedrock
 
 
-# ── Provider-level defaults ───────────────────────────────────────────────────
+# â”€â”€ Provider-level defaults â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Fallback model per provider when no alias matches.
 #
 provider_defaults:
@@ -115,8 +115,8 @@ provider_defaults:
   bedrock:      anthropic.claude-3-5-haiku-20241022-v1:0
 
 
-# ── Pricing (cost tracking) ───────────────────────────────────────────────────
-# USD per million tokens. Used for cost tracking — not required for operation.
+# â”€â”€ Pricing (cost tracking) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# USD per million tokens. Used for cost tracking â€” not required for operation.
 # Set to null to disable cost tracking for a model.
 #
 pricing:
@@ -140,7 +140,7 @@ pricing:
     output_per_million: 10.00
 
 
-# ── Provider settings ─────────────────────────────────────────────────────────
+# â”€â”€ Provider settings â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Provider-specific configuration. Uncomment and edit as needed.
 #
 provider_settings:
@@ -154,10 +154,10 @@ provider_settings:
     # api_version: "2024-08-01-preview"
 
 
-# ── Per-primitive output token budgets ────────────────────────────────────────
+# â”€â”€ Per-primitive output token budgets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Controls max_tokens (Anthropic/OpenAI) / max_output_tokens (Google) per call.
 # Heavy primitives (deliberate, reflect, govern, generate, challenge) produce
-# large JSON schemas with multiple list fields — they need real headroom.
+# large JSON schemas with multiple list fields â€” they need real headroom.
 # Light primitives (retrieve, classify, verify) are structurally bounded.
 #
 # These values are passed at invocation time via create_llm(**kwargs).
@@ -178,7 +178,7 @@ primitive_max_tokens:
 # classify uses 'fast' by default but the fast lite model truncates on
 # multi-category schemas with compound criteria. Override to 'standard'
 # so classification is reliable across all domains without per-domain tuning.
-# verify also benefits from standard — the two-stage constraint checker
+# verify also benefits from standard â€” the two-stage constraint checker
 # produces dense JSON that lite models truncate.
 primitive_model_alias:
   classify: standard
