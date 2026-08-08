@@ -167,12 +167,12 @@ primitive_max_tokens:
   retrieve:    4096
   classify:    8192
   investigate: 16384
-  verify:      6144
+  verify:      10240
   deliberate:  12288
   reflect:     8192
   generate:    16384
   challenge:   12288
-  govern:      6144
+  govern:      12288
 
 # Per-primitive model alias overrides.
 # classify uses 'fast' by default but the fast lite model truncates on
