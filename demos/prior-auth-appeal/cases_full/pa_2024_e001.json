@@ -1,0 +1,88 @@
+{
+  "case_id": "PA-2024-E001",
+  "appeal_date": "2024-11-18",
+  "member": {
+    "id": "M-667799",
+    "name": "Victor Patel",
+    "age": 60,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2016-05-01"
+  },
+  "procedure": {
+    "code": "22552",
+    "description": "ACDF C5-C6 AND C6-C7, two levels (CPT 22551 + 22552)",
+    "requested_by": "Dr. Lisa Park, MD \u2014 Spine Surgery",
+    "facility": "UCSF Medical Center"
+  },
+  "denial": {
+    "date": "2024-11-01",
+    "reason_code": "MED-003",
+    "reason_text": "Two-level fusion not supported. C5-C6 level shows pathology consistent with surgical criteria. C6-C7 shows mild changes only. Two-level fusion not approved when one level meets criteria and one does not.",
+    "reviewer": "Dr. Patricia Huang, MD",
+    "level": "initial"
+  },
+  "appeal_basis": [
+    "Both levels are symptomatic per treating physician",
+    "Adjacent levels should be addressed simultaneously to prevent accelerated degeneration",
+    "Member meets full criteria for both levels"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Two-level cervical disc disease C5-C6 and C6-C7 \u2014 asymmetric severity",
+    "imaging": {
+      "mri_1": {
+        "date": "2024-09-15",
+        "findings": "C5-C6: large disc herniation, moderate-severe right C6 nerve root compression, foraminal stenosis. C6-C7: small disc bulge, mild foraminal narrowing, no nerve root compression identifiable, no cord contact."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-09-20",
+      "findings": "C6 level: right bicep weakness 3+/5, bicep reflex absent right, right C6 dermatomal numbness and tingling. C7 level: right tricep reflex slightly diminished. No definitive C7 dermatomal symptoms. Physician notes mild C7 symptoms possibly present but not clearly documented."
+    },
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 8,
+        "total_sessions": 24,
+        "note": "8 weeks PT. C6 symptoms persist. C7 symptoms: minimal and possibly resolving per PT note at week 8.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Pregabalin 150mg BID",
+            "duration": "4 months",
+            "response": "Partial C6 relief, uncertain C7 contribution"
+          },
+          {
+            "drug": "Naproxen 500mg BID",
+            "duration": "3 months",
+            "response": "Moderate"
+          }
+        ]
+      },
+      "interventional": {
+        "right_c6_epidural": {
+          "date": "2024-10-15",
+          "response": "Good C6 relief (70%), fully returned in 4 weeks. No C7-specific injection performed."
+        }
+      }
+    }
+  },
+  "documents_enclosed": [
+    "MRI report",
+    "PT records",
+    "Neurological exam",
+    "Epidural records"
+  ],
+  "question": "Should the prior authorization denial for two-level ACDF C5-C6 and C6-C7 (CPT 22551+22552) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "OVERTURN \u2014 member has cervical pathology, met conservative treatment, treating physician says both levels need surgery.",
+    "harder_question_1": "C5-C6 clearly meets criteria. Does C6-C7 meet criteria when there are only possible mild C7 symptoms and minimal imaging findings?",
+    "harder_question_2": "Is treating physician testimony about C7 symptoms sufficient when the neurological exam is equivocal and the PT notes suggest C7 symptoms may be resolving?",
+    "harder_question_3": "The plan denied the entire request \u2014 is the correct disposition OVERTURN for C5-C6 only (PARTIAL) or OVERTURN for both?",
+    "harder_question_4": "Should the determination authorize C5-C6 and remand C6-C7 pending clearer symptom documentation?",
+    "the_genuine_tension": "C5-C6 is unambiguously indicated. C6-C7 is genuinely borderline \u2014 mild imaging changes, equivocal exam, possibly resolving symptoms. Binary OVERTURN approves both levels when one is questionable. Binary UPHOLD denies both when one is clearly indicated. The correct answer is PARTIAL.",
+    "right_answer": "PARTIAL \u2014 OVERTURN for C5-C6 (large herniation, moderate-severe compression, clear C6 neurological deficit, failed conservative treatment). REMAND for C6-C7 (mild imaging findings, equivocal exam findings, possibly resolving symptoms per PT notes \u2014 insufficient documentation to approve at this time). A bilateral epidural injection targeting both levels should be tried before C6-C7 is reconsidered."
+  }
+}

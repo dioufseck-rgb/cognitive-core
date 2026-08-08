@@ -1,0 +1,84 @@
+{
+  "case_id": "PA-2024-A004",
+  "appeal_date": "2024-12-01",
+  "member": {
+    "id": "M-445566",
+    "name": "Robert Chang",
+    "age": 38,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2023-01-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C5-C6, one level \u2014 EMERGENCY",
+    "requested_by": "Dr. Elena Marchetti, MD \u2014 Neurosurgery",
+    "facility": "UCSF Medical Center"
+  },
+  "denial": {
+    "date": "2024-11-18",
+    "reason_code": "MED-003",
+    "reason_text": "Physical therapy not completed: 0 weeks documented. No pharmacotherapy documented. No interventional procedure documented. Member has not initiated conservative treatment. Request denied pending completion of required conservative treatment under CC-SPINE-2024 Section 2.2.",
+    "reviewer": "Dr. Patricia Huang, MD",
+    "level": "initial"
+  },
+  "appeal_basis": [
+    "Member presented with acute myelopathy \u2014 PT was never started because physician determined it would cause immediate harm",
+    "MRI shows severe cord compression with extensive myelomalacia on initial presentation",
+    "This is an emergency surgical situation \u2014 CIC 10169.5(a)(3) applies from day one"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Acute cervical myelopathy with rapidly progressive deficits \u2014 surgical emergency",
+    "initial_presentation": {
+      "date": "2024-11-10",
+      "diagnosis": "Acute cervical myelopathy",
+      "notes": "Patient presents to ER with acute onset bilateral arm weakness and difficulty walking over 72 hours. No prior cervical history."
+    },
+    "imaging": {
+      "mri_1": {
+        "date": "2024-11-10",
+        "findings": "URGENT: Severe C5-C6 central cord compression. Extensive T2 hyperintensity throughout cord (extensive myelomalacia). Findings consistent with acute cord injury. Neurosurgery emergently consulted."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-11-10",
+      "findings": "Bilateral arm weakness 2/5, bilateral leg weakness 3/5, hyperreflexia all extremities, bilateral Babinski, urinary urgency \u2014 incomplete spinal cord syndrome"
+    },
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 0,
+        "total_sessions": 0,
+        "note": "NO PT INITIATED. Treating physician declared PT absolutely contraindicated on initial presentation. Extensive myelomalacia on emergency MRI. Initiating PT would risk converting incomplete cord syndrome to complete cord syndrome.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "IV methylprednisolone",
+            "duration": "24 hours inpatient",
+            "response": "Standard acute spinal cord injury protocol, administered in ER"
+          }
+        ]
+      },
+      "interventional": null
+    },
+    "physician_declaration": "Dr. Marchetti: This patient has an acute incomplete cervical cord syndrome with extensive myelomalacia. PT is absolutely contraindicated and would be dangerous. CIC 10169.5(a)(3) exception applies. Delaying surgery risks permanent complete paralysis. Emergency authorization requested."
+  },
+  "documents_enclosed": [
+    "Emergency MRI report 2024-11-10",
+    "ER records",
+    "Neurosurgery consultation note",
+    "Physician emergency declaration"
+  ],
+  "question": "Should the prior authorization denial for emergency ACDF C5-C6 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "UPHOLD \u2014 zero weeks PT, no outpatient pharmacotherapy, no injection. Member has done nothing required under the plan.",
+    "harder_question_1": "Does CIC 10169.5(a)(3) apply even when zero conservative treatment has been attempted, if the reason is medical contraindication?",
+    "harder_question_2": "Can a plan require PT as a prerequisite to emergency surgery when PT would cause harm?",
+    "harder_question_3": "Does objective evidence of structural neurological compromise include an acute presentation with zero prior treatment?",
+    "harder_question_4": "Is this an emergency authorization situation governed by different timelines than standard prior auth?",
+    "the_genuine_tension": "Zero conservative treatment completed \u2014 the most obvious uphold case in the set. But CIC 10169.5(a)(3) does not require that PT was attempted and failed \u2014 it requires only that the condition involves structural neurological compromise that PT cannot address. Extensive myelomalacia on emergency MRI satisfies this regardless of whether PT was ever tried.",
+    "right_answer": "OVERTURN \u2014 CIC 10169.5(a)(3) applies based on objective MRI evidence of structural neurological compromise. The statute does not require prior PT attempt; it prohibits conditioning surgical approval on PT when the condition involves structural compromise. Extensive myelomalacia on emergency MRI is the most extreme possible form of such compromise. Emergency authorization required."
+  }
+}

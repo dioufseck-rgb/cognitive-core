@@ -1,0 +1,114 @@
+
+════════════════════════════════════════════════════════════════════════
+  PARALLEL PRIOR AUTH BENCHMARK
+  Systems: cc
+  Cases: 3  ·  Jobs: 3  ·  Workers: 3
+  Output: C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\output\parallel_benchmark
+════════════════════════════════════════════════════════════════════════
+
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[14:09:48] Starting 3 jobs across 3 workers
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+
+
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+════════════════════════════════════════════════════════════════════════
+  COGNITIVE CORE — Agentic DEVS Mode
+
+  Retrieve → Classify → Investigate × 3 → Verify → Deliberate
+  → Generate → Challenge → Govern
+  Three independent knowledge sources · Cross-source conflict detection
+────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────
+
+
+  📥 retrieve_all_sources  [retrieve]  📥 retrieve_all_sources  [retrieve]  📥 retrieve_all_sources  [retrieve]  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  🏷  classify_clinical_presentation  [classify]  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: retrieve_all_sources  SUPPORTED · overall=1.00 · warranted=✓
+  🏷  classify_clinical_presentation  [classify]  🏷  classify_clinical_presentation  [classify]  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_plan_criteria  [investigate]  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: classify_clinical_presentation  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_plan_criteria  [investigate]  🔍 investigate_plan_criteria  [investigate]  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_regulatory_requirements  [investigate]  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_regulatory_requirements  [investigate]  [coord]      epistemic: investigate_plan_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_regulatory_requirements  [investigate]  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_clinical_standard  [investigate]  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_regulatory_requirements  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  🔍 investigate_clinical_standard  [investigate]  🔍 investigate_clinical_standard  [investigate]  ✅ verify_per_component_criteria  [verify]  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: investigate_clinical_standard  SUPPORTED · overall=1.00 · warranted=✓
+  ✅ verify_criteria_and_conflicts  [verify]  ✅ verify_criteria_and_conflicts  [verify]  [coord]      epistemic: verify_per_component_criteria  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_disposition  [deliberate]  [coord]      epistemic: verify_criteria_and_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_disposition  [deliberate]  [coord]      epistemic: verify_criteria_and_conflicts  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: deliberate_disposition  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_disposition  [deliberate]  📝 generate_draft_determination  [generate]  [coord]      epistemic: deliberate_disposition  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: generate_draft_determination  SUPPORTED · overall=1.00 · warranted=✓
+  📝 generate_determination  [generate]  ⚔️  challenge  [challenge]  [coord]      epistemic: deliberate_disposition  SUPPORTED · overall=1.00 · warranted=✓
+  📝 generate_appeal_determination  [generate]  [coord]      epistemic: generate_appeal_determination  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]  [coord]      epistemic: generate_determination  SUPPORTED · overall=1.00 · warranted=✓
+  ⚔️  challenge  [challenge]  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  🪞 reflect_on_challenge_failure  [reflect]  [coord]      epistemic: reflect_on_challenge_failure  SUPPORTED · overall=1.00 · warranted=✓
+  🤔 deliberate_revised_disposition  [deliberate]  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  ⚖️  govern  [govern]  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  ⚖️  govern  [govern]  [coord]      epistemic: deliberate_revised_disposition  SUPPORTED · overall=1.00 · warranted=✓
+  📝 generate_revised_determination  [generate]  [coord]      epistemic: govern  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[14:15:47] [  1/3] pa_2024_b001           cc         ✗ OVERTURN   (GT:PARTIAL) [gate]  359s
+  [coord]      epistemic: govern  SUPPORTED · overall=1.00 · warranted=✓
+[14:16:08] [  2/3] pa_2024_e002           cc         ✗ OVERTURN   (GT:PARTIAL) [gate]  380s
+  [coord]      epistemic: generate_revised_determination  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: challenge  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: reflect_on_second_challenge_failure  SUPPORTED · overall=1.00 · warranted=✓
+  [coord]      epistemic: govern_final_routing  SUPPORTED · overall=1.00 · warranted=✓
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:256: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp":        datetime.utcnow().isoformat(),
+C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\run_parallel_benchmark.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%H:%M:%S")
+[14:18:43] [  3/3] pa_2024_a001           cc         ✓ OVERTURN   (GT:OVERTURN) [gate]  535s
+
+========================================================================
+  BENCHMARK SUMMARY
+========================================================================
+
+11-case balanced set (paper benchmark)
+------------------------------------------------------------
+  System        Correct  Total   Accuracy  Silent errors
+  --------------------------------------------------------
+  cc                  1      2        50%              0
+
+  Dispositions by system:
+    cc         OVERTURN:2
+
+All 26 cases
+------------------------------------------------------------
+  System        Correct  Total   Accuracy  Silent errors
+  --------------------------------------------------------
+  cc                  1      3        33%              0
+
+  Dispositions by system:
+    cc         OVERTURN:3
+
+  CC governance tier distribution (all cases):
+    gate         3
+
+========================================================================
+[14:18:43] Done.
+
+  Results: C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\output\parallel_benchmark\results.json
+  Summary: C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\output\parallel_benchmark\summary.txt
+  Log:     C:\Users\diouf\cognitive-core\demos\prior-auth-appeal\output\parallel_benchmark\run_log.txt
+

@@ -1,0 +1,94 @@
+{
+  "case_id": "PA-2024-C003",
+  "appeal_date": "2024-12-05",
+  "member": {
+    "id": "M-112244",
+    "name": "Helen Brooks",
+    "age": 49,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2021-08-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C4-C5, one level",
+    "requested_by": "Dr. James Park, MD \u2014 Neurosurgery",
+    "facility": "UCSF Medical Center"
+  },
+  "denial": {
+    "date": "2024-11-20",
+    "reason_code": "MED-003",
+    "reason_text": "Myelopathy exception does not apply. MRI T2 signal change is minimal and may represent artifact. Plan's imaging reviewer notes this finding is below threshold for clinical significance. Standard pathway: PT completed (8 weeks), pharmacotherapy met, but no interventional procedure completed.",
+    "reviewer": "Dr. Alan Foster, MD",
+    "level": "initial"
+  },
+  "appeal_basis": [
+    "Radiologist specifically noted T2 signal change in report \u2014 not artifact",
+    "Second radiologist opinion confirms early myelomalacia",
+    "Treating physician has documented myelopathy on clinical grounds independently of imaging"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Early cervical myelopathy \u2014 myelomalacia status disputed between plan radiologist and treating physician radiologist",
+    "imaging": {
+      "mri_1_original": {
+        "date": "2024-10-01",
+        "findings": "Radiologist A (original): C4-C5 disc herniation with cord contact. Possible early T2 signal change \u2014 equivocal, may represent artifact. Clinical correlation required."
+      },
+      "mri_1_second_read": {
+        "date": "2024-10-15",
+        "findings": "Radiologist B (treating hospital): C4-C5 cord compression with early myelomalacia. T2 hyperintensity is reproducible on multiple sequences and represents early cord signal change, not artifact. Consistent with early myelopathy."
+      },
+      "plan_radiologist_review": {
+        "date": "2024-11-05",
+        "findings": "Plan radiologist: T2 signal change is below threshold for clinical significance. Not consistent with myelomalacia. Represents artifact or normal variant."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-10-05",
+      "findings": "Bilateral Hoffman signs. Bilateral hyperreflexia upper extremities. Subtle balance impairment on tandem gait. No lower extremity findings."
+    },
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 8,
+        "total_sessions": 24,
+        "note": "8 weeks PT. No improvement in UMN signs.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Gabapentin 400mg TID",
+            "duration": "3 months",
+            "response": "Partial benefit"
+          },
+          {
+            "drug": "Cyclobenzaprine",
+            "duration": "6 weeks",
+            "response": "Minimal"
+          }
+        ]
+      },
+      "interventional": {
+        "reason_not_performed": "Treating physician did not refer for epidural due to myelopathy concern \u2014 epidural steroid injections are relatively contraindicated in cord compression."
+      }
+    }
+  },
+  "documents_enclosed": [
+    "Original MRI report",
+    "Second radiologist opinion",
+    "Plan radiologist review",
+    "Neurological exam",
+    "PT records"
+  ],
+  "question": "Should the prior authorization denial for ACDF C4-C5 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "UPHOLD \u2014 plan's own radiologist says no myelomalacia of significance. Standard pathway: PT done, pharmacotherapy done, but no injection. Missing one criterion.",
+    "harder_question_1": "Three radiologists interpreted the same MRI differently \u2014 whose reading controls?",
+    "harder_question_2": "The treating hospital radiologist confirms myelomalacia \u2014 under CHSC 1374.32, does the plan's conflicting radiologist review override the treating physician's radiologist?",
+    "harder_question_3": "The epidural was not performed because treating physician considered it contraindicated in cord compression \u2014 does documented contraindication waive the interventional requirement?",
+    "harder_question_4": "If myelomalacia is confirmed, does CIC 10169.5(a)(3) apply making the entire plan criteria analysis moot?",
+    "the_genuine_tension": "Conflicting radiologist readings on the same imaging. Plan's radiologist says no myelomalacia. Treating radiologist says early myelomalacia. Clinical exam shows UMN signs. The plan denied based on its own radiologist's interpretation. Under CHSC 1374.32, the plan must use generally accepted medical standards \u2014 when qualified radiologists disagree, does the plan get to use its own reviewer's interpretation to deny?",
+    "right_answer": "GATE / REMAND \u2014 Conflicting qualified radiologist interpretations of the same MRI create genuine uncertainty requiring physician review. The plan cannot simply rely on its own radiologist when the treating institution's radiologist reached a different conclusion on the same image. This case should be remanded for Independent Medical Review under CHSC 1374.30. A binary OVERTURN or UPHOLD without acknowledging the radiological conflict is wrong."
+  }
+}

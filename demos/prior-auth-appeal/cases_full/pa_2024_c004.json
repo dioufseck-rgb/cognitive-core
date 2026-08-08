@@ -1,0 +1,90 @@
+{
+  "case_id": "PA-2024-C004",
+  "appeal_date": "2024-11-08",
+  "member": {
+    "id": "M-223355",
+    "name": "Raymond Flores",
+    "age": 54,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2019-02-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C5-C6, one level \u2014 prophylactic",
+    "requested_by": "Dr. Karen Davis, MD \u2014 Spine Surgery",
+    "facility": "Stanford Medical Center"
+  },
+  "denial": {
+    "date": "2024-10-25",
+    "reason_code": "MED-003",
+    "reason_text": "Cervical stenosis documented but no neurological deficit on examination. Member has axial neck pain only. No radiculopathy, no myelopathy documented. Surgical intervention not indicated for axial pain without neurological deficit under CC-SPINE-2024.",
+    "reviewer": "Dr. Patricia Huang, MD",
+    "level": "initial"
+  },
+  "appeal_basis": [
+    "Member has severe cervical stenosis with cord contact \u2014 risk of myelopathy from minor trauma is present",
+    "Prophylactic surgery indicated for severe stenosis even without current deficits",
+    "Occupation: construction worker with high trauma risk"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Severe cervical stenosis C5-C6 \u2014 prophylactic decompression requested",
+    "occupation": "Construction worker, heavy equipment operation",
+    "imaging": {
+      "mri_1": {
+        "date": "2024-09-15",
+        "findings": "C5-C6 severe central canal stenosis. Cord contact without compression. No T2 signal change. No myelomalacia. Canal diameter 6mm (normal >13mm). Single trauma could cause acute cord injury given severely reduced canal diameter."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-09-20",
+      "findings": "Completely normal neurological examination. No radiculopathy. No myelopathy signs. No UMN signs. Axial neck pain only, 5/10."
+    },
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 8,
+        "total_sessions": 24,
+        "note": "8 weeks PT for axial pain. Modest improvement in pain (7/10 to 5/10). No neurological symptoms to treat.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Naproxen 500mg BID",
+            "duration": "3 months",
+            "response": "Moderate pain relief"
+          },
+          {
+            "drug": "Cyclobenzaprine",
+            "duration": "6 weeks",
+            "response": "Sleep improvement only"
+          }
+        ]
+      },
+      "interventional": {
+        "c5_c6_epidural": {
+          "date": "2024-10-10",
+          "response": "60% pain relief lasting 6 weeks"
+        }
+      }
+    },
+    "surgeon_note": "Dr. Davis: This patient has critically narrow canal diameter. Any significant cervical trauma would likely cause acute spinal cord injury. Given his occupation operating heavy equipment, the risk of such trauma is elevated. Prophylactic decompression is indicated to prevent catastrophic injury."
+  },
+  "documents_enclosed": [
+    "MRI report",
+    "PT records",
+    "Neurological exam",
+    "Surgeon risk assessment"
+  ],
+  "question": "Should the prior authorization denial for prophylactic ACDF C5-C6 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "UPHOLD \u2014 no neurological deficit, no radiculopathy, no myelopathy. Plan criteria require neurological deficit for ACDF.",
+    "harder_question_1": "Does medically necessary include prevention of foreseeable catastrophic injury in high-risk occupations?",
+    "harder_question_2": "The clinical standard has a recognized category of prophylactic decompression for critically stenotic canals \u2014 does CHSC 1374.32 require the plan to consider this?",
+    "harder_question_3": "Epidural injection provided good pain relief \u2014 does successful conservative treatment actually argue against surgery?",
+    "harder_question_4": "No UMN signs, no cord signal change, successful conservative treatment \u2014 is this the clearest uphold in the entire set?",
+    "the_genuine_tension": "No neurological deficit, successful conservative treatment, axial pain as primary complaint. Plan criteria clearly require neurological deficit for surgical authorization, and none is present. The prophylactic argument is legitimate clinically but does not meet the legal standard for medical necessity under current plan criteria or California law.",
+    "right_answer": "UPHOLD \u2014 No current neurological deficit documented. Plan criteria require documented neurological deficit (radiculopathy or myelopathy) for ACDF authorization. Conservative treatment has been partially successful. The prophylactic argument does not create current medical necessity under HealthFirst CC-SPINE-2024 or California law standards. Member should be counseled on activity modification and monitored for developing neurological symptoms."
+  }
+}

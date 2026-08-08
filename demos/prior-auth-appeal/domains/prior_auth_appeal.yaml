@@ -75,6 +75,13 @@ orchestrator_strategy: |
      conforms. Cross-source consistency verification does not substitute
      for criteria verification.
 
+  4c. THE DETERMINATION MUST END WITH A MACHINE-READABLE FOOTER.
+     The generated determination letter must end with exactly these lines:
+       FINAL DISPOSITION: <OVERTURN | UPHOLD | PARTIAL | REMAND>
+       COMPONENT DISPOSITIONS: <component>: <disposition>; ... (omit if single-component)
+     A determination that overturns some components and upholds others is
+     PARTIAL, and must be labeled PARTIAL in the footer.
+
   5. CHALLENGE THE DISPOSITION EXACTLY ONCE.
      After deliberate and generate complete, run challenge once, from
      the perspective of the party that lost: if overturning, challenge

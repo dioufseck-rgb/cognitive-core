@@ -1,0 +1,94 @@
+{
+  "case_id": "PA-2024-A002",
+  "appeal_date": "2024-11-20",
+  "member": {
+    "id": "M-223344",
+    "name": "Marcus Webb",
+    "age": 47,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2018-06-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C6-C7, one level",
+    "requested_by": "Dr. Sarah Chen, MD \u2014 Spine Surgery",
+    "facility": "UCSF Medical Center"
+  },
+  "denial": {
+    "date": "2024-11-05",
+    "reason_code": "MED-003",
+    "reason_text": "Member completed 4 weeks of physical therapy. Standard pathway requires 6 weeks minimum. Myelopathy exception requires myelopathy as primary diagnosis \u2014 treating physician's most recent note lists 'cervical spondylosis with radiculopathy' as primary diagnosis. Member does not qualify for the myelopathy exception.",
+    "reviewer": "Dr. Patricia Huang, MD",
+    "level": "initial"
+  },
+  "appeal_basis": [
+    "Myelomalacia documented on MRI \u2014 regulatory override applies regardless of diagnosis labeling",
+    "Treating physician used 'cervical spondylosis with radiculopathy' as billing code but clinical notes clearly document myelopathy",
+    "APL 22-014 mandates waiver of conservative treatment when myelomalacia present"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Cervical spondylotic myelopathy C6-C7 \u2014 diagnosis label disputed",
+    "initial_presentation": {
+      "date": "2024-07-01",
+      "diagnosis": "Cervical spondylosis with radiculopathy",
+      "notes": "ICD-10 billing code M47.812. Clinical notes describe bilateral hand weakness and coordination problems. UMN signs present."
+    },
+    "imaging": {
+      "mri_1": {
+        "date": "2024-07-10",
+        "findings": "C6-C7 disc herniation with moderate cord compression. T2 signal change within cord consistent with early myelomalacia."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-07-01",
+      "findings": "Bilateral grip weakness 3/5, Hoffman sign positive bilateral, hyperreflexia bilateral upper extremities, tandem gait impaired"
+    },
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 4,
+        "total_sessions": 12,
+        "note": "4 weeks PT completed. Physician halted PT after myelomalacia confirmed on MRI. Treating physician letter states further PT contraindicated.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Gabapentin 300mg TID",
+            "duration": "3 months",
+            "response": "Partial pain relief, no improvement in weakness"
+          },
+          {
+            "drug": "Naproxen 500mg BID",
+            "duration": "2 months",
+            "response": "Inadequate"
+          }
+        ]
+      },
+      "interventional": {
+        "cervical_epidural": {
+          "date": "2024-09-15",
+          "response": "Minimal improvement, no change in motor deficits"
+        }
+      }
+    },
+    "diagnosis_note": "BILLING DISCREPANCY: ICD-10 code on PT referrals is M47.812 (spondylosis with radiculopathy). However, treating physician narrative notes consistently describe cervical myelopathy and myelomalacia on MRI. Physician states billing code is administrative artifact."
+  },
+  "documents_enclosed": [
+    "MRI report 2024-07-10",
+    "PT records",
+    "Physician letter re: diagnosis",
+    "Neurological exam"
+  ],
+  "question": "Should the prior authorization denial for ACDF C6-C7 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "UPHOLD \u2014 only 4 weeks PT completed (need 6), and the primary diagnosis on all forms is radiculopathy, not myelopathy.",
+    "harder_question_1": "Does the billing code govern or does the clinical narrative govern when they conflict?",
+    "harder_question_2": "Myelomalacia is documented on MRI \u2014 does CIC 10169.5(a)(3) apply based on the imaging finding regardless of what diagnosis code appears on the PT referral?",
+    "harder_question_3": "Can the plan deny based on a diagnosis label that contradicts the objective imaging findings?",
+    "harder_question_4": "If the regulatory override applies based on the MRI finding alone, does the diagnosis labeling dispute become irrelevant?",
+    "the_genuine_tension": "The billing code says radiculopathy. The MRI says myelomalacia. The plan anchors on the billing code to deny both the myelopathy exception and the PT sufficiency. But CIC 10169.5(a)(3) triggers on the imaging finding \u2014 objective evidence of structural neurological compromise \u2014 not on the diagnosis code. A single-pass system reading the denial letter and billing records reaches UPHOLD. A system that applies the regulatory hierarchy to the imaging finding reaches OVERTURN.",
+    "right_answer": "OVERTURN \u2014 CIC 10169.5(a)(3) applies based on the objective MRI finding of myelomalacia, independent of what diagnosis code appears on the billing form. The plan cannot condition surgical approval on PT completion when myelomalacia is documented on imaging. The diagnosis labeling dispute is a distraction from the controlling legal provision."
+  }
+}

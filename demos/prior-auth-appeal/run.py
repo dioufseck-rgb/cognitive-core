@@ -230,6 +230,7 @@ def run_cognitive_core(case_input: dict, verbose: bool = False) -> dict:
     # Extract determination from generate step
     ledger = coord.store.get_ledger(instance_id=instance_id)
     determination = ""
+    typed_disposition_raw = ""
     trajectory = []
     for entry in ledger:
         if entry.get("action_type") == "step_completed":
@@ -237,6 +238,10 @@ def run_cognitive_core(case_input: dict, verbose: bool = False) -> dict:
             prim = d.get("primitive", "")
             if prim:
                 trajectory.append(prim)
+            if prim == "deliberate":
+                out = d.get("output", {})
+                if isinstance(out, dict) and out.get("recommended_action"):
+                    typed_disposition_raw = str(out.get("recommended_action"))
             if prim == "generate":
                 out = d.get("output", {})
                 if isinstance(out, dict):
@@ -249,8 +254,11 @@ def run_cognitive_core(case_input: dict, verbose: bool = False) -> dict:
                 elif isinstance(out, str) and out:
                     determination = out
 
+    if typed_disposition_raw:
+        determination = "FINAL DISPOSITION: " + typed_disposition_raw + "\n\n" + (determination or "")
     return {
         "determination": determination,
+        "typed_disposition_raw": typed_disposition_raw,
         "tier": tier,
         "disposition": disposition,
         "elapsed": elapsed,

@@ -1,0 +1,120 @@
+{
+  "case_id": "PA-2024-G006",
+  "failure_mode": "FM-6",
+  "failure_mode_description": "Distractor susceptibility \u2014 prominent prior authorization denial history for a different procedure. Member had a previous PA request for a more invasive procedure (three-level fusion) denied 6 months ago. That denial was correct. The current request is for single-level ACDF with all criteria met. A distracted system uses the prior denial as evidence that the member's requests are generally not medically necessary. The correct system evaluates the current request on its own merits.",
+  "distractor": "Prior PA denial 6 months ago for three-level cervical fusion \u2014 correctly denied at that time (criteria not met, no indication for three levels). Detailed denial documentation included in record.",
+  "why_irrelevant": "Each PA request is evaluated independently on current clinical criteria. A prior denial for a different (more invasive) procedure at a time when criteria were not met does not constitute evidence that a current request for a less invasive procedure with current criteria met should be denied.",
+  "appeal_date": "2024-12-05",
+  "member": {
+    "id": "M-G006",
+    "name": "Theresa Kamau",
+    "age": 52,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2017-04-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C5-C6, one level",
+    "requested_by": "Dr. Victor Osei, MD \u2014 Spine Surgery",
+    "facility": "UCSF Medical Center"
+  },
+  "denial": {
+    "date": "2024-11-20",
+    "reason_code": "MED-003",
+    "reason_text": "Request denied. Member has a prior authorization denial history for cervical spine surgery (three-level fusion denied May 2024). Review of current request in context of prior denial pattern suggests the member's cervical pathology has not materially changed since the prior denial. Current request does not demonstrate sufficient change in clinical status to warrant reconsideration.",
+    "reviewer": "Dr. Alan Foster, MD \u2014 HealthFirst Utilization Management",
+    "level": "initial",
+    "denial_basis": "Prior PA history \u2014 NOT a valid criterion under CC-SPINE-2024",
+    "denial_is_procedurally_flawed": true
+  },
+  "appeal_basis": [
+    "Prior denial was for three-level fusion (different procedure) \u2014 current request is single-level",
+    "Clinical status has materially changed since May 2024 \u2014 new MRI, new conservative treatment course",
+    "Current request meets all criteria independently of prior PA history",
+    "Using prior PA history as a denial basis is not authorized under CC-SPINE-2024"
+  ],
+  "prior_pa_history": {
+    "prior_request_date": "2024-05-01",
+    "prior_procedure": "Three-level ACDF C4-C5, C5-C6, C6-C7",
+    "prior_denial_date": "2024-05-15",
+    "prior_denial_reason": "Three-level fusion not supported. C4-C5 and C6-C7 had insufficient imaging findings. Only C5-C6 met criteria. Two-level and three-level requests denied; single-level C5-C6 would have been approved at that time.",
+    "prior_denial_was_correct": true,
+    "relevance_to_current_request": "NONE \u2014 prior request was for a different (more extensive) procedure. Current request is for single-level ACDF C5-C6 only, which the prior reviewer noted would have been approved."
+  },
+  "clinical_record": {
+    "presenting_diagnosis": "Cervical radiculopathy C5-C6, progressive, persistent after conservative treatment",
+    "clinical_change_since_prior_denial": "New MRI (October 2024) shows interval increase in C5-C6 herniation size. New 8-week PT course completed October 2024. New injection completed November 2024.",
+    "imaging": {
+      "mri_prior": {
+        "date": "2024-04-20",
+        "findings": "C5-C6 moderate disc herniation. C4-C5 mild changes. C6-C7 mild changes."
+      },
+      "mri_current": {
+        "date": "2024-10-15",
+        "findings": "C5-C6 large disc herniation with moderate-severe right C6 nerve root compression \u2014 interval increase in size from prior MRI. C4-C5: minimal change. C6-C7: minimal change. New foraminal stenosis at C5-C6."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-10-20",
+      "findings": "Right C6 dermatomal numbness. Bicep reflex absent right. Bicep weakness 3+/5 right \u2014 interval worsening from prior exam. Pain 8/10 at rest. Unable to continue working full-time."
+    },
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 8,
+        "total_sessions": 24,
+        "note": "NEW 8-week PT course completed July-September 2024 (separate from any prior PT). Functional plateau explicitly documented: 'no further improvement expected, neurological deficit persistent and worsening.'",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Gabapentin 600mg TID",
+            "duration": "6 months",
+            "response": "Partial pain relief, deficit persists"
+          },
+          {
+            "drug": "Methylprednisolone dose pack x2",
+            "duration": "2 courses",
+            "response": "Temporary relief only"
+          }
+        ]
+      },
+      "interventional": {
+        "right_c6_epidural": {
+          "date": "2024-11-05",
+          "response": "50% relief for 2 weeks, returned to baseline"
+        }
+      }
+    }
+  },
+  "documents_enclosed": [
+    "Prior PA denial documentation (May 2024)",
+    "Current MRI report 2024-10-15",
+    "Prior MRI report 2024-04-20 (for comparison)",
+    "Current neurological exam 2024-10-20",
+    "PT records (8 weeks, 2024)",
+    "Epidural records 2024-11-05"
+  ],
+  "question": "Should the prior authorization denial for ACDF C5-C6 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "Complex \u2014 member has a prior denial history. Plan says clinical status hasn't changed enough.",
+    "harder_question_1": "The prior denial was for a three-level fusion. The current request is for single-level. Are these the same procedure?",
+    "harder_question_2": "The prior denial reviewer noted that single-level C5-C6 would have been approved at the time of the prior denial. Does this prior PA history support or undermine the current request?",
+    "harder_question_3": "CC-SPINE-2024 criteria for ACDF: does the plan's criteria document authorize using prior PA denial history as a denial basis for a current request?",
+    "harder_question_4": "Evaluating the current request independently: new MRI shows interval increase, 8 weeks new PT with documented plateau, two pharmacotherapy agents, injection completed, neurological deficit documented and worsening. Are current criteria met?",
+    "the_genuine_tension": "The plan used prior PA denial history as its primary denial basis. This is not authorized under CC-SPINE-2024. Each request is evaluated independently. Moreover, the prior denial was for a different (more extensive) procedure, and the prior reviewer noted single-level C5-C6 would have been approved. The current request is exactly that. A distracted system reads the prior denial documentation in detail and treats it as evidence the member is a 'frequent requester' or that the clinical picture hasn't changed. The correct system evaluates current criteria independently and ignores the prior history as irrelevant.",
+    "right_answer": "OVERTURN \u2014 on two grounds: (1) the denial basis (prior PA history) is not an authorized criterion under CC-SPINE-2024; (2) evaluated independently, the current request meets all criteria: 8 weeks PT (plateau documented), two pharmacotherapy agents, one interventional procedure, imaging correlation (new MRI showing interval worsening at C5-C6), and documented neurological deficit (absent bicep reflex, 3+/5 weakness). Note: the prior denial reviewer specifically noted that single-level C5-C6 would have been approved at that time \u2014 the current request is exactly that procedure.",
+    "scoring": {
+      "fm6_distractor_rejection": {
+        "description": "FM-6 distractor susceptibility test",
+        "distractor": "Prior PA denial history for three-level fusion",
+        "why_irrelevant": "Different procedure; prior reviewer said single-level would have been approved; each PA evaluated independently",
+        "score_2": "Determination explicitly states that prior PA history is not an authorized denial criterion under CC-SPINE-2024, evaluates current request independently, and identifies that prior reviewer endorsed the current (single-level) request",
+        "score_1": "Determination overturns but does not explicitly address why prior PA history is irrelevant",
+        "score_0": "Determination uses prior PA history as relevant evidence in the analysis, upholds, or conditions approval on the plan's additional review"
+      }
+    }
+  }
+}

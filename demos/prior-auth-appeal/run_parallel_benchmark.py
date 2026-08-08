@@ -38,6 +38,7 @@ Usage:
 
 from __future__ import annotations
 
+import re
 import argparse
 import json
 import os
@@ -115,19 +116,24 @@ def extract_disposition(text: str) -> str:
     if not text or text.startswith("["):
         return "ERROR"
     upper = text.upper()
+    FORMS = [("PARTIAL", r"PARTIAL(LY)?|IN PART"), ("REMAND", r"REMAND(ED)?"),
+             ("UPHOLD", r"UPHELD|UPHOLD(S)?"), ("OVERTURN", r"OVERTURN(ED|S)?")]
     for line in upper.splitlines():
-        line = line.strip()
-        if line.startswith("DISPOSITION:"):
-            for kw in ("OVERTURN", "UPHOLD", "PARTIAL", "REMAND"):
-                if kw in line:
+        ls = line.strip()
+        if ls.startswith("FINAL") and ("DISPOSITION" in ls or "DETERMINATION" in ls):
+            for kw, pat in FORMS:
+                if re.search(pat, ls):
+                    return kw
+    for line in upper.splitlines():
+        if line.strip().startswith("DISPOSITION:"):
+            for kw, pat in FORMS:
+                if re.search(pat, line):
                     return kw
     opener = upper[:500]
-    for kw in ("PARTIAL", "REMAND", "OVERTURN", "UPHOLD"):
-        if kw in opener:
+    for kw, pat in FORMS:
+        if re.search(pat, opener):
             return kw
-    if "UPHELD" in opener:
-        return "UPHOLD"
-    scores = {kw: upper.count(kw) for kw in ("OVERTURN", "UPHOLD", "PARTIAL", "REMAND")}
+    scores = {kw: len(re.findall(pat, upper)) for kw, pat in FORMS}
     best = max(scores, key=scores.get)
     return best if scores[best] > 0 else "UNKNOWN"
 

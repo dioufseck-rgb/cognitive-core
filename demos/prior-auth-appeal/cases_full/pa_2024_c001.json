@@ -1,0 +1,84 @@
+{
+  "case_id": "PA-2024-C001",
+  "appeal_date": "2024-11-12",
+  "member": {
+    "id": "M-990011",
+    "name": "Frances Kim",
+    "age": 58,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2017-01-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C5-C6, one level",
+    "requested_by": "Dr. Robert Adams, MD \u2014 Neurosurgery",
+    "facility": "UCSF Medical Center"
+  },
+  "denial": {
+    "date": "2024-10-30",
+    "reason_code": "MED-003",
+    "reason_text": "Myelopathy exception does not apply. Imaging shows mild cord contact only \u2014 no cord compression, no cord signal change. Upper motor neuron signs on exam are not conclusive for myelopathy in the absence of imaging confirmation. Standard 6-week PT requirement applies; member completed 5 weeks.",
+    "reviewer": "Dr. Alan Foster, MD",
+    "level": "initial"
+  },
+  "appeal_basis": [
+    "Member has three positive upper motor neuron signs \u2014 clinical myelopathy is established regardless of imaging",
+    "Mild cord contact on MRI plus UMN signs = myelopathy per clinical definition",
+    "5 weeks PT completed under myelopathy pathway (4 weeks required)"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Suspected cervical myelopathy \u2014 imaging-negative UMN syndrome",
+    "imaging": {
+      "mri_1": {
+        "date": "2024-09-01",
+        "findings": "C5-C6 disc herniation. Mild cord contact. No measurable cord compression. No T2 signal change. No myelomalacia. NOTE: Cord contact is present but not quantifiable as compression on standard sequences."
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-09-05",
+      "findings": "Positive Hoffman bilateral. Hyperreflexia bilateral upper extremities. Sustained clonus at bilateral ankles (3 beats). Finger escape sign positive. Gait: mildly wide-based. Patient denies lower extremity symptoms."
+    },
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 5,
+        "total_sessions": 15,
+        "note": "5 weeks PT under myelopathy protocol. Neurological signs unchanged. Physician halted PT citing myelopathy concern.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Baclofen 5mg TID",
+            "duration": "2 months",
+            "response": "Minimal spasticity relief"
+          },
+          {
+            "drug": "Methylprednisolone taper",
+            "duration": "10 days",
+            "response": "No improvement in UMN signs"
+          }
+        ]
+      },
+      "interventional": null
+    },
+    "clinical_standard_note": "AANS/CNS: Clinical myelopathy diagnosis requires UMN signs on examination. Imaging confirmation supports but is not required for diagnosis. Imaging-negative myelopathy is a recognized entity where clinical signs precede MRI changes. Multiple positive UMN signs in the absence of other explanation = clinical myelopathy."
+  },
+  "documents_enclosed": [
+    "MRI report",
+    "Detailed neurological exam",
+    "PT records",
+    "Neurology consult"
+  ],
+  "question": "Should the prior authorization denial for ACDF C5-C6 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "UPHOLD \u2014 MRI shows no cord compression or cord signal change. 5 weeks PT less than 6 required.",
+    "harder_question_1": "Does clinical myelopathy (UMN signs on exam) satisfy the myelopathy exception, or does the plan require imaging-confirmed myelopathy?",
+    "harder_question_2": "The clinical standard recognizes imaging-negative myelopathy \u2014 does CHSC 1374.32 require the plan to use the clinical standard definition?",
+    "harder_question_3": "Is mild cord contact sufficient imaging correlation for clinical myelopathy, or does the plan require measurable compression?",
+    "harder_question_4": "If clinical myelopathy is established, does the 4-week myelopathy pathway apply (5 weeks completed) or the 6-week standard pathway (5 weeks insufficient)?",
+    "the_genuine_tension": "The plan's definition of myelopathy implicitly requires imaging confirmation. The clinical standard recognizes imaging-negative myelopathy based on UMN signs. Member has multiple positive UMN signs and mild cord contact. The question is whether CHSC 1374.32 requires accepting the clinical definition of myelopathy or whether the plan's imaging requirement is a permissible restriction.",
+    "right_answer": "OVERTURN \u2014 Under CHSC 1374.32, generally accepted medical standards govern. Clinical myelopathy is established by multiple positive UMN signs (bilateral Hoffman, bilateral hyperreflexia, sustained bilateral clonus) with imaging correlation (mild cord contact). The plan cannot require imaging-confirmed compression when accepted clinical standards recognize UMN-sign diagnosis. 5 weeks PT meets the 4-week myelopathy pathway. Route GATE given diagnostic ambiguity."
+  }
+}

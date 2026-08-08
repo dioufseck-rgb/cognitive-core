@@ -1,0 +1,91 @@
+{
+  "case_id": "PA-2024-D003",
+  "appeal_date": "2024-10-30",
+  "member": {
+    "id": "M-556688",
+    "name": "Jessica Turner",
+    "age": 39,
+    "plan": "HealthFirst PPO Gold \u2014 Group Plan 77441",
+    "state": "California",
+    "plan_year": "2024",
+    "coverage_effective": "2023-07-01"
+  },
+  "procedure": {
+    "code": "22551",
+    "description": "ACDF C6-C7, one level",
+    "requested_by": "Dr. Robert Chen, MD \u2014 Spine Surgery",
+    "facility": "Stanford Medical Center"
+  },
+  "denial": {
+    "date": "2024-10-15",
+    "reason_code": "MED-003",
+    "reason_text": "Request denied based on peer-to-peer review. Plan medical director spoke with requesting physician on 10/12/2024. Based on that discussion, clinical criteria for surgery not met. Detailed criteria review provided verbally during peer-to-peer call.",
+    "reviewer": "Dr. Alan Foster, MD",
+    "level": "initial",
+    "peer_to_peer_conducted": true,
+    "written_denial_basis": "Verbal only \u2014 peer-to-peer call",
+    "imr_notice_included": false
+  },
+  "appeal_basis": [
+    "Denial criteria communicated verbally only \u2014 member never received written criteria",
+    "CHSC 1374.31 requires written criteria in denial notice",
+    "Verbal peer-to-peer cannot substitute for written denial notice"
+  ],
+  "clinical_record": {
+    "presenting_diagnosis": "Cervical radiculopathy C6-C7",
+    "imaging": {
+      "mri_1": {
+        "date": "2024-09-01",
+        "findings": "C6-C7 disc herniation, right C7 nerve root compression, moderate foraminal stenosis"
+      }
+    },
+    "neurological_exam": {
+      "date": "2024-09-05",
+      "findings": "Right C7 dermatomal numbness and tingling, tricep reflex diminished, grip 4+/5"
+    },
+    "conservative_treatment": {
+      "physical_therapy_summary": {
+        "total_weeks": 5,
+        "total_sessions": 15,
+        "note": "5 weeks PT. Plateau not formally documented but treating physician declares plateau in appeal letter.",
+        "authoritative_source": "structured_fields_in_this_record"
+      },
+      "pharmacotherapy": {
+        "agents": [
+          {
+            "drug": "Meloxicam 15mg daily",
+            "duration": "3 months",
+            "response": "Partial relief"
+          },
+          {
+            "drug": "Prednisone taper",
+            "duration": "2 weeks",
+            "response": "Temporary improvement"
+          }
+        ]
+      },
+      "interventional": null
+    },
+    "procedural_defects": {
+      "imr_notice_missing": true,
+      "criteria_communicated_verbally_only": true,
+      "written_denial_does_not_cite_specific_criteria": true
+    }
+  },
+  "documents_enclosed": [
+    "MRI report",
+    "PT records (5 weeks)",
+    "Neurological exam",
+    "Treating physician declaration of plateau"
+  ],
+  "question": "Should the prior authorization denial for ACDF C6-C7 (CPT 22551) be overturned on appeal?",
+  "ground_truth_complexity": {
+    "obvious_reading": "UPHOLD \u2014 5 weeks PT (need 6), no injection, no formal plateau documentation. Clinical criteria shortfall.",
+    "harder_question_1": "Does a verbal peer-to-peer communication of denial criteria satisfy CHSC 1374.31(b) written notice requirement?",
+    "harder_question_2": "Can the plan rely on what was said in a peer-to-peer call as the basis for denial without documenting those criteria in writing?",
+    "harder_question_3": "Is this a REMAND (reissue with proper written notice) or UPHOLD (clinical criteria not met, procedural defect does not change outcome)?",
+    "harder_question_4": "If the written criteria requirement is violated, can the member meaningfully appeal without knowing exactly what the plan applied?",
+    "the_genuine_tension": "Clinical criteria not met on the merits \u2014 5 weeks PT, no injection, plateau not formally documented. The denial is substantively defensible. But the procedural violation (criteria communicated verbally only, no IMR notice) independently requires remedy.",
+    "right_answer": "REMAND \u2014 The clinical denial may be substantively correct (5 weeks PT vs 6 required, no injection, plateau not formally documented in PT records). However, CHSC 1374.31(b) requires written criteria in the denial notice. Verbal peer-to-peer communication cannot substitute for written notice. Plan must reissue a compliant written denial."
+  }
+}
