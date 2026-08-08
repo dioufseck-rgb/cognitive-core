@@ -503,7 +503,13 @@ class OrchestratorStep(AtomicDEVS):
         """
         primitive = decision.get("primitive", "")
         step_name = decision.get("step_name", primitive)
+        if not isinstance(step_name, str):
+            step_name = primitive if isinstance(primitive, str) else str(step_name)
         params_key = decision.get("params_key", step_name)
+        if not isinstance(params_key, str):
+            # The orchestrator occasionally emits an inline dict here instead of
+            # a config name; recover with the step name so the lookup stays hashable.
+            params_key = step_name
 
         prim_config = self.primitive_configs.get(params_key, {})
         if not isinstance(prim_config, dict):

@@ -48,12 +48,22 @@ def main(run_dirs):
     # collect: results[case][system] = list over runs of (disposition, tier)
     R = len(run_dirs)
     res = defaultdict(lambda: defaultdict(list))
+    infra_errors = Counter()
     for rd in run_dirs:
         for rec in json.load(open(Path(rd)/"results.json")):
             cid, sysname = rec["case_id"], rec["system"]
-            if cid in gt:
-                res[cid][sysname].append(((rec.get("disposition") or "UNKNOWN").upper(),
-                                          (rec.get("tier") or "").lower().replace(" ","_")))
+            if cid not in gt:
+                continue
+            if rec.get("error"):
+                infra_errors[(cid, sysname)] += 1
+                continue   # infrastructure failure: excluded; re-run with --resume
+            res[cid][sysname].append(((rec.get("disposition") or "UNKNOWN").upper(),
+                                      (rec.get("tier") or "").lower().replace(" ","_")))
+    if infra_errors:
+        print("INFRASTRUCTURE ERRORS (excluded — re-run those replications with --resume until zero):")
+        for (cid, sysname), k in sorted(infra_errors.items()):
+            print(f"  {cid} / {sysname}: {k} errored run(s)")
+        print()
 
     def modal(lst):
         c = Counter(x[0] for x in lst)
