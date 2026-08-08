@@ -84,7 +84,6 @@ class StepEpistemicState:
     no LLM prompt changes required.
 
     Judgment components (reasoning_quality, outcome_certainty,
-    alternative_separation) are placeholders here — they'll be
     LLM-reported once we add them to the primitive prompts.
     """
     step_name: str
@@ -99,7 +98,6 @@ class StepEpistemicState:
     # Proxy: evidence_used count / max(1, claim sentences in output)
     citation_rate: float | None = None
 
-    # ── Layer 2: Judgment (LLM-reported — not yet wired) ─────────
     reasoning_quality: float | None = None    # is the logic sound?
     outcome_certainty: float | None = None    # how clearly does evidence support conclusion?
     alternative_separation: float | None = None  # classify only: margin over next-best

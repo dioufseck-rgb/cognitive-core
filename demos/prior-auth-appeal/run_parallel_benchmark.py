@@ -133,11 +133,11 @@ def extract_disposition(text: str) -> str:
 
 
 def extract_gt_disposition(answer: str) -> str:
-    upper = answer.upper()
-    for kw in ("PARTIAL", "REMAND", "GATE", "OVERTURN", "UPHOLD"):
-        if upper.startswith(kw):
-            return "UPHOLD" if kw == "GATE" else kw  # GATE GT cases resolve to UPHOLD
-    return "UNKNOWN"
+    upper = answer.upper().lstrip()
+    if upper.startswith("GATE"):  # "GATE / REMAND - ..." -> disposition after prefix
+        upper = upper.split("/", 1)[-1].lstrip() if "/" in upper else upper[4:].lstrip()
+    hits = [(upper.find(kw), kw) for kw in ("PARTIAL", "REMAND", "OVERTURN", "UPHOLD") if upper.find(kw) >= 0]
+    return min(hits)[1] if hits else "UNKNOWN"
 
 
 # ── Plan-and-Solve baseline ─────────────────────────────────────────────────

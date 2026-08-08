@@ -37,7 +37,7 @@ aliases:
   # Default: used when no model is specified. Should be fast and cheap.
   default:
     anthropic:    claude-haiku-4-5-20251001
-    google:       gemini-3-flash-preview
+    google:       gemini-2.5-flash
     openai:       gpt-4o-mini
     azure:        gpt-4o-mini
     azure_foundry: gpt-4o-mini
@@ -47,7 +47,7 @@ aliases:
   # Uses the lite model for speed — these steps are deterministic and don't need full capacity.
   fast:
     anthropic:    claude-haiku-4-5-20251001
-    google:       gemini-3.1-flash-lite-preview
+    google:       gemini-2.5-flash
     openai:       gpt-4o-mini
     azure:        gpt-4o-mini
     azure_foundry: gpt-4o-mini
@@ -56,7 +56,7 @@ aliases:
   # Standard: used for steps requiring more reasoning depth.
   standard:
     anthropic:    claude-sonnet-4-6
-    google:       gemini-3-flash-preview
+    google:       gemini-2.5-flash
     openai:       gpt-4o
     azure:        gpt-4o
     azure_foundry: gpt-4o
@@ -65,7 +65,7 @@ aliases:
   # Strong: used for the most complex reasoning steps.
   strong:
     anthropic:    claude-sonnet-4-6
-    google:       gemini-3-flash-preview
+    google:       gemini-2.5-flash
     openai:       gpt-4o
     azure:        gpt-4o
     azure_foundry: gpt-4o
@@ -78,14 +78,14 @@ aliases:
 #
 model_to_provider:
   # Google
-  gemini-3-flash-preview:        google
-  gemini-3.1-flash-lite-preview:  google
+  gemini-2.5-flash:        google
+  gemini-2.5-flash:  google
   gemini-2.0-flash:             google
   gemini-2.0-flash-lite:        google
   gemini-2.5-flash-preview-04-17: google
   gemini-2.5-pro:               google
-  gemini-3.1-flash-lite-preview: google
-  gemini-3.1-pro-preview-customtools: google
+  gemini-2.5-flash: google
+  gemini-2.5-flash: google
   # Anthropic
   claude-haiku-4-5-20251001:    anthropic
   claude-sonnet-4-6:            anthropic
@@ -108,7 +108,7 @@ model_to_provider:
 #
 provider_defaults:
   anthropic:    claude-haiku-4-5-20251001
-  google:       gemini-3-flash-preview
+  google:       gemini-2.5-flash
   openai:       gpt-4o-mini
   azure:        gpt-4o
   azure_foundry: gpt-4o
