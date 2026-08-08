@@ -246,6 +246,8 @@ def make_result(
         disposition == gt_disp or
         (gt_disp in ("GATE", "REMAND") and disposition in ("GATE", "REMAND"))
     )
+    if error is None and (disposition == "ERROR" or not (determination or "").strip()):
+        error = "abnormal termination: no parseable determination"
     in_balanced = case_id in BALANCED_SET
     return {
         "case_id":          case_id,
@@ -337,7 +339,7 @@ def save_results(results: list[dict], path: Path) -> None:
 
 def already_run(results: list[dict], case_id: str, system: str) -> bool:
     return any(
-        r["case_id"] == case_id and r["system"] == system and r.get("error") is None
+        r["case_id"].upper().replace("_","-") == case_id.upper().replace("_","-") and r["system"] == system and r.get("error") is None
         for r in results
     )
 

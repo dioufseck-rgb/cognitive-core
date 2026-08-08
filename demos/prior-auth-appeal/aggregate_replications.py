@@ -54,7 +54,7 @@ def main(run_dirs):
             cid, sysname = rec["case_id"], rec["system"]
             if cid not in gt:
                 continue
-            if rec.get("error"):
+            if rec.get("error") or (rec.get("disposition") or "").upper() == "ERROR":
                 infra_errors[(cid, sysname)] += 1
                 continue   # infrastructure failure: excluded; re-run with --resume
             res[cid][sysname].append(((rec.get("disposition") or "UNKNOWN").upper(),

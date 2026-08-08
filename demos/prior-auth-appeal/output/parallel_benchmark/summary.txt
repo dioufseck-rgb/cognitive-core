@@ -6,22 +6,23 @@
 ------------------------------------------------------------
   System        Correct  Total   Accuracy  Silent errors
   --------------------------------------------------------
-  cc                  2      3        66%              1
+  cc                  4      6        66%              2
 
   Dispositions by system:
-    cc         ERROR:1  REMAND:1  UPHOLD:1
+    cc         ERROR:2  REMAND:2  UPHOLD:2
 
 All 26 cases
 ------------------------------------------------------------
   System        Correct  Total   Accuracy  Silent errors
   --------------------------------------------------------
-  cc                  2      3        66%              1
+  cc                  4      6        66%              2
 
   Dispositions by system:
-    cc         ERROR:1  REMAND:1  UPHOLD:1
+    cc         ERROR:2  REMAND:2  UPHOLD:2
 
   CC governance tier distribution (all cases):
-    auto         1
+    auto         3
     gate         2
+    hold         1
 
 ========================================================================

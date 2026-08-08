@@ -1,5 +1,5 @@
-[03:21:01] Starting 3 jobs across 3 workers
-[03:25:36] [  1/3] pa_2024_a001           cc         ✗ ERROR      (GT:OVERTURN) [auto]  275s
-[03:30:46] [  2/3] pa_2024_d001           cc         ✓ REMAND     (GT:REMAND) [gate]  586s
-[03:31:13] [  3/3] pa_2024_g004           cc         ✓ UPHOLD     (GT:UPHOLD) [gate]  612s
-[03:31:13] Done.
+[03:37:19] Starting 3 jobs across 3 workers
+[03:44:50] [  1/3] pa_2024_d001           cc         ✓ REMAND     (GT:REMAND) [auto]  451s
+[03:46:38] [  2/3] pa_2024_g004           cc         ✓ UPHOLD     (GT:UPHOLD) [hold]  559s
+[03:58:36] [  3/3] pa_2024_a001           cc         ✗ ERROR      (GT:OVERTURN) [auto]  1277s
+[03:58:36] Done.
