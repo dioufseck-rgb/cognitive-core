@@ -572,6 +572,12 @@ def compute_step_epistemic_state(
     # Derived: overall and warranted
     mechanical_scores = [s for s in [evidence_completeness, rule_coverage, citation_rate]
                          if s is not None]
+    # Output integrity: a salvaged or unparseable output is a measured degradation,
+    # not an absence of measurement.
+    if output.get("error"):
+        mechanical_scores.append(0.0)   # full parse failure
+    elif output.get("_salvaged"):
+        mechanical_scores.append(0.5)   # truncated, partial salvage
     overall, warranted = compute_overall(mechanical_scores, [], coherence_flags)
 
     # Layer 2: pull judgment fields if LLM reported them

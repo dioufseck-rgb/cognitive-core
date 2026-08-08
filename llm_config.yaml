@@ -165,8 +165,8 @@ provider_settings:
 # To disable the budget for a primitive (use provider default): set to null.
 primitive_max_tokens:
   retrieve:    4096
-  classify:    4096
-  investigate: 8192
+  classify:    8192
+  investigate: 16384
   verify:      6144
   deliberate:  8192
   reflect:     8192

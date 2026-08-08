@@ -693,6 +693,7 @@ def create_node(
                 get_trace().on_parse_error(step_name,
                     "Output truncated — using salvaged partial result")
                 output = {
+                    "_salvaged": True,
                     "confidence": parsed.get("confidence", 0.7),
                     "reasoning": parsed.get("reasoning", "Output was truncated during generation."),
                     "evidence_used": parsed.get("evidence_used", []),
@@ -795,6 +796,7 @@ def create_node(
 
             output = {
                 "error": str(e),
+                "_salvaged": True,
                 "raw_response": raw_response[:500],
                 "confidence": 0.0,
                 "reasoning": f"Failed to parse LLM response: {e}",
