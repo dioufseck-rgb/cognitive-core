@@ -168,10 +168,10 @@ primitive_max_tokens:
   classify:    8192
   investigate: 16384
   verify:      6144
-  deliberate:  8192
+  deliberate:  12288
   reflect:     8192
-  generate:    8192
-  challenge:   8192
+  generate:    16384
+  challenge:   12288
   govern:      6144
 
 # Per-primitive model alias overrides.
