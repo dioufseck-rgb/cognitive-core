@@ -3226,6 +3226,7 @@ class Coordinator:
         _epistemic_record = WorkflowEpistemicRecord(
             instance_id=instance.instance_id
         )
+        _wrapped_steps: list = []
 
         def _step_log_callback(step_name, step_output, state):
             try:
@@ -3237,10 +3238,14 @@ class Coordinator:
                           if k not in ("primitive", "step_name")}
                 elapsed_ms = int((_step_time.time() - _start_time) * 1000)
 
-                prior_steps = state.get("steps", [])[:-1]
+                # epistemic extractor expects the wrapped shape
+                # {step_name, primitive, output: {...}} for current AND prior steps
+                _wrapped_steps.append(
+                    {"step_name": step_name, "primitive": prim, "output": output}
+                )
                 ep_state = compute_step_epistemic_state(
-                    step_output=step_output,
-                    prior_steps=prior_steps,
+                    step_output=_wrapped_steps[-1],
+                    prior_steps=_wrapped_steps[:-1],
                     open_gaps=list(_epistemic_record.open_gaps),
                 )
                 _epistemic_record.add_step(ep_state)
@@ -3567,6 +3572,7 @@ class Coordinator:
         )
         # Reconstruct epistemic record from prior step ledger entries
         _epistemic_record_r = WorkflowEpistemicRecord(instance_id=instance.instance_id)
+        _wrapped_steps_r: list = []
         try:
             for entry in self.store.get_ledger(instance_id=instance.instance_id):
                 if entry.get("action_type") == "step_completed":
@@ -3582,13 +3588,18 @@ class Coordinator:
         def _step_log_callback_r(step_name, step_output, state):
             try:
                 prim = step_output.get("primitive", "")
-                output = step_output.get("output", step_output.get("result", {}))
+                output = step_output.get("output") or {
+                    k: v for k, v in step_output.items()
+                    if k not in ("primitive", "step_name")
+                }
                 elapsed_ms = int((_step_time_r.time() - _start_time_r) * 1000)
 
-                prior_steps = state.get("steps", [])[:-1]
+                _wrapped_steps_r.append(
+                    {"step_name": step_name, "primitive": prim, "output": output}
+                )
                 ep_state = compute_step_epistemic_state(
-                    step_output=step_output,
-                    prior_steps=prior_steps,
+                    step_output=_wrapped_steps_r[-1],
+                    prior_steps=_wrapped_steps_r[:-1],
                     open_gaps=list(_epistemic_record_r.open_gaps),
                 )
                 _epistemic_record_r.add_step(ep_state)
