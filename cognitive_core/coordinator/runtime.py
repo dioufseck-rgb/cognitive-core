@@ -3253,7 +3253,8 @@ class Coordinator:
                 if "epistemic" not in state:
                     state["epistemic"] = {}
                 state["epistemic"][step_name] = ep_state.to_dict()
-                state["epistemic"]["_record"] = _epistemic_record.reviewer_context()
+                # instrument-only: record kept out of prompt-visible state; ledger carries it
+                # state["epistemic"]["_record"] = _epistemic_record.reviewer_context()
 
                 self.store.log_action(
                     instance_id=instance.instance_id,
@@ -3607,7 +3608,7 @@ class Coordinator:
                 if "epistemic" not in state:
                     state["epistemic"] = {}
                 state["epistemic"][step_name] = ep_state.to_dict()
-                state["epistemic"]["_record"] = _epistemic_record_r.reviewer_context()
+                # state["epistemic"]["_record"] = _epistemic_record_r.reviewer_context()
 
                 self.store.log_action(
                     instance_id=instance.instance_id,
