@@ -3,128 +3,109 @@ SYSTEM: REACT
 DISPOSITION: OVERTURN
 GT: OVERTURN
 CORRECT: True
-ELAPSED: 33.9s
+ELAPSED: 25.4s
 ========================================================================
 
-## HealthFirst Health Plan
-**Appeals Review Determination**
+**HealthFirst Health Plan — Prior Authorization Appeal Determination**
 
 **Case ID:** PA-2024-A004
-**Member:** Robert Chang (M-445566)
-**Age:** 38
-**Plan:** HealthFirst PPO Gold — Group Plan 77441
-**State:** California
-**Procedure Requested:** CPT 22551 (ACDF C5-C6, one level)
-**Requested By:** Dr. Elena Marchetti, MD — Neurosurgery
-**Facility:** UCSF Medical Center
-**Date of Denial:** 2024-11-18
-**Reason for Denial:** Physical therapy not completed: 0 weeks documented. No pharmacotherapy documented. No interventional procedure documented. Member has not initiated conservative treatment. Request denied pending completion of required conservative treatment under CC-SPINE-2024 Section 2.2.
-**Review Level:** Initial Denial (Dr. Patricia Huang, MD)
-**Date of Appeal Review:** 2024-11-20
-**Appeals Reviewer:** Expert Appeals Reviewer
+**Member:** Robert Chang (M-445566), 38 years old
+**Date of Service (Requested):** On or after 2024-11-10 (Emergency)
+**Procedure:** CPT 22551 (ACDF C5-C6, one level)
+**Treating Physician:** Dr. Elena Marchetti, MD (Neurosurgery)
+**Initial Denial Date:** 2024-11-18
+**Reviewer:** [Your Name/Title, e.g., Chief Appeals Reviewer]
+**Date of Review:** 2024-11-20
+
+**Appeal Disposition: OVERTURNED**
 
 ---
 
-**Summary of Request:**
-Dr. Elena Marchetti, Neurosurgery, requested prior authorization for an Anterior Cervical Discectomy and Fusion (ACDF) at C5-C6 (CPT 22551) for Robert Chang, presenting with acute cervical myelopathy with rapidly progressive neurological deficits. The request was explicitly noted as an "EMERGENCY."
+**I. Case Summary and Initial Denial Review**
 
-**Summary of Denial:**
-The initial prior authorization request was denied on November 18, 2024, by Dr. Patricia Huang, MD, citing a lack of documented conservative treatment, specifically 0 weeks of physical therapy, no pharmacotherapy, and no interventional procedures, as required by HealthFirst's Clinical Coverage Criteria CC-SPINE-2024 Section 2.2.
+Mr. Robert Chang, a 38-year-old member, presented to the Emergency Room with acute onset bilateral arm weakness and difficulty walking, diagnosed as acute cervical myelopathy with rapidly progressive deficits. Emergency MRI revealed severe C5-C6 central cord compression with extensive T2 hyperintensity (myelomalacia), findings consistent with acute cord injury, leading to an emergent neurosurgery consultation. Neurological examination showed significant bilateral weakness, hyperreflexia, bilateral Babinski signs, and urinary urgency, indicating an incomplete spinal cord syndrome. The treating neurosurgeon, Dr. Marchetti, declared physical therapy (PT) absolutely contraindicated due to the risk of converting an incomplete cord syndrome to a complete cord syndrome, especially given the extensive myelomalacia. Intravenous methylprednisolone was administered for 24 hours as per acute spinal cord injury protocol.
 
-**Summary of Appeal Basis:**
-The appeal asserts that the member presented with acute myelopathy, and physical therapy was never initiated because the treating physician determined it would cause immediate harm. An MRI on initial presentation showed severe cord compression with extensive myelomalacia, indicating an emergency surgical situation. The appeal further states that California Insurance Code (CIC) 10169.5(a)(3) applies from day one, waiving conservative treatment requirements.
+The initial prior authorization request for ACDF C5-C6 was denied by HealthFirst on 2024-11-18 (Dr. Patricia Huang, MD) for "Physical therapy not completed: 0 weeks documented. No pharmacotherapy documented. No interventional procedure documented. Member has not initiated conservative treatment. Request denied pending completion of required conservative treatment under CC-SPINE-2024 Section 2.2."
 
 ---
 
-### Clinical Review Findings:
+**II. Application of HealthFirst Plan Criteria (CC-SPINE-2024)**
 
-Mr. Robert Chang, a 38-year-old male, presented to the Emergency Room on 2024-11-10 with acute onset bilateral arm weakness and difficulty walking, progressing over 72 hours. He has no prior cervical history.
+1.  **Diagnosis Requirement (Section 2.1):** The member has a confirmed diagnosis of Cervical Myelopathy (2.1(b)) supported by acute myelopathic symptoms (bilateral weakness, gait disturbance, hyperreflexia) and MRI demonstrating severe cord compression and myelomalacia. **This criterion is met.**
 
-**Diagnosis:** Acute cervical myelopathy with rapidly progressive deficits, classified as a surgical emergency.
+2.  **Conservative Treatment Requirement (Section 2.2):**
+    *   The standard pathway requires 6 weeks of PT, 2 pharmacotherapy agents for 4+ weeks each, and 1 interventional procedure.
+    *   The denial correctly identifies that these were not met.
+    *   **Myelopathy Exception (Section 2.2(A)):** This exception applies because myelopathy is the primary diagnosis.
+        *   PT requirement is reduced to 4 weeks minimum. (Still not met; 0 weeks documented).
+        *   Interventional treatment is waived if the physician documents risk. (Dr. Marchetti documented PT was contraindicated due to risk; by extension, interventional procedures would carry similar or greater risk, making this aspect of the waiver applicable for interventional treatments as well). **This aspect of the exception is met.**
+        *   Pharmacotherapy requirement (2 agents, 4+ weeks each) remains in full. (Not met; only 24 hours of IV methylprednisolone was administered, not two agents for 4+ weeks each).
 
-**Imaging (MRI 2024-11-10):** Demonstrated severe C5-C6 central cord compression with *extensive T2 hyperintensity throughout the cord (extensive myelomalacia)*. Findings were consistent with acute cord injury, leading to an emergent neurosurgery consultation.
-
-**Neurological Exam (2024-11-10):** Revealed significant deficits including bilateral arm weakness (2/5), bilateral leg weakness (3/5), hyperreflexia in all extremities, bilateral Babinski sign, and urinary urgency, indicating an incomplete spinal cord syndrome.
-
-**Conservative Treatment Efforts:**
-*   **Physical Therapy:** 0 weeks. The treating physician, Dr. Marchetti, explicitly documented that PT was "absolutely contraindicated on initial presentation" due to the extensive myelomalacia and the risk of converting an incomplete cord syndrome to a complete cord syndrome.
-*   **Pharmacotherapy:** IV methylprednisolone was administered for 24 hours as part of the standard acute spinal cord injury protocol in the ER. No other long-term pharmacotherapy was initiated.
-*   **Interventional Procedures:** None.
-
-**Treating Physician Declaration (Dr. Marchetti):** Stated that the patient has an acute incomplete cervical cord syndrome with extensive myelomalacia, and PT is "absolutely contraindicated and would be dangerous." Dr. Marchetti cited CIC 10169.5(a)(3) as applicable and warned that "Delaying surgery risks permanent complete paralysis," requesting emergency authorization.
+    *   **Plan's Conclusion:** Even with its own myelopathy exception, the plan's criteria (4 weeks PT, 2 agents for 4+ weeks pharmacotherapy) were technically not met, leading to the denial.
 
 ---
 
-### Applicable Criteria, Statutes, and Guidelines:
+**III. Application of California Regulatory Requirements**
 
-This review applies the hierarchy of authority: **State Law > Clinical Standard > Plan Criteria.**
+California state law provides critical overrides to the plan's criteria in this case, specifically regarding the conservative treatment requirements.
 
-**1. HealthFirst Clinical Coverage Criteria (CC-SPINE-2024)**
-*   **Section 2.2 Conservative Treatment Requirement:** The denial correctly noted that the member did not complete the standard requirements (6 weeks PT, 2 pharmacotherapy agents for 4+ weeks, 1 interventional procedure).
-*   **Exception 2.2(A) — MYELOPATHY PATHWAY:** This exception applies to confirmed cervical myelopathy, reducing PT to a 4-week minimum and waiving interventional treatment if the physician documents risk. The initial denial *failed to apply this exception*, despite the clear diagnosis of myelopathy. Even if applied, the member did not meet the reduced 4-week PT or the full pharmacotherapy requirements.
+1.  **CIC § 10169.5 — Physical Therapy as Prerequisite:** This statute prohibits conditioning surgical approval on completion of physical therapy where:
+    *   **(a)(1):** "The member's treating physician has documented in writing that physical therapy is contraindicated or is unlikely to benefit the member given the nature and severity of the condition." Dr. Marchetti explicitly documented that PT was "absolutely contraindicated" and would "risk converting incomplete cord syndrome to complete cord syndrome" due to extensive myelomalacia. **This condition is met.**
+    *   **(a)(3):** "The condition involves objective evidence of structural neurological compromise that physical therapy cannot address." The MRI shows severe C5-C6 central cord compression with extensive myelomalacia, and the neurological exam confirms an incomplete spinal cord syndrome. PT cannot reverse or address such severe structural spinal cord injury. **This condition is met.**
+    *   **Conclusion:** Under CIC § 10169.5, HealthFirst cannot legally require completion of physical therapy for Mr. Chang's condition. The plan's denial based on "0 weeks documented" for PT is directly contrary to state law.
 
-**2. California State Law (Regulatory Framework)**
-
-*   **California Insurance Code (CIC) § 10169.5 — Physical Therapy as Prerequisite:** This statute prohibits health plans from conditioning approval of surgery on PT completion where:
-    *   **(a)(1) Physician documents PT contraindicated or unlikely to benefit:** Dr. Marchetti explicitly documented that PT was "absolutely contraindicated" and would "cause immediate harm" due to extensive myelomalacia and risk of neurological deterioration. *This provision is directly met.*
-    *   **(a)(3) Objective evidence of structural neurological compromise that PT cannot address:** The MRI demonstrates severe C5-C6 central cord compression and *extensive myelomalacia* (T2 hyperintensity), along with acute neurological deficits consistent with an incomplete spinal cord syndrome. Myelomalacia signifies existing cord injury that physical therapy cannot resolve and for which PT would be detrimental. *This provision is directly met.*
-    *   **(c) Mechanical application of PT minimums:** The plan's mechanical application of a 6-week (or even 4-week) PT requirement, ignoring the physician's documented contraindication and the neurological urgency, directly violates this subsection.
-
-*   **DMHC All-Plan Letter (APL) 22-014 — Myelopathy and Urgent Conditions:** This APL provides critical guidance for cases like Mr. Chang's:
-    *   **II.1 Myelopathy Classification:** The DMHC states that "cervical myelopathy with objective evidence of cord compression and myelomalacia on MRI constitutes a condition with potential for irreversible harm if untreated. Plans SHALL treat such cases as urgent." Mr. Chang's presentation precisely matches this description. The plan failed to treat this as an urgent case, as evidenced by the standard denial reason.
-    *   **II.2 Conservative Treatment Exceptions:** For conditions where delay risks irreversible harm, plans "SHALL NOT require completion of a full course of conservative treatment... when: (a) Objective imaging evidence demonstrates progressive pathology (cord signal change, myelomalacia...), AND (b) Treating physician provides documentation that conservative treatment has been attempted and has failed to arrest progression, AND (c) Surgical intervention is indicated under generally accepted clinical guidelines."
-        *   **(a) Met:** Extensive myelomalacia is present on MRI.
-        *   **(b) Met:** Dr. Marchetti documented PT as contraindicated due to risk of harm and the patient's acute, rapidly progressive deficits indicate failure of any conservative approach.
-        *   **(c) Met:** As detailed below, surgery is strongly indicated per clinical guidelines.
-        *   The APL specifically identifies "myelomalacia on MRI... as a finding that may support waiver of standard conservative treatment requirements even where a full course has not been completed, when the treating physician documents urgency." This explicitly supports the appeal.
-    *   **II.3 Plan Criteria vs. Clinical Standard:** The APL states, "Plans shall not apply internal criteria that are more restrictive than generally accepted standards of medical practice for conditions identified in this guidance. Where a conflict exists between plan criteria and generally accepted standards, the clinical standard governs."
-
-*   **California Health & Safety Code (CHSC) § 1374.32(b) — Standard of Review for IMR:** This section clarifies that for medical necessity, the IMR standard "does NOT require that the service be consistent with the plan's internal coverage criteria. If the service meets the standard in subdivision (a), the reviewer SHALL recommend approval regardless of whether the plan's internal criteria are more restrictive." This reinforces that plan criteria can be overridden.
-
-**3. Clinical Standard (AANS/CNS 2023, NASS 2020, AO Spine 2021)**
-
-*   **Distinction between Myelopathy and Radiculopathy (Clinical Ref. Section 1.1):** The clinical guidelines emphatically state that myelopathy and radiculopathy require different treatment algorithms. The evidence for conservative treatment requirements (like 6 weeks of PT) is derived primarily from radiculopathy studies and is *not* applicable to myelopathy. Applying such requirements to myelopathy is a "category error."
-*   **Significance of Myelomalacia (Clinical Ref. Section 1.2):** Myelomalacia (T2 signal change on MRI) is a critical finding indicating existing spinal cord injury, higher risk of permanent deficit with continued compression, and reduced recovery even after decompression. It is considered a strong indication for surgical intervention and a **contraindication to extended conservative treatment trials.**
-*   **Physical Therapy for Myelopathy (Clinical Ref. Section 2.1):** For moderate-severe myelopathy (as in this case with severe deficits), physical therapy "does NOT produce meaningful functional improvement." Furthermore, the AO Spine Guidelines (2021) explicitly state, "There is no high-quality evidence supporting a mandatory course of physical therapy prior to surgical intervention for patients with moderate to severe cervical myelopathy. Delaying surgery in such patients to complete a physical therapy trial is not supported by the evidence and may result in neurological deterioration."
-*   **Conservative Treatment Duration (Clinical Ref. Section 2.2):** There are "no randomized controlled trials support[ing] a defined minimum duration of conservative treatment before surgery" for myelopathy.
-*   **Risk of Delay (Clinical Ref. Section 2.3):** Delaying surgery for moderate-severe myelopathy is associated with decreased likelihood of neurological recovery and worse outcomes. Myelomalacia is the strongest predictor of incomplete recovery if surgery is delayed.
-*   **Surgical Indications (Clinical Ref. Section 3.1 & 3.2):** Mr. Chang's presentation (confirmed cervical myelopathy, myelomalacia on MRI, objective rapidly progressive neurological deficits) meets **TIER 1 — STRONG INDICATION (a, c, d)** for surgery per AANS/CNS Joint Guidelines (2023). The clinical standard explicitly "does NOT require completion of a minimum course of physical therapy as a prerequisite to surgery for this presentation."
+2.  **DMHC All-Plan Letter (APL) 22-014 — Myelopathy and Urgent Conditions:**
+    *   **II.1 Myelopathy Classification:** The DMHC states that cervical myelopathy with objective evidence of cord compression and myelomalacia on MRI SHALL be treated as urgent. Mr. Chang's condition meets this classification.
+    *   **II.2 Conservative Treatment Exceptions:** For conditions where delay of treatment risks irreversible harm, plans SHALL NOT require completion of a full course of conservative treatment when:
+        *   (a) Objective imaging evidence demonstrates progressive pathology (cord signal change/myelomalacia). **Met:** Extensive myelomalacia is present.
+        *   (b) Treating physician documents conservative treatment has failed to arrest progression. **Met:** The physician documented PT as contraindicated due to risk of neurological deterioration, and that delaying surgery risks permanent paralysis, effectively indicating conservative management is not appropriate in this acute, urgent setting.
+        *   (c) Surgical intervention is indicated under generally accepted clinical guidelines. **Met:** As discussed below, this is a strong surgical indication.
+    *   DMHC APL 22-014 specifically identifies "the presence of myelomalacia on MRI... as a finding that may support waiver of standard conservative treatment requirements even where a full course has not been completed, when the treating physician documents urgency." **Conclusion:** This APL directly mandates a waiver of standard conservative treatment requirements, including extended pharmacotherapy and PT, for Mr. Chang's condition.
 
 ---
 
-### Resolution of Conflicts and Determination:
+**IV. Application of Clinical Standard (AANS/CNS 2023, NASS 2020, AO Spine 2021)**
 
-The initial denial by HealthFirst was based solely on a mechanical application of its standard conservative treatment criteria (CC-SPINE-2024 Section 2.2), without acknowledging or applying its own myelopathy exception (2.2A), let alone the prevailing State Laws and Clinical Standards.
-
-**Conflict with State Law:**
-California Insurance Code § 10169.5(a)(1) and (a)(3) *prohibit* the plan from requiring PT in this scenario due to the treating physician's documented contraindication of PT and the objective evidence of severe neurological compromise (myelomalacia, incomplete spinal cord syndrome). Furthermore, DMHC APL 22-014 explicitly mandates that plans *shall not* require a full course of conservative treatment, particularly for myelopathy with myelomalacia and documented urgency where surgery is indicated. The plan's denial is directly contrary to these state regulations.
-
-**Conflict with Clinical Standard:**
-Generally accepted clinical standards from leading spine societies (AANS/CNS, NASS, AO Spine) overwhelmingly support immediate surgical intervention for acute, moderate-to-severe cervical myelopathy with myelomalacia and progressive deficits. These guidelines explicitly state that physical therapy is not effective or indicated for this condition and that delaying surgery to complete conservative treatment is not evidence-based and risks permanent neurological deterioration. The plan's requirement for conservative treatment is therefore not in accordance with generally accepted standards of medical practice.
-
-**Hierarchy Application:**
-In accordance with the hierarchy of authority (State Law > Clinical Standard > Plan Criteria), both California State Law (CIC § 10169.5, DMHC APL 22-014) and established Clinical Standards (AANS/CNS, NASS, AO Spine) supersede HealthFirst's internal criteria regarding conservative treatment for this specific presentation of acute cervical myelopathy with myelomalacia. The plan's criteria are more restrictive than both state law and current medical evidence, and the denial failed to account for the medical urgency and contraindications documented.
-
----
-
-### Determination: **OVERTURN**
-
-**Rationale:**
-The denial for CPT 22551 (ACDF C5-C6) for Robert Chang is OVERTURNED. The request for surgical intervention is medically necessary.
-
-The member presents with acute, rapidly progressive cervical myelopathy with objective severe cord compression and extensive myelomalacia on MRI, leading to an incomplete spinal cord syndrome. This constitutes an urgent surgical emergency.
-
-1.  **State Law Override:** Under California Insurance Code § 10169.5(a)(1) and (a)(3), HealthFirst is legally prohibited from requiring physical therapy as a prerequisite for this surgery. The treating neurosurgeon documented PT as absolutely contraindicated, and the MRI shows objective structural neurological compromise (myelomalacia) that PT cannot address. Additionally, DMHC All-Plan Letter 22-014 mandates that plans shall not require completion of a full course of conservative treatment for myelopathy with myelomalacia, especially when urgency is documented, and surgery is indicated by clinical guidelines, which is precisely the situation here.
-2.  **Clinical Standard Support:** Leading clinical guidelines (AANS/CNS 2023, NASS 2020, AO Spine 2021) strongly support immediate surgical decompression for moderate-to-severe cervical myelopathy with myelomalacia and progressive neurological deficits (Tier 1 indication). These guidelines explicitly state that physical therapy is not indicated, delaying surgery is harmful, and that the conservative treatment requirements typically found in payer policies are derived from radiculopathy evidence, not myelopathy.
-3.  **Plan Criteria Misapplication:** The initial denial failed to acknowledge or apply HealthFirst's own myelopathy exception (CC-SPINE-2024 Section 2.2A). Even if applied, the plan's reduced conservative treatment requirements for myelopathy are still more restrictive and inappropriate for this acute, severe presentation when compared to state law and clinical standards.
-
-Delaying surgery in this emergent context, as recommended by the initial denial, carries a significant risk of irreversible neurological harm and complete paralysis, which is contrary to both prudent clinical judgment and state regulatory guidance.
+1.  **Diagnostic Distinction:** The clinical record clearly indicates Cervical Myelopathy, distinct from Radiculopathy. The denial incorrectly applies a conservative treatment paradigm primarily derived from radiculopathy evidence.
+2.  **Myelomalacia Significance:** The clinical guidelines emphasize that myelomalacia (T2 signal change) indicates existing spinal cord injury, a higher risk of permanent deficit with continued compression, and *surgical urgency*. It is considered a strong indication for surgical intervention and a contraindication to extended conservative treatment trials.
+3.  **Physical Therapy for Myelopathy:**
+    *   The Cochrane Review (2021) and NASS Guidelines (2020) state PT has limited efficacy for established myelopathy, and for moderate-severe myelopathy, it does NOT produce meaningful functional improvement.
+    *   The AO Spine Guidelines (2021) explicitly state: "There is no high-quality evidence supporting a mandatory course of physical therapy prior to surgical intervention for patients with moderate to severe cervical myelopathy. Delaying surgery in such patients to complete a physical therapy trial is not supported by the evidence and may result in neurological deterioration."
+    *   **Conclusion:** The plan's requirement for 4 weeks of PT, even with its myelopathy exception, is not supported by clinical evidence for this severe, acute presentation and is considered potentially harmful.
+4.  **Surgical Indications (ACDF CPT 22551):**
+    *   Per AANS/CNS Joint Guidelines (2023), Mr. Chang's condition meets multiple TIER 1 — STRONG INDICATION criteria for surgery:
+        *   (a) Moderate to severe myelopathy with objective cord compression on MRI.
+        *   (c) Myelomalacia on MRI (cord signal change).
+        *   (d) Acute severe myelopathy with risk of permanent deficit (rapidly progressive deficits, incomplete spinal cord syndrome).
+    *   **Conclusion:** Surgical intervention is strongly indicated under generally accepted standards of medical practice, which do not require a minimum course of PT or prolonged pharmacotherapy for this acute, severe presentation. The plan's criteria are more restrictive than generally accepted standards.
 
 ---
 
-**Action Required:**
-HealthFirst Health Plan must immediately authorize CPT code 22551 for Robert Chang (M-445566) for an ACDF at C5-C6. This decision is binding.
+**V. Conflict Resolution (Hierarchy: State Law > Clinical Standard > Plan Criteria)**
 
-**Expert Appeals Reviewer**
-Health Plan Appeals Department
-Date: 2024-11-20
+The plan's denial is based on the member's failure to complete conservative treatment (PT and pharmacotherapy) as per CC-SPINE-2024 Section 2.2, even with its myelopathy exception.
+
+However, both California state law and generally accepted clinical standards directly contradict this denial:
+
+*   **State Law Preemption:** CIC § 10169.5 unequivocally prohibits conditioning surgical approval on PT when it is contraindicated by the physician or when there is objective neurological compromise that PT cannot address. Both conditions are met here. DMHC APL 22-014 further reinforces the waiver of conservative treatment requirements for acute myelopathy with myelomalacia due to urgency. These state laws directly override HealthFirst's conservative treatment requirements.
+*   **Clinical Standard:** Major clinical guidelines (AANS/CNS, NASS, AO Spine) deem Mr. Chang's condition a Tier 1 strong surgical indication, explicitly advising against delaying surgery for conservative treatment (especially PT) due to the risk of irreversible neurological deterioration. The plan's requirement for 4 weeks of PT and extended pharmacotherapy for this acute presentation is inconsistent with generally accepted standards of medical practice and constitutes a "category error" as noted in the provided domain knowledge.
+*   **CHSC § 1374.32(b):** States that if a service meets generally accepted standards of medical practice, it SHALL be approved regardless of whether the plan's internal criteria are more restrictive. In this case, the clinical standard clearly supports immediate surgery without a conservative trial.
+
+Therefore, the plan's denial is not medically necessary based on current state law and accepted clinical standards, which supersede the plan's internal criteria.
+
+---
+
+**VI. Determination**
+
+The initial denial by HealthFirst Health Plan is **OVERTURNED**.
+
+**Warrant:**
+Mr. Robert Chang presents with acute cervical myelopathy with rapidly progressive neurological deficits, severe cord compression, and extensive myelomalacia, which constitutes a surgical emergency. The treating physician, Dr. Elena Marchetti, explicitly documented that physical therapy is absolutely contraindicated and would pose immediate harm, specifically the risk of converting an incomplete cord syndrome to a complete cord syndrome.
+
+This clinical scenario directly triggers the protections afforded under California law. Specifically:
+1.  **California Insurance Code (CIC) § 10169.5(a)(1) and (3)** prohibits a health plan from conditioning approval of a surgical procedure on the completion of physical therapy when the treating physician has documented it is contraindicated, or when objective evidence of structural neurological compromise that PT cannot address exists. Both conditions are met in this case.
+2.  **DMHC All-Plan Letter (APL) 22-014** mandates that for conditions like myelopathy with myelomalacia where delay risks irreversible harm, plans SHALL NOT require a full course of conservative treatment, explicitly identifying myelomalacia as a finding that supports such a waiver when urgency is documented.
+
+Furthermore, generally accepted clinical standards of medical practice, including those from the AANS/CNS (2023), NASS (2020), and AO Spine (2021), classify Mr. Chang's condition as a TIER 1 strong surgical indication. These guidelines explicitly state that there is no high-quality evidence supporting mandatory physical therapy prior to surgery for moderate to severe cervical myelopathy, and delaying surgery may result in neurological deterioration. The plan's conservative treatment requirements, even with the myelopathy exception, are more restrictive than, and inconsistent with, these generally accepted standards. Under **California Health & Safety Code (CHSC) § 1374.32(b)**, a service meeting generally accepted standards of medical practice SHALL be approved regardless of the plan's more restrictive internal criteria.
+
+Based on the hierarchy of State Law > Clinical Standard > Plan Criteria, the requirements for conservative treatment as cited in HealthFirst's CC-SPINE-2024 Section 2.2 are superseded by California law and clinical standards for this urgent and severe presentation. Therefore, the denial of prior authorization for ACDF C5-C6 is not justified and must be overturned. Authorization for the requested procedure is granted.

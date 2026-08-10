@@ -3,100 +3,104 @@ SYSTEM: REACT
 DISPOSITION: OVERTURN
 GT: UPHOLD
 CORRECT: False
-ELAPSED: 36.5s
+ELAPSED: 49.7s
 ========================================================================
 
-## HealthFirst PPO Gold — Prior Authorization Appeal Determination
+## PRIOR AUTHORIZATION APPEAL DETERMINATION
 
 **Case ID:** PA-2024-G003
-**Member:** Bernard Achebe, ID M-G003
+**Member:** Bernard Achebe (M-G003), 61 years old
+**Plan:** HealthFirst PPO Gold — Group Plan 77441, California
+**Procedure:** ACDF C5-C6, one level (CPT 22551)
 **Date of Review:** 2024-11-12
-**Reviewer:** [Your Name/Title - Expert Appeals Reviewer]
+**Reviewer:** [Your Name/Title], Expert Health Plan Appeals Reviewer
 
 ### I. Case Summary
 
-The member, Mr. Bernard Achebe, a 61-year-old male, was denied prior authorization for an anterior cervical discectomy and fusion (ACDF) at C5-C6 (CPT 22551). The denial, issued by Dr. Alan Foster on 2024-11-05, cited insufficient completion of conservative treatment per the standard pathway, specifically: 3 weeks of physical therapy (6 required), only one pharmacotherapy agent, and no interventional procedure. The treating neurologist, Dr. Kwame Osei, is appealing the denial, asserting surgical urgency, contraindication to further delay, confirmed myelopathy, and failure of conservative treatment to arrest neurological progression.
+The member, Bernard Achebe, is a 61-year-old male with a diagnosis of mild cervical myelopathy at C5-C6, confirmed by MRI showing moderate central cord compression and clinical findings of bilateral Hoffman signs and hyperreflexia. His modified Japanese Orthopaedic Association (mJOA) score is 15/18, indicating mild myelopathy, and his activities of daily living (ADLs) are fully intact. Symptoms have been stable for 6 months.
 
-Clinical records indicate a diagnosis of "Mild cervical myelopathy C5-C6" with MRI showing "moderate central cord compression." Neurological exam reveals bilateral Hoffman signs and mild hyperreflexia. The mJOA score is 15/18, indicating mild myelopathy. Conservative treatment included 3 weeks of physical therapy (halted by Dr. Osei due to myelopathy concern) and 6 weeks of Baclofen (one agent). No interventional procedures were performed.
+The treating neurologist, Dr. Kwame Osei, requested immediate surgical intervention (ACDF C5-C6), citing severe and progressive compression, contraindication to further delay, and risk of irreversible neurological deterioration.
 
-### II. Applicable Policies and Guidelines
+The initial prior authorization request was denied by HealthFirst Utilization Management (Dr. Alan Foster) on 2024-11-05. The denial reason cited incomplete conservative treatment: 3 of 6 weeks of physical therapy (PT) completed, only one pharmacotherapy agent used, and no interventional procedure on record.
 
-This appeal determination is based on the following hierarchy: **State Law > Clinical Standard > Plan Criteria**.
+### II. Appeal Basis
 
-1.  **HealthFirst Clinical Coverage Criteria (CC-SPINE-2024):**
-    *   Section 2.2: Standard conservative treatment requires 6 weeks PT, 2 pharmacotherapy agents, and 1 interventional procedure.
-    *   Exception 2.2(A) – Myelopathy Pathway: For confirmed myelopathy, PT is reduced to 4 weeks minimum, and interventional treatment is waived if the treating physician documents risk of neurological deterioration. Pharmacotherapy remains 2 agents.
+The member's appeal is based on:
+1.  Treating neurologist's declaration of surgical urgency and contraindication to further delay.
+2.  Myelopathy confirmed on clinical exam.
+3.  Conservative treatment has failed to arrest neurological progression.
 
-2.  **California Regulatory Framework:**
-    *   **California Insurance Code (CIC) § 10169.5:** Prohibits conditioning surgical approval on PT completion where: (1) physician documents PT contraindicated or unlikely to benefit, OR (2) member reached functional plateau, OR (3) objective evidence of structural neurological compromise that PT cannot address.
-    *   **DMHC All-Plan Letter (APL) 22-014:** Plans SHALL NOT require completion of a full course of conservative treatment when objective imaging shows pathology, physician documents conservative failure, and surgery is indicated under generally accepted guidelines for conditions risking irreversible harm (e.g., myelopathy).
-    *   **California Health & Safety Code (CHSC) § 1374.32(b):** In Independent Medical Review (IMR), medical necessity is determined by generally accepted standards of medical practice, overriding more restrictive plan criteria.
+### III. Reviewer's Analysis
 
-3.  **Clinical Evidence Base:**
-    *   **AANS/CNS Joint Guidelines (2023):** Moderate to severe myelopathy with objective cord compression is a TIER 1 strong surgical indication. Surgery is appropriate in mild myelopathy, but urgency for acute progression/myelomalacia is a separate classification. No PT minimum duration established for myelopathy.
-    *   **AO Spine International (2021):** No high-quality evidence supports mandatory PT prior to surgery for moderate to severe cervical myelopathy; delay may result in neurological deterioration. Application of radiculopathy-derived PT requirements to myelopathy is not supported by evidence.
-    *   **NASS Guidelines (2020):** Conservative treatment may be considered for mild myelopathy with close monitoring, but surgery is primary for moderate-severe.
+This appeal determination applies the three-source hierarchy: **State Law > Clinical Standard > Plan Criteria.**
 
-### III. Analysis
+#### 1. Application of Plan Criteria (HealthFirst CC-SPINE-2024)
 
-**1. Primary Clinical Presentation:**
-The member has a confirmed diagnosis of **cervical myelopathy** (mild, C5-C6), supported by MRI showing moderate central cord compression and clinical findings of bilateral Hoffman signs and mild hyperreflexia. This is a critical distinction, as myelopathy (spinal cord compression) has a different treatment algorithm than radiculopathy (nerve root compression). The plan's standard conservative pathway is largely derived from radiculopathy evidence, which is inappropriate for myelopathy.
+*   **2.1 Diagnosis Requirement:** The member has a confirmed diagnosis of cervical myelopathy (2.1(b)) with objective MRI findings (moderate central cord compression) and clinical signs (bilateral Hoffman, hyperreflexia). This criterion is **met**. Myelopathy is the primary diagnosis.
+*   **2.2 Conservative Treatment Requirement:**
+    *   **Standard Pathway:** The member completed 3 weeks of PT (plan requires 6), used 1 pharmacotherapy agent (plan requires 2 for 4+ weeks each), and had no interventional procedures (plan requires 1). Thus, the standard pathway requirements are **not met**.
+    *   **EXCEPTION 2.2(A) — MYELOPATHY PATHWAY:** This exception applies because myelopathy is the primary diagnosis.
+        *   **Physical Therapy:** Reduced to 4 weeks minimum. The member completed 3 weeks. This requirement is **not met** by the plan's exception. Dr. Osei halted PT after 3 weeks due to "myelopathy concern."
+        *   **Interventional Treatment:** Waived if treating physician documents risk of neurological deterioration. Dr. Osei's letter states: "Further delay is medically contraindicated. I cannot overstate the urgency — any further delay risks irreversible neurological deterioration." This statement reasonably documents a risk of neurological deterioration from delay, which would include delaying for an interventional procedure. This requirement is considered **waived** per the plan's exception.
+        *   **Pharmacotherapy:** Requirement (2.2(b)) remains in full. The member used one agent (Baclofen 5mg BID for 6 weeks). The plan requires two agents. This requirement is **not met**.
 
-**2. Application of HealthFirst Plan Criteria (CC-SPINE-2024):**
-*   **Initial Denial:** The initial denial applied the standard conservative treatment requirements (6 weeks PT, 2 pharmacotherapy agents, 1 interventional procedure). This was incorrect, as the member's primary diagnosis is myelopathy, triggering Exception 2.2(A).
-*   **Myelopathy Exception 2.2(A) Review:**
-    *   **Physical Therapy (PT):** The exception reduces the requirement to 4 weeks. The member completed 3 weeks. Thus, strictly by the plan's exception, this requirement was not met.
-    *   **Pharmacotherapy:** The exception does not modify the pharmacotherapy requirement, which remains a trial of at least two agents. The member used only one (Baclofen). Thus, this requirement was not met.
-    *   **Interventional Treatment:** The exception waives the interventional requirement if the treating physician documents risk of neurological deterioration. Dr. Osei's letter states, "further delay risks irreversible neurological deterioration" and "I cannot overstate the urgency." This clearly satisfies the plan's condition for waiving the interventional procedure.
+*   **Conclusion on Plan Criteria:** Based solely on HealthFirst CC-SPINE-2024, the denial appears consistent due to unfulfilled requirements for physical therapy (3 of 4 weeks) and pharmacotherapy (1 of 2 agents), even with the myelopathy exception applied.
 
-*   **Conclusion on Plan Criteria:** Even with the myelopathy exception, the request would be deniable based on insufficient PT (3/4 weeks) and pharmacotherapy (1/2 agents).
+#### 2. Application of California Regulatory Framework (State Law)
 
-**3. Application of California Regulatory Framework:**
+California State Law holds the highest authority in this hierarchy.
 
-*   **CIC § 10169.5 (Physical Therapy):** This state law directly addresses the PT denial.
-    *   **(a)(1) Physician documentation:** Dr. Osei halted PT, citing "myelopathy concern," and declared in his appeal letter that "further delay is medically contraindicated" and "risks irreversible neurological deterioration." This constitutes sufficient documentation that further PT is contraindicated or unlikely to benefit the member, particularly for the neurological progression of myelopathy.
-    *   **(a)(3) Structural neurological compromise:** The member has confirmed "moderate central cord compression" on MRI and myelopathy with bilateral UMN signs. This is objective evidence of structural neurological compromise that physical therapy cannot address.
-    *   **Conclusion:** Under CIC § 10169.5, HealthFirst cannot deny the procedure based on the incomplete physical therapy requirement.
+*   **CIC § 10169.5 — Physical Therapy as Prerequisite:** This statute explicitly limits a plan's ability to require PT completion.
+    *   **(a)(1) Physician documents PT contraindicated or unlikely to benefit:** Dr. Osei halted PT after 3 weeks "citing myelopathy concern" and declared "further delay is medically contraindicated." This meets the condition that the physician documented PT as unlikely to benefit or contraindicated.
+    *   **(a)(3) Objective evidence of structural neurological compromise that PT cannot address:** The clinical record shows "C5-C6 moderate central cord compression" on MRI and "Bilateral Hoffman signs present. Bilateral hyperreflexia mild" on neurological exam. This constitutes objective evidence of structural neurological compromise (spinal cord compression with upper motor neuron signs) that physical therapy cannot resolve.
+    *   **Conclusion on PT Requirement:** Pursuant to **CIC § 10169.5(a)(1) and (a)(3)**, HealthFirst **cannot** condition approval of surgery on completion of further physical therapy. The plan's requirement for 4 or 6 weeks of PT is superseded by state law.
 
-*   **DMHC APL 22-014 (Myelopathy and Urgent Conditions):** This APL mandates that plans shall not require a full course of conservative treatment where delay risks irreversible harm and surgery is indicated.
-    *   **Risk of irreversible harm:** Myelopathy with objective cord compression is a condition identified by the DMHC as having potential for irreversible harm if untreated (APL 22-014, II.1).
-    *   **Physician documents conservative failure:** Dr. Osei's declaration, "conservative treatment has failed to arrest neurological progression," fulfills this condition.
-    *   **Surgical intervention indicated:** Per AANS/CNS (2023), surgery is "appropriate" for mild myelopathy (mJOA 15) and a "strong indication" for moderate myelopathy with objective cord compression. While the member's myelopathy is classified as mild, and myelomalacia is not present, the objective cord compression and UMN signs establish a medically necessary surgical indication.
-    *   **Conclusion:** DMHC APL 22-014 dictates that HealthFirst SHALL NOT require completion of a *full course* of conservative treatment (including the second pharmacotherapy agent) given the documentation from the treating physician and the underlying condition.
+*   **DMHC APL 22-014 — Prior Authorization Requirements for Time-Sensitive Neurological Conditions:**
+    *   **II.1 Myelopathy Classification:** The APL notes that myelopathy with cord compression and *myelomalacia* is urgent. However, the MRI for Mr. Achebe *explicitly states "No T2 signal change. No myelomalacia."* While Mr. Achebe has myelopathy, the absence of myelomalacia, combined with an mJOA score of 15/18 (mild myelopathy) and documented "stable" symptoms for 6 months, means the most impactful urgency triggers of APL 22-014, II.1 are not fully present in the objective record.
+    *   **II.2 Conservative Treatment Exceptions:** For waiver of conservative treatment due to risk of irreversible harm, the APL requires "(a) Objective imaging evidence demonstrates progressive pathology (cord signal change, myelomalacia, or progressive herniation on serial imaging)." The clinical record lacks serial imaging to show progression and explicitly notes "No myelomalacia." While Dr. Osei declares progression, it is not objectively documented by imaging as defined in this clause.
+    *   **Conclusion on DMHC APL 22-014:** While the APL provides strong guidance for myelopathy generally, the specific objective criteria (e.g., myelomalacia, documented progression on serial imaging) for its most forceful conservative treatment waivers are not met in this specific case based on the provided record.
 
-**4. Application of Clinical Standard:**
+*   **CHSC § 1374.32(b) — Standard of Review for IMR:** This provision states that if a service meets "generally accepted standards of medical practice," it shall be approved regardless of whether the plan's internal criteria are more restrictive. This applies when considering the pharmacotherapy requirement against clinical standards.
 
-*   **Myelopathy vs. Radiculopathy:** Clinical guidelines (AANS/CNS 2023, AO Spine 2021) strongly differentiate myelopathy from radiculopathy, emphasizing that conservative treatment evidence for radiculopathy does not apply to myelopathy.
-*   **Physical Therapy for Myelopathy:** AO Spine (2021) explicitly states: "There is no high-quality evidence supporting a mandatory course of physical therapy prior to surgical intervention for patients with moderate to severe cervical myelopathy. Delaying surgery in such patients... is not supported by the evidence and may result in neurological deterioration." NASS (2020) indicates conservative treatment has "LIMITED efficacy for established myelopathy." The plan's PT requirement (even 4 weeks in its exception) for myelopathy is inconsistent with generally accepted clinical standards.
-*   **Pharmacotherapy/Interventional for Myelopathy:** While less explicit on pharmacotherapy duration, the overall clinical consensus (AANS/CNS, AO Spine, NASS) underscores the limited efficacy of conservative treatment for *established myelopathy* and the risk of delaying definitive surgical treatment.
-*   **Surgical Indication:** The member has moderate central cord compression and objective UMN signs (Hoffman, hyperreflexia) consistent with myelopathy. ACDF (CPT 22551) is an accepted treatment for this condition. While the mJOA score of 15/18 is considered "mild myelopathy," the AANS/CNS guidelines indicate surgery is "appropriate" in mild myelopathy.
+#### 3. Application of Clinical Standard (AANS/CNS 2023, NASS 2020, AO Spine 2021)
 
-**5. Conflict Resolution (Hierarchy: State Law > Clinical Standard > Plan Criteria):**
+Clinical standards inform "generally accepted standards of medical practice."
 
-*   **Physical Therapy:** The plan's requirement for 4 weeks of PT (per its myelopathy exception) is directly overridden by **CIC § 10169.5 (a)(1) and (a)(3)**, as the treating physician documented concern regarding PT for myelopathy and objective structural neurological compromise is present. Clinical standards also refute mandatory PT duration for myelopathy.
-*   **Interventional Treatment:** The plan's own **Myelopathy Exception 2.2(A)** waives this requirement, as Dr. Osei explicitly documented risk of neurological deterioration/contraindication to further delay.
-*   **Pharmacotherapy (Second Agent):** The plan's requirement for a second agent (even under its exception) is superseded by **DMHC APL 22-014 (II.2)**. The treating physician documented conservative treatment failure to arrest progression, and surgery is indicated for myelopathy under generally accepted guidelines. Requiring a "full course" of multiple pharmacotherapy agents (when one has already been trialed) would constitute an unnecessary delay for a condition with potential for irreversible harm, contrary to the APL's intent and inconsistent with the limited efficacy of conservative treatment for myelopathy noted in clinical standards.
-*   **Overall:** The plan's denial relies on conservative treatment requirements that are either directly overridden by state law, explicitly waived by its own policy (when correctly applied), or contradicted by generally accepted clinical standards for myelopathy. CHSC § 1374.32(b) reinforces that if a service meets generally accepted standards, it SHALL be approved regardless of more restrictive plan criteria.
+*   **Myelopathy vs. Radiculopathy (Clinical Reference Section 1.1):** The clinical standards emphasize that myelopathy and radiculopathy are distinct, with different treatment algorithms. Applying conservative treatment requirements derived from radiculopathy evidence to myelopathy is a "category error." The plan's standard 6-week PT requirement, as noted in the domain knowledge, is derived from radiculopathy.
+*   **Physical Therapy for Myelopathy (Clinical Reference Section 2.1):** "There is no high-quality evidence supporting a mandatory course of physical therapy prior to surgical intervention for patients with moderate to severe cervical myelopathy." For *mild* myelopathy (like Mr. Achebe's mJOA 15/18), NASS (2020) states "Conservative treatment may be considered... with close monitoring for progression." However, "surgical decompression is recommended as the primary treatment" for moderate to severe. While Mr. Achebe's myelopathy is mild, the AO Spine Guidelines (2021) strongly caution against delaying surgery for unproven PT trials.
+*   **Conservative Treatment Duration (Clinical Reference Section 2.2):** "No randomized controlled trials support a defined minimum duration of conservative treatment before surgery" for myelopathy. The 6-week PT requirement has "NO evidentiary basis for myelopathy."
+*   **Surgical Indications (Clinical Reference Section 3.1):**
+    *   Mr. Achebe's condition of "mild cervical myelopathy C5-C6" with "moderate central cord compression" and UMN signs (Hoffman, hyperreflexia) but "stable" symptoms and "no myelomalacia" does not meet **TIER 1 (Strong Indication)** criteria (which typically requires moderate-severe myelopathy, progression, or myelomalacia).
+    *   However, it fits **TIER 2 (Reasonable Indication)**: "(a) Mild myelopathy with stable symptoms after adequate conservative trial." The question is the "adequacy" of the trial.
 
-### IV. Determination
+#### 4. Conflict Resolution and Disposition
 
-The prior authorization denial for procedure CPT 22551 (ACDF C5-C6) for member Bernard Achebe (PA-2024-G003) is **OVERTURNED**.
+Applying the hierarchy (State Law > Clinical Standard > Plan Criteria):
+
+1.  **Physical Therapy (PT):** The plan denied because 3 of 6 weeks (or 3 of 4 under myelopathy exception) were completed. However, **California Insurance Code § 10169.5(a)(3)** directly overrides this. Mr. Achebe has "objective evidence of structural neurological compromise" (moderate central cord compression, Hoffman signs, hyperreflexia) that PT cannot address. Additionally, Dr. Osei's halting of PT due to myelopathy concern could also invoke **CIC § 10169.5(a)(1)**. Therefore, the plan's PT requirement is **overridden by state law**.
+
+2.  **Interventional Procedure:** The plan's denial cited "no interventional procedure on record." However, **HealthFirst's own Clinical Coverage Criteria (CC-SPINE-2024), Section 2.2(A) (Myelopathy Exception)**, explicitly states the interventional treatment requirement is WAIVED if the treating physician documents that it "poses risk of neurological deterioration." Dr. Osei's declaration that "further delay risks irreversible neurological deterioration" is a reasonable and sufficient documentation of risk to meet this waiver within the plan's own criteria. Therefore, the interventional procedure requirement is **waived per plan criteria**.
+
+3.  **Pharmacotherapy:** The plan requires a trial of at least two pharmacotherapy agents for a minimum of 4 weeks each, and the myelopathy exception does not waive this. Mr. Achebe used only one agent (Baclofen) for 6 weeks.
+    *   DMHC APL 22-014's strongest waiver provisions are not fully met due to the absence of objective myelomalacia or documented progression.
+    *   However, the clinical standards (AANS/CNS, NASS, AO Spine) do not establish a minimum *number* of pharmacotherapy agents for myelopathy. The general principle articulated in the "Clinical Reference Summary" (Section 1.1) is that applying radiculopathy-derived conservative treatment requirements (which often include multiple agents) to myelopathy is a "category error."
+    *   Given that myelopathy is a structural condition causing spinal cord compression and upper motor neuron signs, and one pharmacotherapy agent (Baclofen) was trialed for 6 weeks with "mild spasticity improvement," requiring a *second* pharmacotherapy agent for an *additional* 4+ weeks as a prerequisite for surgery is arguably more restrictive than "generally accepted standards of medical practice" for myelopathy, where the focus is on addressing the structural compression rather than indefinitely trialing palliative medications, especially when the treating physician declares urgency. **CHSC § 1374.32(b)** directs that services meeting generally accepted standards shall be approved even if plan criteria are more restrictive.
+
+**Conclusion:**
+The plan's denial was based on conservative treatment requirements that are either directly overridden by California state law (for physical therapy) or waived by its own criteria (for interventional procedures). The remaining pharmacotherapy requirement for a second agent, while part of plan criteria, is not explicitly supported by clinical guidelines for myelopathy and, in the context of a structural cord compression with UMN signs, is considered more restrictive than generally accepted standards of medical practice. While the objective evidence for *acute* urgency (e.g., myelomalacia, rapid progression) is not fully present, the diagnosis of myelopathy with UMN signs is established, and delaying surgery for requirements not strongly supported by evidence for this condition risks further neurological compromise.
+
+### IV. Disposition
+
+**OVERTURN**
 
 ### V. Warrant
 
-The denial, based on uncompleted conservative treatment, is not supported by the member's clinical presentation, state law, or generally accepted clinical standards.
+The denial is OVERTURNED because HealthFirst PPO Gold's prior authorization denial relies on conservative treatment requirements that are inconsistent with California state law and generally accepted clinical standards for cervical myelopathy.
 
-1.  **Diagnosis:** The member has confirmed cervical myelopathy, not radiculopathy. The plan's conservative treatment requirements, particularly for physical therapy, are primarily derived from radiculopathy evidence and are not appropriate or supported by evidence for myelopathy. (Clinical Standard: AO Spine 2021, NASS 2020, AANS/CNS 2023).
+1.  **Physical Therapy (PT) Requirement Overridden by State Law:** The plan's requirement for further physical therapy is directly superseded by **California Insurance Code § 10169.5(a)(3)**. The member has objective evidence of structural neurological compromise (moderate central cord compression at C5-C6 with bilateral Hoffman signs and hyperreflexia) that physical therapy cannot address. Furthermore, the treating physician's decision to halt PT after 3 weeks due to "myelopathy concern" also satisfies **CIC § 10169.5(a)(1)**, indicating PT is unlikely to benefit. Therefore, the plan cannot lawfully deny coverage on the basis of incomplete physical therapy.
 
-2.  **Physical Therapy Requirement:** The requirement for additional physical therapy is directly overridden by **California Insurance Code (CIC) § 10169.5**.
-    *   Per **CIC § 10169.5(a)(1)**, Dr. Osei's documentation (halting PT due to myelopathy concern, declaring "further delay risks irreversible neurological deterioration") demonstrates that further PT is unlikely to benefit or is contraindicated.
-    *   Per **CIC § 10169.5(a)(3)**, the member has "moderate central cord compression" and bilateral upper motor neuron signs (Hoffman's, hyperreflexia), which constitute objective evidence of structural neurological compromise that physical therapy cannot address.
-    *   Furthermore, **AO Spine (2021) and NASS (2020)** guidelines indicate no high-quality evidence supporting mandatory PT prior to surgery for moderate to severe cervical myelopathy, and warn against delays.
+2.  **Interventional Procedure Requirement Waived by Plan Criteria:** The plan's own **HealthFirst CC-SPINE-2024, Section 2.2(A) (Myelopathy Exception)**, waives the interventional treatment requirement if the treating physician documents a risk of neurological deterioration. Dr. Osei explicitly documented that "further delay risks irreversible neurological deterioration," which reasonably satisfies this condition.
 
-3.  **Interventional Procedure Requirement:** The plan's denial for lack of an interventional procedure is invalid under its own **Clinical Coverage Criteria (CC-SPINE-2024), Section 2.2(A) Myelopathy Exception**. Dr. Osei's declaration of urgency and risk of "irreversible neurological deterioration" if treatment is delayed meets the plan's condition for waiving this requirement.
+3.  **Pharmacotherapy Requirement Inconsistent with Clinical Standards:** While the plan requires a trial of two pharmacotherapy agents, clinical guidelines for cervical myelopathy (AANS/CNS, NASS, AO Spine) do not establish a mandatory minimum *number* of such agents. The general clinical understanding, as emphasized in the provided domain knowledge and clinical references, is that applying conservative treatment paradigms derived from radiculopathy to myelopathy constitutes a "category error," as myelopathy is a structural cord compression. Requiring a second, additional pharmacotherapy agent to further delay surgery for a structural issue causing myelopathy (even mild, but with objective UMN signs) after one agent has been trialed for 6 weeks with some benefit, is considered more restrictive than generally accepted standards of medical practice and not supported by high-quality evidence for myelopathy. Per **CHSC § 1374.32(b)**, services meeting generally accepted standards must be approved regardless of more restrictive plan criteria.
 
-4.  **Pharmacotherapy Requirement:** The denial for insufficient pharmacotherapy (one agent instead of two) is superseded by **DMHC All-Plan Letter (APL) 22-014 (II.2)**. The APL states that plans "SHALL NOT require completion of a full course of conservative treatment" when the treating physician documents conservative treatment failure (as Dr. Osei implicitly does by stating surgical urgency and risks of delay) and surgical intervention is indicated under generally accepted guidelines. For myelopathy with objective cord compression and UMN signs, surgical intervention is indicated (AANS/CNS 2023, TIER 1/2). Requiring a trial of a second pharmacotherapy agent for myelopathy when one has already been used and symptoms persist, particularly with a physician declaration of urgency, constitutes enforcing a "full course" that may delay necessary treatment. The clinical standards emphasize the limited efficacy of conservative treatment for established myelopathy.
-
-Therefore, applying the three-source hierarchy, the state laws and clinical standards override the plan's criteria regarding conservative treatment for cervical myelopathy in this case. The requested ACDF is medically necessary and should be approved.
-
-**Action:** Overturn the denial and authorize CPT 22551.
+Based on the highest authority (State Law) overriding the PT requirement, the plan's own criteria waiving the interventional requirement, and the lack of strong evidence in clinical standards supporting the specific multi-agent pharmacotherapy requirement for myelopathy, the denial is without sufficient medical necessity basis. The requested ACDF C5-C6 for mild cervical myelopathy with objective cord compression and upper motor neuron signs is consistent with generally accepted standards of medical practice under these circumstances.

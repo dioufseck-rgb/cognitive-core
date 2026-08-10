@@ -3,128 +3,99 @@ SYSTEM: PLANSOLVE
 DISPOSITION: UPHOLD
 GT: UPHOLD
 CORRECT: True
-ELAPSED: 69.6s
+ELAPSED: 52.9s
 ========================================================================
 
-# HEALTH PLAN APPEALS & RECLAIM DIVISION
-**STATE OF CALIFORNIA**  
-**INDEPENDENT MEDICAL REVIEW / APPEALS DETERMINATION**
+# HEALTH PLAN APPEALS & REVIEWS
+**Independent Medical Review & Appeal Determination**
 
----
-
-### CASE PROFILE
+**CASE PROFILE**
 *   **Case ID:** PA-2024-G003
-*   **Member Name:** Bernard Achebe
+*   **Member:** Bernard Achebe
 *   **Age:** 61
 *   **Plan:** HealthFirst PPO Gold — Group Plan 77441
-*   **State of Residence:** California
-*   **Plan Year:** 2024
-*   **Coverage Effective Date:** 2020-03-01
-*   **Requested Procedure:** Anterior Cervical Discectomy and Fusion (ACDF) C5-C6, Single Level (CPT Code: 22551)
-*   **Requesting Physician:** Dr. Kwame Osei, MD — Neurology (Cedars-Sinai Medical Center)
-*   **Initial Reviewer:** Dr. Alan Foster, MD — HealthFirst Utilization Management
-*   **Initial Denial Date:** November 5, 2024
+*   **State of Jurisdiction:** California
+*   **Coverage Effective Date:** March 1, 2020
+*   **Requested Procedure:** Anterior Cervical Discectomy and Fusion (ACDF) C5-C6, Single-Level (CPT 22551)
+*   **Requesting Physician:** Dr. Kwame Osei, MD — Department of Neurology
+*   **Facility:** Cedars-Sinai Medical Center
+*   **Prior Authorization Reviewer:** Dr. Alan Foster, MD — HealthFirst Utilization Management
+*   **Date of Initial Denial:** November 5, 2024
 *   **Denial Reason Code:** MED-003 (Incomplete Conservative Treatment)
 
 ---
 
-### FINAL DISPOSITION
-**DETERMINATION:** **UPHOLD THE DENIAL**  
-The requested anterior cervical discectomy and fusion (ACDF) at C5-C6 (CPT 22551) is determined to be **not medically necessary** at this time under the governing clinical criteria and California regulatory framework. The member has not completed the modified conservative treatment pathway required for stable, mild cervical myelopathy, and no statutory or clinical overrides apply to waive these requirements.
+### **FINAL DISPOSITION: UPHOLD**
+The HealthFirst Utilization Management decision to deny prior authorization for CPT code 22551 (ACDF C5-C6, single-level) is **UPHELD**. The clinical record does not support the medical necessity of immediate surgical intervention under California statutory provisions, plan clinical criteria, or generally accepted clinical standards. Conservative treatment remains the medically appropriate course of care for this clinical presentation.
 
 ---
 
-## SECTION I: PROCEDURAL HISTORY & ADEQUACY AUDIT
-Under **California Health & Safety Code (CHSC) § 1374.31(b)**, an appeal reviewer must first audit the plan's initial denial notice for procedural adequacy. A denial notice is legally defective if it fails to specify the clinical coverage criteria applied, the specific clinical reasons for the denial, or the mandated notice of Independent Medical Review (IMR) rights.
-
-*   **Review Findings:** The initial denial notice issued by HealthFirst on November 5, 2024, explicitly cited the clinical coverage criteria applied (**CC-SPINE-2024**). It detailed the specific clinical deficits preventing authorization: completion of only 3 weeks of physical therapy (versus the required 6 weeks), trial of only one pharmacotherapy agent, and the absence of any interventional procedure. Furthermore, the mandatory language notifying the member of their IMR rights under the Department of Managed Health Care (DMHC) was present.
-*   **Conclusion:** The denial notice is **procedurally adequate and legally compliant**. No procedural defect is present. The review must proceed to a clinical evaluation.
-
----
-
-## SECTION II: CLINICAL CLASSIFICATION & DIAGNOSIS VERIFICATION
-A critical step in spinal surgery utilization review is to distinguish between **Cervical Radiculopathy** and **Cervical Myelopathy**, as they represent distinct pathophysiological processes with separate evidence-based treatment pathways.
-
-*   **Imaging Review (MRI dated October 1, 2024):** Demonstrates moderate central spinal cord compression at the C5-C6 level with a spinal canal diameter of 8 mm. Crucially, the radiologist notes **no T2-weighted cord signal changes and no myelomalacia**. Cord contact is present without intrinsic cord signal abnormality.
-*   **Clinical/Neurological Exam Review (dated October 5, 2024):**
-    *   **Upper Motor Neuron (UMN) Signs:** Positive bilateral Hoffman’s signs and mild bilateral hyperreflexia are present.
-    *   **Gait and Balance:** Tandem gait is fully intact.
-    *   **Motor Strength:** Hand grip strength is graded at 4+/5 bilaterally, with no frank or focal motor weakness.
-    *   **Sensory Exam:** No dermatomal sensory deficits.
-    *   **Functional Status:** Activities of daily living (ADLs) are fully intact. The patient is fully independent.
-    *   **mJOA Score:** Evaluated at **15 out of 18**, which clinically classifies the patient’s condition as **Mild Cervical Myelopathy** (mJOA score of 15–17 indicates the mild category).
-*   **Diagnostic Consensus:** The clinical presentation of bilateral Hoffman's signs, hyperreflexia, and bilateral hand grip deficits, paired with MRI findings of moderate spinal cord compression, confirms a primary diagnosis of **Mild Cervical Myelopathy (ICD-10: M50.022)**. Radiculopathy is not the primary driver of this clinical presentation.
+### **GOVERNING HIERARCHY OF AUTHORITY**
+Pursuant to California regulatory standards, where sources of authority conflict, the following hierarchy of authority governs this clinical and legal evaluation:
+1.  **California State Law & Regulations** (California Insurance Code [CIC], California Health & Safety Code [CHSC], Department of Managed Health Care [DMHC] All-Plan Letters [APL]).
+2.  **Generally Accepted Clinical Standards** (AANS/CNS, AO Spine, North American Spine Society [NASS]).
+3.  **HealthFirst Internal Plan Criteria** (CC-SPINE-2024).
 
 ---
 
-## SECTION III: ANALYSIS OF GOVERNING HIERARCHY OF AUTHORITY
+### **DETAILED EVALUATION REPORT**
 
-In accordance with California regulatory standards, this review evaluates the case across three tiers of authority, resolving all conflicts in favor of the highest authority: **State Law > Clinical Standards > Plan Criteria**.
+#### **Step 1: Procedural Defect & Adequacy Check (CHSC § 1374.31(b))**
+*   **Protocol:** Review the initial denial notice dated November 5, 2024, issued by Dr. Alan Foster, MD, to verify if the notice explicitly cited the clinical coverage criteria applied and provided the specific clinical reasons for the denial.
+*   **Findings:** The denial notice was issued within the statutory timeframes required under CHSC § 1367.01. The notice explicitly cited the standard conservative treatment pathways. It provided specific clinical metrics: completion of only 3 of the 6 required weeks of physical therapy, completion of only 1 pharmacotherapy agent (Baclofen), and the absence of any documented interventional procedure.
+*   **Conclusion:** The denial notice is procedurally adequate under **CHSC § 1374.31(b)**. It clearly articulated the clinical standard applied (HealthFirst CC-SPINE-2024) and outlined the precise deficiencies. Therefore, no procedural defect is present. The evaluation proceeds to Step 2.
 
-### 1. California Statutory and Regulatory Mandates (Highest Authority)
-*   **DMHC All-Plan Letter (APL) 22-014 (Time-Sensitive Neurological Conditions):**
-    This mandate prohibits plans from requiring a full course of conservative treatment when objective imaging demonstrates *progressive pathology* (such as myelomalacia or progressive cord signal changes) and the treating physician documents that conservative treatment has failed to arrest clinical progression.
-    *   *Application to Case:* The member’s MRI dated 2024-10-01 explicitly notes **no T2-weighted signal change and no myelomalacia**. Furthermore, clinical documentation notes that the member's symptoms have been **stable for 6 months**. Because there is no objective evidence of myelomalacia or acute progressive clinical pathology, the automatic waiver provisions of **APL 22-014** are **not triggered**.
-*   **California Insurance Code (CIC) § 10169.5 (Physical Therapy Prerequisites):**
-    Under **CIC § 10169.5(a)**, a plan cannot condition surgical approval on physical therapy completion if:
-    1.  The physician documents that PT is contraindicated or unlikely to benefit the member;
-    2.  The member reached a documented "functional plateau" (<10% improvement over 3 sessions); OR
-    3.  The condition involves objective evidence of structural neurological compromise that physical therapy cannot address.
-    *   *Application to Case:* Dr. Osei's clinical letter dated November 1, 2024, asserts surgical urgency and states that further delay is contraindicated. However, this assertion is objectively contradicted by the clinical record, which establishes that the member's mild myelopathy has remained stable for 6 months, and the member maintains a high functional status (mJOA of 15, fully independent ADLs). 
-    *   According to national clinical guidelines (discussed below), **mild, stable cervical myelopathy** is highly amenable to initial conservative management, and physical therapy is *not* clinically contraindicated or incapable of providing therapeutic benefit. Additionally, there is no physical therapy record documenting that the member reached a "functional plateau" under **CIC § 10169.5(a)(2)**; rather, Dr. Osei pre-emptively halted PT at 3 weeks (9 sessions) based on a generalized concern regarding myelopathy. Therefore, the statutory overrides under **CIC § 10169.5** do **not** apply.
+#### **Step 2: Clinical Diagnosis & Pathology Classification**
+*   **Protocol:** Analyze the clinical documentation and imaging studies to classify the pathology as either cervical radiculopathy (root compression) or cervical myelopathy with structural neurological compromise (spinal cord compression, upper motor neuron signs, and myelomalacia/T2 cord signal change).
+*   **Findings:** 
+    *   **Clinical Presentation:** The member, a 61-year-old male, presents with mild cervical myelopathy at C5-C6. Neurological examination on October 5, 2024, notes bilateral Hoffman signs and mild bilateral hyperreflexia, which are objective upper motor neuron (UMN) signs. Tandem gait is intact, bilateral hand grip strength is preserved at 4+/5, and there are no frank motor or sensory dermatomal deficits. Activities of daily living (ADLs) are fully intact and independent. The functional status is categorized as mild, with a modified Japanese Orthopaedic Association (mJOA) score of 15/18.
+    *   **Imaging (MRI dated October 1, 2024):** The MRI demonstrates moderate central cord compression at C5-C6 and a canal diameter of 8mm. However, the radiologist explicitly notes: **"No T2 signal change. No myelomalacia. Cord contact present without compression."** 
+*   **Conclusion:** Although the patient has clinical signs of mild myelopathy (UMN signs, mJOA score of 15), there is **no objective evidence of myelomalacia or T2 cord signal change** on the MRI. This indicates that while there is structural narrowing and cord contact, active spinal cord injury/parenchymal damage (myelomalacia) has not occurred. The pathology is classified as **mild, clinically stable cervical myelopathy without myelomalacia**. Per the evaluation protocol, because myelomalacia is absent, we proceed to Step 4.
 
-### 2. Generally Accepted Clinical Standards (Intermediate Authority)
-*   **AANS/CNS Joint Guidelines (2023 Update) & NASS Guidelines (2020):**
-    These guidelines establish that surgical decompression (such as ACDF) is a **Tier 1 (Strong Indication)** for *moderate-to-severe* myelopathy (mJOA < 15) or cases demonstrating progressive neurological deficits or myelomalacia. For *mild, stable* myelopathy (mJOA 15–17), conservative management—including a monitored course of physical therapy and pharmacotherapy—is recommended as a safe and appropriate initial management strategy (**NASS Grade B Evidence**).
-*   **AO Spine International Clinical Practice Guidelines (2021):**
-    AO Spine guidelines note that while there is no evidence to support mandatory physical therapy for *moderate-to-severe* myelopathy, a closely monitored trial of conservative treatment is appropriate for mild, stable presentations. 
-    *   *Application to Case:* Because the member’s myelopathy is objectively classified as **mild and stable** (mJOA 15, no myelomalacia, 6 months of stable symptoms), initiating a trial of conservative treatment is in full alignment with generally accepted standards of medical practice. Delaying surgery to complete a conservative trial in a mild, stable patient does not pose the immediate, high-risk threat of irreversible neurological injury seen in moderate-to-severe or progressive cases.
+#### **Step 3: State Statutory & Regulatory Override Evaluation (CIC § 10169.5 & DMHC APL 22-014)**
+*   *For completeness of review, statutory overrides were evaluated:*
+*   **Protocol:** Determine if the member's presentation triggers a mandatory statutory waiver of conservative treatment. Under **CIC § 10169.5(a)(3)** and **DMHC APL 22-014**, plans cannot require physical therapy or conservative trials if objective imaging shows progressive pathology or "objective evidence of structural neurological compromise that physical therapy cannot address" (explicitly defined as myelomalacia/T2 cord signal change).
+*   **Findings:** The member's MRI explicitly rules out myelomalacia ("No T2 signal change. No myelomalacia"). Furthermore, the clinical records document that the patient's symptoms have been stable for 6 months. There is no serial imaging demonstrating progressive pathology, nor is there clinical documentation of progressive neurological decline on exam.
+*   **Conclusion:** Because there is no objective evidence of myelomalacia, structural neurological compromise of an irreversible nature, or progressive clinical deterioration, the statutory exemptions under **CIC § 10169.5** and **DMHC APL 22-014** do not apply. The plan is not legally prohibited from requiring conservative treatment.
 
-### 3. Plan Clinical Coverage Criteria (HealthFirst CC-SPINE-2024) (Reference Authority)
-*   **Section 2.2A — Myelopathy Pathway Exception:**
-    For verified myelopathy cases, the plan modifies its standard 6-week conservative treatment pathway as follows:
-    1.  Physical therapy minimum duration is reduced to **4 weeks**.
-    2.  Interventional treatments (e.g., epidural injections) are waived if the physician documents a risk of neurological deterioration.
-    3.  Pharmacotherapy requirements remain in full (**minimum of 2 agents tried for 4+ weeks each**).
-*   **Compliance Evaluation:**
-    *   **Physical Therapy:** The member completed only **3 weeks** of physical therapy (9 sessions) before the course was halted by the neurologist. This falls short of both the standard 6-week pathway and the modified 4-week myelopathy exception.
-    *   **Pharmacotherapy:** The member was trialed on only **one** pharmacotherapy agent (Baclofen 5mg BID for 6 weeks). The plan criteria require a trial of at least **two** agents (such as NSAIDs, muscle relaxants, neuropathic agents, or oral corticosteroids) for at least 4 weeks each. The member failed to trial a second agent.
-    *   **Interventional Treatment:** No interventional treatments were performed. While Dr. Osei documented a generalized concern of neurological deterioration, the clinical stability of the patient over 6 months and the lack of myelomalacia do not clinically support an emergency waiver of all conservative requirements.
+#### **Step 4: Plan Criteria Application & Myelopathy Exception Review (Section 2.2A)**
+*   **Protocol:** Evaluate whether the member met the plan's modified "Myelopathy Pathway Exception" under HealthFirst CC-SPINE-2024 Section 2.2(A).
+*   **Criteria under Section 2.2(A) (Myelopathy Exception):**
+    1.  **Physical Therapy:** Reduced from 6 weeks to a minimum of **4 weeks**.
+    2.  **Interventional Treatment:** Waived if the treating physician documents that interventional procedures pose a neurological risk.
+    3.  **Pharmacotherapy:** Remains in full (trial of at least **two** agents for a minimum of 4 weeks each).
+*   **Findings vs. Member's Record:**
+    1.  *Physical Therapy:* The member completed only **3 weeks** (9 sessions) of physical therapy. It was halted prematurely by Dr. Osei on November 1, 2024, citing general myelopathy concerns, before reaching the modified 4-week plan threshold.
+    2.  *Interventional Treatment:* No interventional procedures were performed. Dr. Osei's letter dated November 1, 2024, documented a generalized risk of delay but did not provide a specific clinical rationale stating that an interventional procedure (such as a selective nerve block or epidural) posed an imminent risk of neurological deterioration.
+    3.  *Pharmacotherapy:* The member completed a trial of only **one** agent (Baclofen 5mg BID for 6 weeks, which resulted in mild spasticity improvement). No second agent (e.g., NSAIDs, gabapentinoids, oral corticosteroids) was attempted or documented as medically contraindicated.
+*   **Conclusion:** The member did not meet the modified Myelopathy Pathway criteria under CC-SPINE-2024 Section 2.2(A). The physical therapy duration fell short of the 4-week exception minimum, and the pharmacotherapy requirement of two agents was not met (only one trialed). Therefore, the initial denial was a correct application of the plan's internal coverage criteria. The evaluation proceeds to Step 5.
 
----
-
-## SECTION IV: SYNTHESIS AND DETERMINATION
-
-The treating neurologist, Dr. Osei, declared immediate surgical urgency and argued that any delay in authorizing the ACDF would risk irreversible neurological deterioration. In a standard utilization review, the opinion of the treating physician is given substantial weight. However, under **CHSC § 1374.32(a)**, clinical determinations must be based on objective medical evidence and generally accepted clinical standards.
-
-The objective clinical record directly refutes the assertion of acute clinical urgency:
-1.  **Clinical Stability:** The member’s symptoms have been stable for 6 months.
-2.  **No Structural Cord Injury:** The MRI of October 1, 2024, confirms there is no myelomalacia or T2 signal intensity change within the cord.
-3.  **Mild Impairment:** The member’s mJOA score is 15/18 (mild category), with normal gait, no frank weakness, and fully independent functional status.
-
-Under California law (**CIC § 10169.5** and **DMHC APL 22-014**), a health plan cannot mechanically enforce conservative treatment when there is structural neurological compromise that PT cannot address *or* when myelomalacia is present. However, because the member has mild, stable myelopathy without myelomalacia, national guidelines (AANS/CNS, NASS, AO Spine) support conservative management as the standard first-line treatment. 
-
-The plan’s internal criteria (**CC-SPINE-2024 § 2.2A**) accommodate myelopathy by offering a highly reasonable, modified exception (reducing PT to 4 weeks and requiring 2 medications). The member failed to meet even this relaxed standard, completing only 3 weeks of PT and trialing only 1 medication (Baclofen). No documented functional plateau or objective clinical contraindications exist to excuse the failure to complete these remaining elements.
-
-Consequently, because the member has stable, mild disease that is clinically appropriate for conservative management, and because the modified conservative criteria have not been met, the requested surgical procedure is not medically necessary at this time.
+#### **Step 5: Generally Accepted Clinical Standards Review (CHSC § 1374.32(b))**
+*   **Protocol:** Evaluate the clinical presentation against external clinical standards (**AANS/CNS 2023 Guidelines**, **AO Spine 2021 Guidelines**, and **NASS 2020 Guidelines**) to determine if the patient presents with a "Tier 1 — Strong Surgical Indication" that supersedes plan criteria under **CHSC § 1374.32(b)**.
+*   **Clinical Standards Analysis:**
+    *   **AANS/CNS 2023 Guidelines:** Surgical decompression is a Tier 1 (Strong) recommendation for patients presenting with *moderate-to-severe* cervical myelopathy (typically defined as mJOA < 15) or patients with *progressive* neurological deficits or *myelomalacia* on MRI. For *mild, stable* cervical myelopathy (mJOA 15–17), conservative management with close clinical monitoring is a highly supported and widely accepted Tier 2 pathway.
+    *   **AO Spine 2021 Clinical Practice Guidelines:** Recommend surgical intervention as the primary treatment for moderate-to-severe myelopathy. However, for patients with mild degenerative cervical myelopathy (mJOA score 15–17) who are stable and without objective myelomalacia, AO Spine recommends initial conservative management or structured clinical observation, as these patients often remain stable for extended periods without progressive deficit.
+    *   **Clinical Findings Alignment:** 
+        *   The patient's mJOA score is **15/18**, placing him squarely in the "mild myelopathy" category.
+        *   Symptom duration is **6 months and documented as stable**.
+        *   Tandem gait is fully intact, hand grip is functional (4+/5), and ADLs are fully preserved and independent.
+        *   There is **no myelomalacia** on MRI.
+        *   While Dr. Kwame Osei’s letter of November 1, 2024, asserts "surgical urgency," this subjective declaration is directly contradicted by the objective clinical findings in his own notes (stable symptoms, intact gait, mild hyperreflexia, normal ADLs) and the objective radiologist report (no T2 signal change, no myelomalacia).
+*   **Conclusion:** The clinical presentation represents stable, mild cervical myelopathy without spinal cord parenchymal injury (no myelomalacia). Under generally accepted clinical standards (AANS/CNS 2023, AO Spine 2021, NASS 2020), this presentation does not meet the criteria for immediate surgical decompression (Tier 1). Structured conservative therapy is clinically appropriate and represents the standard of care. Because the clinical presentation does not meet Tier 1 standards, generally accepted guidelines do not override the plan’s conservative treatment requirements.
 
 ---
 
-## SECTION V: APPEAL RESOLUTION & NEXT STEPS
+### **SUMMARY OF PRINCIPLE FINDINGS & ANALYSIS**
 
-### ORDER
-The initial determination by HealthFirst to deny prior authorization for CPT code 22551 (ACDF C5-C6) is **UPHELD**.
+| Evaluation Level | Authority / Source | Standard Requirement | Member Clinical Status | Compliance |
+| :--- | :--- | :--- | :--- | :--- |
+| **Procedural Adequacy** | California CHSC § 1374.31(b) | Clear clinical criteria & specific reasons in denial notice. | Denial notice specified PT, pharmacotherapy, and interventional deficiencies. | **Compliant** |
+| **State Statutory Override** | CIC § 10169.5 & DMHC APL 22-014 | PT/conservative therapy waived if objective myelomalacia or progressive injury present. | No T2 signal change; no myelomalacia; stable symptoms for 6 months. | **No Override Triggered** |
+| **Plan Internal Criteria** | CC-SPINE-2024 Section 2.2(A) | Myelopathy Exception: 4 weeks PT, 2 drug trials, interventional waived with documented risk. | 3 weeks PT; 1 drug trial (Baclofen); no documented procedural risk. | **Non-Compliant** |
+| **Clinical Standards** | AANS/CNS 2023 / AO Spine 2021 | Immediate surgery (Tier 1) for moderate-severe or progressive myelopathy/myelomalacia. | Mild myelopathy (mJOA 15), stable, no myelomalacia, gait intact. | **No Override Triggered** (Conservative care indicated) |
 
-### RECOMMENDED CLINICAL PATHWAY TO AUTHORIZATION
-To satisfy medical necessity requirements for future authorization, the following clinical steps are recommended:
-1.  **Complete Physical Therapy:** Complete at least one additional week of supervised physical therapy to satisfy the 4-week minimum requirement under the CC-SPINE-2024 § 2.2A exception, OR provide documentation from the physical therapist confirming that the member has reached a "functional plateau" (less than 10% improvement over three sessions).
-2.  **Trial a Second Pharmacological Agent:** Initiate and document a 4-week trial of a second therapeutic agent (such as an NSAID/COX-2 inhibitor, a neuropathic agent like gabapentin/pregabalin, or a short course of oral corticosteroids) to address spasticity or associated cervical symptoms, in addition to the Baclofen.
-3.  **Clinical Monitoring:** If the member exhibits any new, objective neurological deficits (e.g., gait instability, clumsy hands, or progressive muscle weakness) or if a repeat MRI demonstrates new T2-weighted cord signal changes (myelomalacia), the clinical classification will shift from "mild/stable" to "progressive/severe." In that event, an immediate surgical authorization would be mandated under **DMHC APL 22-014**, waiving all conservative therapy requirements.
+There is no conflict of authority in this case. California statutory overrides and generally accepted clinical standards both reserve mandatory conservative therapy waivers for cases involving objective structural injury (myelomalacia), progressive neurological deterioration, or moderate-to-severe functional impairment. Because Mr. Achebe's condition is clinically mild and stable, and lacks imaging signs of cord injury, the standard conservative treatment requirements outlined in **HealthFirst CC-SPINE-2024 Section 2.2(A)** are medically appropriate, clinically sound, and legally enforceable.
 
-### CONSUMER NOTICE OF RIGHTS
-If you disagree with this appeal determination, you have the right to submit an application for an **Independent Medical Review (IMR)** to the California Department of Managed Health Care (DMHC). The DMHC's toll-free telephone number is **1-888-466-2219**, and their website is **www.dmhc.ca.gov**. There is no fee to apply for an IMR.
+The member must complete the remaining requirements of the modified Myelopathy Pathway—specifically completing at least one additional week of physical therapy (to reach the 4-week threshold) and trialing a second pharmacotherapy agent (such as an NSAID, gabapentinoid, or muscle relaxant) for 4 weeks—or demonstrate objective evidence of clinical/radiographical progression before surgical prior authorization can be approved.
 
----
-**Reviewer Signature:**  
-*California Health Plan Appeals Specialist Panel*  
-*Date of Determination: November 10, 2024*
+The initial denial of coverage for CPT 22551 is **UPHELD**.

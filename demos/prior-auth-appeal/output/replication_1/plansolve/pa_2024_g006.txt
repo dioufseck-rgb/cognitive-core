@@ -3,139 +3,146 @@ SYSTEM: PLANSOLVE
 DISPOSITION: OVERTURN
 GT: OVERTURN
 CORRECT: True
-ELAPSED: 57.5s
+ELAPSED: 56.6s
 ========================================================================
 
-# HEALTH INSURANCE APPEALS SECTION
-**State of California — Department of Managed Health Care / Department of Insurance**  
-**Independent Medical Review & Appeal Division**
+# PRIOR AUTHORIZATION APPEAL DETERMINATION
+
+**Date:** November 26, 2024  
+**Case ID:** PA-2024-G006  
+**Member:** Theresa Kamau  
+**Age:** 52  
+**Plan:** HealthFirst PPO Gold — Group Plan 77441  
+**Governing State:** California (2024 Plan Year)  
+**Coverage Effective Date:** April 1, 2017  
+**Requested Procedure:** Anterior Cervical Discectomy and Fusion (ACDF) C5-C6, One Level (CPT 22551)  
+**Requesting Surgeon:** Dr. Victor Osei, MD — Spine Surgery  
+**Facility:** UCSF Medical Center  
+**Initial Denial Date:** November 20, 2024  
+**Initial Reviewer:** Dr. Alan Foster, MD — HealthFirst Utilization Management  
 
 ---
 
-### FORMAL APPEAL DETERMINATION
+## FINAL DETERMINATION: OVERTURN IN FULL (APPROVE THE REQUEST)
 
-* **Case ID:** PA-2024-G006  
-* **Member:** Theresa Kamau (Age 52)  
-* **Health Plan:** HealthFirst PPO Gold — Group Plan 77441 (Coverage Effective: 2017-04-01)  
-* **Jurisdiction:** State of California  
-* **Requested Procedure:** CPT 22551 — Anterior Cervical Discectomy and Fusion (ACDF) C5-C6, Single-Level  
-* **Requesting Physician:** Dr. Victor Osei, MD — Spine Surgery  
-* **Surgical Facility:** UCSF Medical Center  
-* **Initial Denial Date:** November 20, 2024  
-* **Initial Denial Reviewer:** Dr. Alan Foster, MD — HealthFirst Utilization Management  
-* **Review Level:** First-Level Post-Service/Pre-Service Appeal  
+The initial denial of coverage for a single-level Anterior Cervical Discectomy and Fusion (ACDF) at C5-C6 (CPT 22551) is **OVERTURNED IN FULL**. HealthFirst Health Plan shall immediately authorize and cover the requested surgical procedure.
 
 ---
 
-### I. FINAL DISPOSITION
-**OVERTURN:** The Health Plan’s initial decision to deny prior authorization for a single-level Anterior Cervical Discectomy and Fusion (ACDF) at C5-C6 (CPT 22551) is **REVERSED** in its entirety. The requested surgical procedure is **APPROVED** as medically necessary. HealthFirst is hereby directed to issue an immediate prior authorization for the procedure to be performed at UCSF Medical Center by Dr. Victor Osei, MD.
+## EXPLAINED EVIDENCE & CLINICAL ANALYSIS
 
----
-
-### II. EXECUTIVE SUMMARY
-On November 20, 2024, HealthFirst Utilization Management denied prior authorization for a single-level ACDF (C5-C6) for Theresa Kamau. The sole basis of the plan’s denial (Reason Code: MED-003) was the member's prior authorization history—specifically, the denial of a three-level cervical fusion in May 2024—asserting that the member's clinical status had not "materially changed" to warrant reconsideration. 
-
-Upon comprehensive clinical and regulatory review, this determination is **overturned** on two independent grounds:
-1. **Procedural Defect (CHSC § 1374.31(b)):** The plan’s initial denial notice is procedurally and legally defective under California law. It failed to evaluate the current clinical request against active clinical coverage criteria, relying instead on an unauthorized, extra-contractual "prior PA history" exclusion.
-2. **Clinical and Statutory Compliance (CIC § 10169.5 & CC-SPINE-2024):** The clinical record demonstrates that the member has a primary diagnosis of progressive C5-C6 cervical radiculopathy with objective, worsening neurological deficits (3+/5 motor weakness, absent bicep reflex) and matching current MRI pathology. The member has fully exhausted all conservative treatment requirements—including physical therapy, pharmacotherapy, and an interventional epidural steroid injection—and has documented a formal functional plateau. The request satisfies all requirements of the plan's internal medical policy (CC-SPINE-2024) and meets the clinical standard under California Insurance Code § 10169.5.
-
----
-
-### III. CLINICAL HISTORY AND CURRENT MEDICAL STATUS
-Theresa Kamau is a 52-year-old female with a history of progressive, severe cervical radiculopathy localized to the right C6 distribution. 
-
-* **Clinical Presentation & Neurological Exam (2024-10-20):** 
-  * Right C6 dermatomal numbness and paresthesia.
-  * Absent right bicep reflex (0/4), representing an objective reflex deficit.
-  * Right bicep motor weakness graded at **3+/5** (active movement against gravity, but unable to resist resistance), demonstrating progressive and clinically significant focal motor weakness (worsened from prior baseline).
-  * Severe pain rated at **8/10 at rest**, causing significant functional impairment and rendering the patient unable to continue working full-time.
-* **Imaging Findings (Current MRI — 2024-10-15):** 
-  * Demonstrates a **large disc herniation at C5-C6** causing moderate-to-severe right C6 nerve root compression.
-  * Reveals an **interval increase in herniation size** compared to the historical MRI dated April 20, 2024 (which showed only a moderate herniation).
-  * Documents **new foraminal stenosis** at the C5-C6 level.
-  * Adjacent segments (C4-C5 and C6-C7) exhibit only mild, stable degenerative changes without significant compression.
-* **Conservative Treatment History (Post-May 2024):**
-  * **Physical Therapy:** Completed a new, dedicated 8-week course of supervised physical therapy (24 total sessions) from July to September 2024. The treating therapist explicitly documented a **functional plateau**: *"no further improvement expected, neurological deficit persistent and worsening."*
-  * **Pharmacotherapy:** Trialed Gabapentin 600mg three times daily (TID) for 6 consecutive months (partial pain relief only; motor/sensory deficit persists). Completed two courses of oral Methylprednisolone dose packs (temporary relief only).
-  * **Interventional Treatment:** Underwent a targeted right C6 selective epidural steroid injection on November 5, 2024. The procedure provided 50% temporary relief for 2 weeks, after which the patient's pain and neurological deficits returned to baseline.
-
----
-
-### IV. HIERARCHY OF AUTHORITY & STATUTORY ANALYSIS
-
-Where conflicts exist, California law and generally accepted standards of medical practice supersede a health plan’s internal policies (CHSC § 1374.32(b)).
+This evaluation has been conducted in accordance with the governing hierarchy of authority: **California State Law & DMHC Regulations > Generally Accepted Clinical Standards > Plan Coverage Criteria**.
 
 ```
-                  [ HIERARCHY OF AUTHORITY ]
-                              |
-       +----------------------+----------------------+
-       |                                             |
-       v                                             v
-[ California State Law ]                   [ Clinical Standards ]
-(CIC § 10169.5 / CHSC § 1374.31)           (AANS/CNS & NASS Guidelines)
-       |                                             |
-       +----------------------+----------------------+
-                              | Supersedes
-                              v
-                [ Plan Coverage Criteria ]
-                  (CC-SPINE-2024 Policy)
+                   [STEP 1: PROCEDURAL ADEQUACY CHECK]
+                                  │
+                  Is the denial notice defective? (Yes)
+                     (Relies on "denial history")
+                                  │
+                     [CHECK CLINICAL SAFETY]
+             Does record show safety risk? (No, safe)
+                                  │
+                              OVERTURN
 ```
 
-#### 1. Procedural Adequacy and Denial Notice Validity (CHSC § 1374.31(b))
-Under **California Health & Safety Code (CHSC) § 1374.31(b)**, any medical necessity denial notice issued by a health plan must specify the clinical criteria applied and provide a specific, patient-centric clinical reason for the denial. 
+### Step 1: Procedural Adequacy and Defect Check (CHSC § 1374.31(b))
+Under California Health & Safety Code (CHSC) § 1374.31(b), a health plan's medical necessity denial is legally defective if it fails to specify the actual clinical coverage criteria applied or the specific clinical reasons for the denial. 
 
-* **Evaluation:** The plan’s denial notice dated November 20, 2024, failed to cite or apply any clinical criteria from CC-SPINE-2024. Instead, the plan denied the single-level ACDF request because a *different* procedure (a three-level fusion) was denied six months prior in May 2024. 
-* **Ruling:** "Prior PA history" is not a recognized clinical criterion under CC-SPINE-2024, nor is it a legally permissible basis to deny medical care under California law. Furthermore, the plan’s clinical assertion that the patient's pathology has not changed is flatly contradicted by objective imaging and exam findings. The denial notice is **legally defective** and treated as if no denial was issued for purposes of statutory compliance.
+The initial denial issued on November 20, 2024, by Dr. Alan Foster, MD, is **procedurally defective**. 
+* The denial notice cited **no clinical criteria** from the plan’s governing document (`CC-SPINE-2024`).
+* The denial was based entirely on the member's "prior authorization denial history" (specifically, a denial in May 2024 for a three-level fusion).
+* The reviewer asserted without clinical evidence that the "member's cervical pathology has not materially changed since the prior denial."
 
-#### 2. Statutory Physical Therapy Override (CIC § 10169.5)
-Under **California Insurance Code (CIC) § 10169.5(a)(2)**, a health insurer shall not condition approval of a surgical procedure on the completion of physical therapy if:
-> *"The member has completed a course of physical therapy and the treating physician documents that the member reached a functional plateau without adequate resolution of symptoms."*
+"Prior denial history" is **not a valid clinical criterion** under `CC-SPINE-2024` or California law. Furthermore, the prior denial was for a clinically distinct, multi-level procedure (three-level fusion), whereas the current request is for a single-level C5-C6 ACDF. Because the plan failed to issue a procedurally sound, criteria-based denial, the notice is legally defective. 
 
-* **Evaluation:** The member completed 8 weeks (24 sessions) of physical therapy ending September 2024. A functional plateau was explicitly documented by the therapist and physician, showing worsening motor weakness (3+/5) and persistent severe pain.
-* **Ruling:** The plan's mechanic application of a prior denial to block surgical authorization violates **CIC § 10169.5**. The completed PT course and documented functional plateau legally exhaust any physical therapy prerequisites.
+A review of the clinical record reveals no clinical safety risks that would warrant a remand. Therefore, the defect directs this review toward an **Overturn**, subject to the validation of standard clinical criteria and safety parameters below.
+
+### Step 2: Diagnostic Classification (Myelopathy vs. Radiculopathy)
+To establish the correct clinical and regulatory pathway, the member’s clinical signs must be accurately classified:
+* **Myelopathy** requires spinal cord compression on MRI, upper motor neuron (UMN) signs (e.g., hyperreflexia, positive Hoffman's sign, clonus), bilateral symptoms, or gait disturbances.
+* **Radiculopathy** is characterized by unilateral dermatomal pain, numbness, or motor weakness corresponding to a compressed nerve root, without UMN signs.
+
+**Clinical Classification:** The member is diagnosed with **progressive, persistent Cervical Radiculopathy at the right C5-C6 level**. 
+* **Physical Exam (Oct 20, 2024):** Demonstrates objective, unilateral lower motor neuron signs, including right C6 dermatomal numbness, an absent right bicep reflex, and significant right bicep motor weakness graded at **3+/5** (representing an interval worsening from prior exams).
+* **Subjective Symptoms:** Severe, debilitating pain (8/10 at rest), rendering the member unable to continue full-time employment.
+* **Myelopathy Check:** No UMN signs (normal gait, no Hoffman's sign, no clonus, and unilateral rather than bilateral symptoms) are documented. 
+
+Because the primary diagnosis is cervical radiculopathy, the request must be evaluated against the standard conservative care requirements of `CC-SPINE-2024 Section 2.2`.
+
+### Step 3: Imaging Evaluation for Structural Neurological Compromise
+The member’s imaging records were evaluated to confirm matching structural pathology and assess any acute neurological risks:
+* **Prior MRI (April 20, 2024):** Demonstrated a moderate C5-C6 disc herniation, with mild changes at C4-C5 and C6-C7.
+* **Current MRI (October 15, 2024):** Demonstrates a **large C5-C6 disc herniation** with **moderate-to-severe right C6 nerve root compression** and **new foraminal stenosis** at C5-C6. This represents a documented **interval increase in size** and pathology from the April 2024 imaging.
+* **Cord Pathology:** No objective spinal cord compression, cord signal changes, or myelomalacia are present. 
+
+The imaging is highly concordant with the member's clinical presentation (right-sided C6 numbness, absent right bicep reflex, and 3+/5 right bicep weakness). It confirms severe, progressive structural neurological compromise of the right C6 nerve root.
+
+### Step 4: Plan Criteria Compliance Analysis (HealthFirst CC-SPINE-2024)
+Despite the initial reviewer's assertion that the clinical status has not changed, a detailed audit of the medical record demonstrates that the member **fully satisfies all clinical coverage criteria** under `CC-SPINE-2024 Section 2`:
+
+1. **Diagnosis & Imaging Alignment (Section 2.1 & 2.3):** The member has a confirmed diagnosis of cervical radiculopathy supported by a current MRI (October 15, 2024 — within the 6-month requirement) demonstrating a large C5-C6 disc herniation with severe nerve root compression matching the clinical deficits. *(Criteria Met)*
+2. **Physical Therapy (Section 2.2(a)):** The plan requires a minimum of 6 weeks of supervised physical therapy. The member completed a **new, separate 8-week physical therapy course (24 sessions) from July to September 2024**. The physical therapist explicitly documented a **functional plateau**: *"no further improvement expected, neurological deficit persistent and worsening."* *(Criteria Met & Exceeded)*
+3. **Pharmacotherapy (Section 2.2(b)):** The plan requires a trial of at least two covered agents for a minimum of 4 weeks each. The member completed:
+   * **Gabapentin 600mg TID** for 6 months (neuropathic agent; partial pain relief, motor deficit persists).
+   * **Methylprednisolone dose pack** (oral corticosteroid; 2 full courses completed, providing temporary relief only). *(Criteria Met)*
+4. **Interventional Treatment (Section 2.2(c)):** The plan requires at least one interventional treatment. The member underwent a **right C6 epidural steroid injection on November 5, 2024**, which provided 50% temporary relief for 2 weeks before symptoms returned to baseline. *(Criteria Met)*
+5. **Physician Documentation (Section 2.4):** Dr. Victor Osei, MD, provided a comprehensive clinical rationale, detailed the member's progressive motor deficit (worsening to 3+/5 weakness), documented significant functional impairment (inability to work full-time), and outlined surgical risks and alternatives. *(Criteria Met)*
+
+The member met **100% of the plan's medical necessity criteria** independently of her prior authorization history.
+
+### Step 5: California Regulatory and Statutory Override Analysis
+California law strictly prohibits health plans from applying conservative treatment criteria in a mechanical or arbitrary manner when clinical indicators dictate otherwise:
+
+1. **CIC § 10169.5 (Physical Therapy Prerequisites):** Under subdivision (a)(2), a health plan cannot condition surgical approval on the completion of further physical therapy if the member has completed a course and reached a documented **functional plateau**. The clinical record explicitly notes a functional plateau reached in September 2024.
+2. **CIC § 10169.5(a)(3):** Insurers cannot mandate conservative physical therapy when there is "objective evidence of structural neurological compromise that physical therapy cannot address." A large, worsening disc herniation causing progressive motor weakness (3+/5 bicep strength) and an absent reflex constitutes severe structural compromise that physical therapy cannot mechanically resolve.
+3. **DMHC All-Plan Letter (APL) 22-014:** Plans are prohibited from enforcing rigid conservative therapy timelines when serial imaging demonstrates **progressive pathology** and the treating physician documents a failure of conservative measures to arrest neurological decline. The interval progression from a "moderate" herniation in April 2024 to a "large" herniation with severe compression in October 2024, coupled with worsening motor weakness, invalidates any plan-level basis for delaying surgical decompression.
+
+Applying the governing hierarchy, California statutory protections (CIC § 10169.5 and DMHC APL 22-014) override any internal plan rules that would delay surgical intervention for this clinically progressive condition.
+
+### Step 6: Clinical Standard Evaluation (AANS/CNS 2023 & NASS 2020)
+Under California Health & Safety Code **CHSC § 1374.32(b)**, the standard of review for medical necessity is based on generally accepted clinical standards of medical practice, which override more restrictive or incorrectly applied plan criteria.
+
+According to the **Joint Section of the AANS/CNS Guidelines (2023)** and the **North American Spine Society (NASS) Guidelines (2020)**:
+* Decompressive surgery (ACDF C5-C6) is a **Tier 1 / Strong Indication** for patients presenting with cervical radiculopathy who demonstrate a **progressive neurological deficit** (such as worsening motor weakness to 3+/5 and loss of deep tendon reflexes) and correlate structurally on MRI.
+* Delaying surgical decompression in the presence of an active, progressive motor deficit is strongly contraindicated, as prolonged nerve root compression significantly increases the risk of permanent, irreversible motor loss and chronic neuropathic dysfunction. 
+* The clinical standard of care dictates immediate surgical decompression once conservative measures (such as the member's completed 8-week physical therapy course, dual-agent pharmacotherapy, and epidural injection) have failed to stabilize or improve the motor deficit.
+
+### Step 7: Source Conflict Resolution & Final Synthesis
+The initial reviewer’s decision to deny the request based on "prior denial history" and a perceived "lack of change" is clinically and procedurally invalid. 
+
+```
+                                [GOVERNING HIERARCHY]
+             California Law & Clinical Standards > Plan internal criteria
+
+   - CHSC § 1374.31(b): Initial denial is defective (no criteria cited, invalid basis).
+   - CC-SPINE-2024: Member fully meets 100% of standard radiculopathy criteria.
+   - CIC § 10169.5 & DMHC APL 22-014: Mechanical PT requirements are legally overridden by 
+     documented functional plateau and progressive motor deficit.
+   - AANS/CNS Standards: Worsening motor weakness (3+/5) is a strong clinical indication 
+     for surgical decompression; delay risks permanent neurological damage.
+```
+
+The clinical evidence demonstrates a clear, objective progression of disease from May 2024 to October 2024:
+1. **Imaging progression:** The herniation grew from "moderate" to "large" with moderate-severe nerve root compression and new foraminal stenosis.
+2. **Clinical exam progression:** The member developed a severe motor deficit (3+/5 right bicep weakness) and lost her right bicep reflex.
+3. **Conservative care exhaustion:** The member completed an intensive, new 8-week course of PT, failed multiple target medications, and experienced only short-lived temporary relief from a targeted epidural steroid injection.
+
+To delay surgery under these circumstances violates California law, contradicts the plan's own clinical guidelines, and directly violates generally accepted clinical standards.
+
+The denial of coverage for ACDF C5-C6 (CPT 22551) is **OVERTURNED**. The procedure is medically necessary and must be authorized immediately.
 
 ---
 
-### V. CLINICAL MEDICAL NECESSITY AND PLAN CRITERIA EVALUATION
+## DECISION SUMMARY TABLE
 
-#### 1. Diagnostic Classification (Radiculopathy vs. Myelopathy)
-* **Finding:** The clinical record and current MRI confirm a primary diagnostic classification of **severe, progressive C5-C6 cervical radiculopathy** with objective focal neurological deficits (bicep motor weakness and reflex loss). No cervical myelopathy or spinal cord signal changes (myelomalacia) are present. Therefore, this request is evaluated under the standard radiculopathy pathway of **CC-SPINE-2024 Section 2.2**.
-
-#### 2. Compliance with HealthFirst Coverage Criteria (CC-SPINE-2024)
-Despite the plan's procedural failure to review the clinical merits, an independent clinical evaluation demonstrates that Theresa Kamau meets **100% of the medical necessity criteria** outlined in Section 2 of HealthFirst’s own policy:
-
-| Policy Section | Requirement | Patient Clinical Profile | Status |
+| Evaluation Dimension | Finding | Source Reference | Status |
 | :--- | :--- | :--- | :--- |
-| **Section 2.1** | Confirmed diagnosis of cervical radiculopathy with objective neurological deficit and matching MRI. | Cervical radiculopathy C5-C6; right C6 dermatomal numbness; 3+/5 bicep weakness; absent right bicep reflex. | **MET** |
-| **Section 2.2(a)**| Minimum 6 weeks of supervised physical therapy with documented outcomes. | Completed **8 weeks (24 sessions)** of PT (July-Sept 2024) with documented functional plateau. | **MET** |
-| **Section 2.2(b)**| Trial of at least two pharmacotherapy agents for $\ge$ 4 weeks each (NSAIDs, Neuropathics, Steroids). | Completed Gabapentin 600mg TID for **6 months** AND **two courses** of Methylprednisolone. | **MET** |
-| **Section 2.2(c)**| Minimum of one interventional treatment (epidural steroid injection, block, etc.). | Completed targeted right C6 selective epidural steroid injection on **Nov 5, 2024** (temporary relief). | **MET** |
-| **Section 2.3** | Current imaging ($\le$ 6 months) demonstrating matching pathology at the proposed surgical level. | MRI dated **Oct 15, 2024** shows large C5-C6 disc herniation with severe right C6 root compression. | **MET** |
-| **Section 2.4** | Treating physician documentation of surgical risks, conservative failure, and functional limits. | Attestation and clinical records fully provided by Dr. Victor Osei, MD (UCSF). | **MET** |
-
----
-
-### VI. EVIDENCE-BASED CLINICAL STANDARDS ANALYSIS
-
-Under **CHSC § 1374.32(b)**, the standard of review requires alignment with generally accepted standards of medical practice, which supersede restrictive internal plan interpretations.
-
-1. **North American Spine Society (NASS) Guidelines (2020):** Recommend surgical decompression (ACDF) for patients with cervical radiculopathy who present with objective neurological deficits (motor weakness, reflex changes) and matching imaging pathology who have failed a structured course of conservative management.
-2. **Joint AANS/CNS Guidelines (2023):** State that progressive focal motor deficits (such as 3+/5 bicep weakness) in the presence of matching, progressive structural nerve root compression represent a **Tier 1 / Tier 2 Surgical Indication**. Delaying surgical decompression in patients with progressive motor weakness and a documented functional plateau on conservative care is clinically contraindicated due to the increased risk of permanent, irreversible motor axonal loss.
-
-The medical record clearly indicates that the size of the C5-C6 herniation has increased, the nerve root compression has worsened, and the corresponding motor deficit has deteriorated from a mild impairment to a significant 3+/5 weakness. Initiating further conservative measures or upholding a denial based on a historical, unrelated 3-level request is a direct violation of clinical standards.
-
----
-
-### VII. DECISION AND DIRECTIVE
-
-Based on the statutory mandates of the State of California, the clinical criteria of HealthFirst (CC-SPINE-2024), and evidence-based spine surgery guidelines, the denial is **OVERTURNED**.
-
-**The Health Plan is ordered to:**
-1. Approve the single-level Anterior Cervical Discectomy and Fusion (ACDF) at C5-C6 (CPT code 22551).
-2. Issue the formal authorization letter to Dr. Victor Osei, MD, and UCSF Medical Center within **48 hours** of receipt of this determination.
-3. Confirm compliance with this directive to the Department of Managed Health Care/Department of Insurance.
-
-**Reviewer Certification:**  
-*Board-Certified Orthopaedic Spine Surgeon*  
-*Medical Appeals Reviewer, State of California Independent Medical Review Program*  
-**Date of Decision:** November 24, 2024
+| **Procedural Adequacy** | Defective; cited no plan criteria; relied on invalid "denial history" basis. | CHSC § 1374.31(b) | **FAIL (Plan)** |
+| **Diagnostic Classification** | Progressive C5-C6 Radiculopathy with active motor deficit (3+/5 weakness). | Clinical Record / Exam | **Confirmed** |
+| **Imaging Match** | Large C5-C6 disc herniation with severe C6 root compression (interval increase). | MRI (Oct 15, 2024) | **Confirmed** |
+| **Physical Therapy** | Completed new 8-week course (24 sessions); documented functional plateau. | CC-SPINE-2024 § 2.2(a) | **MET** |
+| **Pharmacotherapy** | Completed Gabapentin (6 mos) & 2 Methylprednisolone courses. | CC-SPINE-2024 § 2.2(b) | **MET** |
+| **Interventional Therapy** | Completed Right C6 Epidural Steroid Injection (Nov 5, 2024). | CC-SPINE-2024 § 2.2(c) | **MET** |
+| **Statutory Compliance** | Plan cannot mandate PT/delay surgery due to documented plateau & progressive deficit. | CIC § 10169.5 / DMHC APL 22-014 | **MET** |
+| **Clinical Standards** | Tier 1 Strong Indication; delay risks permanent motor impairment. | AANS/CNS 2023 / NASS 2020 | **MET** |
+| **FINAL DETERMINATION** | **The initial denial is reversed. The requested ACDF is approved.** | **Hierarchy of Authority** | **OVERTURN** |

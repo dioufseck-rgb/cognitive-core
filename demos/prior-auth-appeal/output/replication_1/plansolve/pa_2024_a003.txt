@@ -3,150 +3,111 @@ SYSTEM: PLANSOLVE
 DISPOSITION: OVERTURN
 GT: OVERTURN
 CORRECT: True
-ELAPSED: 40.3s
+ELAPSED: 58.7s
 ========================================================================
 
-# HEALTH INSURANCE APPEALS & GRIEVANCES DIVISION
-**FORMAL APPEAL DETERMINATION**
+# PRIOR AUTHORIZATION APPEAL DETERMINATION
 
-* **Case ID:** PA-2024-A003
-* **Member:** Patricia Osei (ID: M-334455)
-* **Age:** 55
-* **Plan:** HealthFirst PPO Gold — Group Plan 77441
-* **State of Residence:** California
-* **Plan Year:** 2024
-* **Coverage Effective Date:** March 1, 2021
-* **Requested Procedure:** CPT 22551 — Anterior Cervical Discectomy and Fusion (ACDF), C4-C5, Single Level
-* **Requesting Physician:** Dr. Michael Torres, MD — Department of Neurosurgery
-* **Facility:** Cedars-Sinai Medical Center, Los Angeles, CA
-* **Original Denial Date:** October 15, 2024
-* **Denial Reviewer:** Dr. Alan Foster, MD (Initial Review)
-* **Denial Reason Code:** MED-003 (Failure to complete required conservative treatment)
-* **Appeal Review Date:** October 28, 2024
+**Date of Determination:** October 28, 2024  
+**Case ID:** PA-2024-A003  
+**Member Name:** Patricia Osei  
+**Member ID:** M-334455  
+**Plan:** HealthFirst PPO Gold — Group Plan 77441  
+**State of Residence:** California  
+**Coverage Year:** 2024  
+**Proposed Procedure:** Anterior Cervical Discectomy and Fusion (ACDF) C4-C5, one level (CPT 22551)  
+**Requesting Physician:** Dr. Michael Torres, MD — Neurosurgery (Cedars-Sinai Medical Center)  
+**Initial Denial Date:** October 15, 2024  
+**Initial Reviewer:** Dr. Alan Foster, MD  
 
 ---
 
 ## I. FINAL DISPOSITION
-**DECISION:** **OVERTURN THE DENIAL IN FULL**
-
-The prior authorization denial issued on October 15, 2024, by HealthFirst Health Plan is **OVERTURNED**. 
-
-The requested surgical procedure—**CPT 22551 (ACDF C4-C5, one level)** at Cedars-Sinai Medical Center—is determined to be **medically necessary** and is hereby **approved for immediate authorization**. 
-
-The plan’s initial determination mechanically applied conservative therapy rules meant for cervical radiculopathy to a patient with severe, progressive cervical myelopathy and myelomalacia. Under California law, established clinical guidelines, and the plan's own internal myelopathy exceptions, requiring further conservative treatment is clinically contraindicated, legally impermissible, and represents a severe category error.
+**DECISION:** **OVERTURN IN FULL** (The initial denial of authorization for CPT 22551 is reversed. The proposed procedure is approved as medically necessary, effective immediately.)
 
 ---
 
-## II. CLINICAL & PROCEDURAL TIMELINE
+## II. EXECUTIVE SUMMARY
+This administrative and clinical review concerns the appeal of a prior authorization denial for a single-level Anterior Cervical Discectomy and Fusion (ACDF) at C4-C5 (CPT 22551). The initial denial, dated October 15, 2024, cited the member's failure to complete the plan's standard conservative treatment requirements under policy CC-SPINE-2024, Section 2.2 (specifically citing 5 of 6 weeks of physical therapy completed and the absence of a cervical epidural steroid injection). 
 
-* **2019:** Patient underwent permanent pacemaker implantation (Boston Scientific) due to cardiac conduction deficits.
-* **March 1, 2021:** HealthFirst PPO Gold plan coverage became effective.
-* **May – August 2024:** Patient experienced progressive neurological deficits, including hand clumsiness, gait instability, and bilateral lower extremity spasticity.
-* **August 20, 2024:** Cervical spine MRI performed using a specialized pacemaker-compatible safety protocol. Imaging revealed severe central spinal cord compression at C4-C5 and confirmed T2-weighted signal changes consistent with **myelomalacia** (active cord injury).
-* **August 25, 2024:** Neurosurgical clinical evaluation by Dr. Michael Torres, MD. Neurological exam demonstrated objective upper motor neuron (UMN) signs: bilateral lower extremity spasticity, hyperreflexia, impaired fine motor skills bilaterally, and a positive Lhermitte sign.
-* **August – September 2024:** Member completed 5 weeks of supervised physical therapy (15 sessions). Therapy was terminated by Dr. Torres due to pacemaker safety limitations on select therapeutic modalities and a clinical determination that PT was failing to halt rapid neurological decline.
-* **September 10, 2024:** Clinical consultation with Anesthesiology (Dr. Rivera). Fluoroscopy-guided cervical epidural steroid injection was formally contraindicated due to the permanent pacemaker, cardiac risk profile, and potential positioning hazards in the presence of severe cord compression.
-* **October 15, 2024:** HealthFirst issued an initial denial (Dr. Alan Foster, MD) citing failure to complete 6 weeks of physical therapy and failure to obtain a cervical epidural steroid injection under Plan Criteria Section 2.2.
-* **October 18, 2024:** Neurosurgery division at Cedars-Sinai submitted this expedited first-level appeal.
+Upon independent review of the complete clinical and regulatory record, this denial must be **OVERTURNED**. The member has documented progressive cervical myelopathy with severe spinal cord compression and confirmed **myelomalacia** (T2-weighted cord signal change) at C4-C5, accompanied by severe, objective upper motor neuron signs. 
+
+Under **California Insurance Code (CIC) § 10169.5** and **Department of Managed Health Care (DMHC) All-Plan Letter (APL) 22-014**, a health plan is legally prohibited from mandating conservative treatment (such as physical therapy or interventional injections) when objective imaging demonstrates structural neurological compromise (myelomalacia) or where such therapies are clinically contraindicated. Furthermore, generally accepted clinical standards of medical practice (**AANS/CNS 2023** and **AO Spine 2021** guidelines) establish that moderate-to-severe cervical myelopathy with myelomalacia is a **Tier 1 strong surgical indication** for which delaying surgery for conservative therapy is medically contraindicated and poses a severe risk of permanent neurological deficit. 
 
 ---
 
-## III. STEP-BY-STEP EVALUATION FINDINGS
+## III. GOVERNING HIERARCHY OF AUTHORITY
+In accordance with standard utilization review regulations, conflicts between clinical and regulatory sources are resolved utilizing the following mandatory hierarchy:
+1. **California State Law & Regulations** (CIC § 10169.5, CHSC § 1374.32(b), and DMHC APL 22-014) — *Highest Authority*
+2. **Generally Accepted Clinical Standards of Medical Practice** (AANS/CNS 2023 Guidelines, AO Spine 2021 Guidelines) — *Intermediate Authority*
+3. **HealthFirst Clinical Coverage Criteria** (CC-SPINE-2024) — *Lowest Authority*
 
-### Step 1: Procedural Adequacy & Disclosure Check (CHSC § 1374.31(b))
-* **Objective:** Verify if the initial denial notice meets state procedural disclosure standards.
-* **Finding:** **Positive Finding.** The denial notice dated October 15, 2024, specified the applied clinical criteria document (CC-SPINE-2024 Section 2.2), articulated the clinical rationale (5 weeks PT instead of 6; lack of epidural steroid injection), and included standard California IMR notification language. The notice is procedurally adequate. *Proceed to Step 2.*
-
-### Step 2: Diagnostic Classification (Myelopathy vs. Radiculopathy)
-* **Objective:** Review medical records to classify the primary spinal pathology.
-* **Finding:** **Positive Finding (Cervical Myelopathy).** 
-  * Clinical findings on August 25, 2024, show profound upper motor neuron (UMN) signs: positive Lhermitte sign, hyperreflexia, spastic gait, and loss of fine motor coordination.
-  * Imaging findings (MRI, August 20, 2024) demonstrate severe central spinal cord compression and **myelomalacia** (T2 signal hyperintensity) at C4-C5.
-  * *Conclusion:* The member’s primary diagnosis is **Progressive Cervical Myelopathy with Myelomalacia** (ICD-10 M50.022). She does *not* present with simple radiculopathy. *Proceed to Step 3.*
-
-### Step 3: State Regulatory Override & Clinical Standard Evaluation
-* **Objective:** Determine if California statutory provisions and clinical guidelines override plan-specific conservative treatment rules.
-* **Finding:** **Positive Finding (Regulatory and Clinical Override).**
-  * **California Insurance Code (CIC) § 10169.5(a)(3):** Insurers shall not condition surgical approval on PT completion where the condition involves objective evidence of structural neurological compromise that PT cannot address. Myelomalacia and severe central cord compression constitute severe structural compromise. PT cannot decompress a spinal cord.
-  * **DMHC All-Plan Letter (APL) 22-014:** Plans shall not require conservative treatment prior to surgery if imaging demonstrates progressive pathology (specifically citing myelomalacia) and the physician documents conservative treatment failure. Dr. Torres documented that the patient's neurological status progressed and deteriorated despite 5 weeks of PT.
-  * **AANS/CNS Joint Section Guidelines (2023):** Cervical myelopathy with myelomalacia and objective UMN signs constitutes a **Tier 1 (Strong) Surgical Indication**. Conservative trials in this population are contraindicated as delay increases the risk of irreversible, permanent neurological deficits (paraplegia, loss of hand function).
-  * *Conclusion:* Both California law and peer-reviewed clinical standards strictly override standard conservative management requirements for this patient. *Proceed to Step 4.*
-
-### Step 4: Plan Criteria Application — Myelopathy Pathway (Exception 2.2(A))
-* **Objective:** Evaluate the request against the plan's modified criteria for cervical myelopathy.
-* **Finding:** **Positive Finding.**
-  * Under **HealthFirst Plan Criteria Section 2.2(A) (Myelopathy Exception)**, the standard conservative treatment pathway is modified:
-    1. *Physical Therapy:* Minimum requirement is reduced from 6 weeks to **4 weeks**. Member completed **5 weeks** (15 sessions), satisfying this requirement.
-    2. *Interventional Treatment:* Waived if the treating physician documents that interventional treatments (e.g., epidural injections) pose a risk of neurological deterioration or are clinically contraindicated. On September 10, 2024, Dr. Rivera (Anesthesiology) documented a absolute contraindication to fluoroscopy-guided cervical epidural steroid injections due to the patient's permanent pacemaker. Dr. Torres further noted risk of spinal cord injury. Therefore, the injection requirement is **fully waived**.
-    3. *Pharmacotherapy:* Member trialed Baclofen (3 months) and two separate 10-day courses of oral Methylprednisolone (corticosteroids), satisfying the two-agent trial expectation.
-  * *Conclusion:* Even if the regulatory overrides in Step 3 did not exist, the member fully satisfies HealthFirst's internal **Exception 2.2(A)** criteria. The initial reviewer's application of the 6-week PT and injection rules was a misapplication of the plan's own policy. *Proceed to Step 6.*
-
-### Step 6: Case Sufficiency and Record Integrity
-* **Objective:** Ensure the administrative and clinical record contains sufficient objective evidence.
-* **Finding:** **Positive Finding.** The file contains a complete neurosurgical consultation, a detailed MRI radiology report utilizing a pacemaker-compatible protocol, physical therapy documentation, and a formal anesthesiology consultation. The clinical record is highly robust and sufficient for a final determination.
+*Where a lower-tier authority (the plan's internal criteria) is more restrictive than or conflicts with a higher-tier authority (state law and national clinical guidelines), the higher-tier authority dynamically overrides the plan's criteria.*
 
 ---
 
-## IV. HIERARCHY OF AUTHORITY & LEGAL ANALYSIS
+## IV. STEP-BY-STEP EVALUATION & FINDINGS
 
-In accordance with the governing rules of prior authorization reviews, conflicts between guidelines are resolved using the following established hierarchy:
+### Step 1: Procedural Adequacy Review (CHSC § 1374.31(b))
+The initial denial notice issued by Dr. Alan Foster on October 15, 2024, explicitly cited policy CC-SPINE-2024, referenced Section 2.2, and specified the quantitative deficits (5 weeks of physical therapy completed versus 6 required; no cervical epidural steroid injection). While the denial itself was clinically inappropriate, the notice contained the necessary citations and case-specific deficiencies to meet the procedural disclosure thresholds of California Health & Safety Code (CHSC) § 1374.31(b). Therefore, a procedural defect is not the primary basis for reversal, and the review must proceed to clinical and statutory evaluation.
 
-$$\text{California State Law (CIC, CHSC, DMHC APL)} > \text{Clinical Standards (AANS/CNS, AO Spine)} > \text{Plan Criteria (CC-SPINE-2024)}$$
+### Step 2: Clinical Classification & Diagnosis Verification
+A critical clinical distinction must be made between cervical *radiculopathy* (nerve root compression) and cervical *myelopathy* (spinal cord compression). 
+* **Radiculopathy** clinical algorithms support extensive conservative trials (6–12 weeks of PT and epidural injections), as most cases resolve non-surgically.
+* **Myelopathy** represents an irreversible spinal cord injury that requires timely surgical decompression to arrest progressive neurological decline.
 
-```
-+-------------------------------------------------------------+
-|               CALIFORNIA STATE LAW (Highest)                |
-|  - CIC § 10169.5(a)(3): Waives PT for structural injury     |
-|  - DMHC APL 22-014: Prohibits conservative delay in         |
-|    cases with myelomalacia                                  |
-+------------------------------+------------------------------+
-                               |
-                               v
-+-------------------------------------------------------------+
-|                 CLINICAL STANDARDS (Tier 1)                 |
-|  - AANS/CNS 2023: Moderate-to-severe myelopathy with        |
-|    cord compression is a Tier 1 surgical indication         |
-|  - AO Spine 2021: PT trial is medically contraindicated     |
-+------------------------------+------------------------------+
-                               |
-                               v
-+-------------------------------------------------------------+
-|                 PLAN CRITERIA (CC-SPINE-2024)               |
-|  - HealthFirst CC-SPINE-2024 Section 2.2(A) (Exception):    |
-|    Reduces PT to 4 weeks & waives injection for high risk   |
-+-------------------------------------------------------------+
-```
+Review of Patricia Osei’s medical record confirms a primary diagnosis of **Progressive Cervical Myelopathy with Myelomalacia**:
+* **Objective Imaging (MRI dated 2024-08-20):** Performed with a pacemaker-compatible protocol, demonstrating C4-C5 severe central spinal cord compression and confirmed T2-weighted signal change (**myelomalacia**), signaling active spinal cord injury and progressive cord damage.
+* **Neurological Examination (2024-08-25):** Documents severe upper motor neuron (UMN) signs, including bilateral lower extremity spasticity, hyperreflexia, impaired fine motor skills in both hands, and a positive Lhermitte sign.
 
-### 1. Statutory Override (California Insurance Code § 10169.5)
-The initial denial letter asserted that the member failed to complete a 6th week of physical therapy. However, under **CIC § 10169.5(a)(3)**, a health plan is legally prohibited from conditioning surgical approval on the completion of physical therapy if there is objective evidence of structural neurological compromise. The member’s MRI dated August 20, 2024, reveals severe central spinal cord compression and myelomalacia at C4-C5. Myelomalacia represents physical, structural softening and ischemia of the spinal cord tissue. Physical therapy cannot mechanically relieve bony or disc herniation-induced spinal cord compression. Conditioning surgical decompression on continued PT violates California statutory code.
+**Finding:** The member's clinical presentation is classified as moderate-to-severe cervical myelopathy with structural cord damage. Applying radiculopathy-based conservative treatment timelines to this patient represents a clinical category error.
 
-### 2. Regulatory Compliance (DMHC All-Plan Letter APL 22-014)
-The California Department of Managed Health Care (DMHC) issued **APL 22-014** specifically to address time-sensitive neurological conditions. The directive states that health plans *shall not* mandate standard conservative treatment protocols when objective imaging shows progressive pathology (noting myelomalacia explicitly) and the physician documents that conservative management has failed to halt neurological decline. 
-* Dr. Torres documented that the patient’s spasticity, gait instability, and loss of hand dexterity were actively progressing.
-* Compelling the patient to undergo further conservative treatment in the face of active myelomalacia violates DMHC directive APL 22-014.
+### Step 3: Application of California Statutory and Regulatory Overrides
+Under California law, the plan's mechanical application of its 6-week physical therapy and interventional injection requirements is legally invalid:
 
-### 3. Clinical Standard Superiority (CHSC § 1374.32(b))
-Under **California Health & Safety Code § 1374.32(b)**, medical necessity determinations must align with generally accepted standards of medical practice, overriding restrictive internal plan criteria. 
-* The **AANS/CNS 2023 Joint Guidelines** and the **AO Spine 2021 Clinical Practice Guidelines** state that for patients with moderate-to-severe cervical myelopathy with objective spinal cord compression, surgical decompression is the recommended **first-line treatment**.
-* The literature demonstrates that each month of delay in decompression for patients with myelomalacia is linked to permanent, irreversible spinal cord damage and diminished post-operative functional recovery. There is no evidence supporting a mandatory physical therapy trial for moderate-to-severe myelopathy. 
+1. **Physical Therapy Exemption (CIC § 10169.5(a)(3)):** This statute dictates that a plan shall not condition surgical approval on the completion of physical therapy where "the condition involves objective evidence of structural neurological compromise that physical therapy cannot address." Severe cord compression with myelomalacia is the definition of structural compromise. Additionally, per **CIC § 10169.5(a)(1)**, the treating physician documented that physical therapy was stopped at 5 weeks (15 sessions) because it was not addressing progressive neurological decline and was limited by pacemaker precautions.
+2. **Conservative Treatment Waiver (DMHC APL 22-014):** This mandate prohibits plans from requiring a full course of conservative treatment when objective imaging shows progressive pathology (myelomalacia is explicitly identified in the APL as a qualifying finding) and the physician documents that delaying surgery risks irreversible neurological harm. 
+3. **Interventional Treatment Contraindication:** The plan's initial denial cited the absence of a cervical epidural steroid injection. However, the clinical record contains a documented written contraindication from an anesthesiology consultation (Dr. Rivera, 2024-09-10) stating that a fluoroscopy-guided cervical epidural steroid injection is strictly contraindicated due to the patient's permanent pacemaker (implanted in 2019). Mandating a medically contraindicated procedure to satisfy an internal plan rule violates basic medical ethics and state regulatory safety standards.
 
-### 4. Correct Application of Internal Plan Criteria (Exception 2.2(A))
-The initial denial by Dr. Alan Foster incorrectly evaluated this patient under the standard radiculopathy criteria (6 weeks PT + injection). Had the reviewer evaluated the request under **Plan Section 2.2(A) (Myelopathy Exception)**, the request would have qualified for immediate approval:
-* **PT Requirement Met:** Section 2.2(A) reduces the PT requirement to **4 weeks**. The member completed **5 weeks**.
-* **Injection Waived:** The member’s permanent pacemaker (implanted 2019) posed an electrical/cardiac risk during fluoroscopy-guided interventional procedures, documented by Dr. Rivera, MD on September 10, 2024. Therefore, the injection requirement was contractually eligible for waiver under Section 2.2(A).
+**Finding:** Under CIC § 10169.5 and DMHC APL 22-014, the plan’s physical therapy and injection requirements are legally overridden and waived.
+
+### Step 4: Evidence-Based Clinical Standard Review (AANS/CNS & AO Spine)
+Per **CHSC § 1374.32(b)**, the standard for medical necessity during appeals is governed by generally accepted clinical guidelines, not the plan's internal criteria.
+* **AANS/CNS Joint Section Guidelines (2023 Update):** Classify moderate-to-severe myelopathy with objective cord compression and myelomalacia as a **Tier 1 Strong Surgical Indication**. Conservative trials are not recommended for this presentation.
+* **AO Spine Clinical Practice Guidelines (2021):** State that "there is no high-quality evidence supporting a mandatory course of physical therapy prior to surgical intervention for patients with moderate to severe cervical myelopathy." Delaying surgery to satisfy arbitrary administrative timelines is associated with worse post-operative outcomes and permanent, irreversible neurological deficit.
+
+**Finding:** The proposed CPT 22551 meets the highest standard of medical necessity under national clinical guidelines, overriding the restrictive criteria in HealthFirst CC-SPINE-2024.
+
+### Step 5: Plan Criteria Compliance & Internal Exceptions
+Even if evaluated solely under the plan's internal clinical policy, **HealthFirst CC-SPINE-2024**, the denial was improper:
+* **Section 2.2(A) Myelopathy Exception:** Under this pathway, the physical therapy requirement is reduced to a minimum of **4 weeks** (the member completed **5 weeks**), and the interventional treatment requirement is **waived** if the treating physician documents that it poses a risk or is contraindicated (fully documented by Dr. Rivera due to the permanent pacemaker).
+* **Pharmacotherapy:** The member completed a 3-month trial of Baclofen 10mg TID (muscle relaxant) and two 10-day cycles of methylprednisolone tapers. While the oral steroid trial was abbreviated due to clinical utility, any minor deviation in pharmacotherapy duration is rendered legally moot by the statutory overrides and clinical standard requirements detailed in Steps 3 and 4.
 
 ---
 
-## V. FINAL APPEAL DETERMINATION ORDER
+## V. COMPARISON MATRIX: PLAN CRITERIA VS. CLINICAL REALITY
 
-Pursuant to California health insurance regulations, generally accepted clinical guidelines, and the clinical records submitted:
+| Plan Requirement (CC-SPINE-2024) | Member's Clinical Presentment | Applicable Governing Authority & Citation | Compliance Status |
+| :--- | :--- | :--- | :--- |
+| **Primary Diagnosis** | Progressive cervical myelopathy C4-C5 with myelomalacia | CC-SPINE-2024 Section 2.1(b); AANS/CNS Tier 1 Indication | **Met** (Severe structural pathology) |
+| **Physical Therapy**<br>6 Weeks (Standard)<br>4 Weeks (Myelopathy Exception) | **5 Weeks (15 sessions) Completed**.<br>Stopped due to lack of efficacy and pacemaker precautions. | **CIC § 10169.5(a)(3):** PT waived for structural cord compromise.<br>**DMHC APL 22-014:** PT waived for myelomalacia. | **Overridden & Met** (Exceeds the 4-week myelopathy exception) |
+| **Pharmacotherapy**<br>Two agents for $\ge$ 4 weeks each | Baclofen 10mg TID for 3 months.<br>Methylprednisolone taper (20 days total). | **CHSC § 1374.32(b):** Delaying decompression for progressive myelopathy violates clinical standards. | **Overridden** (Waived due to neurological urgency) |
+| **Interventional Treatment**<br>1 Epidural Steroid Injection | **Not Performed.**<br>Strictly contraindicated due to permanent pacemaker. | **CIC § 10169.5(a)(1):** Waived due to documented contraindication (Dr. Rivera, 2024-09-10). | **Waived / Overridden** (Contraindicated) |
+| **Objective Imaging** | Severe C4-C5 cord compression and **myelomalacia** on MRI | CC-SPINE-2024 Section 2.3; DMHC APL 22-014 | **Met** (Confirmed spinal cord injury) |
 
-1. **The denial of CPT 22551 for Member Patricia Osei is OVERTURNED.**
-2. **HealthFirst Health Plan shall immediately issue a prior authorization approval** for single-level anterior cervical discectomy and fusion (ACDF) at C4-C5, to be performed by Dr. Michael Torres at Cedars-Sinai Medical Center.
-3. This authorization is valid for 90 days from the date of this determination (expiring January 26, 2025).
+---
 
-**Authorized by:**
+## VI. CONCLUSION & AUTHORIZATION INSTRUCTIONS
+The plan's initial denial of coverage for an anterior cervical discectomy and fusion (ACDF) at C4-C5 (CPT 22551) was based on a rigid, administrative application of conservative treatment requirements that are clinically contraindicated and legally inapplicable to this member. 
 
-*HealthFirst Appeals & Grievances Review Committee*  
-*Clinical Review Division — Neurology & Spine Surgery Section*  
-*State of California Licensed IMR Medical Reviewer Panel*
+The member suffers from severe spinal cord compression with myelomalacia (active, progressive spinal cord damage). Under California state regulations (**CIC § 10169.5** and **DMHC APL 22-014**) and national neurosurgical standards (**AANS/CNS 2023**), standard conservative protocols are waived in the presence of myelomalacia and documented device-related contraindications. Delaying surgical decompression in this clinical scenario directly increases the risk of permanent quadriplegia or other irreversible neurological deficits.
+
+### **DIRECTIVE TO THE PLAN:**
+1. **Immediately OVERTURN** the medical necessity denial dated October 15, 2024.
+2. **Issue an immediate prior authorization approval** for CPT code **22551** (ACDF C4-C5, single level) to be performed by **Dr. Michael Torres, MD** at **Cedars-Sinai Medical Center**.
+3. Expedite the notification of this approval to the member, the requesting provider, and the facility within **24 hours** of this determination, in accordance with the urgent nature of the member's progressive myelopathy.
+
+---
+**Reviewer Signature:**  
+*Expert Medical Appeals Reviewer, California Licensure*  
+*Board-Certified Consultant in Neurological Surgery*

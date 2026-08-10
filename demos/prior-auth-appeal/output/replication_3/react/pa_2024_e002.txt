@@ -1,149 +1,146 @@
 CASE: pa_2024_e002
 SYSTEM: REACT
-DISPOSITION: OVERTURN
+DISPOSITION: PARTIAL
 GT: PARTIAL
-CORRECT: False
-ELAPSED: 35.2s
+CORRECT: True
+ELAPSED: 33.6s
 ========================================================================
 
-**APPEAL DETERMINATION LETTER**
+**HEALTHFIRST HEALTH PLAN — PRIOR AUTHORIZATION APPEAL DETERMINATION**
 
-**Date:** 2024-12-05
 **Case ID:** PA-2024-E002
-**Member:** Catherine Mills
-**Member ID:** M-778811
-**Plan:** HealthFirst PPO Gold — Group Plan 77441
-**Procedure Requested:** CPT 22551 – ACDF C3-C4, C4-C5, AND C5-C6 (three levels)
+**Member:** Catherine Mills (M-778811), Age 53
+**Plan:** HealthFirst PPO Gold — Group Plan 77441, California
+**Procedure:** ACDF C3-C4, C4-C5, C5-C6 (three levels)
 **Requesting Provider:** Dr. James Torres, MD (Neurosurgery)
 **Initial Denial Date:** 2024-11-25
-**Initial Denial Reason:** MED-003: "Three-level ACDF not approved. Review of imaging and clinical record supports surgical intervention at one level (C4-C5) only. C3-C4 and C5-C6 do not demonstrate pathology of sufficient severity to warrant surgical intervention at this time."
-**Reviewer:** Health Plan Appeals Department
+**Review Level:** First-Level Appeal
+**Appeal Reviewer:** [Your Name/Title, e.g., Chief Medical Appeals Officer]
+**Date of Review:** [Current Date]
 
 ---
 
-**I. EXECUTIVE SUMMARY**
+**I. SUMMARY OF REQUEST AND DENIAL**
 
-This appeal concerns the denial of a three-level Anterior Cervical Discectomy and Fusion (ACDF) for Catherine Mills. The initial denial approved surgery at C4-C5 but denied C3-C4 and C5-C6 due to "insufficient severity."
+Catherine Mills, a 53-year-old member, requested prior authorization for a three-level Anterior Cervical Discectomy and Fusion (ACDF) at C3-C4, C4-C5, and C5-C6 for multi-level cervical spondylosis with myeloradiculopathy.
 
-Upon review of the clinical record, HealthFirst's Clinical Coverage Criteria (CC-SPINE-2024), California state law (CIC, CHSC, DMHC APL), and generally accepted clinical standards (AANS/CNS, NASS, AO Spine), the determination is:
+HealthFirst Health Plan initially denied the request for the C3-C4 and C5-C6 levels (Reason Code MED-003), stating that "Review of imaging and clinical record supports surgical intervention at one level (C4-C5) only. C3-C4 and C5-C6 do not demonstrate pathology of sufficient severity to warrant surgical intervention at this time." The denial implicitly approved the C4-C5 level.
 
-*   **OVERTURNED** for levels C4-C5 and C5-C6.
-*   **UPHELD** for level C3-C4.
-
-Therefore, the requested three-level ACDF (CPT 22551) is partially overturned. **Authorization for a two-level ACDF at C4-C5 and C5-C6 is hereby approved.**
+The member's appeal asserts that all three levels are symptomatic, the treating surgeon has documented reasoning for a three-level fusion, and conservative treatment has been completed for all levels.
 
 ---
 
-**II. CLINICAL PRESENTATION AND APPELLANT'S BASIS**
+**II. REVIEWER'S ROLE AND HIERARCHY OF AUTHORITY**
 
-Catherine Mills, a 53-year-old female, presents with multi-level cervical spondylosis with documented myeloradiculopathy.
+As an expert health plan appeals reviewer, I have reviewed the clinical record, the plan's clinical coverage criteria (HealthFirst CC-SPINE-2024), relevant California regulatory frameworks (CIC, CHSC, DMHC APL 22-014), and generally accepted clinical standards of medical practice (AANS/CNS 2023, NASS 2020, AO Spine 2021).
 
-**Key Clinical Findings:**
-*   **Presenting Diagnosis:** Multi-level cervical spondylosis with myeloradiculopathy.
-*   **Neurological Exam (2024-10-05):** Bilateral hyperreflexia, bilateral Hoffman sign, wide-based gait (consistent with myelopathy). Bilateral C5 deltoid weakness (4/5) and left C6 bicep weakness (4-/5) with diminished left bicep reflex (consistent with radiculopathy).
-*   **Imaging (MRI, 2024-10-01):**
-    *   **C3-C4:** Mild disc bulge, minimal foraminal narrowing. No clear clinical correlation.
-    *   **C4-C5:** Large disc herniation, severe cord compression, **T2 signal change (myelomalacia)**.
+In evaluating this appeal, the following hierarchy of authority has been applied:
+1.  **State Law** (California Insurance Code, California Health & Safety Code, DMHC All-Plan Letters)
+2.  **Clinical Standard** (Generally Accepted Standards of Medical Practice from recognized professional organizations)
+3.  **Plan Criteria** (HealthFirst's internal Clinical Coverage Criteria)
+
+Where conflicts arise between these sources, the higher authority governs.
+
+---
+
+**III. CLINICAL SUMMARY OF MEMBER**
+
+Ms. Mills presents with multi-level cervical spondylosis with myeloradiculopathy.
+
+*   **Presenting Symptoms:** Bilateral hyperreflexia, bilateral Hoffman sign, wide-based gait (myelopathy findings); bilateral deltoid weakness (C5 level) 4/5; left bicep weakness (C6 level) 4-/5, diminished left bicep reflex; neck pain with C3-C4 palpation.
+*   **Imaging (MRI 2024-10-01):**
+    *   **C4-C5:** Large disc herniation, severe cord compression, T2 signal change (myelomalacia).
     *   **C5-C6:** Moderate disc herniation, moderate left C6 nerve root compression, foraminal stenosis.
+    *   **C3-C4:** Mild disc bulge, minimal foraminal narrowing.
 *   **Conservative Treatment:**
-    *   Physical Therapy: 9 weeks (27 sessions). Myelopathic symptoms stable but not improved; C5-C6 radicular symptoms persist.
-    *   Pharmacotherapy: Baclofen (3 months, minimal spasticity relief), Pregabalin (4 months, partial pain relief).
-    *   Interventional: Epidural (modest improvement in radicular symptoms, no change in myelopathy signs).
-
-**Appellant's Appeal Basis:**
-1.  All three levels are symptomatic.
-2.  Treating surgeon has documented reasoning for three-level fusion.
-3.  Conservative treatment completed for all levels.
+    *   **Physical Therapy:** 9 weeks (27 sessions). Myelopathic symptoms stable but not improved. C5-C6 radicular symptoms persist. C3-C4 contribution unclear.
+    *   **Pharmacotherapy:** Baclofen 10mg TID for 3 months (minimal spasticity relief); Pregabalin 300mg BID for 4 months (partial pain relief).
+    *   **Interventional:** Cervical epidural steroid injection on 2024-10-20 (modest improvement in radicular symptoms, no change in myelopathy signs).
 
 ---
 
-**III. REGULATORY AND CLINICAL FRAMEWORK**
+**IV. DETAILED REVIEW AND ANALYSIS**
 
-Per California law, the hierarchy of authority for appeal review is: **State Law > Clinical Standard > Plan Criteria.**
+**A. Procedural Adequacy of Denial Notice (CHSC § 1374.31(b))**
+The initial denial notice specified "MED-003" and provided a clinical reason (insufficient pathology for C3-C4 and C5-C6). While it did not explicitly cite the plan's criteria document or detail IMR rights, the reason provided is sufficiently specific to allow for appeal. Thus, the denial is considered procedurally adequate for the purpose of this review.
 
-**A. California Regulatory Requirements:**
+**B. Application of Plan Criteria (HealthFirst CC-SPINE-2024)**
 
-1.  **DMHC All-Plan Letter (APL) 22-014 (Myelopathy and Urgent Conditions):**
-    *   **II.1 Myelopathy Classification:** Explicitly states "cervical myelopathy with objective evidence of cord compression and myelomalacia on MRI constitutes a condition with potential for irreversible harm if untreated. Plans SHALL treat such cases as urgent."
-    *   **II.2 Conservative Treatment Exceptions:** For urgent conditions (like myelopathy with myelomalacia), plans SHALL NOT require full conservative treatment if objective imaging shows progressive pathology (e.g., myelomalacia), treating physician documents conservative failure, and surgery is indicated by guidelines. Myelomalacia specifically supports waiver of standard conservative requirements.
-    *   **II.3 Plan Criteria vs. Clinical Standard:** Plans shall not apply internal criteria more restrictive than generally accepted standards for conditions identified in this guidance.
+1.  **Diagnosis Requirement (2.1):** The member clearly meets criteria for cervical myelopathy (2.1b) at C4-C5 and cervical radiculopathy (2.1a) at C5-C6, with objective neurological deficits (2.1c) and supporting MRI within 6 months. This criterion is satisfied for C4-C5 and C5-C6.
+2.  **Conservative Treatment Requirement (2.2):**
+    *   The member completed 9 weeks of PT (exceeding the standard 6 weeks), 3-4 months of two pharmacotherapy agents (exceeding the 4-week minimum), and one interventional procedure.
+    *   **Myelopathy Exception (2.2A):** Given the clear evidence of moderate-severe cervical myelopathy with myelomalacia and upper motor neuron signs at C4-C5, myelopathy is a primary diagnosis. The plan's exception should apply, reducing PT to 4 weeks (met) and waiving interventional treatment if physician documents risk (not documented, but interventional treatment was pursued anyway). The pharmacotherapy requirement (met) remains. The member's conservative treatment exceeds the requirements of the myelopathy exception.
+    *   Therefore, the conservative treatment requirements under the plan's criteria, including the myelopathy exception, have been met for the primary condition.
+3.  **Imaging Requirement (2.3) and Pathology Severity (Denial Reason 3.3):**
+    *   **C4-C5:** The MRI demonstrates severe cord compression and myelomalacia, fully consistent with myelopathy. This level was implicitly approved by the plan, and is medically necessary.
+    *   **C5-C6:** The MRI shows moderate disc herniation, moderate left C6 nerve root compression, and foraminal stenosis. This is consistent with the left C6 weakness and diminished reflex on exam and persistent radicular symptoms. The plan's denial based on "insufficient severity" for this level is reviewed against clinical standards.
+    *   **C3-C4:** The MRI shows mild disc bulge and minimal foraminal narrowing. The neurological exam notes neck pain but no specific radicular pattern at this level. The plan's denial for "insufficient severity" for this level is reviewed against clinical standards.
 
-2.  **California Insurance Code (CIC) § 10169.5 (Physical Therapy Prerequisite):**
-    *   (a)(3) A plan cannot condition approval of surgery on PT completion where "The condition involves objective evidence of structural neurological compromise that physical therapy cannot address." Myelomalacia with cord compression falls squarely under this provision.
-    *   (a)(2) A plan cannot condition approval where "The member has completed a course of physical therapy and the treating physician documents that the member reached a functional plateau without adequate resolution of symptoms." The PT summary notes "Myelopathic symptoms stable but not improved" and "C5-C6 radicular symptoms persist," indicating a functional plateau for the primary neurological issues.
+**C. Application of California Regulatory Requirements (State Law)**
 
-3.  **California Health & Safety Code (CHSC) § 1374.32(b) (IMR Standard):**
-    *   The Independent Medical Review standard (and by extension, internal appeals informed by the same principles) does NOT require consistency with the plan's internal coverage criteria. If the service meets "generally accepted standards of medical practice," it SHALL be approved, even if plan criteria are more restrictive.
+1.  **DMHC All-Plan Letter APL 22-014 (Myelopathy and Urgent Conditions):**
+    *   **II.1 Myelopathy Classification:** The member has myelopathy with objective cord compression and myelomalacia at C4-C5. DMHC mandates such cases be treated as urgent due to potential for irreversible harm.
+    *   **II.2 Conservative Treatment Exceptions:** For conditions risking irreversible harm (like myelopathy with myelomalacia), plans SHALL NOT require full conservative treatment when objective imaging shows progressive pathology (myelomalacia indicates existing cord injury/progressive risk), treating physician documents conservative failure (PT notes: "Myelopathic symptoms stable but not improved. C5-C6 radicular symptoms persist"), and surgery is indicated under generally accepted guidelines. Myelomalacia specifically supports waiver of standard conservative requirements.
+    *   **II.3 Plan Criteria vs. Clinical Standard:** Plans shall not apply internal criteria more restrictive than generally accepted standards.
 
-**B. HealthFirst Clinical Coverage Criteria (CC-SPINE-2024):**
+2.  **CIC § 10169.5 (Physical Therapy as Prerequisite):**
+    *   **(a)(3) Objective evidence of structural neurological compromise:** At C4-C5, severe cord compression with myelomalacia constitutes structural neurological compromise that PT cannot address. At C5-C6, moderate nerve root compression with objective C6 weakness also falls under this.
+    *   **(a)(2) Functional plateau:** The member completed 9 weeks of PT, and symptoms for both myelopathy and C5-C6 radiculopathy persisted/did not improve. This constitutes reaching a functional plateau, as defined clinically (less than 10% improvement or therapist documented maximum benefit).
+    *   This state law overrides any plan requirement for a minimum number of weeks of PT in this specific clinical scenario, as the member has either reached a functional plateau or has objective neurological compromise.
 
-*   **Section 2.1 (Diagnosis Requirement):** Member has confirmed Cervical Myelopathy (2.1(b)) and Cervical disc herniation with objective neurological deficit (2.1(c)).
-*   **Section 2.2 (Conservative Treatment Requirement):**
-    *   Standard pathway requires 6 weeks PT, 2 pharmacotherapy agents (4+ weeks), 1 interventional procedure.
-    *   **EXCEPTION 2.2(A) — MYELOPATHY PATHWAY:** PT reduced to 4 weeks minimum. Interventional waived if physician documents risk. This exception applies when myelopathy is the PRIMARY diagnosis. Given the myelopathic signs and myelomalacia, this is the primary diagnosis. The member completed 9 weeks of PT (exceeding both standard and myelopathy-exception minimums), 2 pharmacotherapy agents (exceeding duration), and an interventional procedure. All conservative treatment requirements, even the modified ones, are met.
-*   **Section 2.3 (Imaging Requirement):** Current MRI demonstrates pathology consistent with symptoms at C4-C5 and C5-C6.
+3.  **CHSC § 1374.32(b) (IMR Standard is NOT plan criteria):** This critical provision mandates that if a service meets generally accepted standards of medical practice, it SHALL be approved, regardless of whether the plan's internal criteria are more restrictive.
 
-**C. Generally Accepted Clinical Standards (AANS/CNS 2023, NASS 2020, AO Spine 2021):**
+**D. Application of Clinical Standard (AANS/CNS 2023, NASS 2020, AO Spine 2021)**
 
-*   **Cervical Myelopathy vs. Radiculopathy:** These are distinct conditions with different treatment algorithms. Applying radiculopathy-derived conservative treatment requirements to myelopathy is not supported by evidence (AANS/CNS Section 1.1).
-*   **Myelomalacia Significance:** Myelomalacia (T2 signal change) indicates existing cord injury, higher risk of permanent deficit, reduced recovery, and surgical urgency. It is a strong surgical indication and a contraindication to extended conservative trials (AANS/CNS Section 1.2).
-*   **Conservative Treatment for Myelopathy:**
-    *   Physical therapy does NOT produce meaningful functional improvement for moderate-severe myelopathy (AANS/CNS Section 2.1).
-    *   No high-quality evidence supports mandatory PT duration prior to surgery for moderate-severe myelopathy. Delaying surgery may result in neurological deterioration (AO Spine quote, AANS/CNS Section 2.1, 2.2).
-    *   Each month of surgical delay for moderate-severe myelopathy is associated with decreased likelihood of neurological recovery (AANS/CNS Section 2.3).
-*   **Surgical Indications for ACDF (AANS/CNS 2023, Section 3.1):**
-    *   **TIER 1 — STRONG INDICATION:** Moderate to severe myelopathy with objective cord compression on MRI; Myelomalacia on MRI; Progressive neurological deficit despite conservative treatment.
-    *   **TIER 2 — REASONABLE INDICATION:** Radiculopathy with persistent symptoms after 6-12 weeks conservative treatment.
+1.  **Myelopathy (C4-C5):** The member has confirmed moderate-severe cervical myelopathy (bilateral UMN signs, gait disturbance, severe cord compression, myelomalacia).
+    *   AANS/CNS 2023 (Section 3.1) considers myelomalacia on MRI and moderate-severe myelopathy with objective cord compression as TIER 1 strong surgical indications.
+    *   AO Spine 2021 (Section 2.1) explicitly states no high-quality evidence supports mandatory PT before surgery for moderate-severe myelopathy, and delaying surgery may result in deterioration.
+    *   The plan's implicit approval of C4-C5 aligns with these strong clinical standards.
 
----
+2.  **Radiculopathy (C5-C6):** The member has objective C6 nerve root compression, C6 weakness, and persistent radicular symptoms after 9 weeks of PT, 4 months of pharmacotherapy, and an epidural.
+    *   AANS/CNS 2023 (Section 3.1) categorizes radiculopathy with persistent symptoms after 6-12 weeks of conservative treatment as a TIER 2 reasonable surgical indication. The member has exceeded the duration for conservative treatment, and symptoms persist.
+    *   The plan's denial based on "insufficient severity" for C5-C6 is more restrictive than generally accepted clinical standards when objective neurological deficits and failed conservative treatment are present, especially in the context of adjacent myelopathy.
 
-**IV. ANALYSIS AND DETERMINATION**
-
-**A. Level C4-C5 (Myelopathy with Myelomalacia):**
-
-The denial implicitly approved surgery at C4-C5, stating "Review of imaging and clinical record supports surgical intervention at one level (C4-C5) only." However, it is crucial to understand the strong justification for this level within the appeals context.
-
-1.  **Clinical Record:** Member has severe cord compression and **myelomalacia** at C4-C5, coupled with clear myelopathic signs (bilateral hyperreflexia, bilateral Hoffman, wide-based gait, bilateral C5 weakness).
-2.  **Plan Criteria (CC-SPINE-2024):** This level meets HealthFirst's diagnosis and imaging requirements for myelopathy. The conservative treatment requirements, even under the myelopathy exception, were exceeded (9 weeks PT, 2 pharmacotherapy agents for 3-4 months each, 1 epidural). Despite this, myelopathic symptoms did not improve.
-3.  **State Law (DMHC APL 22-014, CIC 10169.5):** Due to the presence of myelomalacia and severe cord compression, this case is classified as urgent under DMHC APL 22-014. This APL explicitly states that standard conservative treatment requirements SHALL NOT be required for such conditions. Furthermore, CIC 10169.5(a)(3) overrides PT requirements where there is structural neurological compromise that PT cannot address.
-4.  **Clinical Standard (AANS/CNS 2023):** The combination of moderate-severe myelopathy, severe cord compression, and myelomalacia constitutes a TIER 1 (strong) surgical indication. Clinical guidelines strongly recommend against delaying surgery for extended conservative trials in such cases due to the risk of irreversible harm and poor neurological recovery.
-
-**Conclusion for C4-C5: Consistent with the initial approval, but crucially supported by multiple overriding authorities.**
-
-**B. Level C5-C6 (Radiculopathy):**
-
-The initial denial stated C5-C6 did not "demonstrate pathology of sufficient severity to warrant surgical intervention at this time."
-
-1.  **Clinical Record:** MRI shows moderate disc herniation, moderate left C6 nerve root compression, and foraminal stenosis. Neurological exam reveals objective C6 level left bicep weakness (4-/5) and diminished left bicep reflex. Conservative treatment (9 weeks PT, 3-4 months pharmacotherapy, epidural with "modest improvement in radicular symptoms") failed to resolve the persistent C5-C6 radicular symptoms.
-2.  **Plan Criteria (CC-SPINE-2024):** This level meets diagnosis and imaging criteria (2.1(a) Cervical radiculopathy; 2.1(c) Cervical disc herniation with objective neurological deficit; 2.3 Imaging consistent). The conservative treatment, as detailed above, was completed, with symptoms persisting. The denial's assertion of "insufficient severity" is not aligned with the objective clinical findings of nerve root compression and correlating weakness that failed conservative management.
-3.  **State Law (CHSC § 1374.32(b); DMHC APL 22-014, II.3):** California law mandates approval if the service meets generally accepted standards of medical practice, even if the plan's internal criteria are more restrictive regarding "severity." The plan's interpretation of "sufficient severity" appears to be more restrictive than clinical standards for persistent radiculopathy.
-4.  **Clinical Standard (AANS/CNS 2023):** Radiculopathy with persistent symptoms after 6-12 weeks of conservative treatment is a TIER 2 (reasonable) indication for surgery. This member has completed 9 weeks of PT, prolonged pharmacotherapy, and an epidural, with persistent objective weakness and symptoms. Addressing this level concurrently with the myelopathy at C4-C5 is consistent with accepted multi-level spinal surgery principles.
-
-**Conclusion for C5-C6: OVERTURNED.** The clinical evidence of persistent radiculopathy with objective findings and failure of an adequate course of conservative treatment meets generally accepted standards for surgical intervention.
-
-**C. Level C3-C4:**
-
-The initial denial stated C3-C4 did not "demonstrate pathology of sufficient severity to warrant surgical intervention at this time."
-
-1.  **Clinical Record:** MRI shows only "mild disc bulge, minimal foraminal narrowing." The neurological exam noted "C4 level: unclear \u2014 neck pain with C3-C4 palpation but no specific radicular pattern," and the PT summary noted "C3-C4 contribution unclear."
-2.  **Plan Criteria (CC-SPINE-2024):** Section 2.3 (Imaging Requirement) mandates imaging demonstrates pathology consistent with symptoms. Here, the clinical correlation to the mild imaging findings is explicitly unclear.
-3.  **Clinical Standard (AANS/CNS 2023):** Surgical indications require objective pathology consistent with clinical symptoms. Without clear radicular or myelopathic symptoms specifically correlating to the mild C3-C4 imaging findings, surgical intervention at this level is not supported by generally accepted standards.
-
-**Conclusion for C3-C4: UPHELD.** The clinical record lacks sufficient objective evidence and clear symptomatic correlation to support surgical intervention at this level.
+3.  **C3-C4:** The MRI shows only mild disc bulge and minimal foraminal narrowing, and the neurological exam notes neck pain but no specific radicular pattern or myelopathy attributable to this level.
+    *   AANS/CNS 2023 (Section 3.1) considers imaging findings without correlating symptoms as a TIER 3 (surgery not indicated) scenario. Surgery for axial neck pain alone without radiculopathy or myelopathy is also not indicated.
+    *   For this level, the plan's denial based on "insufficient severity" aligns with generally accepted clinical standards.
 
 ---
 
-**V. FINAL DISPOSITION**
+**V. CROSS-SOURCE CONFLICT RESOLUTION**
 
-Based on the comprehensive review of the clinical record, HealthFirst's Clinical Coverage Criteria, California state law, and generally accepted clinical standards, the initial denial for a three-level ACDF is **PARTIALLY OVERTURNED**.
-
-**Authorization is approved for a two-level ACDF (CPT 22551) at levels C4-C5 and C5-C6.**
-
-**Warrant:**
-The member's presentation of moderate-severe cervical myelopathy with myelomalacia at C4-C5 represents an urgent condition strongly indicated for surgery by generally accepted clinical standards (AANS/CNS 2023 TIER 1) and warrants an override of standard conservative treatment requirements per California state law (DMHC APL 22-014, CIC 10169.5). The C5-C6 level demonstrates objective radiculopathy (moderate nerve root compression, C6 weakness) which has persisted despite an extensive and adequate course of conservative treatment, meeting generally accepted clinical standards for surgical intervention (AANS/CNS 2023 TIER 2). California law (CHSC 1374.32(b)) requires approval where services meet generally accepted standards, irrespective of more restrictive plan criteria. However, surgical intervention at C3-C4 is not supported by the clinical record, as imaging findings are mild and clinical correlation is explicitly unclear, thus not meeting generally accepted standards for surgical necessity.
+*   **For C4-C5 (Myelopathy):** The plan's implicit approval is consistent with State Law (DMHC APL 22-014, CIC 10169.5) and Clinical Standards (AANS/CNS TIER 1). No conflict.
+*   **For C5-C6 (Radiculopathy):** The plan's denial for "insufficient severity" conflicts with both State Law and Clinical Standards.
+    *   **State Law:** CIC 10169.5 mandates waiver of PT requirements due to functional plateau and neurological compromise. DMHC APL 22-014 prohibits plans from applying criteria more restrictive than generally accepted standards.
+    *   **Clinical Standards:** AANS/CNS considers persistent radiculopathy with neurological deficit after adequate conservative treatment (met here) a reasonable surgical indication. The presence of moderate disc herniation, nerve root compression, and weakness with persistent symptoms is not "insufficient severity" by generally accepted standards.
+    *   **Resolution:** State law and clinical standards override the plan's restrictive interpretation. Surgical intervention for C5-C6 is medically necessary.
+*   **For C3-C4:** The plan's denial for "insufficient severity" aligns with Clinical Standards, which do not support surgery for mild imaging findings without correlating neurological symptoms. No conflict.
 
 ---
-**Appeals Reviewer:**
 
-[Reviewer's Name/Title - e.g., Senior Medical Director, Appeals]
-HealthFirst PPO Gold Appeals Department
+**VI. FINAL DETERMINATION**
+
+**DISPOSITION: PARTIAL OVERTURN**
+
+The prior authorization denial for procedure code 22551 (ACDF) for Catherine Mills is **PARTIALLY OVERTURNED**.
+
+*   Authorization for **ACDF at C4-C5 and C5-C6** is **APPROVED**.
+*   Authorization for **ACDF at C3-C4** is **UPHELD** (DENIED).
+
+---
+
+**VII. WARRANT FOR DETERMINATION**
+
+1.  **C4-C5 (Myelopathy) — APPROVED:** The member has clear, objective evidence of moderate-to-severe cervical myelopathy at C4-C5, including severe cord compression and myelomalacia on MRI, with corresponding upper motor neuron signs (bilateral hyperreflexia, Hoffman, gait disturbance) and bilateral C5 weakness. Per **AANS/CNS 2023 Guidelines (Section 3.1)**, myelomalacia and moderate-to-severe myelopathy are TIER 1 strong surgical indications. **DMHC APL 22-014 (II.1 & II.2)** explicitly identifies such myelopathy with myelomalacia as an urgent condition warranting surgical intervention without requiring a full course of conservative treatment. The plan implicitly approved this level, which is consistent with all applicable standards.
+
+2.  **C5-C6 (Radiculopathy) — APPROVED:** The member demonstrates objective evidence of C6 nerve root compression, moderate disc herniation, left C6 weakness (4-/5), and diminished left bicep reflex. She has completed an extensive course of conservative treatment, including 9 weeks of physical therapy, 4 months of pharmacotherapy, and an epidural, with persistent radicular symptoms ("C5-C6 radicular symptoms persist"). This satisfies the definition of a functional plateau and failed conservative management for radiculopathy (**CIC § 10169.5(a)(2) & (b)** and **Clinical Standard Section 5**). **AANS/CNS 2023 Guidelines (Section 3.1)** consider persistent radiculopathy with symptoms after 6-12 weeks of conservative treatment a TIER 2 reasonable surgical indication. The plan's denial based on "insufficient severity" is more restrictive than these generally accepted standards and is overridden by **CHSC § 1374.32(b)** and **DMHC APL 22-014 (II.3)**.
+
+3.  **C3-C4 — UPHELD (DENIED):** The imaging for C3-C4 shows only mild disc bulge and minimal foraminal narrowing. The neurological exam notes neck pain but no specific radicular pattern or myelopathic signs attributable to this level. Per **AANS/CNS 2023 Guidelines (Section 3.1, TIER 3)**, surgery is not indicated for imaging findings without correlating symptoms or for axial neck pain alone. The plan's denial based on "insufficient severity" for this level is consistent with generally accepted clinical standards.
+
+Therefore, surgical intervention is medically necessary for decompression and fusion at the C4-C5 and C5-C6 levels but not at C3-C4.
+
+---
+
+[Your Name/Title]
+Expert Health Plan Appeals Reviewer
+HealthFirst Health Plan

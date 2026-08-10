@@ -3,89 +3,84 @@ SYSTEM: CC
 DISPOSITION: OVERTURN
 GT: OVERTURN
 CORRECT: True
-ELAPSED: 506.9s
+ELAPSED: 576.3s
 ========================================================================
+
+FINAL DISPOSITION: OVERTURN
 
 HEALTHFIRST HEALTH PLAN
 APPEAL DETERMINATION SERVICES
-P.O. Box 9000
-San Francisco, CA 94120
+PO Box 9000, San Francisco, CA 94120
 
 Date: November 14, 2024
 
-CASE ID: PA-2024-C001
-MEMBER NAME: Frances Kim
-MEMBER ID: M-990011
-PLAN: HealthFirst PPO Gold — Group Plan 77441
-STATE: California
-PROCEDURE: Anterior Cervical Discectomy and Fusion (ACDF) C5-C6, One Level (CPT 22551)
-REQUESTING PROVIDER: Dr. Robert Adams, MD — Neurosurgery, UCSF Medical Center
-FACILITY: UCSF Medical Center
-DENIAL DATE: October 30, 2024
-DENIAL REVIEWER: Dr. Alan Foster, MD
-APPEAL DATE: November 12, 2024
+CASE DETAILS
+Case ID: PA-2024-C001
+Appeal Date: November 12, 2024
+Member Name: Frances Kim
+Member ID: M-990011
+Age: 58
+Plan: HealthFirst PPO Gold — Group Plan 77441
+State of Residence: California
+Requested Procedure: Anterior Cervical Discectomy and Fusion (ACDF) C5-C6, one level (CPT 22551)
+Requesting Provider: Dr. Robert Adams, MD — Neurosurgery, UCSF Medical Center
+Prior Authorization Denial Date: October 30, 2024
+Denial Reviewer: Dr. Alan Foster, MD
+Denial Reason Code: MED-003
 
-DISPOSITION: OVERTURNED (Prior Authorization Approved)
+FINAL APPEAL DISPOSITION: OVERTURNED
 
-Dear Ms. Kim and Dr. Adams,
+I. EXECUTIVE SUMMARY
+The prior authorization denial for Anterior Cervical Discectomy and Fusion (ACDF) at C5-C6 (CPT 22551) is OVERTURNED. 
 
-HealthFirst Health Plan's Appeal Determination Services has completed its review of the first-level appeal regarding the prior authorization request for a single-level Anterior Cervical Discectomy and Fusion (ACDF) at C5-C6 (CPT 22551). After a comprehensive evaluation of the clinical record, the plan's clinical coverage criteria (CC-SPINE-2024), California regulatory statutes, and generally accepted standards of medical practice, the initial decision to deny coverage has been OVERTURNED. Prior authorization for CPT 22551 is hereby APPROVED.
+We explicitly acknowledge that the member does not meet HealthFirst's internal clinical coverage criteria (CC-SPINE-2024) under either the standard pathway or the Myelopathy Pathway (Exception 2.2(A)). Specifically, the member completed 5 weeks of physical therapy instead of the standard 6 weeks, and failed to complete the mandatory 4-week trial of a second pharmacotherapy agent (the Methylprednisolone trial was only 10 days, failing the 4-week requirement under Section 2.2(b), which remains in full force under Exception 2.2(A)). Furthermore, we acknowledge that California Department of Managed Health Care (DMHC) All-Plan Letter (APL) 22-014 does not mandate a waiver of conservative treatment in this case, as the member's MRI report dated September 1, 2024, explicitly states "no measurable cord compression, no T2 signal change, no myelomalacia," thereby lacking the specific high-risk imaging findings (such as myelomalacia or progressive cord signal change) required to trigger the regulatory waiver under APL 22-014 Section II.1 and II.2.
 
-I. CLINICAL PRESENTATION AND DIAGNOSIS OF CLINICAL MYELOPATHY
-The member is a 58-year-old female presenting with progressive neurological symptoms. A neurological examination performed on September 5, 2024, by Dr. Robert Adams, MD, revealed multiple objective, bilateral upper motor neuron (UMN) signs:
-1. Positive Hoffman sign bilaterally.
-2. Hyperreflexia in the bilateral upper extremities.
-3. Sustained clonus at the bilateral ankles (3 beats).
-4. Positive finger escape sign.
-5. Mildly wide-based gait.
+However, under California law, the plan's internal criteria are superseded by statutory mandates. This overturn is based solely on the statutory overrides provided by California Insurance Code (CIC) § 10169.5(a)(3) (regarding physical therapy requirements in cases of structural neurological compromise) and California Health & Safety Code (CHSC) § 1374.32 (requiring medical necessity determinations to align with generally accepted standards of medical practice).
 
-A cervical spine MRI dated September 1, 2024, demonstrated a C5-C6 disc herniation with mild cord contact. The radiologist noted that while cord contact is present, it is not quantifiable as measurable compression on standard sequences, and there is no T2 signal change or myelomalacia.
+II. CLINICAL EVIDENCE & FINDINGS OF RECORD
+The clinical record contains the following objective findings:
+1. Imaging (MRI dated September 1, 2024): Demonstrates a C5-C6 disc herniation with mild cord contact. The report notes "no measurable cord compression, no T2 signal change, no myelomalacia," and adds that "cord contact is present but not quantifiable as compression on standard sequences."
+2. Neurological Examination (dated September 5, 2024): Documented by Dr. Robert Adams, MD, demonstrating five objective upper motor neuron (UMN) signs:
+   - Positive bilateral Hoffman sign
+   - Bilateral upper extremity hyperreflexia
+   - Sustained clonus at bilateral ankles (3 beats)
+   - Positive finger escape sign
+   - Mildly wide-based gait
+3. Conservative Treatment History:
+   - Physical Therapy: Completed 5 weeks (15 sessions) under a myelopathy protocol. The physical therapy was halted by the treating physician due to safety concerns regarding the member's myelopathic presentation.
+   - Pharmacotherapy: Completed a 2-month trial of Baclofen 5mg TID (muscle relaxant) with minimal spasticity relief. Completed a 10-day trial of a Methylprednisolone taper (oral corticosteroid) with no improvement in UMN signs.
 
-The initial denial by Dr. Alan Foster, MD, on October 30, 2024, asserted that the plan's Myelopathy Pathway exception did not apply because the MRI showed "mild cord contact only" without measurable cord compression or cord signal change, and that UMN signs on exam are not conclusive for myelopathy in the absence of imaging-confirmed compression.
+III. REGULATORY ANALYSIS & STATUTORY OVERRIDES
 
-Under generally accepted standards of medical practice, specifically the Joint Section on Disorders of the Spine of the American Association of Neurological Surgeons and Congress of Neurological Surgeons (AANS/CNS) 2023 Guidelines, cervical myelopathy is primarily a clinical diagnosis. It is established by the presence of objective UMN signs on physical examination (such as bilateral Hoffman, hyperreflexia, sustained clonus, and finger escape sign) with correlating imaging demonstrating structural pathology at the corresponding level (here, a C5-C6 disc herniation with mild cord contact). The clinical standard recognizes "imaging-negative" or "mild-contact" myelopathy as a distinct clinical entity where clinical signs of spinal cord dysfunction precede gross structural compression or signal changes on standard MRI sequences.
+1. Physical Therapy Requirement Override under CIC § 10169.5(a)(3)
+Under California Insurance Code (CIC) § 10169.5(a), a health insurer shall not condition approval of a surgical procedure on completion of physical therapy where:
+"(3) The condition involves objective evidence of structural neurological compromise that physical therapy cannot address."
+Furthermore, CIC § 10169.5(c) mandates that "A plan's internal requirement for a minimum number of weeks of physical therapy shall not be applied mechanically without reference to whether the member has achieved a functional plateau or whether the condition involves neurological urgency under subdivision (a)(3)."
 
-II. REGULATORY FRAMEWORK AND OVERRIDE OF RESTRICTIVE PLAN CRITERIA
-The plan's initial denial relied on a strict interpretation of Section 2.1(b) of CC-SPINE-2024, which defines cervical myelopathy as "spinal cord compression with myelopathic symptoms," requiring measurable compression on imaging.
+In this case, the member's clinical record contains clear, objective evidence of structural neurological compromise: a C5-C6 disc herniation with documented "mild cord contact" on MRI (dated September 1, 2024) that correlates directly with multiple objective upper motor neuron (UMN) signs on physical examination (dated September 5, 2024), including bilateral Hoffman's sign, bilateral upper extremity hyperreflexia, sustained ankle clonus, and a positive finger escape sign. Physical therapy is a mechanical modality that cannot address, reverse, or relieve this structural mechanical contact on the spinal cord. 
 
-However, under California Health and Safety Code (CHSC) § 1374.32(a), "medically necessary" services must be determined in accordance with generally accepted standards of medical practice. Furthermore, California Department of Managed Health Care (DMHC) All-Plan Letter (APL) 22-014 Section II.3 explicitly prohibits health plans from applying internal coverage criteria that are more restrictive than generally accepted standards of medical practice. Where a conflict exists between plan criteria and generally accepted clinical standards, the clinical standard must govern.
+Therefore, the plan's mechanical application of the 6-week physical therapy requirement (denying the request because the member completed 5 weeks instead of 6) is a direct violation of CIC § 10169.5(a)(3) and (c). The physical therapy requirement is legally waived.
 
-Because the plan's requirement for measurable cord compression or T2 signal change on MRI to confirm myelopathy is more restrictive than the AANS/CNS clinical guidelines—which establish myelopathy based on multiple positive UMN signs with correlating structural pathology—the clinical standard must override the plan's restrictive criteria. Accordingly, the member has a confirmed diagnosis of cervical myelopathy under the clinical standard, and the modified conservative treatment requirements of the Myelopathy Pathway (Section 2.2(A)) must be applied.
+2. Medical Necessity Standard and Pharmacotherapy Override under CHSC § 1374.32
+Under California Health & Safety Code (CHSC) § 1374.32(a), "medically necessary" means health care services that a physician or other provider, exercising prudent clinical judgment, would provide to a patient for the purpose of preventing, evaluating, diagnosing, or treating an illness, injury, disease, or its symptoms, and that are:
+"(1) In accordance with generally accepted standards of medical practice; [and]
+(2) Clinically appropriate, in terms of type, frequency, extent, site, and duration, and considered effective for the patient's illness, injury, or disease..."
 
-III. SATISFACTION OF THE PHYSICAL THERAPY REQUIREMENT
-Under the plan's Clinical Coverage Criteria CC-SPINE-2024, Section 2.2(A) (Myelopathy Pathway), the physical therapy requirement is modified and reduced from 6 weeks to a minimum of 4 weeks.
+Crucially, CHSC § 1374.32(b) states: "The IMR standard does NOT require that the service be consistent with the plan's internal coverage criteria. If the service meets the standard in subdivision (a), the reviewer SHALL recommend approval regardless of whether the plan's internal criteria are more restrictive." Under CHSC § 1374.32(c), the plan's internal medical necessity criteria may be used as a reference but "SHALL NOT be the sole or determinative basis" for a decision.
 
-The clinical record demonstrates that the member completed 5 weeks of supervised physical therapy (totaling 15 sessions) directed at her cervical spine. The physical therapy summary notes that the member's neurological signs remained unchanged, and the treating physician halted further therapy due to concerns over myelopathic progression.
+Under generally accepted standards of medical practice (AANS/CNS Joint Guidelines for Management of Degenerative Cervical Myelopathy 2023; NASS Evidence-Based Clinical Guidelines 2020; AO Spine International Clinical Practice Guideline 2021):
+- A clinical diagnosis of cervical myelopathy is established by the presence of multiple objective upper motor neuron (UMN) signs on physical examination (such as bilateral Hoffman's, hyperreflexia, clonus, finger escape, and gait disturbance) with correlating structural pathology (such as C5-C6 disc herniation with mild cord contact). Imaging-negative or mild-contact myelopathy is a recognized clinical entity where clinical signs precede advanced MRI changes (such as myelomalacia or T2 signal change).
+- These clinical standards explicitly state that there is no high-quality evidence supporting a mandatory course of physical therapy or extended pharmacotherapy (such as a 4-week steroid trial) prior to surgical decompression for patients with cervical myelopathy and objective neurological deficits.
+- Delaying surgery to complete an arbitrary 4-week trial of a second pharmacotherapy agent (such as oral steroids, which are not indicated for long-term use in myelopathy and carry significant risks) is clinically inappropriate, is not supported by evidence, and poses a risk of irreversible neurological deterioration.
+- The AO Spine Guidelines (2021) state: "There is no high-quality evidence supporting a mandatory course of physical therapy prior to surgical intervention for patients with moderate to severe cervical myelopathy. Delaying surgery in such patients to complete a physical therapy trial is not supported by the evidence and may result in neurological deterioration."
 
-Because the member completed 5 weeks of physical therapy, she has fully satisfied the 4-week physical therapy requirement under the Myelopathy Pathway (Section 2.2(A)). Furthermore, under California Insurance Code (CIC) § 10169.5(c), a plan's internal requirement for a minimum duration of physical therapy shall not be applied mechanically without reference to whether the member has achieved a functional plateau or whether the condition involves neurological urgency. The physical therapy records confirm the member reached a functional plateau with unchanged neurological signs, making further mechanical application of a longer PT trial legally and clinically impermissible.
+Because the plan's internal criteria (CC-SPINE-2024 Section 2.2(b)) require a 4-week trial of at least two pharmacotherapy agents, and because the plan's internal Myelopathy Pathway (Exception 2.2(A)) does not waive this requirement, the plan's criteria are more restrictive than generally accepted standards of medical practice. Under CHSC § 1374.32, generally accepted standards of medical practice govern, and the plan's restrictive pharmacotherapy requirements are legally overridden.
 
-IV. SATISFACTION OF THE PHARMACOTHERAPY REQUIREMENT
-The plan's Myelopathy Pathway (Section 2.2(A)) states that the pharmacotherapy requirement of Section 2.2(b) "remains in full." Section 2.2(b) requires a trial of at least two qualifying agents (such as NSAIDs, muscle relaxants, neuropathic agents, or oral corticosteroids) for a minimum of 4 weeks each.
+IV. CONCLUSION
+The requested Anterior Cervical Decompression and Fusion (ACDF) at C5-C6 (CPT 22551) is medically necessary under California law and generally accepted clinical standards. The member has objective evidence of structural neurological compromise (C5-C6 disc herniation with mild cord contact and multiple positive UMN signs) that physical therapy cannot address, triggering a statutory waiver of the physical therapy requirement under CIC § 10169.5(a)(3). Furthermore, the plan's internal pharmacotherapy requirements are more restrictive than generally accepted standards of medical practice and are overridden under CHSC § 1374.32.
 
-The clinical record shows the member trialed:
-1. Baclofen (muscle relaxant) 5mg TID for 2 months (minimal spasticity relief).
-2. Methylprednisolone taper (oral corticosteroid) for 10 days (no improvement).
+The prior authorization denial is hereby OVERTURNED, and the procedure is APPROVED.
 
-Strictly applied, the member did not complete a 4-week trial of a second agent, as the methylprednisolone taper was limited to 10 days. However, under CHSC § 1374.32(a)(2), a medically necessary service must be "clinically appropriate, in terms of type, frequency, extent, site, and duration."
-
-Under generally accepted standards of medical practice, a 4-week continuous trial of oral corticosteroids is clinically inappropriate, highly unsafe, and contraindicated due to the severe risk of systemic side effects, including adrenal suppression, avascular necrosis (osteonecrosis) of the femoral head, severe immunosuppression, and metabolic derangement. A 10-day taper represents the standard, safe clinical duration for oral steroid administration in this clinical context.
-
-Furthermore, because the member has established clinical myelopathy with progressive upper motor neuron signs (including sustained ankle clonus and a wide-based gait), requiring an additional 4-week trial of any other conservative pharmacotherapy is clinically contraindicated. According to the AO Spine International Clinical Practice Guidelines (2021) and the AANS/CNS Guidelines (2023), delaying surgical decompression in patients with active clinical myelopathy to complete prolonged conservative trials is not supported by clinical evidence and poses a severe, unacceptable risk of irreversible spinal cord injury and permanent neurological deficit.
-
-Therefore, the member's 2-month trial of Baclofen combined with a clinically appropriate 10-day methylprednisolone taper satisfies the clinical standard of medical necessity under CHSC § 1374.32, and the pharmacotherapy requirement is deemed met.
-
-V. CONCLUSION AND DISPOSITION
-The member has established clinical cervical myelopathy at C5-C6 with multiple positive upper motor neuron signs. Under California law (CHSC § 1374.32 and DMHC APL 22-014 Section II.3), the clinical standard of medical practice overrides the plan's restrictive imaging requirements. The member has completed 5 weeks of physical therapy, satisfying the 4-week requirement under the Myelopathy Pathway (Section 2.2(A)). The pharmacotherapy requirement is satisfied under clinical standards, as a 4-week oral steroid trial is clinically inappropriate and unsafe, and further conservative delays are contraindicated.
-
-Accordingly, the prior authorization denial for Anterior Cervical Discectomy and Fusion (ACDF) C5-C6 (CPT 22551) is OVERTURNED. The procedure is APPROVED.
-
-Authorization Details:
-- Approved Procedure: ACDF C5-C6, one level (CPT 22551)
-- Requesting Provider: Dr. Robert Adams, MD
-- Facility: UCSF Medical Center
-- Authorization Period: 90 days from the date of this letter (valid through February 12, 2025)
-
-Sincerely,
-
-Appeal Determination Services
+Authorized Signature:
+Medical Director, Appeal Determination Services
 HealthFirst Health Plan

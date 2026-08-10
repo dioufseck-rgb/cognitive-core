@@ -1,10 +1,12 @@
 CASE: pa_2024_e002
 SYSTEM: CC
-DISPOSITION: OVERTURN
+DISPOSITION: PARTIAL
 GT: PARTIAL
-CORRECT: False
-ELAPSED: 334.3s
+CORRECT: True
+ELAPSED: 516.7s
 ========================================================================
+
+FINAL DISPOSITION: PARTIAL OVERTURN: Approve CPT 22551 x1 for the C4-C5 level and CPT 22552 x1 for the C5-C6 level. Uphold the denial of the C3-C4 level (which would have been represented by a second unit of CPT 22552).
 
 HEALTHFIRST HEALTH PLAN
 APPEALS AND GRIEVANCES DEPARTMENT
@@ -14,99 +16,70 @@ San Francisco, CA 94120
 Date: December 15, 2024
 
 CASE ID: PA-2024-E002
-MEMBER NAME: Catherine Mills
+MEMBER: Catherine Mills
 MEMBER ID: M-778811
 PLAN: HealthFirst PPO Gold — Group Plan 77441
-STATE OF RESIDENCY: California
-REQUESTING SURGEON: Dr. James Torres, MD — Neurosurgery
+PROVIDER: Dr. James Torres, MD — Neurosurgery
 FACILITY: Cedars-Sinai Medical Center
-DATE OF INITIAL DENIAL: November 25, 2024
-DATE OF APPEAL RECEIPT: December 10, 2024
-PROCEDURE REQUESTED: Anterior Cervical Discectomy and Fusion (ACDF) C3-C4, C4-C5, and C5-C6 — Three Levels (CPT 22551 x3)
+APPEAL DATE: December 10, 2024
+INITIAL DENIAL DATE: November 25, 2024
+
+FINAL APPEAL DETERMINATION: PARTIAL OVERTURN
 
 Dear Ms. Mills and Dr. Torres,
 
-This letter serves as the formal first-level appeal determination regarding the prior authorization request for a three-level anterior cervical discectomy and fusion (ACDF) at C3-C4, C4-C5, and C5-C6 (CPT 22551 x3). 
+The HealthFirst Appeals and Grievances Department has completed its review of the prior authorization appeal for the requested multi-level anterior cervical discectomy and fusion (ACDF) surgery. 
 
---------------------------------------------------------------------------------
-1. FORMAL DETERMINATION: PARTIAL DISPOSITION
---------------------------------------------------------------------------------
-Following a comprehensive, level-by-level clinical, regulatory, and evidentiary review of the complete medical record, HealthFirst has issued a PARTIAL DISPOSITION on appeal:
+Based on a comprehensive review of the clinical record, current imaging, California regulatory requirements, and generally accepted standards of medical practice, HealthFirst has issued a PARTIAL OVERTURN of the initial denial. We have approved a two-level ACDF at the C4-C5 and C5-C6 levels under a corrected, compliant coding structure, and we have upheld the denial for the C3-C4 level.
 
-*   ACDF at C4-C5 (CPT 22551, Level 1): OVERTURNED (Approved)
-*   ACDF at C5-C6 (CPT 22551, Level 2): OVERTURNED (Approved)
-*   ACDF at C3-C4 (CPT 22551, Level 3): UPHELD (Denied)
+AUTHORIZED PROCEDURES:
+1. CPT Code 22551 x1: Anterior cervical discectomy and fusion (ACDF), single interspace (Approved for the C4-C5 level).
+2. CPT Code 22552 x1: Anterior cervical discectomy and fusion (ACDF), each additional interspace (Approved for the C5-C6 level).
 
-HealthFirst will authorize CPT 22551 x2 to cover the two-level ACDF at C4-C5 and C5-C6. The request for the third level at C3-C4 remains denied as it does not meet clinical coverage criteria or generally accepted standards of medical practice.
+DENIED PROCEDURES:
+1. CPT Code 22552 x1: Anterior cervical discectomy and fusion (ACDF), each additional interspace (Denied for the C3-C4 level).
 
---------------------------------------------------------------------------------
-2. CLINICAL BACKGROUND AND TIMELINE
---------------------------------------------------------------------------------
-Ms. Catherine Mills is a 53-year-old female with a presenting diagnosis of multi-level cervical spondylosis with myeloradiculopathy. 
-*   On October 1, 2024, a cervical spine MRI was performed.
-*   On October 5, 2024, a detailed neurological examination was conducted.
-*   From August through October 2024, the member completed 9 weeks (27 sessions) of supervised physical therapy.
-*   The member trialed Baclofen 10mg TID for 3 months and Pregabalin 300mg BID for 4 months.
-*   On October 20, 2024, the member underwent a cervical epidural steroid injection.
-*   On November 25, 2024, HealthFirst issued an initial binary denial (MED-003) reviewed by Dr. Alan Foster, MD, stating that the clinical record supported surgical intervention at C4-C5 only, and that C3-C4 and C5-C6 did not demonstrate pathology of sufficient severity.
-*   On December 10, 2024, Dr. James Torres, MD, submitted a first-level appeal on behalf of the member.
+I. CODING CORRECTION AND COMPLIANCE DIRECTIVE
+The initial prior authorization request was submitted for "CPT 22551 x3" (three units of the primary ACDF code). Under standard American Medical Association (AMA) CPT coding guidelines, CPT 22551 is a single-level primary code and cannot be billed in multiple units for a single operative session. Multi-level fusions must be coded using the primary code CPT 22551 for the first level, and the add-on code CPT 22552 for each additional level. 
 
---------------------------------------------------------------------------------
-3. LEVEL-BY-LEVEL CLINICAL AND REGULATORY ANALYSIS
---------------------------------------------------------------------------------
+Approving "CPT 22551 x3" would constitute a severe coding and billing error, violating federal and state billing compliance standards and resulting in improper billing of three primary procedures instead of one primary and two add-on procedures. To ensure administrative and billing compliance, HealthFirst has restructured the authorization to approve CPT 22551 x1 (C4-C5) and CPT 22552 x1 (C5-C6), while upholding the denial of the C3-C4 level (which would have been represented by a second unit of CPT 22552).
 
-3.1  C4-C5 LEVEL — DISPOSITION: OVERTURNED (APPROVED)
-*   Clinical Findings: The MRI dated October 1, 2024, demonstrates a large disc herniation, severe spinal cord compression, and T2 signal change (myelomalacia). The neurological exam dated October 5, 2024, reveals objective upper motor neuron signs of cervical myelopathy: bilateral hyperreflexia, bilateral Hoffman sign, a wide-based gait, and bilateral deltoid weakness (4/5 strength at the C5 level).
-*   Plan Criteria Alignment: This level fully satisfies HealthFirst Clinical Coverage Criteria CC-SPINE-2024 Section 2.1(b) (confirmed diagnosis of cervical myelopathy with objective symptoms including gait disturbance, hyperreflexia, and positive Hoffman sign). It also satisfies Section 2.2(A) (Myelopathy Pathway Exception), which reduces the physical therapy requirement to 4 weeks (the member completed 9 weeks) and maintains the pharmacotherapy requirement (the member completed trials of Baclofen and Pregabalin, satisfying Section 2.2(b)).
-*   Regulatory Framework: Under California Department of Managed Health Care (DMHC) All-Plan Letter (APL) 22-014 Section II.1, cervical myelopathy with objective cord compression and myelomalacia on MRI is classified as an urgent, time-sensitive neurological condition with potential for irreversible harm. Under APL 22-014 Section II.2, plans are prohibited from mechanically requiring conservative treatment trials when objective imaging demonstrates progressive pathology (myelomalacia) and delay risks permanent deficit. Furthermore, California Insurance Code (CIC) § 10169.5(a)(3) prohibits conditioning surgical approval on physical therapy where there is objective evidence of structural neurological compromise that physical therapy cannot address.
-*   Clinical Evidence Base: Under the AANS/CNS Joint Guidelines (2023 Update) Section 3.1, the presence of moderate-to-severe myelopathy with objective cord compression and myelomalacia on MRI constitutes a Tier 1 Strong Indication for surgical decompression. The clinical evidence summary (Section 2.3) indicates that preoperative myelomalacia is the strongest predictor of incomplete neurological recovery if surgery is delayed. 
-*   Conclusion: The plan's initial binary denial of the entire procedure delayed necessary care for this urgent level. The denial for the C4-C5 level is overturned.
+II. CLINICAL RATIONALE BY LEVEL
 
-3.2  C5-C6 LEVEL — DISPOSITION: OVERTURNED (APPROVED)
-*   Clinical Findings: The MRI dated October 1, 2024, demonstrates a moderate disc herniation, moderate left C6 nerve root compression, and foraminal stenosis. The neurological exam dated October 5, 2024, documents objective lower motor neuron deficits: left bicep weakness (4-/5 strength) and a diminished left bicep reflex, correlating directly with C6 radiculopathy.
-*   Plan Criteria Alignment: This level fully satisfies CC-SPINE-2024 Section 2.1(a) (cervical radiculopathy with dermatomal weakness and reflex changes) and Section 2.1(c) (cervical disc herniation with objective neurological deficit). It also fully satisfies all standard conservative treatment requirements under Section 2.2:
-    *   Section 2.2(a) (Physical Therapy): Completed 9 weeks (27 sessions), exceeding the 6-week minimum.
-    *   Section 2.2(b) (Pharmacotherapy): Completed a 3-month trial of Baclofen (muscle relaxant) and a 4-month trial of Pregabalin (neuropathic agent), exceeding the 4-week minimum for two agents.
-    *   Section 2.2(c) (Interventional): Completed a cervical epidural steroid injection on October 20, 2024.
-    *   Section 2.3 (Imaging): Current MRI (within 6 months) demonstrates structural pathology (moderate left C6 compression) consistent with the member's left-sided C6 radicular symptoms.
-*   Regulatory Framework: Under CIC § 10169.5(a)(2), a health plan cannot condition surgical approval on further physical therapy once a patient has completed a course of therapy and the treating provider documents a "functional plateau" without adequate resolution of symptoms. The physical therapy summary note explicitly states: "9 weeks PT. Myelopathic symptoms stable but not improved. C5-C6 radicular symptoms persist." This clinical record establishes a functional plateau under CIC § 10169.5(b). The plan's initial denial of this level violates CIC § 10169.5(c) by mechanically applying criteria without reference to the documented functional plateau.
-*   Clinical Evidence Base: Under the NASS Evidence-Based Clinical Guidelines (2020) and AANS/CNS Joint Guidelines (2023) Section 3.1, surgical decompression is a Tier 2 Reasonable Indication for patients with cervical radiculopathy, moderate disc herniation, and objective neurological deficits (weakness and reflex changes) who have failed a comprehensive 6-to-12-week course of conservative management.
-*   Conclusion: The clinical record demonstrates that the member met all internal plan criteria and clinical standards for the C5-C6 level. The initial denial of this level was clinically and factually incorrect and is overturned.
+1. C4-C5 LEVEL: OVERTURNED (APPROVED under CPT 22551 x1)
+- Clinical Presentation & Imaging: The patient's MRI dated 2024-10-01 demonstrates a large disc herniation at C4-C5 causing severe spinal cord compression and T2 signal change within the spinal cord, which is diagnostic of myelomalacia. The neurological exam dated 2024-10-05 confirms objective upper motor neuron signs of cervical myelopathy, including bilateral hyperreflexia, bilateral Hoffman sign, and a wide-based gait.
+- Plan Criteria Analysis: Under HealthFirst Clinical Coverage Criteria CC-SPINE-2024, Section 2.1(b), the patient has a confirmed diagnosis of cervical myelopathy. Under Section 2.2 Exception 2.2(A) (Myelopathy Pathway), the conservative treatment requirement is modified: the physical therapy requirement is reduced to 4 weeks, and the interventional treatment requirement is waived if it poses a risk of neurological deterioration. The patient completed 9 weeks of physical therapy and 4 months of pharmacotherapy (Pregabalin and Baclofen), fully satisfying the plan's criteria.
+- Regulatory Override & Clinical Standards: Under California Department of Managed Health Care (DMHC) All-Plan Letter (APL) 22-014, cervical myelopathy with objective cord compression and myelomalacia on MRI is a time-sensitive, urgent condition with potential for irreversible harm. Plans are prohibited from requiring a full course of conservative treatment when myelomalacia is present. Furthermore, California Insurance Code (CIC) § 10169.5(a)(3) prohibits conditioning surgical approval on physical therapy when there is objective evidence of structural neurological compromise (such as severe cord compression and myelomalacia) that physical therapy cannot address. Generally accepted clinical standards (AANS/CNS Joint Section Guidelines, 2023; AO Spine Guidelines, 2021) state that moderate-to-severe myelopathy with myelomalacia is a Tier 1 (Strong Indication) for immediate surgical decompression, and delaying surgery to complete conservative trials is a clinical error that risks permanent neurological deficit. Therefore, surgical decompression at C4-C5 is medically necessary.
 
-3.3  C3-C4 LEVEL — DISPOSITION: UPHELD (DENIED)
-*   Clinical Findings: The MRI dated October 1, 2024, demonstrates only a mild disc bulge and minimal foraminal narrowing. The neurological exam dated October 5, 2024, states that the clinical contribution of this level is "unclear — neck pain with C3-C4 palpation but no specific radicular pattern." The physical therapy summary note similarly states: "C3-C4 contribution unclear."
-*   Plan Criteria Alignment: This level fails to satisfy CC-SPINE-2024 Section 2.1, as there is no documented cervical radiculopathy, cervical myelopathy, or objective neurological deficit attributable to the C3-C4 level. Consequently, this level is excluded under Section 3.1 (surgery requested solely for axial neck pain without documented radiculopathy or myelopathy) and Section 3.3 (imaging does not demonstrate pathology at the proposed surgical level consistent with clinical presentation).
-*   Regulatory Framework: The denial of this level complies with California regulatory requirements. Because there is no objective structural neurological compromise (such as cord compression or myelomalacia) at C3-C4, the regulatory overrides under CIC § 10169.5(a)(3) and DMHC APL 22-014 do not apply.
-*   Clinical Evidence Base: Under the AANS/CNS Joint Guidelines (2023) Section 3.1, surgical intervention at C3-C4 falls under Tier 3 (Surgery Not Indicated) because the clinical presentation is limited to axial neck pain and mild imaging findings without correlating neurological deficits or symptoms.
-*   Conclusion: There is no clinical, regulatory, or evidence-based justification for surgical fusion at the C3-C4 level. The denial of this level is upheld.
+2. C5-C6 LEVEL: OVERTURNED (APPROVED under CPT 22552 x1)
+- Clinical Presentation & Imaging: The MRI dated 2024-10-01 demonstrates a moderate disc herniation at C5-C6 with moderate left C6 nerve root compression and foraminal stenosis. The neurological exam dated 2024-10-05 reveals objective lower motor neuron deficits localizing to the C6 nerve root, specifically left bicep weakness (graded 4-/5) and a diminished left bicep reflex.
+- Plan Criteria Analysis: Under HealthFirst Clinical Coverage Criteria CC-SPINE-2024, Section 2.1(a) and (c), the patient has a confirmed diagnosis of cervical radiculopathy and cervical disc herniation with objective neurological deficit. Under Section 2.2, the patient completed a comprehensive course of conservative treatment: (a) 9 weeks of physical therapy (exceeding the 6-week minimum), (b) pharmacotherapy with Pregabalin (4 months) and Baclofen (3 months) (exceeding the 2-drug, 4-week minimum), and (c) a cervical epidural steroid injection on 2024-10-20.
+- Resolution of Conservative Treatment Efficacy: The initial reviewer suggested that because the epidural steroid injection on 2024-10-20 resulted in "modest improvement in radicular symptoms," conservative treatment was successful and had not failed. However, the physical therapy summary notes that "C5-C6 radicular symptoms persist" and the neurological exam confirms persistent left bicep weakness (4-/5) and a diminished reflex. Under California Insurance Code (CIC) § 10169.5(a)(2), a health plan cannot condition approval on further physical therapy when the patient has completed a course of PT and reached a functional plateau without adequate resolution of symptoms. Under Section 5 of the Clinical Reference Summary, a patient who achieves partial pain reduction but no improvement in objective neurological deficits (weakness, reflex changes) after a comprehensive therapy course has reached a functional plateau. Generally accepted clinical standards (NASS Guidelines, 2020; AANS/CNS Guidelines, 2023) state that persistent radicular symptoms with objective motor weakness (4-/5 bicep weakness) despite a 9-week conservative trial constitute a Tier 2 (Reasonable Indication) for surgical decompression. Denying surgery for C5-C6 because of "modest improvement" from an injection ignores the persistence of objective motor weakness and the failure of conservative therapy to resolve the neurological deficit, exposing the patient to progressive nerve root injury. Therefore, surgical decompression at C5-C6 is medically necessary.
 
---------------------------------------------------------------------------------
-4. CROSS-SOURCE CONFLICT RESOLUTION & HIERARCHY APPLICATION
---------------------------------------------------------------------------------
-In evaluating this appeal, HealthFirst applied the mandatory California regulatory hierarchy: State Law (CIC/CHSC/DMHC Regulations) > Generally Accepted Clinical Standards > Plan Coverage Criteria.
+3. C3-C4 LEVEL: UPHELD (DENIED)
+- Clinical Presentation & Imaging: The MRI dated 2024-10-01 demonstrates only a mild disc bulge and minimal foraminal narrowing at C3-C4. The neurological exam dated 2024-10-05 shows no specific radicular pattern or objective neurological deficit localizing to the C3-C4 level (noting only "neck pain with C3-C4 palpation"). The physical therapy summary explicitly states that the C3-C4 contribution is "unclear."
+- Plan Criteria Analysis: Under HealthFirst Clinical Coverage Criteria CC-SPINE-2024, Section 3.1, surgical authorization is excluded when requested solely for axial neck pain without documented radiculopathy or myelopathy. Under Section 3.3, surgery is excluded when imaging does not demonstrate pathology at the proposed level consistent with the clinical presentation.
+- Clinical Standards: Generally accepted clinical standards (AANS/CNS Guidelines, 2023) classify surgery for mild imaging findings without correlating symptoms or for axial neck pain alone as Tier 3 (Surgery Not Indicated). There is no clinical evidence that a fusion at C3-C4 would benefit the patient, and performing an unnecessary adjacent-level fusion exposes the patient to significant risks, including adjacent segment disease and pseudarthrosis. Therefore, the denial of the C3-C4 level is upheld.
 
-1.  **Binary vs. Segmental Analysis Conflict:** The plan's initial denial (MED-003) issued a binary, aggregate denial of the entire three-level procedure. This created a conflict because the plan's reviewer acknowledged that C4-C5 was medically necessary, yet denied the entire authorization. Under CHSC § 1374.31(a), a denial notice must specify the precise clinical reasons and criteria for each denied service. Issuing a blanket denial for a multi-level request when specific levels are clearly indicated constitutes a procedural defect. HealthFirst has resolved this conflict by performing a segmental, level-by-level analysis, authorizing the medically necessary levels (C4-C5 and C5-C6) while upholding the denial only for the non-indicated level (C3-C4).
-2.  **Conservative Treatment Conflict:** To the extent that the plan's initial review mechanically required further conservative treatment for the C4-C5 and C5-C6 levels, state law and clinical standards override such requirements. Under DMHC APL 22-014 and CIC § 10169.5(a)(3), the severe cord compression and myelomalacia at C4-C5 create an urgent clinical situation where physical therapy is contraindicated and cannot resolve the structural compromise. For C5-C6, the member's completion of 9 weeks of physical therapy with persistent radicular weakness represents a documented functional plateau under CIC § 10169.5(a)(2). Therefore, any mechanical application of plan criteria to deny these levels is legally and clinically superseded.
+III. PROCEDURAL COMPLIANCE NOTE
+Under California Health & Safety Code (CHSC) § 1374.31(a) and (b), a health plan's denial notice must specify the clinical criteria applied and the specific clinical reasons for the denial. The initial denial notice dated 2024-11-25 failed to cite the specific sections of the HealthFirst Clinical Coverage Criteria (CC-SPINE-2024) applied and failed to provide a detailed clinical explanation for why the C5-C6 level was denied despite documented motor weakness. This procedural defect has been corrected in this final appeal determination.
 
---------------------------------------------------------------------------------
-5. NOTICE OF INDEPENDENT MEDICAL REVIEW (IMR) RIGHTS
---------------------------------------------------------------------------------
-Because a portion of your requested service (the C3-C4 level) has been upheld as denied, you have the right to appeal this decision to an independent, external review body.
+IV. NOTICE OF INDEPENDENT MEDICAL REVIEW (IMR) RIGHTS
+Because a portion of your request (the C3-C4 level) has been upheld as denied, you have the right to request an Independent Medical Review (IMR) through the California Department of Managed Health Care (DMHC).
 
-**Your Right to an Independent Medical Review (IMR):**
-Under California Health & Safety Code (CHSC) § 1374.30, you are entitled to apply for an Independent Medical Review (IMR) through the California Department of Managed Health Care (DMHC) if you disagree with this decision. 
+What is an Independent Medical Review?
+An IMR is an evaluation of your case by independent, board-certified doctors who are not associated with HealthFirst. If the IMR reviewer decides that the denied service is medically necessary, HealthFirst is legally required to approve and cover the service. The IMR process is free to you.
 
-*   **No Cost to You:** The IMR process is completely free to the member.
-*   **Standard of Review:** Under CHSC § 1374.32, the independent medical reviewer will evaluate your case using generally accepted standards of medical practice, independent of HealthFirst's internal coverage criteria.
-*   **How to Apply:** You may submit an application for IMR to the DMHC. Application forms and instructions are available online at www.dmhc.ca.gov or by calling the DMHC Help Center at 1-888-466-2219.
-*   **Expedited IMR:** Under CHSC § 1374.30(c), if your treating physician documents that your condition poses an imminent and serious threat to your health, you may request an expedited IMR, which is decided within 3 days of receipt of all necessary information.
+How to Apply for IMR:
+You may apply for an IMR if HealthFirst's decision has been upheld, modified, or delayed. You must submit your application to the DMHC within 180 days of receiving this letter. 
 
-If you have any questions regarding this determination, please contact the Appeals and Grievances Department at 1-800-555-1234.
+To apply, complete the Independent Medical Review/Complaint Form envelope provided with this letter or apply online at the DMHC website: www.dmhc.ca.gov. You may also contact the DMHC Help Center at 1-888-466-2219 for assistance.
 
 Sincerely,
 
-Appeals and Grievances Clinical Review Committee
-HealthFirst Health Plan
+HealthFirst Appeals and Grievances Department
+Medical Review Division
 
-Cc: Dr. James Torres, MD — Neurosurgery
-Enclosures: California IMR Application Form and DMHC Brochure
+Enclosures:
+- DMHC IMR Application Form and Instructions
+- Copy of HealthFirst Clinical Coverage Criteria CC-SPINE-2024

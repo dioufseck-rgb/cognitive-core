@@ -6,32 +6,31 @@
 ------------------------------------------------------------
   System        Correct  Total   Accuracy  Silent errors
   --------------------------------------------------------
-  cc                  6     11        54%              1
-  react               4     11        36%              7
-  plansolve           6     11        54%              5
+  cc                  9     11        81%              0
+  react               5     11        45%              6
+  plansolve           7     11        63%              4
 
   Dispositions by system:
-    cc         OVERTURN:7  REMAND:2  UPHOLD:2
-    react      OVERTURN:7  PARTIAL:2  UNKNOWN:1  UPHOLD:1
-    plansolve  OVERTURN:8  PARTIAL:1  REMAND:1  UPHOLD:1
+    cc         OVERTURN:5  PARTIAL:2  REMAND:1  UPHOLD:3
+    react      OVERTURN:8  PARTIAL:1  UPHOLD:2
+    plansolve  OVERTURN:6  PARTIAL:1  REMAND:1  UPHOLD:3
 
 All 26 cases
 ------------------------------------------------------------
   System        Correct  Total   Accuracy  Silent errors
   --------------------------------------------------------
-  cc                 20     26        76%              2
-  react              18     26        69%              8
-  plansolve          19     26        73%              7
+  cc                 24     27        88%              1
+  react              16     27        59%             11
+  plansolve          21     26        80%              5
 
   Dispositions by system:
-    cc         OVERTURN:22  REMAND:2  UPHOLD:2
-    react      OVERTURN:22  PARTIAL:2  UNKNOWN:1  UPHOLD:1
-    plansolve  ERROR:1  OVERTURN:22  PARTIAL:1  REMAND:1  UPHOLD:1
+    cc         ERROR:1  OVERTURN:19  PARTIAL:3  REMAND:1  UPHOLD:3
+    react      ERROR:1  OVERTURN:18  PARTIAL:6  UPHOLD:2
+    plansolve  OVERTURN:21  PARTIAL:1  REMAND:1  UPHOLD:3
 
   CC governance tier distribution (all cases):
-    auto         6
-    gate         17
+    auto         7
+    gate         19
     hold         1
-    spot_check   2
 
 ========================================================================

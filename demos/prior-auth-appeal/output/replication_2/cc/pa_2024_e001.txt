@@ -1,105 +1,113 @@
 CASE: pa_2024_e001
 SYSTEM: CC
-DISPOSITION: OVERTURN
+DISPOSITION: PARTIAL
 GT: PARTIAL
-CORRECT: False
-ELAPSED: 507.2s
+CORRECT: True
+ELAPSED: 326.1s
 ========================================================================
 
+FINAL DISPOSITION: PARTIAL — OVERTURN the denial for the C5-C6 level (CPT 22551) and REMAND the denial for the C6-C7 level (CPT 22552).
+
 HEALTHFIRST HEALTH PLAN
-CLINICAL APPEALS DEPARTMENT
-PO Box 9000, San Francisco, CA 94120
+APPEAL DETERMINATION SERVICES
+PO Box 4500, San Francisco, CA 94145
 
-Date: November 20, 2024
+Date: November 25, 2024
 
-CASE ID: PA-2024-E001
-MEMBER NAME: Victor Patel
-AGE: 60
-MEMBER ID: M-667799
-PLAN: HealthFirst PPO Gold — Group Plan 77441
-REQUESTING PROVIDER: Dr. Lisa Park, MD — Spine Surgery
-FACILITY: UCSF Medical Center
-DISPUTED SERVICE: Anterior Cervical Discectomy and Fusion (ACDF), Two Levels: C5-C6 and C6-C7 (CPT 22551 and CPT 22552)
-DATE OF INITIAL DENIAL: November 1, 2024
+Member Name: Victor Patel
+Member ID: M-667799
+Plan: HealthFirst PPO Gold — Group Plan 77441
+Plan Year: 2024
+State of Residence: California
+Case ID: PA-2024-E001
+Appeal Date: November 18, 2024
+Treating Physician: Dr. Lisa Park, MD — Spine Surgery, UCSF Medical Center
+Requested Procedure: Two-level Anterior Cervical Discectomy and Fusion (ACDF) C5-C6 and C6-C7 (CPT 22551 + 22552)
+Facility: UCSF Medical Center
 
---------------------------------------------------------------------------------
-APPEAL DETERMINATION: MODIFICATION (PARTIAL OVERTURN)
---------------------------------------------------------------------------------
-- C5-C6 LEVEL (CPT 22551): OVERTURNED (Surgical Authorization APPROVED)
-- C6-C7 LEVEL (CPT 22552): UPHELD (Surgical Authorization DENIED without prejudice)
+DETERMINATION: PARTIAL OVERTURN / PARTIAL REMAND
+- C5-C6 Level (CPT 22551): OVERTURNED (Approved)
+- C6-C7 Level (CPT 22552): REMANDED (Deferred for Additional Clinical Documentation)
 
 Dear Mr. Patel and Dr. Park,
 
-The HealthFirst Health Plan Clinical Appeals Department has completed its review of the appeal submitted on November 18, 2024, regarding the prior authorization denial for a two-level Anterior Cervical Discectomy and Fusion (ACDF) at C5-C6 and C6-C7. 
+HealthFirst Health Plan has completed its review of the first-level appeal regarding the prior authorization request for a two-level Anterior Cervical Discectomy and Fusion (ACDF) at the C5-C6 and C6-C7 levels (CPT codes 22551 and 22552). 
 
-Based on a comprehensive review of the clinical record, the HealthFirst Clinical Coverage Criteria (CC-SPINE-2024), and the California Regulatory Framework, we have MODIFIED the initial decision. We have OVERTURNED the denial for the C5-C6 level (CPT 22551) and authorized this procedure. We have UPHELD the denial for the C6-C7 level (CPT 22552) because it does not currently meet medical necessity criteria. 
+Based on a comprehensive review of the clinical record, the plan's clinical coverage criteria, California regulatory requirements, and generally accepted clinical standards, we have made a PARTIAL determination:
+1. The denial for the C5-C6 level (CPT 22551) is OVERTURNED and is hereby APPROVED.
+2. The denial for the C6-C7 level (CPT 22552) is REMANDED to the initial review level to allow for the collection of additional clinical documentation or diagnostic testing.
 
---------------------------------------------------------------------------------
-SECTION 1: PROCEDURAL DEFECT IN INITIAL PLAN DETERMINATION
---------------------------------------------------------------------------------
-Under California Health & Safety Code (CHSC) § 1374.31 and CHSC § 1367.01, health plans are required to apply medical necessity criteria reasonably and are prohibited from unnecessarily delaying or denying medically necessary care. 
+A detailed clinical and regulatory analysis supporting this determination is provided below.
 
-Our review identifies a significant procedural and clinical defect in the initial denial issued on November 1, 2024. The initial reviewer, Dr. Patricia Huang, MD, issued a blanket denial of the entire two-level request because one of the requested levels (C6-C7) did not meet criteria, stating: "Two-level fusion not approved when one level meets criteria and one does not." 
+---
 
-This blanket denial of a clearly indicated, medically necessary procedure at C5-C6—where the patient exhibits an active, severe neurological deficit (3+/5 right bicep weakness)—constitutes an unlawful delay of care under CHSC § 1367.01. Under California regulatory standards, the plan had an obligation to modify the request at the initial review stage, authorizing the medically necessary C5-C6 level (CPT 22551) while denying the C6-C7 level (CPT 22552). This determination formally corrects that procedural defect.
+SECTION 1: CLINICAL PRESENTATION AND CASE HISTORY
+Mr. Victor Patel is a 60-year-old male presenting with a diagnosis of two-level cervical disc disease at C5-C6 and C6-C7 with asymmetric severity. 
+- Imaging: A cervical spine MRI dated September 15, 2024, demonstrates:
+  - C5-C6: A large disc herniation, moderate-to-severe right C6 nerve root compression, and foraminal stenosis.
+  - C6-C7: A small disc bulge and mild foraminal narrowing, with no identifiable nerve root compression and no spinal cord contact.
+- Neurological Examination (September 20, 2024):
+  - C6 Level: Right bicep weakness graded at 3+/5, an absent right bicep reflex, and right C6 dermatomal numbness and tingling.
+  - C7 Level: Slightly diminished right tricep reflex. No definitive C7 dermatomal symptoms (numbness, tingling, or weakness) were documented. The physician noted that mild C7 symptoms were "possibly present" but not clearly documented.
+- Conservative Treatment History:
+  - Physical Therapy: Completed 8 weeks (24 sessions) of supervised physical therapy. The physical therapist's week 8 summary notes that C6 symptoms persist, while C7 symptoms were "minimal and possibly resolving."
+  - Pharmacotherapy: Completed a 4-month trial of Pregabalin (150mg BID) with partial relief of C6 symptoms and uncertain C7 contribution, and a 3-month trial of Naproxen (500mg BID) with moderate relief.
+  - Interventional Treatment: Received a right C6 epidural steroid injection on October 15, 2024, which provided 70% relief of C6 symptoms, though symptoms fully returned after 4 weeks. No C7-specific interventional treatment (such as a selective nerve root block or epidural) was performed.
 
---------------------------------------------------------------------------------
-SECTION 2: CLINICAL ANALYSIS & FINDINGS FOR C5-C6 (CPT 22551) — APPROVED
---------------------------------------------------------------------------------
-The request for ACDF at C5-C6 (CPT 22551) fully satisfies the HealthFirst Clinical Coverage Criteria (CC-SPINE-2024) and California's statutory medical necessity standard (CHSC § 1374.32):
+---
 
-1. Diagnosis and Objective Neurological Deficit (Section 2.1): 
-   The clinical record dated September 20, 2024, documents a severe, objective neurological deficit in the right C6 dermatomal distribution, including right bicep weakness graded at 3+/5, an absent right bicep reflex, and right C6 dermatomal numbness and tingling. This satisfies Section 2.1(c) (Cervical disc herniation with objective neurological deficit).
+SECTION 2: ANALYSIS OF C5-C6 LEVEL (CPT 22551) — OVERTURNED (APPROVED)
+The prior authorization denial for the C5-C6 level (CPT 22551) is overturned because the clinical record fully satisfies all medical necessity requirements under HealthFirst Clinical Coverage Criteria Document CC-SPINE-2024 and generally accepted clinical standards:
 
-2. Imaging Support (Section 2.3):
-   The cervical spine MRI dated September 15, 2024, demonstrates a large disc herniation at C5-C6 causing moderate-to-severe right C6 nerve root compression and foraminal stenosis. This structural pathology directly correlates with the member's right-sided C6 radiculopathy, satisfying Section 2.3.
+1. Diagnosis Requirement (Section 2.1): The member has a confirmed diagnosis of cervical radiculopathy at C5-C6, supported by objective neurological deficits (3+/5 right bicep weakness, absent right bicep reflex, and C6 dermatomal numbness/tingling) and a current MRI (September 15, 2024) demonstrating a large disc herniation and moderate-to-severe right C6 nerve root compression.
+2. Conservative Treatment Requirement (Section 2.2):
+   - Physical Therapy (Section 2.2(a)): The member completed 8 weeks of supervised physical therapy, exceeding the plan's 6-week minimum.
+   - Pharmacotherapy (Section 2.2(b)): The member completed trials of two qualifying agents for at least 4 weeks each (Pregabalin for 4 months and Naproxen for 3 months).
+   - Interventional Treatment (Section 2.2(c)): The member underwent a right C6 epidural steroid injection on October 15, 2024.
+3. Imaging Requirement (Section 2.3): The September 15, 2024 MRI demonstrates structural pathology (large herniation and moderate-severe compression) that directly correlates with the C6 radicular symptoms and deficits.
+4. Clinical Standards: Under the AANS/CNS Joint Guidelines (2023) and NASS Guidelines (2020), surgical decompression is strongly indicated (Tier 2) for patients with cervical radiculopathy who have persistent, severe symptoms and objective neurological deficits that have failed to respond to a comprehensive course of conservative management.
 
-3. Conservative Treatment (Section 2.2):
-   The member has completed an exhaustive course of conservative therapy that meets and exceeds all plan requirements:
-   - Physical Therapy (Section 2.2(a)): Completed 8 weeks (24 sessions) of supervised physical therapy directed at the cervical spine, during which C6 symptoms persisted.
-   - Pharmacotherapy (Section 2.2(b)): Documented trial of Pregabalin 150mg BID for 4 months (neuropathic agent) and Naproxen 500mg BID for 3 months (NSAID), satisfying the requirement for two agents trialed for at least 4 weeks.
-   - Interventional Treatment (Section 2.2(c)): Received a right C6 cervical epidural steroid injection on October 15, 2024, which provided 70% temporary relief but symptoms fully returned within 4 weeks.
+Therefore, the C5-C6 level (CPT 22551) is medically necessary and is approved.
 
-Because all clinical criteria are met, surgical decompression and fusion at C5-C6 (CPT 22551) is medically necessary and is hereby APPROVED.
+---
 
---------------------------------------------------------------------------------
-SECTION 3: CLINICAL ANALYSIS & FINDINGS FOR C6-C7 (CPT 22552) — DENIED
---------------------------------------------------------------------------------
-The request for ACDF at C6-C7 (CPT 22552) does not satisfy the HealthFirst Clinical Coverage Criteria (CC-SPINE-2024) or generally accepted standards of medical practice, and is therefore UPHELD (DENIED) without prejudice based on the following clinical findings:
+SECTION 3: ANALYSIS OF C6-C7 LEVEL (CPT 22552) — REMANDED
+The prior authorization denial for the C6-C7 level (CPT 22552) is remanded. While the treating physician's appeal basis states that both levels are symptomatic and should be addressed simultaneously to prevent adjacent segment degeneration, the current clinical documentation does not support the medical necessity of a fusion at C6-C7 under the plan's criteria or clinical standards:
 
-1. Lack of Correlative Imaging Pathology (Section 2.3 & Section 3.3):
-   The cervical spine MRI dated September 15, 2024, reveals only a small disc bulge and mild foraminal narrowing at C6-C7. Crucially, the radiologist noted "no nerve root compression identifiable" and "no cord contact" at this level. Under Section 3.3, surgical authorization must be denied when imaging does not demonstrate pathology at the proposed surgical level consistent with the clinical presentation.
+1. Lack of Objective Diagnostic and Clinical Correlation (Section 2.1 & 2.3): The September 15, 2024 MRI shows only a small disc bulge and mild foraminal narrowing at C6-C7, with no nerve root compression or cord contact. The neurological exam on September 20, 2024, noted "no definitive C7 dermatomal symptoms" and only a "slightly diminished" tricep reflex. Under Section 3.3 of CC-SPINE-2024, surgery is excluded when imaging does not demonstrate pathology consistent with the clinical presentation.
+2. Resolving Symptoms: The physical therapy week 8 discharge note indicates that C7 symptoms were "minimal and possibly resolving," suggesting that conservative management was effective for this level and that surgical intervention is premature.
+3. Lack of C7-Specific Interventional Trial: While a right C6 epidural was performed, no C7-specific diagnostic or therapeutic injection (such as a selective nerve root block) was attempted to confirm whether the C6-C7 level is a true, independent pain generator.
+4. Clinical Standards: Under the AANS/CNS Joint Guidelines (2023) Tier 3, surgical intervention is not indicated for mild imaging findings without correlating clinical symptoms or deficits.
 
-2. Absence of Definitive Clinical Symptoms (Section 2.1):
-   The neurological examination dated September 20, 2024, notes "no definitive C7 dermatomal symptoms" and states that mild C7 symptoms are "possibly present but not clearly documented." The only objective finding was a "slightly diminished" right tricep reflex. Furthermore, the physical therapy discharge summary at week 8 explicitly notes that C7 symptoms were "minimal and possibly resolving."
+However, because the treating physician has asserted that both levels are symptomatic, we are REMANDING the C6-C7 level rather than upholding the denial. This allows the provider to:
+- Submit updated, detailed clinical documentation clarifying the exact nature, distribution, and severity of any C7 dermatomal symptoms.
+- Consider performing a diagnostic C7 selective nerve root block to objectively demonstrate whether the C6-C7 level is a primary pain generator.
 
-3. Incomplete Conservative Treatment for the C7 Level (Section 2.2):
-   While the member failed conservative treatment for the C6 level, there is no documentation of targeted conservative management for a C7 radiculopathy. Specifically, no C7-specific interventional treatment (such as a selective nerve root block) has been performed.
+---
 
-Because the clinical findings and imaging at C6-C7 do not demonstrate significant structural compromise or correlating persistent radicular symptoms, a two-level fusion is not clinically indicated at this time. The denial of CPT 22552 is UPHELD.
+SECTION 4: REGULATORY COMPLIANCE AND RESOLUTION OF CONFLICTS
+Under California law, several procedural and substantive requirements govern this appeal:
 
---------------------------------------------------------------------------------
-SECTION 4: CLINICAL RECOMMENDATIONS FOR C6-C7 RECONSIDERATION
---------------------------------------------------------------------------------
-Because the patient's pathology and clinical presentation are strictly right-sided (unilateral), recommending a bilateral injection would expose the patient to unnecessary procedural risks on the asymptomatic left side. 
+1. Procedural Defect in Initial Denial: California Health & Safety Code (CHSC) § 1374.31(b) mandates that a denial notice must specify the clinical criteria applied and the specific clinical reasons for the denial. The initial denial notice dated November 1, 2024, failed to cite the specific sections of Clinical Coverage Criteria CC-SPINE-2024, stating only that "Two-level fusion [is] not supported." Under § 1374.31(b), this omission constitutes a procedural defect. We have corrected this defect in this appeal determination by providing exhaustive citations to CC-SPINE-2024.
+2. Inappropriateness of Blanket Denial: The plan's initial decision to issue a blanket denial for the entire two-level procedure because one level did not meet criteria is inconsistent with California's medical necessity standard under CHSC § 1374.32. Under CHSC § 1374.32, health plans must evaluate and authorize services that are clinically appropriate and medically necessary. Because the C5-C6 level independently met all criteria, a partial approval should have been issued initially.
+3. Physical Therapy Requirements: Under California Insurance Code (CIC) § 10169.5, a plan's physical therapy requirements cannot be applied mechanically. In this case, the member completed a full 8-week course of physical therapy and reached a functional plateau for his C6 symptoms, satisfying both the plan's criteria and statutory requirements.
 
-Therefore, if the patient's right-sided C7 symptoms persist or worsen following the C5-C6 decompression, the following clinical steps are recommended before surgical intervention at C6-C7 is reconsidered:
-1. A targeted right-sided (unilateral) selective nerve root block or epidural steroid injection targeting the right C7 nerve root to confirm the C7 level as a symptomatic pain generator.
-2. Updated clinical documentation detailing persistent, objective right-sided C7 dermatomal neurological deficits (e.g., progressive tricep weakness, persistent C7 dermatomal sensory loss) that have failed to respond to conservative measures.
-3. Updated imaging if there is clinical concern for progressive structural pathology.
+---
 
---------------------------------------------------------------------------------
-SECTION 5: CALIFORNIA REGULATORY COMPLIANCE & IMR RIGHTS
---------------------------------------------------------------------------------
-This decision has been rendered in strict compliance with California health care service plan standards. Under California Health & Safety Code § 1374.30, you have the right to request an Independent Medical Review (IMR) from the Department of Managed Health Care (DMHC) if you disagree with the upheld portion of this decision (the denial of the C6-C7 level).
+SECTION 5: INDEPENDENT MEDICAL REVIEW (IMR) RIGHTS
+If you disagree with the remanded status or the partial approval of this request, you have the right to request an Independent Medical Review (IMR) through the California Department of Managed Health Care (DMHC) or the California Department of Insurance, as applicable.
 
-IMR RIGHTS NOTICE:
-An Independent Medical Review (IMR) is an evaluation of your case by independent, board-certified specialist physicians who are not associated with HealthFirst. You may apply for an IMR if HealthFirst has denied, modified, or delayed a health care service based on a decision that the service is not medically necessary. 
+Under CHSC § 1374.30, you are entitled to an IMR if the health plan has denied, modified, or delayed a health care service based on a decision that the service is not medically necessary. 
+- There is no cost to you for an IMR.
+- You may submit an application for an IMR within 180 days of receiving this determination.
+- For urgent cases involving an imminent and serious threat to your health, you may request an expedited IMR immediately without exhausting the plan's internal grievance process (CHSC § 1374.30(c)).
 
-To apply for an IMR, please complete the IMR Application Form provided with this letter or apply online at the DMHC website (www.dmhc.ca.gov). There is no fee to apply. You may also contact the DMHC Help Center at 1-888-466-2219 for assistance.
+To apply for an IMR, please complete the IMR Application Form enclosed with this letter or apply online at the DMHC website (www.dmhc.ca.gov).
+
+If you have any questions regarding this determination, please contact HealthFirst Member Services at 1-800-555-0199.
 
 Sincerely,
 
-Clinical Appeals Committee
-HealthFirst Health Plan
-California License No. 4412-A
+Medical Director
+HealthFirst Appeal Review Department
+Board-Certified Specialist in Neurological/Spine Surgery

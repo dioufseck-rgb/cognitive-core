@@ -6,27 +6,27 @@
 ------------------------------------------------------------
   System        Correct  Total   Accuracy  Silent errors
   --------------------------------------------------------
-  cc                  7     11        63%              0
-  react               5     11        45%              6
+  cc                  8     11        72%              0
+  react               6     11        54%              5
   plansolve           6     11        54%              5
 
   Dispositions by system:
-    cc         OVERTURN:7  PARTIAL:1  REMAND:1  UPHOLD:2
-    react      OVERTURN:8  PARTIAL:1  UNKNOWN:1  UPHOLD:1
-    plansolve  ERROR:1  OVERTURN:7  UPHOLD:3
+    cc         OVERTURN:5  PARTIAL:2  REMAND:2  UPHOLD:2
+    react      OVERTURN:8  PARTIAL:1  UPHOLD:2
+    plansolve  OVERTURN:8  UPHOLD:3
 
 All 26 cases
 ------------------------------------------------------------
   System        Correct  Total   Accuracy  Silent errors
   --------------------------------------------------------
-  cc                 18     26        69%              0
-  react              19     26        73%              7
-  plansolve          20     26        76%              6
+  cc                 23     26        88%              0
+  react              18     26        69%              8
+  plansolve          17     26        65%              9
 
   Dispositions by system:
-    cc         ERROR:1  OVERTURN:19  PARTIAL:2  REMAND:1  UNKNOWN:1  UPHOLD:2
-    react      OVERTURN:21  PARTIAL:3  UNKNOWN:1  UPHOLD:1
-    plansolve  ERROR:1  OVERTURN:22  UPHOLD:3
+    cc         OVERTURN:19  PARTIAL:3  REMAND:2  UPHOLD:2
+    react      OVERTURN:19  PARTIAL:5  UPHOLD:2
+    plansolve  OVERTURN:19  PARTIAL:2  UPHOLD:5
 
   CC governance tier distribution (all cases):
     auto         4

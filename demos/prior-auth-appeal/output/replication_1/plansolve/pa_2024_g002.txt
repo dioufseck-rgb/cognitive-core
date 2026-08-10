@@ -3,113 +3,117 @@ SYSTEM: PLANSOLVE
 DISPOSITION: OVERTURN
 GT: OVERTURN
 CORRECT: True
-ELAPSED: 63.2s
+ELAPSED: 60.0s
 ========================================================================
 
-# HEALTHCARE INTEGRITY CLINICAL REVIEW & DETERMINATION
-**Independent Appeal Evaluation and Final Determination**
+# HEALTH PLAN APPEALS RESOLUTION SERVICES
+**STATE OF CALIFORNIA — INDEPENDENT MEDICAL REVIEW DIVISION**  
+*Document Type: Formal Prior Authorization Appeal Determination*  
+*Confidentiality: Protected Health Information (PHI) — HIPAA Compliant*
 
 ---
 
-### CASE PROFILE
+### CASE IDENTIFICATION & REVIEW SUMMARY
+
 *   **Case ID:** PA-2024-G002
 *   **Member Name:** Priya Nair
 *   **Member ID:** M-G002
 *   **Age:** 56
 *   **Health Plan:** HealthFirst PPO Gold — Group Plan 77441
-*   **State of Residence:** California (Governing Jurisdiction)
-*   **Plan Year:** 2024
-*   **Coverage Effective Date:** November 1, 2019
+*   **State of Residence:** California
+*   **Plan Year / Coverage Effective Date:** 2024 / November 1, 2019
 *   **Requested Procedure:** Anterior Cervical Discectomy and Fusion (ACDF), C5-C6, Single Level (CPT Code: 22551)
 *   **Requesting Physician:** Dr. James Chen, MD — Neurosurgery
 *   **Facility:** Cedars-Sinai Medical Center
-*   **Adverse Determination Date:** October 25, 2024
-*   **Adverse Determination Reason:** MED-003 (Failure to complete 6 weeks of physical therapy under standard pathway Section 2.2 of CC-SPINE-2024)
-*   **Reviewing Utilization Clinician:** Dr. Patricia Huang, MD — HealthFirst Utilization Management
+*   **Adverse Benefit Determination Date:** October 25, 2024
+*   **Adverse Determination Reviewer:** Dr. Patricia Huang, MD — HealthFirst Utilization Management
+*   **Denial Reason Code / Text:** MED-003 / "Member does not meet conservative treatment requirements under CC-SPINE-2024 Section 2.2. Physical therapy: 5 weeks completed. Standard pathway requires 6 weeks minimum. Member has not completed the required minimum conservative treatment."
 
 ---
 
-### FINAL APPEAL DETERMINATION
-**DISPOSITION: OVERTURN IN FULL**
-
-The prior adverse determination issued by HealthFirst Utilization Management on October 25, 2024, is **OVERTURNED**. This review finds that the member meets all medical necessity criteria for the requested anterior cervical discectomy and fusion (ACDF) at C5-C6 (CPT 22551) under the plan’s own clinical guidelines (Section 2.2A, Myelopathy Exception), California state statutory mandates (CIC § 10169.5 and DMHC APL 22-014), and generally accepted clinical standards of care (AANS/CNS 2023 and AO Spine 2021 Guidelines). 
-
-HealthFirst is hereby ordered to **immediately authorize** CPT 22551 for the requested date of service at Cedars-Sinai Medical Center.
+### FINAL DISPOSITION
+**DECISION: OVERTURNED IN FULL**  
+*The health plan’s decision to deny coverage for CPT Code 22551 (ACDF C5-C6) is **overturned in full**. HealthFirst Health Plan is hereby **ordered to immediately authorize** the requested surgical procedure and associated inpatient stay at Cedars-Sinai Medical Center.*
 
 ---
 
-## PART I: EVALUATION STEPS
+### EXECUTIVE SUMMARY OF DETERMINATION
 
-### STEP 1: Procedural Adequacy and Defect Review (CHSC § 1374.31(b))
-A rigorous review of the initial denial notice issued on October 25, 2024, reveals a critical **procedural defect** under California Health & Safety Code (CHSC) § 1374.31(b). 
-*   **Procedural Defect Finding:** Under CHSC § 1374.31(b), a medical necessity denial must specify the precise clinical criteria applied and provide the specific, detailed clinical reasons why the member did not meet those criteria, including why any applicable clinical exceptions were not applied. 
-*   The initial reviewer, Dr. Patricia Huang, mechanically applied the standard 6-week physical therapy requirement of Section 2.2, failing to acknowledge that the member's primary documented diagnosis was **cervical myelopathy**. By failing to address, analyze, or even cite the **Myelopathy Exception (Section 2.2A)**—which was clearly triggered by the clinical records submitted—the plan issued a denial that failed to specify the correct clinical criteria under which the member was being evaluated. 
-*   Consequently, the denial notice is legally **defective** under CHSC § 1374.31(b). In accordance with California regulatory standards, a defective denial notice is treated as if no valid denial was issued, supporting an immediate overturn on procedural grounds.
+This appeal concerns the medical necessity of a single-level Anterior Cervical Discectomy and Fusion (ACDF) at C5-C6 (CPT 22551) for a 56-year-old female with a confirmed primary diagnosis of cervical myelopathy. HealthFirst denied the initial authorization on October 25, 2024, citing a failure to complete the plan's standard 6-week conservative physical therapy (PT) protocol under Clinical Coverage Criteria CC-SPINE-2024 Section 2.2. The member completed 5 weeks (15 sessions) of physical therapy, which was halted by her physician due to a lack of clinical response and the inherent risks of delaying surgery for a structural spinal cord compression.
 
-### STEP 2: Plan Criteria Application and Pathway Classification Check (CC-SPINE-2024)
-The plan’s medical policy team committed a clear **classification and application error** by routing this case through the standard conservative treatment pathway instead of the myelopathy-specific pathway.
+This independent review evaluated the case using the **California Hierarchy of Authority** (California State Law > Generally Accepted Clinical Standards > Plan Clinical Criteria). The evaluation reveals that:
+1.  **Plan Criteria Error:** The health plan misapplied its own criteria. Under Clinical Policy CC-SPINE-2024 **Section 2.2A (Exception: Myelopathy Pathway)**, members with a primary diagnosis of cervical myelopathy are subject to a reduced physical therapy requirement of **4 weeks** and a waiver of interventional procedures. The member’s completed 5 weeks of physical therapy exceeds this requirement.
+2.  **Statutory Override:** California Insurance Code (CIC) § 10169.5 prohibits health plans from conditioning surgical approval on physical therapy where there is objective evidence of structural neurological compromise that physical therapy cannot address, or where a clinical plateau has been reached. The member has objective spinal cord compression and bilateral Upper Motor Neuron (UMN) signs that physical therapy cannot correct.
+3.  **Clinical Standards Override:** According to the American Association of Neurological Surgeons / Congress of Neurological Surgeons (AANS/CNS 2023) and AO Spine (2021) guidelines, moderate-to-severe cervical myelopathy with objective spinal cord compression constitutes a **Tier 1 (strong) surgical indication**. There is no clinical evidence supporting mandatory preoperative physical therapy for this presentation, as delay risks irreversible spinal cord injury. Under California Health & Safety Code (CHSC) § 1374.32(b), generally accepted clinical standards override restrictive plan criteria.
 
-*   **Primary Diagnosis:** The clinical record demonstrates a confirmed primary diagnosis of **cervical myelopathy (ICD-10: G35.89)**. This is objectively supported by:
-    1.  *Imaging:* MRI dated September 1, 2024, showing moderate central spinal cord compression at C5-C6.
-    2.  *Physical Examination:* Neurological evaluation dated September 5, 2024, documenting multiple classic upper motor neuron (UMN) signs: bilateral Hoffman signs, bilateral upper extremity hyperreflexia, mildly impaired tandem gait, and bilateral hand clumsiness.
-    3.  *Specialist Consultation:* Neurologist consultation on September 12, 2024, confirming a primary diagnosis of cervical myelopathy and noting that the bilateral UMN signs are pathognomonic.
-*   **Pathway Activation:** This clinical presentation is a definitive match for Criterion 2.1(b) (Cervical Myelopathy), which automatically triggers **Exception 2.2(A) (Myelopathy Pathway)** under CC-SPINE-2024. 
-*   **Evaluation of Modified Criteria Under Section 2.2(A):**
-    *   *Physical Therapy:* Modified requirement is a **minimum of 4 weeks**. The member completed **5 weeks of supervised physical therapy** (15 sessions), which **satisfies and exceeds** this requirement.
-    *   *Interventional Treatment:* Under Section 2.2(A), interventional procedures (epidurals/blocks) are **waived** if the treating physician documents that such treatments pose a risk of neurological deterioration or are clinically inappropriate. Dr. James Chen provided a clear written statement on this risk: *"Interventional procedure not indicated — cord compression with myelopathy requires surgical evaluation, not injection."* This documentation fully satisfies the clinical waiver criteria.
-    *   *Pharmacotherapy:* The policy requires a trial of two agents for a minimum of 4 weeks each. The member completed:
-        1.  *Baclofen 10mg TID* (Muscle Relaxant) for 3 months (satisfied).
-        2.  *Methylprednisolone dose pack* (Oral Corticosteroid) for 3 weeks (terminated due to only temporary improvement). 
-        While the steroid trial was stopped at 3 weeks, forcing a patient with objective, progressive mechanical spinal cord compression to consume oral steroids for an additional 7 days to meet a mechanical 4-week timeline is clinically contraindicated and violates the spirit of the exception. Under the correct pathway, the member has substantially met and satisfied all plan-criteria requirements.
-
-### STEP 3: State Statutory and Regulatory Override Review (CIC § 10169.5 & DMHC APL 22-014)
-Even if the member had not met the plan’s internal criteria, California statutory and regulatory mandates prohibit HealthFirst from enforcing conservative treatment requirements in this case.
-
-*   **CIC § 10169.5 Override:** Under California Insurance Code (CIC) § 10169.5(a)(3), a health plan **shall not condition approval of a surgical procedure on the completion of physical therapy** where the condition involves objective evidence of structural neurological compromise that physical therapy cannot address. 
-    *   The member's MRI dated September 1, 2024, demonstrates **moderate central cord compression** at C5-C6.
-    *   Spinal cord compression is a mechanical, structural pathology. Physical therapy cannot physically decompress the spinal canal or relieve mechanical pressure on the cord.
-    *   Additionally, under **CIC § 10169.5(a)(2)**, the plan cannot mandate further physical therapy when the member has reached a **functional plateau**. The clinical record notes that the treating neurologist halted physical therapy at 5 weeks specifically due to a lack of improvement in UMN signs.
-*   **DMHC APL 22-014 Override:** The Department of Managed Health Care (DMHC) All-Plan Letter (APL) 22-014 states that plans **shall not require conservative treatment** for time-sensitive neurological conditions where delay risks irreversible harm. Although the MRI did not show T2 cord signal changes (myelomalacia), the presence of progressive clinical symptoms (mildly impaired tandem gait, bilateral hand clumsiness) coupled with objective cord compression constitutes an urgent neurological condition where delay poses an imminent risk of permanent neurological deficit. Enforcement of a mechanical 6-week PT rule is a direct violation of DMHC APL 22-014.
-
-### STEP 4: Generally Accepted Clinical Standards Review (AANS/CNS 2023, NASS 2020, AO Spine 2021)
-Under CHSC § 1374.32(b), utilization reviews and independent medical determinations are governed by **generally accepted standards of medical practice**, which explicitly override restrictive or mechanically applied internal plan criteria.
-
-*   **AANS/CNS Joint Guidelines (2023):** The clinical presentation of moderate cervical myelopathy with objective spinal cord compression on MRI falls under **Tier 1 — Strong Indication** for surgical decompression. There is no evidence-based minimum duration for physical therapy prior to surgery in this cohort.
-*   **AO Spine International Guidelines (2021):** The guidelines state: *"There is no high-quality evidence supporting a mandatory course of physical therapy prior to surgical intervention for patients with moderate to severe cervical myelopathy. Delaying surgery in such patients to complete a physical therapy trial is not supported by the evidence and may result in neurological deterioration."*
-*   **Clinical Summary:** Applying a physical therapy requirement derived from radiculopathy studies to a patient with myelopathy is a clinically dangerous category error. Radiculopathy involves nerve root compression (which can resolve with conservative therapy), whereas myelopathy is spinal cord compression (which is progressive and requires mechanical decompression). The clinical standards unanimously dictate that the requested ACDF is medically necessary and that further delay to complete physical therapy is contraindicated.
+Accordingly, the prior authorization denial is overturned, and the surgical procedure is approved.
 
 ---
 
-## PART II: CLINICAL AND LEGAL ALIGNMENT
+### DETAILED EVALUATION & ANALYSIS
 
-To provide complete transparency, the following table demonstrates how the facts of this case align across all tiers of clinical and legal authority, resolving any conflict in favor of the highest authority.
+#### Step 1: Procedural Adequacy and Disclosure Check (CHSC § 1374.31(b))
+*   **Statutory Requirement:** California Health & Safety Code § 1374.31(b) mandates that a health plan's written denial notice must explicitly cite the specific clinical coverage policies, sections, and exact clinical reasons used to make an adverse determination. 
+*   **Evaluation:** The health plan’s initial denial notice dated October 25, 2024, cited CC-SPINE-2024 Section 2.2 and detailed the exact clinical reason (completion of 5 weeks of physical therapy instead of the 6 weeks required under the standard pathway).
+*   **Finding:** The denial notice is procedurally adequate under state law. Because the notice was not procedurally defective, the review proceeds to a substantive clinical evaluation under Step 2.
 
-| Evaluation Dimension | Plan Criteria (CC-SPINE-2024) | California Law & Regulations (CIC / DMHC) | Clinical Standards (AANS / AO Spine) |
-| :--- | :--- | :--- | :--- |
-| **Primary Diagnosis** | Cervical Myelopathy (Exception 2.2A applies) | Time-Sensitive Neurological Condition | Moderate Cervical Myelopathy (Tier 1 Indication) |
-| **Physical Therapy** | 4-week minimum required (5 weeks completed — **MET**) | Mandatory PT prohibited due to structural compromise (CIC § 10169.5 — **WAIVED**) | Preoperative PT has no evidence basis and risks harm (**WAIVED**) |
-| **Interventional Tx** | Waived if physician documents neurological risk (**MET**) | Not required for urgent structural cord compression (**WAIVED**) | Not indicated; injections do not relieve cord compression (**WAIVED**) |
-| **Pharmacotherapy** | Two agents for 4 weeks; member completed Baclofen (12 wks) and Steroids (3 wks) (**SUBSTANTIALLY MET**) | Restrictive drug trial durations cannot delay critical surgery (**OVERRIDDEN**) | Medical therapy is supportive only; does not replace surgical decompression (**MET**) |
+#### Step 2: Diagnostic Classification and Plan Criteria Exception Review (CC-SPINE-2024 § 2.2A)
+*   **Diagnostic Facts:** 
+    *   **Clinical Presentation:** A neurological examination on September 5, 2024, documented bilateral Hoffman signs, bilateral hyperreflexia in the upper extremities, mild tandem gait impairment, and bilateral hand clumsiness. 
+    *   **Imaging:** A cervical spine MRI on September 1, 2024, demonstrated moderate central spinal cord compression at the C5-C6 level.
+    *   **Neurological Consultation:** On September 12, 2024, a consulting neurologist formally documented: *"Clinical picture consistent with cervical myelopathy. Bilateral UMN [upper motor neuron] signs are pathognomonic. Diagnosis: cervical myelopathy, primary" (ICD-10: G35.89).*
+    *   **Conclusion:** The diagnostic criteria for cervical myelopathy under CC-SPINE-2024 Section 2.1(b) are fully satisfied. The condition is documented as the **primary diagnosis**.
+*   **Plan Criteria Application:**
+    *   The health plan denied the request under the *Standard Pathway* (Section 2.2), which requires a minimum of 6 weeks of physical therapy.
+    *   However, CC-SPINE-2024 contains **Exception 2.2(A) (Myelopathy Pathway)**, which explicitly states: *"For members with confirmed cervical myelopathy (criterion 2.1(b)), the conservative treatment requirement is MODIFIED... Physical therapy requirement is reduced to 4 weeks minimum."*
+    *   The member completed **5 weeks** (15 sessions) of physical therapy under a specialized myelopathy protocol before her treating neurologist halted sessions due to a lack of improvement. Five weeks exceeds the plan's 4-week modified requirement.
+    *   Additionally, Section 2.2(A) waives the interventional treatment requirement (such as epidural injections) if the physician documents that the procedure poses a risk of neurological deterioration. Dr. James Chen, MD, provided this written waiver, noting: *"Interventional procedure not indicated — cord compression with myelopathy requires surgical evaluation, not injection."*
+    *   The member also completed the required pharmacotherapy, trialing Baclofen (10mg TID) for 3 months (muscle relaxant) and a Methylprednisolone dose pack for 3 weeks (oral corticosteroid), satisfying Section 2.2(b).
+*   **Finding:** The health plan made a clear factual error by applying the Standard Pathway instead of the Myelopathy Pathway (Exception 2.2A). Because cervical myelopathy was established as the primary diagnosis, the member was subject to a 4-week PT minimum. Having completed 5 weeks, the member fully satisfied the plan's medical necessity criteria. This constitutes a positive clinical finding under Step 2.
+
+#### Step 3: Statutory Physical Therapy Override Evaluation (CIC § 10169.5 & DMHC APL 22-014)
+Even if the health plan's internal criteria required a 6-week physical therapy trial without exception, California statutory law overrides mechanical prior authorization requirements.
+
+*   **California Insurance Code (CIC) § 10169.5 Analysis:**
+    *   Under **CIC § 10169.5(a)(2)**, a plan cannot condition surgical approval on physical therapy if the member has completed a course of physical therapy and the treating physician documents that the member reached a **functional plateau**. The clinical record notes that the member completed 15 sessions over 5 weeks with *"no improvement in UMN signs,"* leading the neurologist to halt therapy. This represents a clear clinical plateau.
+    *   Under **CIC § 10169.5(a)(3)**, physical therapy requirements must be waived if the condition involves *"objective evidence of structural neurological compromise that physical therapy cannot address."* Spinal cord compression caused by a herniated disc or bony stenosis is a mechanical, structural lesion. Physical therapy cannot physically decompress the spinal cord. The member's MRI and physical exam provide objective, diagnostic evidence of structural compromise.
+*   **DMHC All-Plan Letter (APL) 22-014 Analysis:**
+    *   APL 22-014 dictates that plans **shall not** require a full course of conservative treatment where delaying surgery risks irreversible neurological harm. Although myelomalacia (T2 cord signal change) was not yet present on this member's MRI, her clinical presentation includes progressive, functional upper motor neuron deficits (bilateral hand clumsiness, gait impairment, and hyperreflexia). 
+    *   Dr. Chen documented that conservative treatment had failed and that delaying surgical decompression posed an unacceptable risk of neurological deterioration.
+*   **Finding:** Under CIC § 10169.5(a)(2) and (3), the health plan is legally prohibited from enforcing its physical therapy duration requirements. The clinical evidence of structural spinal cord compression and the documented functional plateau legally invalidate the plan's PT requirement.
+
+#### Step 4: Generally Accepted Clinical Standards and Medical Necessity Assessment (CHSC § 1374.32)
+*   **Clinical Standards of Care:**
+    *   **AANS/CNS Joint Guidelines (2023):** Moderate-to-severe cervical myelopathy with objective spinal cord compression and functional upper motor neuron deficits is classified as a **Tier 1 (strong) surgical indication**. Immediate or early surgical decompression is recommended to prevent permanent neurological deficits.
+    *   **AO Spine Clinical Practice Guidelines (2021):** These guidelines explicitly state: *"There is no high-quality evidence supporting a mandatory course of physical therapy prior to surgical intervention for patients with moderate to severe cervical myelopathy. Delaying surgery in such patients to complete a physical therapy trial is not supported by the evidence and may result in neurological deterioration."*
+*   **Application of California Law:**
+    *   **California Health & Safety Code § 1374.32(b)** establishes that the standard for medical necessity during an appeal is whether the service meets generally accepted clinical standards, **not** whether it adheres to the plan's internal criteria.
+    *   The standard clinical practice for symptomatic cervical myelopathy is surgical decompression (ACDF). Enforcing a mandatory, arbitrary 6-week physical therapy trial is not supported by evidence-based medicine and deviates from the standard of care.
+*   **Finding:** Under generally accepted standards of medical practice (AANS/CNS and AO Spine guidelines), the requested C5-C6 ACDF is medically necessary and clinically urgent. Under CHSC § 1374.32(b), these clinical standards override the plan's restrictive 6-week physical therapy requirement.
 
 ---
 
-## PART III: DISPOSITION ANALYSIS
+### HIERARCHY OF AUTHORITY RESOLUTION
 
-Applying the formal conditional pathways of the health plan's appeal disposition decision tree:
+In resolving this appeal, the **California Hierarchy of Authority** was applied:
+$$\text{California State Law (CIC, CHSC)} > \text{Generally Accepted Clinical Standards} > \text{Plan Clinical Criteria (CC-SPINE-2024)}$$
 
-1.  **Procedural Defect Check:** The plan failed to specify the applicable clinical criteria (Section 2.2A) or address why the myelopathy exception did not apply in its denial notice. This represents a procedural defect under **CHSC § 1374.31(b)**. This condition alone is sufficient to **OVERTURN** the denial on procedural grounds (Condition A).
-2.  **Plan Criteria Check:** The member's primary diagnosis of cervical myelopathy is fully documented, triggering the Myelopathy Exception (Section 2.2A). Under this pathway, the physical therapy requirement is reduced to 4 weeks. The member completed 5 weeks. The interventional requirement was appropriately waived by the specialist. Therefore, the member met all applicable plan criteria under CC-SPINE-2024. This condition is sufficient to **OVERTURN** the denial on plan grounds (Condition B).
-3.  **Regulatory Override Check:** Objective imaging confirms spinal cord compression with corresponding upper motor neuron deficits, representing a structural neurological compromise. Under **CIC § 10169.5(a)(3)** and **DMHC APL 22-014**, the plan is legally prohibited from conditioning surgical approval on physical therapy. This condition is sufficient to **OVERTURN** on regulatory grounds (Condition C).
-4.  **Clinical Standards Check:** According to the **AANS/CNS 2023** and **AO Spine 2021** Guidelines, surgical decompression via ACDF (CPT 22551) is highly indicated and medically necessary for moderate cervical myelopathy. Mandating further physical therapy delays necessary care and risks irreversible spinal cord injury. Under **CHSC § 1374.32(b)**, the clinical standards override internal criteria. This condition is sufficient to **OVERTURN** on clinical necessity grounds (Condition D).
+1.  **State Law (CIC § 10169.5):** Outlaws the mechanical application of a physical therapy prerequisite in the presence of structural neurological compromise. This statutorily invalidates the health plan's PT requirement.
+2.  **Clinical Standards (AANS/CNS, AO Spine):** Define moderate cervical myelopathy with spinal cord compression as a primary indication for surgical decompression, stating that delaying surgery for physical therapy is medically inappropriate. Under CHSC § 1374.32, these clinical standards override the plan's guidelines.
+3.  **Plan Criteria (CC-SPINE-2024):** Even if the plan's criteria could be legally enforced, the plan's clinical reviewer failed to apply the myelopathy exception (Section 2.2A). The member met the correct internal criteria.
 
-Because the clinical record and regulatory review meet **Conditions A, B, C, and D**, the adverse determination is overwhelmingly rejected.
+The health plan's initial denial is medically and legally indefensible across all three tiers of authority.
 
 ---
 
-### AUTHORIZATION DETAILS
-*   **Approved Procedure:** Anterior Cervical Discectomy and Fusion (ACDF), C5-C6 (CPT: 22551)
-*   **Authorized Facility:** Cedars-Sinai Medical Center
-*   **Authorized Provider:** Dr. James Chen, MD
-*   **Authorization Period:** Valid for 90 days from the date of this determination.
+### ORDER & DIRECTIVES TO THE HEALTH PLAN
 
-*HealthFirst Health Plan is required to update its prior authorization system to reflect this approval immediately and transmit the authorization number to both the provider and the facility within 24 hours of this notice.*
+Pursuant to California Health & Safety Code § 1374.30 et seq., HealthFirst Health Plan is hereby ordered to:
+1.  **Approve and authorize** CPT Code 22551 (Anterior Cervical Discectomy and Fusion, C5-C6, single level) as requested by Dr. James Chen, MD.
+2.  **Authorize inpatient admission** at Cedars-Sinai Medical Center for the duration clinically indicated for a standard single-level ACDF recovery.
+3.  **Issue written confirmation of authorization** to the member (Priya Nair) and the requesting physician (Dr. James Chen, MD) within **24 hours** of receipt of this order, in accordance with expedited review requirements.
+
+**Reviewer Certification:**  
+This determination has been prepared by an expert clinical appeals reviewer in accordance with California Department of Managed Health Care (DMHC) standards and evidence-based neurosurgical guidelines.
+
+*Date of Determination: October 28, 2024*

@@ -1,9 +1,94 @@
 CASE: pa_2024_e001
 SYSTEM: PLANSOLVE
-DISPOSITION: ERROR
+DISPOSITION: OVERTURN
 GT: PARTIAL
 CORRECT: False
-ELAPSED: 0s
+ELAPSED: 53.5s
 ========================================================================
 
-[Plan-and-Solve failed: 504 Deadline Exceeded]
+# CLINICAL APPEAL DETERMINATION
+
+**CASE ID:** PA-2024-E001  
+**MEMBER:** Victor Patel  
+**AGE:** 60  
+**PLAN:** HealthFirst PPO Gold — Group Plan 77441  
+**STATE OF RESIDENCE:** California  
+**PLAN YEAR / EFFECTIVE DATE:** 2024 / Coverage Effective: 2016-05-01  
+**REQUESTING SURGEON:** Dr. Lisa Park, MD — Spine Surgery  
+**FACILITY:** UCSF Medical Center  
+**DISPUTED SERVICE:** Anterior Cervical Discectomy and Fusion (ACDF), Two-Level: C5-C6 and C6-C7 (CPT Codes 22551 and 22552)  
+**DATE OF DETERMINATION:** November 15, 2024  
+
+---
+
+### **DETERMINATION SUMMARY: PARTIAL OVERTURN**
+*   **CPT Code 22551 (ACDF C5-C6 - Single Level):** **OVERTURNED** (Surgical Authorization Approved)
+*   **CPT Code 22552 (ACDF C6-C7 - Additional Level):** **UPHELD** (Surgical Authorization Denied)
+
+---
+
+### **PART I: GOVERNING HIERARCHY OF AUTHORITY**
+In accordance with California regulatory mandates, this clinical review is conducted under the following strict hierarchy of authority:
+$$\text{California State Law (CIC, CHSC, DMHC APL)} > \text{Clinical Standards (AANS/CNS, AO Spine)} > \text{Plan Criteria (HealthFirst CC-SPINE-2024)}$$
+Where HealthFirst’s internal plan criteria are more restrictive than generally accepted clinical standards or state regulatory laws, the higher authority of state law and clinical standards governs.
+
+---
+
+### **PART II: STEP-BY-STEP CLINICAL & REGULATORY EVALUATION**
+
+#### **Step 1: Procedural Adequacy and Defect Check**
+The initial denial notice issued on November 1, 2024, by Dr. Patricia Huang, MD, was evaluated against **California Health & Safety Code (CHSC) § 1374.31(b)**. 
+*   **Findings:** The denial notice explicitly identified the clinical coverage policy applied (*HealthFirst CC-SPINE-2024*), supplied a specific clinical rationale for the non-approval of the C6-C7 level ("shows mild changes only; two-level fusion not approved when one level meets criteria and one does not"), and provided mandatory Independent Medical Review (IMR) notification rights to the member.
+*   **Conclusion:** The initial denial letter is procedurally adequate. There are no procedural defects under CHSC § 1374.31(b). This review must proceed to a clinical evaluation of the disputed levels.
+
+#### **Step 2: Diagnosis and Clinical Disease Classification**
+The member’s clinical presentation, neurological examination, and imaging records were analyzed to classify the disease state.
+*   **Imaging (MRI 2024-09-15):** Shows a large disc herniation at C5-C6 causing moderate-to-severe right C6 nerve root compression. Crucially, there is *no* spinal cord compression, *no* cord contact, and *no* evidence of T2 cord signal change (myelomalacia) at either level.
+*   **Neurological Examination (2024-09-20):** Reveals clear unilateral, right-sided C6 dermatomal symptoms: bicep weakness (3+/5), absent right bicep reflex, and C6 dermatomal numbness/tingling. There are no upper motor neuron (UMN) signs (e.g., hyperreflexia, positive Hoffman's sign, clonus, gait instability, or bilateral upper extremity weakness).
+*   **Classification:** The member's primary pathology is classified as **Cervical Radiculopathy** of the right C6 nerve root. There is **no clinical or imaging evidence of Cervical Myelopathy**. Because myelopathy is not present, standard radiculopathy pathways apply.
+
+#### **Step 3: Evaluation of Myelopathy Exceptions and State Law Waivers**
+*   **State Law Evaluation:** Under **California Insurance Code (CIC) § 10169.5(a)(3)** and **DMHC All-Plan Letter (APL) 22-014**, standard conservative therapy requirements (like physical therapy) are waived or modified *only* when there is objective imaging evidence of progressive structural neurological compromise (such as spinal cord compression with myelomalacia) or when physical therapy is documented as contraindicated.
+*   **Application to Case:** MRI findings confirm no spinal cord compression, no cord contact, and no myelomalacia at either the C5-C6 or C6-C7 levels. No clinical documentation suggests physical therapy was medically contraindicated. Therefore, the statutory conservative treatment waivers of CIC § 10169.5 and DMHC APL 22-014 do not apply to this case. The patient's clinical necessity must be evaluated under standard clinical criteria.
+
+#### **Step 4: Standard Plan Criteria Compliance**
+The clinical record was reviewed against the standard conservative treatment mandates outlined in **HealthFirst CC-SPINE-2024 Section 2.2**:
+
+1.  **Physical Therapy (Section 2.2(a)):** Requires a minimum of 6 weeks of supervised physical therapy.
+    *   *Compliance:* **Met.** The member completed 8 weeks (24 sessions) of supervised physical therapy.
+2.  **Pharmacotherapy (Section 2.2(b)):** Requires a trial of at least two covered agents for a minimum of 4 weeks each.
+    *   *Compliance:* **Met.** The member completed a 4-month trial of Pregabalin (150mg BID) and a 3-month trial of Naproxen (500mg BID).
+3.  **Interventional Treatment (Section 2.2(c)):** Requires at least one interventional treatment (such as an epidural steroid injection).
+    *   *Compliance:* **Met.** The member underwent a right C6 epidural steroid injection on October 15, 2024.
+
+##### **Level-by-Level Plan Criteria Breakdown:**
+*   **C5-C6 Level:** **Met.** The member has a corresponding clinical diagnosis of right C6 radiculopathy with objective neurological deficits (3+/5 bicep weakness, absent reflex). Imaging (MRI) confirms moderate-to-severe right C6 nerve root compression. Conservative treatments (PT, medications, and epidural injection) were completed, and right C6 radicular symptoms persist. This satisfies all requirements of **Section 2.1(a)**, **Section 2.2**, and **Section 2.3** of the plan criteria.
+*   **C6-C7 Level:** **Unmet.** The C6-C7 level fails plan criteria on multiple fronts:
+    *   *Imaging Deficit (Section 2.3 / Exclusion 3.3):* The MRI of September 15, 2024, reveals only a "small disc bulge" and "mild foraminal narrowing" at C6-C7, with "**no nerve root compression identifiable**" and "**no cord contact**."
+    *   *Clinical Deficit (Section 2.1):* The neurological exam of September 20, 2024, shows "no definitive C7 dermatomal symptoms." The slightly diminished right tricep reflex is an isolated, non-specific finding without corresponding dermatomal pain, numbness, or weakness. The therapist's PT discharge note at week 8 explicitly notes that C7 symptoms were "minimal and possibly resolving."
+    *   *Conservative Treatment Deficit (Section 2.2):* No C7-specific interventional therapy (such as a C7 selective nerve root block) was performed.
+
+#### **Step 5: Multi-Level Surgical Necessity and Clinical Standard Alignment**
+The treating surgeon's appeal asserts that "adjacent levels should be addressed simultaneously to prevent accelerated degeneration" and that both levels are symptomatic. This assertion is evaluated against **CHSC § 1374.32(b)**, which mandates that health services be evaluated against generally accepted standards of medical practice (**AANS/CNS Joint Guidelines 2023** and **AO Spine 2021**), overriding restrictive plan guidelines when clinical standards dictate.
+
+*   **Clinical Standards for C5-C6:** Under **AANS/CNS 2023 Guidelines**, a single-level ACDF (CPT 22551) at C5-C6 is highly supported as a **Tier 1 (Strong Indication)** surgical intervention due to persistent, severe radiculopathy, 3+/5 motor deficit, and correlating moderate-to-severe C6 nerve root compression that failed a comprehensive 8-week course of conservative therapy.
+*   **Clinical Standards for C6-C7:** Under **AANS/CNS 2023 Guidelines (Section 3.1, Tier 3)**, surgical decompression and fusion is **not indicated** for levels exhibiting mild, clinically insignificant degenerative changes without objective cord or nerve root compression and without correlating, objective dermatomal symptoms.
+*   **Refutation of "Prophylactic Adjacent-Level" Fusion:** 
+    *   The treating surgeon's argument that the C6-C7 level must be fused to "prevent accelerated degeneration" directly conflicts with established peer-reviewed spinal literature and clinical standards (AANS/CNS 2023, AO Spine 2021).
+    *   Fusing an asymptomatic adjacent segment with only mild degenerative changes does *not* prevent adjacent-segment pathology. On the contrary, expanding a fusion from one level (C5-C6) to two levels (C5-C7) unnecessarily restricts cervical range of motion, increases surgical morbidity, and increases mechanical stress on the newly adjacent C7-T1 segment, actually accelerating its degeneration.
+    *   Clinical standards mandate preserving mobile spinal segments unless there is objective, symptomatic structural compromise at that specific level. Consequently, the plan’s exclusion of the C6-C7 level is entirely aligned with generally accepted standards of medical practice.
+
+---
+
+### **PART III: FINAL DISPOSITION**
+
+Pursuant to the step-by-step clinical and regulatory review:
+1.  The authorization request for a **single-level ACDF at C5-C6 (CPT 22551)** is **APPROVED** (Overturned). The member has documented C6 radiculopathy with correlating moderate-to-severe nerve root compression and has failed a complete, documented trial of conservative care, satisfying both Plan Criteria and AANS/CNS Tier 1 surgical standards.
+2.  The authorization request for the **additional level at C6-C7 (CPT 22552)** is **DENIED** (Upheld). Current imaging and clinical exams establish that C6-C7 exhibits only mild, clinically insignificant degenerative changes without objective nerve root compression or correlating clinical symptoms. Performing an adjacent-level fusion for prophylactic purposes is clinically unsupported, increases patient risk, and violates AANS/CNS and AO Spine guidelines.
+
+**Authorized Codes:**  
+*   **CPT 22551:** Approved (ACDF, single level)  
+*   *Note:* Any associated bone graft or instrumentation codes (e.g., CPT 22845, 20930/20931) are approved solely as they relate to the single-level C5-C6 fusion.
+
+**Denied Codes:**  
+*   **CPT 22552:** Denied (ACDF, each additional level)
