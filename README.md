@@ -6,22 +6,20 @@ Most enterprise AI work embeds language models inside patterns inherited from ea
 
 Cognitive Core treats AI-native workflow design as a first-class architectural problem:
 
-- **Typed cognitive primitives** — eight epistemic operations that compose into any reasoning workflow
+- **Typed cognitive primitives** — nine epistemic operations that compose into any reasoning workflow
 - **Configuration-first** — a new decision domain is a YAML file, not an application
 - **Structural governance** — escalation, human review, and audit trails are conditions of execution, not bolt-ons
 - **Demand-driven delegation** — agentic mode lets the orchestrator reason the path; the substrate enforces governance on whatever path it takes
 
-→ **[Quickstart — run a governed workflow in five minutes](QUICKSTART.md)**  
-→ **[Domain library — seven ready-to-run institutional decision packs](library/README.md)**  
-→ **[DDD agentic demo — autonomous trajectory demonstration](demos/loan-hardship-agentic/README.md)**  
-→ **[REST API reference](docs/api-reference.md)**  
-→ **[Operational notes — maturity, assumptions, known limitations](OPERATIONAL_NOTES.md)**  
+→ **[Prior authorization appeal — the evaluated domain](demos/prior-auth-appeal/)**  
+→ **[Loan modification — second demonstrated domain](demos/loan-modification/)**  
+→ **[Reproducing the IEEE Computer results](#reproducing-the-published-results)**  
 
 ---
 
-## The eight primitives
+## The nine primitives
 
-Every workflow is composed from eight typed epistemic operations. Each has a defined input contract, a structured output schema, a prompt template, and a three-layer epistemic state computation.
+Every workflow is composed from nine typed epistemic operations. Each has a defined input contract, a structured output schema, a prompt template, and a three-layer epistemic state computation.
 
 | Primitive | Epistemic function | Key output fields |
 |---|---|---|
@@ -32,9 +30,12 @@ Every workflow is composed from eight typed epistemic operations. Each has a def
 | `verify` | Conformance check against a rule set | `conforms`, `violations`, `rules_checked` |
 | `deliberate` | Meta-cognitive synthesis → warranted action | `recommended_action`, `warrant`, `options_considered` |
 | `generate` | Render reasoning into a communicable artifact | `artifact`, `format`, `constraints_checked` |
+| `reflect` | Metacognitive review of the reasoning so far; directs the next step | `what_was_established`, `what_was_assumed`, `trajectory`, `next_question` |
 | `govern` | Determine governance tier and disposition | `tier_applied`, `disposition`, `work_order` |
 
-All outputs inherit from `CognitiveOutput`: `confidence`, `reasoning`, `evidence_used`, `evidence_missing`. Six of eight primitives also elicit `reasoning_quality` and `outcome_certainty` (all except `retrieve` and `govern` — see epistemic state section).
+All outputs inherit from `BaseOutput`: `confidence`, `reasoning`, `evidence_used`, `evidence_missing`. Seven of the nine primitives also elicit `reasoning_quality` and `outcome_certainty`. The two exceptions are `retrieve` and `govern` (see the epistemic state section).
+
+`reflect` reasons about the accumulated reasoning, not about the case itself. It lists what has been established and what has been assumed, identifies the single most load-bearing fact, and sets a trajectory: `continue`, `revise` (with a revision target), or `escalate` (with a reason). Its output can shape the specification of the next primitive call. Schema: `ReflectOutput` in `cognitive_core/primitives/schemas.py`; prompt: `cognitive_core/primitives/prompts/reflect.txt`.
 
 ---
 
@@ -45,10 +46,30 @@ Every step produces a structured epistemic state — not a single confidence sca
 | Layer | Signals | How computed |
 |---|---|---|
 | Mechanical | `evidence_completeness`, `rule_coverage`, `citation_rate`, `alternative_separation` | Deterministic from observable output structure — cannot be inflated |
-| Judgment | `reasoning_quality`, `outcome_certainty` | Elicited from 6 of 8 primitive prompts with governance-aware framing (40% weight). `retrieve` and `govern` use mechanical signals only. |
-| Coherence | Named flags: `CLASSIFY_DELIBERATE_MISMATCH`, `VERIFY_DELIBERATE_TENSION`, etc. | Computed cross-step — detects problems no single-step analysis can see |
+| Judgment | `reasoning_quality`, `outcome_certainty` | Reported by the LLM in 7 of the 9 primitives. `retrieve` and `govern` use mechanical signals only. |
+| Coherence | Six named flags (below) | Computed across steps by the framework. Detects inconsistencies that no single step can see. |
 
-A flags-first governance cascade uses this state to determine tier. A `warranted` flag provides a hard governance stop independent of the aggregate score.
+**How the step score is computed** (`cognitive_core/engine/epistemic.py`, `compute_overall`):
+
+```
+combined = 0.6 × mean(mechanical) + 0.4 × mean(judgment)     # mechanical only, if no judgment signals
+overall  = combined × coherence_multiplier
+coherence_multiplier = max(0.3, 1.0 − Σ flag penalties)
+warranted = overall ≥ 0.5  and  no critical flag present
+```
+
+Judgment signals carry less weight because they are self-reported. Mechanical signals are computed from the structure of the output.
+
+| Coherence flag | Condition | Penalty | Critical |
+|---|---|---|---|
+| `CLASSIFY_DELIBERATE_MISMATCH` | Recommended action inconsistent with the classification | 0.20 | yes |
+| `VERIFY_DELIBERATE_TENSION` | Verify found violations; deliberate still recommends approval | 0.25 | yes |
+| `CONFIDENCE_DROP` | Step confidence fell by more than 0.25 from the prior step | 0.10 | no |
+| `UNRESOLVED_EVIDENCE_GAPS` | Missing evidence from retrieve/investigate never addressed | 0.10 | no |
+| `GOVERN_ESCALATION_UNEXPLAINED` | Govern tier higher than deliberate confidence suggests | 0.15 | no |
+| `UNWARRANTED_RECOMMENDATION` | Deliberate recommendation has no warrant | 0.15 | no |
+
+A flags-first governance cascade uses this state to set the tier. Domain YAML can declare gate triggers on these signals (for example, `not_warranted` or a named coherence flag). The `warranted` flag acts as a hard governance stop, independent of the aggregate score.
 
 ---
 
@@ -94,26 +115,27 @@ export GOOGLE_API_KEY=your_key      # Gemini
 export OPENAI_API_KEY=your_key      # OpenAI
 ```
 
-### Run a domain pack
+### Run a demonstrated domain
+
+Two domains are included, both in agentic mode with all nine primitives available.
 
 ```bash
-# Start the server pointed at the consumer-lending pack
-CC_COORD_CONFIG=library/domain-packs/consumer-lending/coordinator_config.yaml \
-CC_COORD_BASE=library/domain-packs/consumer-lending \
+# Prior authorization appeal (the domain evaluated in the paper)
+python demos/prior-auth-appeal/run.py
+
+# Loan modification
+python demos/loan-modification/run.py --case lm_2024_a001.json --compare
+```
+
+### Run the server
+
+```bash
+CC_COORD_CONFIG=demos/prior-auth-appeal/coordinator_config.yaml \
+CC_COORD_BASE=demos/prior-auth-appeal \
 uvicorn cognitive_core.api.server:app --port 8000
 ```
 
-Open `http://localhost:8000` — the landing page lists all instances. Submit a case at `/api/start`, then open the trace URL to watch execution live.
-
-Each domain pack includes a `run.py` for direct command-line execution without the server.
-
-### Run the agentic demonstration
-
-```bash
-python demos/loan-hardship-agentic/run.py
-```
-
-Two hardship cases run against the same configuration with no declared sequence. The orchestrator produces materially different trajectories for each; governance fires identically on both. See [demos/loan-hardship-agentic/README.md](demos/loan-hardship-agentic/README.md).
+Open `http://localhost:8000`. Submit a case at `/api/start`, then open the trace URL to follow execution.
 
 ---
 
@@ -132,11 +154,30 @@ Every `govern` invocation produces a work order recorded in the tamper-evident S
 
 ---
 
+## Reproducing the published results
+
+The results in *Governance by Design: Architectural Requirements for Institutional AI* (IEEE Computer) were produced in the prior authorization appeal domain. The evaluation artifacts (five replications, run 8–9 August 2026 with `gemini-3.5-flash`, locked configuration in `llm_config.yaml` and `demos/prior-auth-appeal/domains/prior_auth_appeal.yaml`) are committed under `demos/prior-auth-appeal/output/`.
+
+The original evaluation commit is tagged `comsi-2026-eval`. The tag cited in the revised manuscript is `comsi-2026-r2`; the manuscript gives its full commit SHA. To regenerate every reported number from the committed outputs, without any LLM calls:
+
+```bash
+git checkout comsi-2026-r2
+cd demos/prior-auth-appeal
+python aggregate_replications.py output/replication_1 output/replication_2 \
+    output/replication_3 output/replication_4 output/replication_5
+```
+
+The script re-derives ground truth from `cases/*.json` and reports modal accuracy, per-run ranges, pooled and silent errors with the exact (Clopper–Pearson) one-sided 95% upper bound, and the governance tier distribution. Ground-truth labels were constructed by the authors and checked by internal review.
+
+To re-run the benchmark itself (requires `GOOGLE_API_KEY`): `python demos/prior-auth-appeal/run_benchmark.py`. Scoring of determination text is in `score_benchmark.py`.
+
+---
+
 ## Repository layout
 
 ```
 cognitive_core/           — installable package
-├── primitives/           — schemas, registry, eight prompt templates
+├── primitives/           — schemas, registry, nine primitive prompt templates + orchestrator
 ├── engine/               — DEVS execution kernel, LLM providers, governance pipeline,
 │                           epistemic state computation
 ├── coordinator/          — runtime, store, tasks, delegation, policy, resilience
@@ -147,26 +188,16 @@ cognitive_core/           — installable package
     └── trace.html        — single-source trace UI
 
 demos/
-└── loan-hardship-agentic/  — DDD agentic mode demonstration (two live cases)
+├── prior-auth-appeal/    — evaluated domain: cases, domain and workflow YAML,
+│                           benchmark runner, scorer, aggregation script,
+│                           committed replication outputs
+└── loan-modification/    — second demonstrated domain
 
-library/                  — domain library
-├── domain-packs/         — seven ready-to-run packs
-│   ├── consumer-lending/
-│   ├── content-moderation/
-│   ├── clinical-triage/
-│   ├── compliance-review/
-│   ├── ecommerce-returns/
-│   ├── eligibility-check/
-│   └── fraud-investigation/
-├── patterns/             — five canonical workflow patterns
-├── overlays/             — five composable modifiers
-└── coordinator-templates/— seven structural templates
-
-configs/                  — default server configuration
-docs/                     — architecture and API reference
+llm_config.yaml           — provider and model configuration
 tests/
-├── smoke/                — 44 governance path tests (no LLM required)
-└── test_devs_kernel.py   — 6 DEVS execution kernel tests
+├── smoke/                — governance path tests (no LLM required)
+├── unit/                 — epistemic state, reflect primitive, kill switch, eval gate
+└── test_devs_kernel.py   — DEVS execution kernel tests
 ```
 
 ---
@@ -174,8 +205,8 @@ tests/
 ## Run the tests
 
 ```bash
-pytest tests/smoke/ tests/test_devs_kernel.py
-# 50 tests, ~2 minutes, no LLM calls required
+pytest tests/smoke/ tests/unit/ tests/test_devs_kernel.py
+# no LLM calls required
 ```
 
 ---
@@ -217,7 +248,7 @@ If you run Cognitive Core against a non-Gemini provider and find provider-specif
 
 ## Design principles
 
-**The primitive layer is purely epistemic.** No primitive touches the world. `generate` produces artifacts; `govern` determines governance conditions; downstream systems execute. The boundary between reasoning and execution is explicit.
+**The primitive layer is purely epistemic.** No primitive touches the world. `generate` produces artifacts; `reflect` directs the next step; `govern` determines governance conditions; downstream systems execute. The boundary between reasoning and execution is explicit.
 
 **Configuration is the product.** No code is written per use case. A new domain requires a workflow YAML and a domain YAML.
 

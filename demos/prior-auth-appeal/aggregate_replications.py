@@ -10,7 +10,7 @@ cases/*.json (so scoring is correct even if the harness GT-extraction bug wasn't
 Emits:
   - Per-case modal table (markdown, drop-in for Table 6)
   - Modal accuracy + per-run range, balanced set and full battery
-  - Pooled silent errors + exact one-sided 95% upper bound if zero (rule of three)
+  - Pooled silent errors + exact one-sided 95% upper bound if zero (Clopper-Pearson: 1 - 0.05**(1/n))
   - CC tier distribution across runs
   - C3: baseline accuracy, OVERTURN-battery vs balanced set
   - C4: per-case instability vs CC modal tier
@@ -104,7 +104,7 @@ def main(run_dirs):
             lo, hi = min(per_run_acc[s]), max(per_run_acc[s])
             print(f"**{s}**: modal accuracy {acc[s]}/{len(cases)} ({100*acc[s]//len(cases)}%), per-run range {lo}–{hi}; "
                   f"pooled errors {pooled_err[s]}, silent {pooled_silent[s]}"
-                  + (f" (95% one-sided UB ≈ {min(1.0, 3/pooled_err[s]):.0%})" if s == "cc" and pooled_err[s] >= 3 and not pooled_silent[s]
+                  + (f" (exact Clopper-Pearson one-sided 95% UB = {1 - 0.05 ** (1 / pooled_err[s]):.1%}, n = {pooled_err[s]})" if s == "cc" and pooled_err[s] >= 3 and not pooled_silent[s]
                      else " (too few CC error events for a meaningful bound)" if s == "cc" and pooled_err[s] < 3 and not pooled_silent[s] else ""))
         print()
         return rows
