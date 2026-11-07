@@ -22,6 +22,8 @@ from cognitive_core.inquiry.models import (
     InquiryState,
     Passage,
     QuestionRecord,
+    ReadArguments,
+    ReadCall,
     RetrievalPlan,
     SearchRecord,
     SourceRecord,
@@ -199,7 +201,11 @@ class InquiryRunner:
                 else:
                     raise InquiryError("Question dependencies cannot progress; reframe the inquiry")
                 return
-            self._question_step(state, ready[0])
+            # Finish reviewing a finding before switching branches. Between
+            # reviewed rounds, give independent branches their first pass before
+            # spending another round on a branch that has already had one.
+            reviewing = [q for q in ready if q.phase in {"challenge", "reflect"}]
+            self._question_step(state, reviewing[0] if reviewing else min(ready, key=lambda q: q.rounds))
         elif state.phase == "synthesize":
             context = self._context(state)
             output = self._invoke(state, "deliberate", SynthesisOutput, context)
@@ -285,13 +291,27 @@ class InquiryRunner:
                 q.research_plans >= state.limits.max_research_plans_per_round
                 or (state.usage.searches >= state.limits.max_searches and state.usage.reads >= state.limits.max_reads)
             ):
-                q.phase = "investigate"
                 q.instructions += "\nResearch allowance reached. Preserve any remaining evidence gaps."
+                self._finish_research(state, q)
                 return
             plan = self._invoke(state, "retrieve", RetrievalPlan, context, q.instructions, qid)
             q.research_plans += 1
-            q.pending_calls = plan.calls
-            q.phase = "retrieve" if plan.calls else "investigate"
+            self._event(state, "retrieval_plan", "Retrieval plan recorded", qid, {
+                "round": q.rounds + 1, "rationale": plan.rationale,
+                "calls": [call.model_dump(mode="json") for call in plan.calls],
+            })
+            q.pending_calls = self._new_retrieval_calls(state, q, plan.calls)
+            if q.pending_calls:
+                q.stalled_research_plans = 0
+                q.phase = "retrieve"
+            elif not plan.calls:
+                self._finish_research(state, q)
+            else:
+                q.stalled_research_plans += 1
+                self._event(state, "research_stalled", q.research_feedback, qid)
+                if q.stalled_research_plans >= 2:
+                    q.instructions += "\nRepeated retrieval plans fetched no new evidence. Preserve unresolved gaps."
+                    self._finish_research(state, q)
         elif q.phase == "retrieve":
             if not q.pending_calls:
                 q.phase = "plan"
@@ -310,6 +330,7 @@ class InquiryRunner:
             q.findings.append(finding)
             q.rounds += 1
             q.research_plans = 0
+            q.stalled_research_plans = 0
             q.phase = "challenge"
         elif q.phase == "challenge":
             q.challenges.append(self._invoke(state, "challenge", ChallengeOutput, context, "", qid))
@@ -341,7 +362,7 @@ class InquiryRunner:
         elif action == "reframe":
             self._request_reframe(state, q.instructions, q)
         elif q.rounds >= state.limits.max_rounds_per_question:
-            self._defer(q, "Revision budget reached; " + reflection.what_changed)
+            self._defer(q, "Revision budget reached before the remaining concerns were resolved")
         else:
             q.phase = "plan" if action == "research" else "investigate"
 
@@ -393,11 +414,113 @@ class InquiryRunner:
 
     @staticmethod
     def _guidance(reflection: InquiryReflection) -> str:
-        return "\n".join(filter(None, [
+        guidance = list(filter(None, [
             reflection.what_changed, reflection.escalation_reason,
             reflection.next_question, reflection.hypothesis,
             reflection.template_guidance, reflection.objection_response,
         ]))
+        if reflection.revision_target:
+            guidance.append("Revision target: " + reflection.revision_target)
+        for label, values in (
+            ("Open questions", reflection.open_questions),
+            ("Assumptions to examine", reflection.what_was_assumed),
+            ("Established facts to avoid repeating", reflection.established_facts_to_skip),
+        ):
+            if values:
+                guidance.append(label + ": " + "; ".join(values))
+        return "\n".join(guidance)
+
+    def _new_retrieval_calls(self, state, q, calls):
+        """Keep useful tool work and explain cached or unavailable requests.
+
+        Reusing a cached result can associate it with this branch, but it is not
+        new evidence and must not occupy an entire round of planning calls.
+        """
+        pending = []
+        seen = set()
+        skipped = []
+        remaining = {
+            "web_search": state.limits.max_searches - state.usage.searches,
+            "read_source": state.limits.max_reads - state.usage.reads,
+        }
+        for call in calls:
+            args = call.arguments.model_dump()
+            src = self._find_source(state, args["url"]) if call.tool == "read_source" else None
+            key = (call.tool, src.id if src else json.dumps(args, sort_keys=True).casefold())
+            if key in seen:
+                skipped.append("Duplicate call in this plan")
+                continue
+            seen.add(key)
+            cached = None
+            if call.tool == "web_search":
+                cached = self._cached_search(state, args)
+            elif src is None:
+                raise InquiryError("read_source URL must come from search results or user-supplied context")
+            if cached or (src is not None and src.status == "read"):
+                # This path only associates known data; it cannot perform IO.
+                self._retrieve(state, q, call)
+                skipped.append("Requested search or source is already cached")
+                continue
+            if remaining[call.tool] <= 0:
+                skipped.append("No remaining budget for " + call.tool)
+                continue
+            remaining[call.tool] -= 1
+            pending.append(call)
+        q.research_feedback = (
+            "; ".join(dict.fromkeys(skipped))
+            + ". These calls supply no new evidence. Read a different useful discovered source, "
+              "make a different targeted search, or proceed with the gap explicit."
+        ) if skipped else ""
+        return pending
+
+    def _finish_research(self, state: InquiryState, q: QuestionRecord) -> None:
+        """Follow through on initial discovery with at most one fallback read.
+
+        Search rank is only a selection fallback, never an authority judgment.
+        The normal read path still accounts for budget, errors and checkpoints.
+        Conceptual branches and branches that already attempted a read are left
+        to the planner's judgment.
+        """
+        qid = q.specification.id
+        discovered_ids = {sid for search in state.searches if not search.error for sid in search.source_ids}
+        has_discovery = any(s.id in discovered_ids and qid in s.question_ids for s in state.sources.values())
+        has_read = any(s.status == "read" and qid in s.question_ids for s in state.sources.values())
+        attempted_read = any(e.kind == "read_source" and e.question_id == qid for e in state.events)
+        if (
+            q.rounds == 0 and has_discovery and not has_read and not attempted_read
+            and state.usage.reads < state.limits.max_reads
+        ):
+            candidates = [s for s in self._ordered_sources(state, q)
+                          if s.status == "discovered" and qid in s.question_ids]
+            if candidates:
+                q.pending_calls = [ReadCall(
+                    tool="read_source", arguments=ReadArguments(url=candidates[0].url),
+                    purpose="Inspect a discovered candidate before the initial finding; assess its relevance and limitations.",
+                )]
+                q.research_plans = state.limits.max_research_plans_per_round
+                q.phase = "retrieve"
+                self._event(state, "initial_source_read", "Initial discovery has no read evidence; inspect one ranked candidate", qid,
+                            {"source_id": candidates[0].id})
+                return
+        q.phase = "investigate"
+
+    @staticmethod
+    def _cached_search(state: InquiryState, args: dict):
+        return next((s for s in state.searches if s.error is None
+                     and s.query.casefold() == args["query"].casefold() and s.num == args["num"]), None)
+
+    @staticmethod
+    def _ordered_sources(state: InquiryState, focus: QuestionRecord | None = None, required=()):
+        # Prefer recent relevant searches, preserving each provider result list's
+        # ranking instead of reversing S1..S5 into S5..S1.
+        ranks = {}
+        for index in range(len(state.searches) - 1, -1, -1):
+            for rank, sid in enumerate(state.searches[index].source_ids):
+                ranks.setdefault(sid, (-index, rank))
+        return sorted(state.sources.values(), key=lambda s: (
+            bool(focus and focus.specification.id not in s.question_ids),
+            s.id not in required, ranks.get(s.id, (1, int(s.id[1:]))),
+        ))
 
     @staticmethod
     def _defer(q: QuestionRecord, reason: str) -> None:
@@ -448,8 +571,7 @@ class InquiryRunner:
         qid = q.specification.id
         args = call.arguments.model_dump()
         if call.tool == "web_search":
-            cached = next((s for s in state.searches if s.error is None
-                           and s.query.casefold() == args["query"].casefold() and s.num == args["num"]), None)
+            cached = self._cached_search(state, args)
             if cached:
                 for sid in cached.source_ids:
                     if qid not in state.sources[sid].question_ids:
@@ -635,10 +757,7 @@ class InquiryRunner:
         if state.synthesis:
             required.update(r.passage_id for c in state.synthesis.claims for r in c.evidence)
         required_sources = {pid.split(":")[0] for pid in required}
-        catalog = sorted(state.sources.values(), key=lambda s: (
-            bool(focus and focus.specification.id not in s.question_ids),
-            s.id not in required_sources, -int(s.id[1:]),
-        ))
+        catalog = self._ordered_sources(state, focus, required_sources)
         context = {
             "original_question": state.original_question,
             "purpose": state.purpose,
@@ -649,6 +768,28 @@ class InquiryRunner:
             "clarifications": [c.model_dump() for c in state.clarifications if c.active or c.answer is not None],
             "focus": focus.specification.model_dump() if focus else None,
             "current_finding": summary(focus) if focus else None,
+            "branch_progress": {
+                "completed_rounds": focus.rounds,
+                "round_limit": state.limits.max_rounds_per_question,
+                "research_plans_this_round": focus.research_plans,
+                "research_plan_limit": state.limits.max_research_plans_per_round,
+                "read_sources": sum(s.status == "read" and focus.specification.id in s.question_ids for s in state.sources.values()),
+                "unread_sources": sum(s.status == "discovered" and focus.specification.id in s.question_ids for s in state.sources.values()),
+                "retrieval_feedback": focus.research_feedback,
+            } if focus else None,
+            "recent_findings": [{
+                "round": i + 1, "finding": f.finding[:2000],
+                "claims": [{"text": c.text[:800], "basis": c.basis,
+                            "passage_ids": [r.passage_id for r in c.evidence]} for c in f.claims[:8]],
+                "unresolved_issues": f.unresolved_issues[:8],
+            } for i, f in enumerate(focus.findings) if i >= len(focus.findings) - 2] if focus else [],
+            "recent_reflections": [{
+                "next_action": r.next_action, "what_changed": r.what_changed,
+                "next_question": r.next_question, "open_questions": r.open_questions[:8],
+                "objection_response": r.objection_response,
+            } for r in focus.reflections[-2:]] if focus else [],
+            "recent_retrieval_plans": [e.details for e in state.events
+                                       if e.kind == "retrieval_plan" and focus and e.question_id == focus.specification.id][-2:],
             "current_challenge": (
                 focus.challenges[-1].model_dump() if focus and focus.challenges else
                 state.synthesis_challenge.model_dump() if not focus and state.synthesis_challenge else None
@@ -690,7 +831,8 @@ class InquiryRunner:
             context["metadata_truncated"] = True
         # Reserve space for actual passages even with large histories. Remove
         # redundant summaries before sacrificing the active question or sources.
-        for key in ("current_finding", "synthesis_reflection", "search_history", "user_context"):
+        for key in ("current_finding", "synthesis_reflection", "search_history", "recent_retrieval_plans",
+                    "recent_findings", "recent_reflections", "user_context"):
             if len(json.dumps(context)) <= metadata_limit:
                 break
             context.pop(key, None)

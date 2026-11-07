@@ -22,15 +22,31 @@ what a useful, sufficiently supported answer must address; do not equate success
 with a confident answer or agreement between model passes.
 
 Decompose the inquiry into one to eight consequential subquestions. Use fewer
-when sufficient. For each subquestion, explain its contribution, list needed
-evidence, and identify only genuine dependencies on other subquestions. A simple
-question can remain one subquestion. The dependency graph must be acyclic and
-may reference only IDs in this output. Use IDs beginning with a letter and
-containing only letters, digits, underscores, or hyphens.
+when sufficient, and leave enough effort to investigate and review each branch.
+Each subquestion must contribute a distinct part of the answer. If two questions
+would produce the same finding, merge them or give them clearly different scopes.
+Do not turn a comparison into overlapping questions about where A works, where
+A fails, and where B helps. Useful distinctions may concern mechanisms,
+comparative evidence, or constraints; use only those the question actually needs.
+Keep comparisons neutral: ask whether and under which conditions an advantage
+exists, rather than building the desired advantage into the question.
+
+For each subquestion, explain its contribution, list specific needed evidence,
+and identify only genuine dependencies on other subquestions. A simple question
+can remain one subquestion. The dependency graph must be acyclic and may
+reference only IDs in this output. Use IDs beginning with a letter and containing
+only letters, digits, underscores, or hyphens.
 
 Keep evidence needs distinct from established findings. Identify useful search
 directions and possible disconfirming evidence without claiming to have searched
-or inventing source material. The frame can be revised after orientation research.
+or inventing source material. Name the fact, comparison, or counterexample that
+could distinguish competing answers; "explore the benefits and limitations" is
+not a specific evidence need. For empirical comparisons, identify the relevant
+baseline, outcome, and conditions when possible. For conceptual questions,
+explicit premises and logical counterexamples may suffice. Answer criteria
+should describe the distinctions or support the answer must provide, not merely
+completion of the research process. The frame can be revised after orientation
+research.
 Do not prescribe simulation, optimization, or statistical execution unless the
 user's scope explicitly calls for it.
 

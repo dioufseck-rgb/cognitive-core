@@ -97,8 +97,8 @@ No API keys are needed:
 .\.venv-inquiry\Scripts\python.exe -m unittest discover -s tests/unit -p "test_*.py" -q
 ```
 
-The current checkout has 305 tests; the run here completed with `OK`. The suite
-includes framing, retrieval, evidence validation, revision, dependencies,
+The final test summary should report `OK`; the test count grows as regressions
+are added. The suite includes framing, retrieval, evidence validation, revision, dependencies,
 clarification, persistence, and the existing framework tests. Exact timing will
 vary. Some tests deliberately exercise errors and kill switches, so their log
 messages are not failures; read the final unittest summary.
@@ -272,6 +272,14 @@ For a budget pause:
 Added allowances are cumulative. A clarification answer and added budget can
 be supplied together. A completed run stays complete; use a new output directory
 to explore a new or revised question.
+
+Extra steps do not reopen a branch already marked `unresolved` because it hit
+the separate revision limit. If a report repeats the same claims or objections
+with little new evidence, inspect `state.json` before buying more iterations.
+For a revised frame or controller version, start a fresh directory and retain
+the first run as a comparison. Reports show claim classifications, read-passage
+references, and the latest critique; the checkpoint records retrieval plans and
+controller interventions as well.
 
 Press **Ctrl+C** to interrupt. Progress is saved; an operation interrupted before
 completion may run again on resume. Do not run two writers on the same inquiry

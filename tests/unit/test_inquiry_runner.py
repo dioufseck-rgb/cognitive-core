@@ -153,7 +153,9 @@ class InquiryRunnerTests(unittest.TestCase):
     def test_search_snippet_cannot_be_cited_as_read_evidence(self):
         script = demo_script()[:2] + [no_search(), ("investigate", demo_finding())]
         runner, _ = self.runner(script)
-        state = runner.start(DEMO_QUESTION)
+        # No source read is permitted, including the controller's bounded
+        # discovery follow-through; a snippet must still fail as evidence.
+        state = runner.start(DEMO_QUESTION, limits=InquiryLimits(max_reads=0))
         self.assertEqual(state.status, "failed")
         self.assertIn("not read", state.error)
         self.assertEqual(state.sources["S1"].status, "discovered")

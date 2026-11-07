@@ -64,22 +64,41 @@ an assumption. Model agreement is not independent evidence.
 _PROFILES = {
     "retrieve": """Plan the next useful retrieval for the active question.
 Produce explicit web_search or read_source calls with arguments in the supplied
-schema. Each call needs a purpose tied to an unresolved question or claim. Search
-may orient the frame, substantiate a claim, find contrary evidence, or resolve a
-contradiction. Avoid repeating a query already present in the search history
-unless something material has changed and you explain why. Read only URLs
-already supplied by the user or returned in search results; never invent a URL.
+schema. Use the active evidence needs, current objection, source catalog, and
+search history to choose the next action. Each call needs a purpose tied to a
+specific unresolved claim. When promising sources are already discovered, read
+them before issuing another broad search. Prefer original studies, official
+documentation, or other direct evidence appropriate to the claim. An explanatory
+overview does not by itself establish a comparative performance advantage.
+
+Search may orient the frame, substantiate a claim, find contrary evidence, or
+resolve a contradiction. Repeating a cached query or successful source read
+does not obtain new evidence. Choose a different useful request or stop. Read
+only URLs already supplied by the user or returned in search results; never invent a URL.
 Search and reading can occur in separate steps. Do not write findings from
-material that has not been retrieved. If no useful retrieval remains, use an
-empty call list when the schema permits it and explain the gap.
+material that has not been retrieved. An empty call list means the available
+evidence or explicit premises suffice to reason, or no useful retrieval remains
+within the budget. Explain which is true and identify any remaining evidence
+gap; a list of unread search hits is not evidence sufficiency.
 """,
     "investigate": """Develop or revise a finding for the active subquestion.
 Use its dependencies, the supplied context, and the actual source passages.
+Answer this branch's distinct question rather than restating the whole inquiry.
+Give the relevant conditions, mechanism, or counterexample; vague labels such
+as "straightforward" and "complex" need a concrete explanation to be useful.
 Consider plausible alternatives and counterexamples. Separate source-supported
 claims, inferences, assumptions, and user-supplied claims using the supplied
 schema. Attach exact supplied passage IDs to source-supported claims; every
 citation must support its associated claim. Preserve qualifications and material
 disagreements. A source's assertion is not automatically established truth.
+An inference must follow from explicit premises; labeling an unsupported
+empirical assertion an inference does not establish it. Put material uncertainty
+in the finding itself as well as in the claim qualifications.
+
+On revision, change, withdraw, narrow, or support the actual claim targeted by
+the objection. Explain the new evidence or argument that warrants the change.
+Rephrasing the same conclusion is not progress. Preserve unresolved issues until
+they are addressed, and do not keep listing a gap that the revision has resolved.
 When evidence is absent, reason conditionally or identify the unresolved need.
 Logical analysis and thought experiments are allowed; do not pretend to have
 executed simulations, numerical optimizations, or statistical experiments.
@@ -88,8 +107,13 @@ executed simulations, numerical optimizations, or statistical experiments.
 and answer criteria. Identify consequential errors, unsupported premises,
 counterexamples, missing distinctions, or conflicting evidence. Make each
 objection specific and actionable: explain what claim it affects and what would
-resolve it. Do not manufacture objections to fill a quota. A sound or adequately
-qualified answer may survive. A contrary opinion alone does not refute the
+resolve it. "The limitations have not been explored" is insufficient without
+naming the missing condition or counterexample and its consequence for this
+finding. Check whether an earlier objection has actually been resolved before
+repeating it. For a branch review, stay within that branch's contribution; an
+unanswered sibling question is not a defect unless it is a necessary premise
+of the current claim. Do not manufacture objections to fill a quota. A sound or
+adequately qualified answer may survive. A contrary opinion alone does not refute the
 argument; assess whether it attacks a premise or inference the answer uses.
 """,
     "reflect": """Assess what the last work changed and choose the next useful
@@ -100,7 +124,22 @@ question. Follow the exact action names and required fields in the schema.
 Take a challenge seriously without automatically conceding: reject an objection
 that is unsupported, tangential, or already addressed by the answer's scope.
 Missing external evidence can justify another search or source read; it does
-not by itself require escalation. Reframe only when a consequential part of the
+not by itself require escalation. Choose research when resolving the objection
+requires external evidence that could still be obtained. Name the claim and the
+useful search or unread source in next_question or template_guidance. Choose
+revise when the supplied material already permits a specific correction,
+withdrawal, narrower claim, or new argument; state exactly what must change.
+Do not request a generic revision to fill an empirical evidence gap.
+
+Use what_changed to identify a concrete change in the claim, its support, or its
+scope. Say that no material progress occurred when only the wording changed.
+Repeated objections with no new evidence or argument call for a different
+research action, a specific correction, or deferral with the remaining gap,
+not another paraphrase. Accept a qualified finding only when its qualifications
+are consistent with what the branch actually established. Defer when the needed
+progress cannot be made with the remaining capabilities and effort.
+
+Reframe only when a consequential part of the
 question or its decomposition needs to change. Ask the user about intent,
 constraints, or unavailable personal context that research cannot supply, and
 do not repeat answered clarifications. Respect remaining effort and request a

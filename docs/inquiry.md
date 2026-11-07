@@ -111,6 +111,21 @@ Completing one branch does not complete the inquiry: the controller assembles
 and reviews the overall synthesis separately. Research can recur after a
 challenge; it is not limited to an initial search pass.
 
+Independent branches receive their first reviewed round before another branch
+gets a second round. Genuine dependencies still wait for their prerequisites.
+Reflection receives recent findings, prior review decisions, and the branch's
+remaining round/planning allowances so it can compare revisions rather than
+assess each draft in isolation.
+
+Retrieval plans retain search-result ranking within each search. Duplicate,
+cached, and exhausted requests are filtered with explicit feedback. After one
+corrective attempt, another plan containing no new feasible calls ends that
+research pass with the evidence gap preserved. If an initial branch actually
+searched but tries to proceed without any read evidence or read attempt, the
+controller may read one ranked discovered candidate within the remaining
+budget. That fallback is recorded; ranking does not establish source quality,
+and a successful read does not establish the claim.
+
 The inquiry controller uses Cognitive Core's typed primitive contracts and
 inquiry-specific research profiles. Its stopping criteria are inquiry controls,
 not an institutional approval decision. This runner does not claim the full
@@ -166,6 +181,10 @@ python -m cognitive_core.inquiry resume inquiries/agent-abstraction \
 An added budget is cumulative; it does not reset usage. The maximum supported
 per-inquiry totals are 1,000 steps, 200 searches, and 300 reads. Reaching a limit
 does not turn an unresolved question into a supported conclusion.
+Adding steps does not reopen a branch already closed as unresolved at its
+separate revision limit. A fresh inquiry is appropriate when the frame or the
+research strategy needs to be reconsidered; retain the old directory for
+comparison.
 
 The directory contains:
 
@@ -173,6 +192,11 @@ The directory contains:
 |---|---|
 | `state.json` | The versioned frame, question states, findings and reviews, sources and passages, search history, clarifications, budgets, and event history. |
 | `report.md` | The latest readable report, including a final answer when completed or available partial results otherwise. |
+
+The report displays each branch's claim classifications, available read-passage
+references, latest critique, and progress counts. These are model judgments and
+traceable references, not independent verification. The checkpoint also records
+retrieval plans and controller interventions for diagnosing unproductive runs.
 
 Checkpoints are written atomically. Only one writer may run an inquiry at a
 time; a process lock is released when that process exits. After interruption,

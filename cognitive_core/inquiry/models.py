@@ -168,6 +168,8 @@ class QuestionRecord(Record):
     phase: Literal["plan", "retrieve", "investigate", "challenge", "reflect", "done"] = "plan"
     rounds: int = 0
     research_plans: int = 0
+    stalled_research_plans: int = 0
+    research_feedback: str = ""
     instructions: str = ""
     findings: list[FindingOutput] = Field(default_factory=list)
     challenges: list[ChallengeOutput] = Field(default_factory=list)
