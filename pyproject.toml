@@ -10,7 +10,7 @@ readme = "README.md"
 license = { text = "Apache-2.0" }
 requires-python = ">=3.11"
 authors = [
-    { name = "Mamadou Seck", email = "" },
+    { name = "Mamadou Seck" },
 ]
 keywords = [
     "ai",
@@ -39,6 +39,16 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Persistent research-assisted reasoning; install an LLM provider separately.
+inquiry = [
+    "httpx>=0.27",
+]
+
+# Optional source-document decoding for inquiries.
+pdf = [
+    "pdfplumber>=0.11",
+]
+
 # Full runtime with LangGraph execution
 runtime = [
     "langgraph>=0.2",
@@ -70,7 +80,7 @@ db = [
 
 # Everything
 all = [
-    "cognitive-core[runtime,api,db,mcp]",
+    "cognitive-core[runtime,api,db,mcp,inquiry,pdf]",
 ]
 
 # Development
@@ -90,6 +100,7 @@ Issues = "https://github.com/dioufseck-rgb/cognitive-core/issues"
 
 [project.scripts]
 cognitive-core = "cognitive_core.coordinator.cli:main"
+cognitive-inquiry = "cognitive_core.inquiry.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["cognitive_core"]
@@ -100,6 +111,9 @@ include = [
     "configs/",
     "pyproject.toml",
     "README.md",
+    "docs/inquiry.md",
+    "docs/inquiry-vscode-windows.md",
+    "llm_config.yaml",
     "LICENSE",
 ]
 

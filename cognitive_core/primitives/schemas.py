@@ -139,6 +139,133 @@ class BaseOutput(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Frame
+# ---------------------------------------------------------------------------
+
+def _frame_text(value: str, field_name: str) -> str:
+    """Normalize framing text while rejecting empty model output."""
+    value = value.strip()
+    if not value:
+        raise ValueError(f"{field_name} must contain non-whitespace text")
+    return value
+
+
+class FrameQuestion(BaseModel):
+    """A consequential subquestion in a provisional inquiry plan."""
+    model_config = {"extra": "forbid"}
+
+    id: str = Field(
+        pattern=r"^[A-Za-z][A-Za-z0-9_-]*$",
+        description="Stable question identifier, for example q1 or adoption_costs",
+    )
+    question: str = Field(min_length=1, description="The question to investigate")
+    contribution: str = Field(
+        min_length=1,
+        description="How answering this question helps answer the working question",
+    )
+    depends_on: list[str] = Field(
+        default_factory=list,
+        description="IDs of subquestions whose findings this question needs",
+    )
+    evidence_needs: list[str] = Field(
+        default_factory=list,
+        description="Information to retrieve or obtain; these are needs, not findings",
+    )
+
+    @model_validator(mode="after")
+    def validate_question(self):
+        self.question = _frame_text(self.question, "question")
+        self.contribution = _frame_text(self.contribution, "contribution")
+        self.depends_on = [_frame_text(item, "depends_on") for item in self.depends_on]
+        self.evidence_needs = [_frame_text(item, "evidence_needs") for item in self.evidence_needs]
+        if self.id in self.depends_on:
+            raise ValueError(f"Question {self.id!r} cannot depend on itself")
+        if len(set(self.depends_on)) != len(self.depends_on):
+            raise ValueError(f"Question {self.id!r} has duplicate dependencies")
+        return self
+
+
+class FrameClarification(BaseModel):
+    """A material ambiguity that requires the user's intent or context."""
+    model_config = {"extra": "forbid"}
+
+    id: str = Field(
+        pattern=r"^[A-Za-z][A-Za-z0-9_-]*$",
+        description="Stable clarification identifier, for example c1",
+    )
+    question: str = Field(min_length=1, description="The focused question to ask the user")
+    reason: str = Field(min_length=1, description="How the answer would change the inquiry")
+    blocking: bool = Field(
+        default=True,
+        description="Whether the inquiry must pause for this clarification",
+    )
+
+    @model_validator(mode="after")
+    def validate_clarification(self):
+        self.question = _frame_text(self.question, "question")
+        self.reason = _frame_text(self.reason, "reason")
+        return self
+
+
+class FrameOutput(BaseOutput):
+    """A revisable question plan, not an answer or a fixed execution schedule."""
+    model_config = {"extra": "forbid"}
+
+    reasoning: str = Field(min_length=1, description="Brief rationale for the chosen framing")
+    working_question: str = Field(min_length=1, description="The precise question being pursued")
+    purpose: str = Field(min_length=1, description="What understanding or decision the answer serves")
+    subquestions: list[FrameQuestion] = Field(
+        min_length=1, max_length=8,
+        description="One to eight consequential subquestions, with acyclic dependencies",
+    )
+    answer_criteria: list[str] = Field(
+        min_length=1,
+        description="What a useful and sufficiently supported answer must address",
+    )
+    scope: list[str] = Field(default_factory=list, description="Boundaries of the inquiry")
+    assumptions: list[str] = Field(default_factory=list, description="Explicit provisional assumptions")
+    clarifications: list[FrameClarification] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_plan(self):
+        for name in ("reasoning", "working_question", "purpose"):
+            setattr(self, name, _frame_text(getattr(self, name), name))
+        for name in ("answer_criteria", "scope", "assumptions"):
+            setattr(self, name, [_frame_text(item, name) for item in getattr(self, name)])
+
+        question_ids = [question.id for question in self.subquestions]
+        if len(set(question_ids)) != len(question_ids):
+            raise ValueError("Subquestion IDs must be unique")
+        clarification_ids = [clarification.id for clarification in self.clarifications]
+        if len(set(clarification_ids)) != len(clarification_ids):
+            raise ValueError("Clarification IDs must be unique")
+
+        graph = {question.id: question.depends_on for question in self.subquestions}
+        for question in self.subquestions:
+            unknown = set(question.depends_on) - graph.keys()
+            if unknown:
+                raise ValueError(f"Question {question.id!r} references unknown dependencies: {sorted(unknown)}")
+
+        visiting: set[str] = set()
+        visited: set[str] = set()
+
+        def visit(question_id: str) -> None:
+            if question_id in visiting:
+                raise ValueError("Subquestion dependencies must be acyclic")
+            if question_id in visited:
+                return
+            visiting.add(question_id)
+            for dependency in graph[question_id]:
+                visit(dependency)
+            visiting.remove(question_id)
+            visited.add(question_id)
+
+        for question_id in graph:
+            visit(question_id)
+        return self
+
+
+# ---------------------------------------------------------------------------
 # Classify
 # ---------------------------------------------------------------------------
 
@@ -631,6 +758,7 @@ class ReflectOutput(BaseOutput):
 # ---------------------------------------------------------------------------
 
 SCHEMA_REGISTRY: dict[str, type[BaseOutput]] = {
+    "frame": FrameOutput,
     "classify": ClassifyOutput,
     "investigate": InvestigateOutput,
     "verify": VerifyOutput,

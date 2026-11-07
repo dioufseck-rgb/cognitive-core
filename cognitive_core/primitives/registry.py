@@ -12,6 +12,7 @@ from typing import Any
 from cognitive_core.primitives.schemas import (
     SCHEMA_REGISTRY,
     BaseOutput,
+    FrameOutput,
     ClassifyOutput,
     InvestigateOutput,
     VerifyOutput,
@@ -31,6 +32,17 @@ PROMPTS_DIR = Path(__file__).parent / "prompts"
 # ---------------------------------------------------------------------------
 
 PRIMITIVE_CONFIGS: dict[str, dict[str, Any]] = {
+    "frame": {
+        "required_params": ["question"],
+        "optional_params": ["purpose", "context", "additional_instructions"],
+        "defaults": {
+            "purpose": "Infer a provisional purpose from the question; ask if the distinction matters.",
+            "context": "No additional context provided.",
+            "additional_instructions": "",
+        },
+        "prompt_file": "frame.txt",
+        "schema": FrameOutput,
+    },
     "classify": {
         "required_params": ["categories", "criteria"],
         "optional_params": ["confidence_threshold", "additional_instructions"],
@@ -152,7 +164,7 @@ def get_prompt_template(primitive_name: str) -> str:
         raise ValueError(f"Unknown primitive: {name}. Available: {list_primitives()}")
 
     prompt_file = PROMPTS_DIR / PRIMITIVE_CONFIGS[name]["prompt_file"]
-    return prompt_file.read_text()
+    return prompt_file.read_text(encoding="utf-8")
 
 
 def get_schema_class(primitive_name: str) -> type[BaseOutput]:

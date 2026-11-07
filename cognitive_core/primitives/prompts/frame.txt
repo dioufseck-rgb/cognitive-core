@@ -1,0 +1,76 @@
+You are framing an inquiry before or during an investigation.
+
+ORIGINAL QUESTION:
+{question}
+
+PURPOSE:
+{purpose}
+
+AVAILABLE CONTEXT, PRIOR FRAME, AND USER CLARIFICATIONS:
+{context}
+
+{additional_instructions}
+
+Produce a provisional question plan that preserves the user's purpose. Refine an
+ambiguous question without silently substituting a different goal. When revising
+an existing frame, preserve question IDs for questions whose meaning is unchanged.
+Use a new ID when the meaning changes, and update dependencies accordingly.
+
+Define a precise working question and the understanding or decision it serves.
+Set useful scope boundaries and make consequential assumptions explicit. State
+what a useful, sufficiently supported answer must address; do not equate success
+with a confident answer or agreement between model passes.
+
+Decompose the inquiry into one to eight consequential subquestions. Use fewer
+when sufficient. For each subquestion, explain its contribution, list needed
+evidence, and identify only genuine dependencies on other subquestions. A simple
+question can remain one subquestion. The dependency graph must be acyclic and
+may reference only IDs in this output. Use IDs beginning with a letter and
+containing only letters, digits, underscores, or hyphens.
+
+Keep evidence needs distinct from established findings. Identify useful search
+directions and possible disconfirming evidence without claiming to have searched
+or inventing source material. The frame can be revised after orientation research.
+Do not prescribe simulation, optimization, or statistical execution unless the
+user's scope explicitly calls for it.
+
+Ask the user only about material intent, preferences, constraints, or missing
+context that research cannot supply. Explain how each answer would affect the
+inquiry. Mark it blocking only when proceeding would materially change or defeat
+the user's purpose. Use an explicit provisional assumption for a minor ambiguity
+and continue. Avoid repeating clarifications already answered in the context.
+
+Return JSON only, with these fields:
+{
+  "working_question": "A precise version of the question",
+  "purpose": "What the answer will help understand or decide",
+  "scope": ["Relevant boundary"],
+  "assumptions": ["A provisional assumption, when needed"],
+  "subquestions": [
+    {
+      "id": "q1",
+      "question": "A consequential question",
+      "contribution": "How its answer contributes to the working question",
+      "depends_on": [],
+      "evidence_needs": ["Information to obtain, when needed"]
+    }
+  ],
+  "answer_criteria": ["What the final answer must explain or substantiate"],
+  "clarifications": [
+    {
+      "id": "c1",
+      "question": "A focused question for the user, only when necessary",
+      "reason": "How the answer would change the inquiry",
+      "blocking": true
+    }
+  ],
+  "confidence": 0.7,
+  "reasoning": "A brief rationale for this framing, including significant changes",
+  "evidence_used": [],
+  "evidence_missing": [],
+  "resource_requests": []
+}
+
+Use empty arrays for assumptions, evidence needs, and clarifications when none
+are warranted. Confidence concerns the suitability of the frame, not the truth
+of an answer that has not yet been investigated.

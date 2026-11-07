@@ -88,7 +88,7 @@ def _load_config() -> dict:
 
     for p in _CONFIG_PATHS:
         if p and Path(p).is_file():
-            with open(p) as f:
+            with open(p, encoding="utf-8-sig") as f:
                 _config_cache = yaml.safe_load(f) or {}
             return _config_cache
 

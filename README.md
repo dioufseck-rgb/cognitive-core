@@ -6,7 +6,7 @@ Most enterprise AI work embeds language models inside patterns inherited from ea
 
 Cognitive Core treats AI-native workflow design as a first-class architectural problem:
 
-- **Typed cognitive primitives** — nine epistemic operations that compose into any reasoning workflow
+- **Typed cognitive primitives** — ten epistemic operations that compose into reasoning workflows
 - **Configuration-first** — a new decision domain is a YAML file, not an application
 - **Structural governance** — escalation, human review, and audit trails are conditions of execution, not bolt-ons
 - **Demand-driven delegation** — agentic mode lets the orchestrator reason the path; the substrate enforces governance on whatever path it takes
@@ -14,15 +14,17 @@ Cognitive Core treats AI-native workflow design as a first-class architectural p
 → **[Prior authorization appeal — the evaluated domain](demos/prior-auth-appeal/)**  
 → **[Loan modification — second demonstrated domain](demos/loan-modification/)**  
 → **[Reproducing the IEEE Computer results](#reproducing-the-published-results)**  
+→ **[Research-assisted inquiries — framing, search, revision, and synthesis](docs/inquiry.md)**
 
 ---
 
-## The nine primitives
+## The ten primitives
 
-Every workflow is composed from nine typed epistemic operations. Each has a defined input contract, a structured output schema, a prompt template, and a three-layer epistemic state computation.
+Workflows compose typed epistemic operations. Each has a defined input contract, a structured output schema, and a prompt template. Institutional workflow execution additionally computes the three-layer epistemic state described below.
 
 | Primitive | Epistemic function | Key output fields |
 |---|---|---|
+| `frame` | Refine a question and propose a revisable decomposition | `working_question`, `subquestions`, `answer_criteria`, `clarifications` |
 | `retrieve` | Acquire evidence from external sources | `data`, `sources_queried`, `confidence` |
 | `classify` | Categorical assignment under uncertainty | `category`, `alternative_categories`, `confidence` |
 | `investigate` | Goal-directed inquiry until threshold | `finding`, `hypotheses_tested`, `confidence` |
@@ -33,7 +35,9 @@ Every workflow is composed from nine typed epistemic operations. Each has a defi
 | `reflect` | Metacognitive review of the reasoning so far; directs the next step | `what_was_established`, `what_was_assumed`, `trajectory`, `next_question` |
 | `govern` | Determine governance tier and disposition | `tier_applied`, `disposition`, `work_order` |
 
-All outputs inherit from `BaseOutput`: `confidence`, `reasoning`, `evidence_used`, `evidence_missing`. Seven of the nine primitives also elicit `reasoning_quality` and `outcome_certainty`. The two exceptions are `retrieve` and `govern` (see the epistemic state section).
+All outputs inherit from `BaseOutput`: `confidence`, `reasoning`, `evidence_used`, `evidence_missing`. Seven primitives also elicit `reasoning_quality` and `outcome_certainty`; `frame`, `retrieve`, and `govern` do not.
+
+`frame` supplies the initial decomposition for the inquiry runner and can revise it as research develops. Registering Frame does not change the existing institutional agentic transition or closure policies. The inquiry runner has its own bounded lifecycle and checkpoints; it reuses typed primitives and the protected LLM call path, without claiming the institutional workflow's complete governance ledger.
 
 `reflect` reasons about the accumulated reasoning, not about the case itself. It lists what has been established and what has been assumed, identifies the single most load-bearing fact, and sets a trajectory: `continue`, `revise` (with a revision target), or `escalate` (with a reason). Its output can shape the specification of the next primitive call. Schema: `ReflectOutput` in `cognitive_core/primitives/schemas.py`; prompt: `cognitive_core/primitives/prompts/reflect.txt`.
 
@@ -46,7 +50,7 @@ Every step produces a structured epistemic state — not a single confidence sca
 | Layer | Signals | How computed |
 |---|---|---|
 | Mechanical | `evidence_completeness`, `rule_coverage`, `citation_rate`, `alternative_separation` | Deterministic from observable output structure — cannot be inflated |
-| Judgment | `reasoning_quality`, `outcome_certainty` | Reported by the LLM in 7 of the 9 primitives. `retrieve` and `govern` use mechanical signals only. |
+| Judgment | `reasoning_quality`, `outcome_certainty` | Reported by seven primitives. `frame`, `retrieve`, and `govern` do not elicit these fields. |
 | Coherence | Six named flags (below) | Computed across steps by the framework. Detects inconsistencies that no single step can see. |
 
 **How the step score is computed** (`cognitive_core/engine/epistemic.py`, `compute_overall`):
@@ -117,7 +121,7 @@ export OPENAI_API_KEY=your_key      # OpenAI
 
 ### Run a demonstrated domain
 
-Two domains are included, both in agentic mode with all nine primitives available.
+Two institutional domains are included, both configured with the original nine primitives.
 
 ```bash
 # Prior authorization appeal (the domain evaluated in the paper)
@@ -126,6 +130,28 @@ python demos/prior-auth-appeal/run.py
 # Loan modification
 python demos/loan-modification/run.py --case lm_2024_a001.json --compare
 ```
+
+### Run a research-assisted inquiry
+
+The offline demo needs no model or search key:
+
+```bash
+python -m cognitive_core.inquiry demo --output inquiries/demo
+```
+
+For a live inquiry, install `.[inquiry]` and your chosen LLM provider, configure
+`SERPER_API_KEY` and the model credentials, then run from the repository root:
+
+```bash
+python -m cognitive_core.inquiry start \
+  "When is an agent a useful abstraction for a workflow?" \
+  --output inquiries/agent-abstraction
+python -m cognitive_core.inquiry status inquiries/agent-abstraction
+```
+
+The inquiry writes an atomic checkpoint and a Markdown report after each step.
+It can pause for user clarification or a budget limit and resume in a new process.
+See [the inquiry guide](docs/inquiry.md) for setup, resume commands, budgets, and limitations.
 
 ### Run the server
 
@@ -177,7 +203,8 @@ To re-run the benchmark itself (requires `GOOGLE_API_KEY`): `python demos/prior-
 
 ```
 cognitive_core/           — installable package
-├── primitives/           — schemas, registry, nine primitive prompt templates + orchestrator
+├── primitives/           — schemas, registry, ten primitive prompt templates + orchestrator
+├── inquiry/              — framing, research tools, persistent reasoning controller, CLI
 ├── engine/               — DEVS execution kernel, LLM providers, governance pipeline,
 │                           epistemic state computation
 ├── coordinator/          — runtime, store, tasks, delegation, policy, resilience
