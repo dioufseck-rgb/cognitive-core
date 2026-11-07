@@ -15,9 +15,10 @@ import unittest
 from unittest.mock import MagicMock
 
 
-def _fresh_governance():
+def _fresh_governance(test_case):
     from cognitive_core.engine.governance import GovernancePipeline
     gov = GovernancePipeline()
+    test_case.addCleanup(gov.close)
     gov.initialize()
     return gov
 
@@ -42,7 +43,7 @@ class TestKillSwitchBlocksAct(unittest.TestCase):
     def test_governance_check_act_allowed_raises_when_kill_switch_active(self):
         from cognitive_core.engine.kill_switch import KillSwitchTripped
 
-        gov = _fresh_governance()
+        gov = _fresh_governance(self)
         self.assertIsNotNone(gov._kill_switches, "KillSwitchManager should be initialised")
 
         gov._kill_switches.disable_act()
@@ -52,7 +53,7 @@ class TestKillSwitchBlocksAct(unittest.TestCase):
     def test_kill_switch_proof_event_recorded(self):
         from cognitive_core.engine.kill_switch import KillSwitchTripped
 
-        gov = _fresh_governance()
+        gov = _fresh_governance(self)
         gov._kill_switches.disable_act()
 
         try:
@@ -72,7 +73,7 @@ class TestKillSwitchBlocksAct(unittest.TestCase):
     def test_delegation_kill_switch_raises(self):
         from cognitive_core.engine.kill_switch import KillSwitchTripped
 
-        gov = _fresh_governance()
+        gov = _fresh_governance(self)
         gov._kill_switches.disable_delegation()
         with self.assertRaises(KillSwitchTripped):
             gov.check_delegation_allowed()
@@ -88,14 +89,14 @@ class TestShadowModeInterceptsAct(unittest.TestCase):
         os.environ.pop("CC_SHADOW_MODE", None)
 
     def test_should_skip_act_returns_true_when_shadow_enabled(self):
-        gov = _fresh_governance()
+        gov = _fresh_governance(self)
         if gov._shadow_mode is None:
             self.skipTest("ShadowMode not available")
         result = gov.should_skip_act("test_act_step")
         self.assertTrue(result, "should_skip_act must return True when CC_SHADOW_MODE=true")
 
     def test_shadow_result_has_correct_structure(self):
-        gov = _fresh_governance()
+        gov = _fresh_governance(self)
         if gov._shadow_mode is None:
             self.skipTest("ShadowMode not available")
 
@@ -114,7 +115,7 @@ class TestShadowModeInterceptsAct(unittest.TestCase):
 
     def test_shadow_mode_does_not_affect_non_act_primitives(self):
         """Shadow mode must only intercept Act — other primitives are unaffected."""
-        gov = _fresh_governance()
+        gov = _fresh_governance(self)
         if gov._shadow_mode is None:
             self.skipTest("ShadowMode not available")
 
@@ -145,7 +146,7 @@ class TestShadowModeDisabled(unittest.TestCase):
         os.environ.pop("CC_SHADOW_MODE", None)
 
     def test_should_skip_act_returns_false_when_shadow_disabled(self):
-        gov = _fresh_governance()
+        gov = _fresh_governance(self)
         if gov._shadow_mode is None:
             self.skipTest("ShadowMode not available")
         result = gov.should_skip_act("act_step")

@@ -26,10 +26,11 @@ def _make_llm_response(content: str) -> MagicMock:
     return resp
 
 
-def _fresh_governance():
+def _fresh_governance(test_case):
     """Return a freshly initialised GovernancePipeline (no singleton)."""
     from cognitive_core.engine.governance import GovernancePipeline
     gov = GovernancePipeline()
+    test_case.addCleanup(gov.close)
     gov.initialize()
     return gov
 
@@ -44,7 +45,7 @@ class TestPiiRedactionInProtectedLLMCall(unittest.TestCase):
         os.environ["CC_CACHE_ENABLED"] = "false"
 
     def test_pii_redacted_before_llm_and_deredacted_after(self):
-        gov = _fresh_governance()
+        gov = _fresh_governance(self)
         # Ensure PII redactor is initialised
         self.assertIsNotNone(gov._pii_redactor, "PiiRedactor should be initialised")
 
@@ -86,7 +87,7 @@ class TestPiiRedactionInProtectedLLMCall(unittest.TestCase):
         self.assertGreater(len(result.raw_response), 0)
 
     def test_pii_redaction_proof_event_recorded(self):
-        gov = _fresh_governance()
+        gov = _fresh_governance(self)
         self.assertIsNotNone(gov._pii_redactor)
 
         gov._pii_redactor.register_entities_from_case(
@@ -114,7 +115,7 @@ class TestPiiRedactionInProtectedLLMCall(unittest.TestCase):
         )
 
     def test_cost_record_proof_event_after_llm_call(self):
-        gov = _fresh_governance()
+        gov = _fresh_governance(self)
 
         llm = MagicMock()
         llm.invoke.return_value = _make_llm_response("Decision: approve.")
@@ -135,7 +136,7 @@ class TestPiiRedactionInProtectedLLMCall(unittest.TestCase):
         )
 
     def test_llm_call_proof_event_recorded(self):
-        gov = _fresh_governance()
+        gov = _fresh_governance(self)
 
         llm = MagicMock()
         llm.invoke.return_value = _make_llm_response("ok")
@@ -166,7 +167,7 @@ class TestSemanticCacheBehavior(unittest.TestCase):
         os.environ.pop("CC_PII_ENABLED", None)
 
     def test_cache_hit_skips_llm(self):
-        gov = _fresh_governance()
+        gov = _fresh_governance(self)
         if gov._cache is None or not gov._cache.enabled:
             self.skipTest("SemanticCache not available or disabled")
 
@@ -213,6 +214,7 @@ class TestRateLimitBehavior(unittest.TestCase):
         from cognitive_core.engine.governance import GovernancePipeline
 
         gov = GovernancePipeline()
+        self.addCleanup(gov.close)
         gov.initialize()
 
         if gov._cache:
@@ -262,7 +264,7 @@ class TestProtectedLLMCallSequence(unittest.TestCase):
         os.environ.pop("CC_PII_ENABLED", None)
 
     def test_call_sequence_produces_valid_result(self):
-        gov = _fresh_governance()
+        gov = _fresh_governance(self)
 
         llm = MagicMock()
         llm.invoke.return_value = _make_llm_response('{"decision": "approve"}')

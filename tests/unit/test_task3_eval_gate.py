@@ -17,9 +17,10 @@ import tempfile
 import unittest
 
 
-def _fresh_governance():
+def _fresh_governance(test_case):
     from cognitive_core.engine.governance import GovernancePipeline
     gov = GovernancePipeline()
+    test_case.addCleanup(gov.close)
     gov.initialize()
     return gov
 
@@ -113,7 +114,7 @@ class TestEvalGateInCheckStartGates(unittest.TestCase):
         os.environ.pop("LLM_MODEL_ID", None)
         os.environ["CC_EVAL_GATE_ENFORCED"] = "true"
 
-        gov = _fresh_governance()
+        gov = _fresh_governance(self)
         gov.check_start_gates("test_workflow", "test_domain", {})
 
         gate_events = [e for e in gov._proof_ledger if "eval_gate" in e["event"]]
@@ -125,7 +126,7 @@ class TestEvalGateInCheckStartGates(unittest.TestCase):
         os.environ["LLM_MODEL_ID"] = "unregistered-model-abc123"
         os.environ["CC_EVAL_GATE_ENFORCED"] = "true"
 
-        gov = _fresh_governance()
+        gov = _fresh_governance(self)
         result = gov.check_start_gates("fraud_triage", "fraud", {})
 
         self.assertTrue(
@@ -140,7 +141,7 @@ class TestEvalGateInCheckStartGates(unittest.TestCase):
 
         import logging
         with self.assertLogs("cognitive_core.governance", level="WARNING") as log_cm:
-            gov = _fresh_governance()
+            gov = _fresh_governance(self)
             result = gov.check_start_gates("fraud_triage", "fraud", {})
 
         # Must NOT be blocked
@@ -164,7 +165,7 @@ class TestEvalGateInCheckStartGates(unittest.TestCase):
         os.environ["CC_EVAL_GATE_ENFORCED"] = "true"
 
         with patch.object(EvalGate, "is_model_approved", return_value=True):
-            gov = _fresh_governance()
+            gov = _fresh_governance(self)
             result = gov.check_start_gates("fraud_triage", "fraud", {})
 
         self.assertFalse(

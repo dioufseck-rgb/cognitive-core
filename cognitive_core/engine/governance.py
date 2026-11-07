@@ -36,6 +36,7 @@ Usage:
 
 from __future__ import annotations
 
+import atexit
 import json
 import logging
 import os
@@ -246,6 +247,24 @@ class GovernancePipeline:
             logger.warning("  ✗ HITLStateMachine: %s", e)
 
         logger.info("Governance pipeline initialized.")
+
+    def close(self):
+        """Release owned database connections; safe to call more than once.
+
+        A subsequent initialize() call creates fresh resources. The circuit
+        breaker is shared and manages its own short-lived connections.
+        """
+        try:
+            if self._compensation is not None:
+                self._compensation.close()
+                self._compensation = None
+        finally:
+            try:
+                if self._replay_manager is not None:
+                    self._replay_manager.close()
+                    self._replay_manager = None
+            finally:
+                self._initialized = False
 
     # ─── Rate Limiter (per-provider, lazy) ───────────────────────
 
@@ -1014,9 +1033,17 @@ def get_governance() -> GovernancePipeline:
 
 
 def reset_governance():
-    """Reset the singleton (for testing)."""
+    """Close and reset the singleton (for testing)."""
     global _instance
-    _instance = None
+    with _lock:
+        if _instance is not None:
+            _instance.close()
+            _instance = None
+
+
+# The CLI shares this process-lifetime singleton; release its connections on
+# normal interpreter exit as well as explicit reset.
+atexit.register(reset_governance)
 
 
 # ═══════════════════════════════════════════════════════════════════

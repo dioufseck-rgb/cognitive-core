@@ -99,6 +99,7 @@ class TestDelegationAtomicClaim(unittest.TestCase):
         import tempfile
         self.db_path = tempfile.mktemp(suffix=".db")
         self.coord = _make_coordinator(self.db_path)
+        self.addCleanup(self.coord.store.close)
 
     def test_single_call_fires_once(self):
         """Single call to _evaluate_and_execute_delegations fires exactly one delegation."""
@@ -253,6 +254,7 @@ class TestDelegationLedgerIdempotency(unittest.TestCase):
         import tempfile
         self.db_path = tempfile.mktemp(suffix=".db")
         self.coord = _make_coordinator(self.db_path)
+        self.addCleanup(self.coord.store.close)
         self.inst = _make_instance(self.coord)
 
     def test_log_action_returns_false_on_duplicate_key(self):

@@ -26,10 +26,8 @@ class InquiryStore:
             if os.name == "nt":
                 import msvcrt
 
-                handle.seek(0)
-                if not handle.read(1):
-                    handle.write(b"0")
-                    handle.flush()
+                # Windows permits byte-range locks beyond EOF. Do not read or
+                # write a byte that another handle may already have locked.
                 handle.seek(0)
                 try:
                     msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)

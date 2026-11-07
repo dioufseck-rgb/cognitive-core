@@ -57,10 +57,14 @@ class CompensationLedger:
 
     def __init__(self, db_path: str = ":memory:"):
         self._conn = sqlite3.connect(db_path, check_same_thread=False)
-        self._conn.row_factory = sqlite3.Row
-        self._conn.execute("PRAGMA journal_mode=WAL")
         self._lock = threading.RLock()
-        self._init_db()
+        try:
+            self._conn.row_factory = sqlite3.Row
+            self._conn.execute("PRAGMA journal_mode=WAL")
+            self._init_db()
+        except BaseException:
+            self._conn.close()
+            raise
 
     def _init_db(self):
         self._conn.executescript("""

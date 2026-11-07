@@ -31,6 +31,7 @@ import sqlite3
 import threading
 import time
 from collections import deque
+from contextlib import closing
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -239,41 +240,39 @@ class LogicCircuitBreaker:
     # ── Persistence ──────────────────────────────────────────
 
     def _init_db(self):
-        conn = sqlite3.connect(self.db_path)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS logic_breaker_state (
-                domain TEXT NOT NULL,
-                primitive TEXT NOT NULL,
-                override_tier TEXT DEFAULT '',
-                trip_count INTEGER DEFAULT 0,
-                last_trip_at REAL DEFAULT 0,
-                window_json TEXT DEFAULT '[]',
-                updated_at REAL DEFAULT 0,
-                PRIMARY KEY (domain, primitive)
-            )
-        """)
-        conn.commit()
-        conn.close()
+        with closing(sqlite3.connect(self.db_path)) as conn:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS logic_breaker_state (
+                    domain TEXT NOT NULL,
+                    primitive TEXT NOT NULL,
+                    override_tier TEXT DEFAULT '',
+                    trip_count INTEGER DEFAULT 0,
+                    last_trip_at REAL DEFAULT 0,
+                    window_json TEXT DEFAULT '[]',
+                    updated_at REAL DEFAULT 0,
+                    PRIMARY KEY (domain, primitive)
+                )
+            """)
+            conn.commit()
 
     def _save_state(self, state: BreakerState):
         import json
-        conn = sqlite3.connect(self.db_path)
         window_data = json.dumps(list(state.window))
-        conn.execute("""
-            INSERT OR REPLACE INTO logic_breaker_state
-            (domain, primitive, override_tier, trip_count, last_trip_at, window_json, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (
-            state.domain, state.primitive, state.override_tier,
-            state.trip_count, state.last_trip_at, window_data, time.time(),
-        ))
-        conn.commit()
-        conn.close()
+        with closing(sqlite3.connect(self.db_path)) as conn:
+            conn.execute("""
+                INSERT OR REPLACE INTO logic_breaker_state
+                (domain, primitive, override_tier, trip_count, last_trip_at, window_json, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (
+                state.domain, state.primitive, state.override_tier,
+                state.trip_count, state.last_trip_at, window_data, time.time(),
+            ))
+            conn.commit()
 
     def _load_state(self):
         import json
-        conn = sqlite3.connect(self.db_path)
-        rows = conn.execute("SELECT * FROM logic_breaker_state").fetchall()
+        with closing(sqlite3.connect(self.db_path)) as conn:
+            rows = conn.execute("SELECT * FROM logic_breaker_state").fetchall()
         for row in rows:
             domain, primitive, override_tier, trip_count, last_trip_at, window_json, _ = row
             window_data = json.loads(window_json) if window_json else []
@@ -290,24 +289,21 @@ class LogicCircuitBreaker:
                 override_tier=override_tier,
             )
             self._breakers[(domain, primitive)] = state
-        conn.close()
         if rows:
             logger.info("Loaded %d logic breaker states from DB", len(rows))
 
     def _delete_state(self, domain: str, primitive: str):
-        conn = sqlite3.connect(self.db_path)
-        conn.execute(
-            "DELETE FROM logic_breaker_state WHERE domain=? AND primitive=?",
-            (domain, primitive),
-        )
-        conn.commit()
-        conn.close()
+        with closing(sqlite3.connect(self.db_path)) as conn:
+            conn.execute(
+                "DELETE FROM logic_breaker_state WHERE domain=? AND primitive=?",
+                (domain, primitive),
+            )
+            conn.commit()
 
     def _clear_all_state(self):
-        conn = sqlite3.connect(self.db_path)
-        conn.execute("DELETE FROM logic_breaker_state")
-        conn.commit()
-        conn.close()
+        with closing(sqlite3.connect(self.db_path)) as conn:
+            conn.execute("DELETE FROM logic_breaker_state")
+            conn.commit()
 
 
 # ═══════════════════════════════════════════════════════════════════

@@ -79,8 +79,12 @@ class ReplayManager:
         self.db_path = db_path
         self._lock = threading.Lock()
         self._conn = sqlite3.connect(db_path, check_same_thread=False)
-        self._conn.execute("PRAGMA journal_mode=WAL")
-        self._create_tables()
+        try:
+            self._conn.execute("PRAGMA journal_mode=WAL")
+            self._create_tables()
+        except BaseException:
+            self._conn.close()
+            raise
 
     def _create_tables(self):
         self._conn.executescript("""
