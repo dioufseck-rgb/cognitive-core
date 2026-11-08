@@ -16,6 +16,8 @@ Cognitive Core treats AI-native workflow design as a first-class architectural p
 → **[Reproducing the IEEE Computer results](#reproducing-the-published-results)**  
 → **[Research-assisted inquiries — framing, search, revision, and synthesis](docs/inquiry.md)**
 
+→ **[Native inquiry architecture — design draft for extending the full framework](docs/inquiry-design.md)**
+
 ---
 
 ## The ten primitives
