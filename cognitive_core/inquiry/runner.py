@@ -20,6 +20,7 @@ from cognitive_core.inquiry.models import (
     InquiryLimits,
     InquiryReflection,
     InquiryState,
+    OutputRepairState,
     Passage,
     QuestionRecord,
     ReadArguments,
@@ -31,6 +32,7 @@ from cognitive_core.inquiry.models import (
     UserClarification,
 )
 from cognitive_core.inquiry.store import InquiryStore
+from cognitive_core.inquiry.reasoning import ReasoningError, StructuredOutputError, schema_error
 from cognitive_core.primitives.schemas import ChallengeOutput, FrameOutput, GenerateOutput
 
 
@@ -138,6 +140,14 @@ class InquiryRunner:
                 state.status = "awaiting_user"
                 self._checkpoint(state)
                 return state
+            if answers:
+                state.output_repair = None
+            elif state.status == "failed" and state.output_repair is not None:
+                # An explicit retry after failure can use a changed model or
+                # configuration. Budget/interrupt pauses keep the original count.
+                state.output_repair.failures = 0
+                self._event(state, "repair_restarted", "Explicit resume starts a new bounded correction batch",
+                            state.output_repair.question_id)
             state.status = "ready"
             state.error = None
             state.stop_reason = ""
@@ -177,7 +187,7 @@ class InquiryRunner:
             elif isinstance(exc, ValidationError):
                 fields = [".".join(map(str, e["loc"])) for e in exc.errors(include_input=False)[:5]]
                 state.error = "Invalid structured output at: " + ", ".join(fields)
-            elif exc.__class__.__name__ == "ReasoningError":
+            elif isinstance(exc, ReasoningError):
                 state.error = str(exc)
             else:
                 state.error = f"{type(exc).__name__} during the current step; check configuration and resume"
@@ -668,16 +678,76 @@ class InquiryRunner:
         return src
 
     def _invoke(self, state, primitive, response_model, context, instructions="", qid=None):
-        self._begin(state, primitive, qid)
-        output = self.reasoner.invoke(
-            primitive, context=context,
-            instructions="\n".join(filter(None, [state.instructions, instructions])),
-            response_model=response_model,
-        )
-        if not isinstance(output, response_model):
-            output = response_model.model_validate(output)
-        self._complete(state, primitive, qid, f"{primitive.capitalize()} completed")
-        return output
+        repair = state.output_repair
+        if repair is not None and (
+            repair.primitive, repair.question_id, repair.response_model
+        ) != (primitive, qid, response_model.__name__):
+            state.output_repair = repair = None
+        while True:
+            if repair is not None and repair.failures > state.limits.max_output_repairs:
+                # Also covers an interruption immediately after persisting the
+                # last rejected response but before raising the bounded failure.
+                raise StructuredOutputError(
+                    f"{repair.message} Correction allowance exhausted ({state.limits.max_output_repairs} repairs).",
+                    issues=repair.issues,
+                )
+            self._begin(state, primitive, qid)
+            attempt_context = context
+            if isinstance(context.get("remaining_budget"), dict):
+                attempt_context = {**context, "remaining_budget": {
+                    **context["remaining_budget"],
+                    "steps": state.limits.max_steps - state.usage.steps,
+                }}
+            guidance = [state.instructions, instructions]
+            if repair is not None:
+                # Include a unique scheduled step so an exact response cache
+                # cannot replay a previously rejected corrective response.
+                guidance.append(
+                    f"OUTPUT CORRECTION at scheduled step {state.usage.steps}; "
+                    f"prior rejected outputs in this batch: {repair.failures}. "
+                    "The previous response was rejected before any of its proposed tool calls or findings were accepted. "
+                    "Regenerate a response for the same task and authoritative response schema. "
+                    "Correct the listed format/field errors; do not invent missing evidence, tool results, or URLs. "
+                    "No rejected response is being supplied as trusted content. "
+                    "Validation feedback: " + json.dumps(repair.issues, ensure_ascii=True)
+                )
+                self._event(state, "schema_repair", f"Requesting a corrected {primitive} response", qid,
+                            {"primitive": primitive, "prior_rejections": repair.failures})
+                self.store.save(state)
+            try:
+                try:
+                    output = self.reasoner.invoke(
+                        primitive, context=attempt_context,
+                        instructions="\n".join(filter(None, guidance)),
+                        response_model=response_model,
+                    )
+                    if not isinstance(output, response_model):
+                        output = response_model.model_validate(output)
+                except ValidationError as exc:
+                    # Protocol-compatible adapters can expose Pydantic errors
+                    # directly. Use the same safe diagnostics as CoreReasoner.
+                    raise schema_error(primitive, response_model, exc) from None
+            except StructuredOutputError as exc:
+                failures = repair.failures + 1 if repair is not None else 1
+                state.in_flight = None
+                repair = OutputRepairState(
+                    primitive=primitive, question_id=qid, response_model=response_model.__name__,
+                    failures=failures, message=str(exc), issues=exc.issues,
+                )
+                state.output_repair = repair
+                self._event(state, "output_rejected", str(exc), qid, {
+                    "primitive": primitive, "failures": failures, "issues": exc.issues,
+                })
+                self.store.save(state)
+                if failures > state.limits.max_output_repairs:
+                    raise StructuredOutputError(
+                        f"{exc} Correction allowance exhausted ({state.limits.max_output_repairs} repairs).",
+                        issues=exc.issues,
+                    ) from None
+                continue
+            state.output_repair = None
+            self._complete(state, primitive, qid, f"{primitive.capitalize()} completed")
+            return output
 
     def _begin(self, state: InquiryState, operation: str, qid: str | None) -> None:
         if state.usage.steps >= state.limits.max_steps:

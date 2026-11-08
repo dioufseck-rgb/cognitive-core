@@ -167,6 +167,21 @@ search/read usage includes failed attempts. These are scheduling limits, not
 token or spending limits. Model-provider retries and source redirects can make
 additional HTTP requests within an operation.
 
+Invalid JSON or a response that fails its output schema can receive up to two
+corrective model attempts (`InquiryLimits.max_output_repairs`). Every attempt,
+including rejected outputs, consumes a scheduled step. The original schema is
+still enforced: the runner never truncates an oversized tool plan, guesses
+arguments, or executes a partially valid plan. Correction prompts receive the
+same task and safe field/type diagnostics, without replaying the rejected raw
+response. Provider/configuration failures and URL/citation/evidence violations
+are not handled as output-format repairs.
+
+The checkpoint's `output_repair` field preserves safe feedback and attempt
+counts across budget pauses and interruptions. An explicit `resume` after a
+failed run starts a new bounded correction batch, allowing a changed model or
+configuration to recover. Reports display rejected-output and correction counts;
+these are scheduled attempts, not a count of HTTP requests or provider retries.
+
 When the step budget is exhausted, the checkpoint and available partial results
 remain inspectable. Add a specific amount of effort when resuming:
 

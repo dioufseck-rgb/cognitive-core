@@ -159,5 +159,11 @@ def render_report(state: InquiryState) -> str:
                             for kind, label in operation_labels.items() if operation_counts[kind]]
     if completed_operations:
         lines += ["Completed model operations: " + "; ".join(completed_operations) + ".", ""]
+    if operation_counts["output_rejected"]:
+        lines += [f"Rejected model outputs: {operation_counts['output_rejected']}; "
+                  f"correction attempts started: {operation_counts['schema_repair']}. "
+                  "Every attempt counts toward the step budget.", ""]
+    if state.output_repair is not None and state.status in {"ready", "running", "budget_exhausted"}:
+        lines += ["Pending output correction: " + _plain(state.output_repair.message), ""]
     lines += ["The checkpoint contains the frame history, structured findings, source passages, objections, and events.", ""]
     return "\n".join(lines)

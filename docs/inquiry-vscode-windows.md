@@ -356,7 +356,7 @@ experiments and simulations are outside this version.
 | Serper rejects access | Check the runtime key/account; for quota or rate limiting, inspect the account before retrying. |
 | Source lookup/HTTP/TLS error | Test source reading independently. Follow the network's approved proxy/TLS configuration. |
 | Unknown/unavailable model | Check `llm_config.yaml` and select an available model ID with `--model`. |
-| Invalid JSON or structured output | Read the named field error; retry the saved step or select a suitable model. Repeated failures are a bug report, not a reason to loosen evidence checks. |
+| Invalid JSON or structured output | The runner permits up to two budget-counted corrections and then stops with safe nested field/type diagnostics. After updating the code or model, resume the existing directory to reuse saved searches and sources. Repeated failures are a bug report; evidence checks remain enforced. |
 | Output directory already exists | Use `resume` for unfinished work or a new output directory for a new study. |
 | `budget_exhausted` | This is a saved pause. Inspect the result, then add a bounded amount of effort. |
 

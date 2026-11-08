@@ -14,12 +14,38 @@ from typing import Any, Protocol, TypeVar, runtime_checkable
 
 from pydantic import BaseModel, ValidationError
 
+from cognitive_core.inquiry.validation import validation_issues
+
 
 OutputT = TypeVar("OutputT", bound=BaseModel)
 
 
 class ReasoningError(RuntimeError):
     """An actionable error that contains no model response or credential values."""
+
+
+class StructuredOutputError(ReasoningError):
+    """A rejected response that the controller may ask the model to regenerate."""
+
+    def __init__(self, message: str, *, issues: list[dict[str, str]]):
+        super().__init__(message)
+        self.issues = issues
+
+
+def schema_error(primitive: str, response_model: type[BaseModel], error: ValidationError) -> StructuredOutputError:
+    issues = validation_issues(error, response_model)
+    detail = " ".join(f"{issue['path']}: {issue['message']}" for issue in issues[:4])
+    return StructuredOutputError(
+        f"The inquiry {primitive} response does not satisfy {response_model.__name__}. {detail}".strip(),
+        issues=issues,
+    )
+
+
+def _format_error(message: str) -> StructuredOutputError:
+    return StructuredOutputError(message, issues=[{
+        "path": "$", "code": "json_invalid",
+        "message": "Return exactly one valid JSON object matching the response schema; no duplicate keys or non-finite numbers.",
+    }])
 
 
 @runtime_checkable
@@ -64,7 +90,12 @@ an assumption. Model agreement is not independent evidence.
 _PROFILES = {
     "retrieve": """Plan the next useful retrieval for the active question.
 Produce explicit web_search or read_source calls with arguments in the supplied
-schema. Use the active evidence needs, current objection, source catalog, and
+schema. The calls field must be a list with at most FOUR calls. Five search
+results do not require five calls in one plan; inspect further candidates in a
+later plan. Each call has tool, arguments, and purpose. For read_source, nest the
+url inside arguments; for web_search, nest query and optional num inside
+arguments. Use only the exact tool names web_search and read_source.
+Use the active evidence needs, current objection, source catalog, and
 search history to choose the next action. Each call needs a purpose tied to a
 specific unresolved claim. When promising sources are already discovered, read
 them before issuing another broad search. Prefer original studies, official
@@ -230,26 +261,26 @@ def _reject_constant(value: str) -> None:
 def _parse_json(content: Any) -> dict:
     text = _response_text(content).strip().lstrip("\ufeff").strip()
     if not text:
-        raise ReasoningError("The inquiry model returned no text output.")
+        raise _format_error("The inquiry model returned no text output.")
     # Accept a single fenced object, including a short prose preamble. Do not
     # guess among several blocks or silently accept multiple JSON objects.
     if "```" in text and not text.startswith("{"):
         opening = re.search(r"```(?:json)?[ \t]*(?:\r?\n)?", text, re.IGNORECASE)
         closing = text.rfind("```")
         if opening is None or closing < opening.end():
-            raise ReasoningError("The inquiry model must return a single JSON object.")
+            raise _format_error("The inquiry model must return a single JSON object.")
         surrounding = text[:opening.start()] + text[closing + 3:]
         if any(marker in surrounding for marker in ("```", "{", "}")):
-            raise ReasoningError("The inquiry model must return a single JSON object.")
+            raise _format_error("The inquiry model must return a single JSON object.")
         # Use the outermost closing fence so Markdown code examples inside a
         # JSON string survive. Multiple independent blocks fail json.loads.
         text = text[opening.end():closing].strip()
     try:
         parsed = json.loads(text, object_pairs_hook=_unique_object, parse_constant=_reject_constant)
     except (ValueError, TypeError, RecursionError):
-        raise ReasoningError("The inquiry model returned invalid JSON; no result was accepted.") from None
+        raise _format_error("The inquiry model returned invalid JSON; no result was accepted.") from None
     if not isinstance(parsed, dict):
-        raise ReasoningError("The inquiry model must return a JSON object, not an array or scalar.")
+        raise _format_error("The inquiry model must return a JSON object, not an array or scalar.")
     return parsed
 
 
@@ -381,16 +412,6 @@ class CoreReasoner:
         try:
             return response_model.model_validate(parsed)
         except ValidationError as exc:
-            # Report trusted schema field names, never Pydantic's raw input values
-            # or unknown model-generated keys (which can themselves contain data).
-            fields = sorted({
-                str(error["loc"][0])
-                for error in exc.errors(include_url=False, include_input=False, include_context=False)
-                if error["loc"] and error["loc"][0] in response_model.model_fields
-            })[:8]
-            detail = f" Check fields: {', '.join(fields)}." if fields else ""
-            raise ReasoningError(
-                f"The inquiry {primitive} response does not satisfy {response_model.__name__}.{detail}"
-            ) from None
+            raise schema_error(primitive, response_model, exc) from None
         except Exception:
             raise ReasoningError(f"The inquiry {primitive} response failed schema validation.") from None

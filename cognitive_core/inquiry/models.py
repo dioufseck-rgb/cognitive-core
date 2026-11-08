@@ -33,6 +33,7 @@ class InquiryLimits(Record):
     max_rounds_per_question: int = Field(default=3, ge=1, le=10)
     max_reframes: int = Field(default=2, ge=0, le=10)
     max_research_plans_per_round: int = Field(default=4, ge=1, le=10)
+    max_output_repairs: int = Field(default=2, ge=0, le=5)
     max_context_chars: int = Field(default=36000, ge=4000, le=200000)
 
 
@@ -70,7 +71,10 @@ RetrievalCall = Annotated[Union[SearchCall, ReadCall], Field(discriminator="tool
 class RetrievalPlan(Record):
     """A typed Retrieve tool plan; empty calls means evidence is sufficient to reason."""
 
-    calls: list[RetrievalCall] = Field(default_factory=list, max_length=4)
+    calls: list[RetrievalCall] = Field(
+        default_factory=list, max_length=4,
+        description="At most four tool calls per plan. Read additional search results in later plans.",
+    )
     rationale: str = Field(min_length=1)
 
 
@@ -198,6 +202,17 @@ class InquiryEvent(Record):
     details: dict[str, Any] = Field(default_factory=dict)
 
 
+class OutputRepairState(Record):
+    """Safe correction feedback; never contains a rejected model response."""
+
+    primitive: str
+    question_id: str | None = None
+    response_model: str
+    failures: int = Field(default=0, ge=0)
+    message: str
+    issues: list[dict[str, str]] = Field(default_factory=list)
+
+
 class InquiryState(Record):
     schema_version: Literal[1] = 1
     id: str = Field(default_factory=lambda: uuid4().hex[:12])
@@ -230,6 +245,7 @@ class InquiryState(Record):
     stop_reason: str = ""
     error: str | None = None
     in_flight: dict[str, str] | None = None
+    output_repair: OutputRepairState | None = None
 
     @property
     def frame(self) -> FrameOutput | None:
