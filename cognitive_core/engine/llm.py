@@ -368,6 +368,30 @@ def _model_unavailable_message(model: str, provider: str) -> str:
 # Public API
 # ═══════════════════════════════════════════════════════════════════════
 
+def _normalize_token_limit(provider: str, kwargs: dict[str, Any]) -> dict[str, Any]:
+    """Translate Core's output-token budget before constructing a provider SDK.
+
+    Callers use max_tokens. Accept the former max_output_tokens alias as well,
+    including equal duplicate values from older callers. Never pass both names
+    to a constructor: ChatOpenAI forwards unknown kwargs to its API request.
+    """
+    normalized = dict(kwargs)
+    names = ("max_tokens", "max_output_tokens")
+    supplied = [normalized[name] for name in names if name in normalized]
+    if not supplied:
+        return normalized
+    concrete = [value for value in supplied if value is not None]
+    if concrete and any(value != concrete[0] for value in concrete[1:]):
+        raise ValueError("Conflicting output token limits: max_tokens and max_output_tokens")
+    # Preserve explicit None; omission still allows each adapter's defaults.
+    maximum = concrete[0] if concrete else None
+    for name in names:
+        normalized.pop(name, None)
+    key = "max_output_tokens" if provider == "google" else "max_tokens"
+    normalized[key] = maximum
+    return normalized
+
+
 def create_llm(
     model: str = "default",
     temperature: float = 0.1,
@@ -385,6 +409,9 @@ def create_llm(
         temperature: Sampling temperature.
         provider:    Force a provider. If None, auto-detected.
         **kwargs:    Passed through to the underlying LangChain constructor.
+                     max_tokens is Core's output-token budget; the factory
+                     translates it to the selected adapter's parameter name.
+                     max_output_tokens remains accepted as a legacy alias.
 
     Returns:
         BaseChatModel — ready to call with .invoke(), .ainvoke(), etc.
@@ -412,7 +439,7 @@ def create_llm(
 
     # Create LLM — wrap in a proxy that gives clear errors on first call
     factory = _FACTORIES[provider]
-    llm = factory(resolved, temperature, **kwargs)
+    llm = factory(resolved, temperature, **_normalize_token_limit(provider, kwargs))
     return _ModelWithClearErrors(llm, resolved, provider)
 
 

@@ -368,7 +368,6 @@ def create_node(
 
     if _max_tokens is not None:
         _llm_kwargs["max_tokens"] = _max_tokens
-        _llm_kwargs["max_output_tokens"] = _max_tokens
 
     llm = create_llm(model=_resolved_model, temperature=temperature, **_llm_kwargs)
     schema_cls = get_schema_class(primitive_name)
@@ -1000,7 +999,6 @@ def create_retrieve_node(
     _kw: dict = {}
     if _mt is not None:
         _kw["max_tokens"] = _mt
-        _kw["max_output_tokens"] = _mt
     llm = create_llm(model=model, temperature=temperature, **_kw)
     schema_cls = get_schema_class("retrieve")
 
@@ -1255,7 +1253,6 @@ def create_govern_node(
     _kw: dict = {}
     if _mt is not None:
         _kw["max_tokens"] = _mt
-        _kw["max_output_tokens"] = _mt
     llm = create_llm(model=model, temperature=temperature, **_kw)
     schema_cls = get_schema_class("govern")
 

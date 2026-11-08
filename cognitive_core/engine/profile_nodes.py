@@ -78,7 +78,7 @@ def _model_for(primitive: str, model: str, temperature: float):
     if model in {"default", "fast", "standard", "strong"}:
         alias = config.get("primitive_model_alias", {}).get(primitive, model)
     maximum = config.get("primitive_max_tokens", {}).get(primitive)
-    kwargs = {"max_tokens": maximum, "max_output_tokens": maximum} if maximum else {}
+    kwargs = {"max_tokens": maximum} if maximum is not None else {}
     return create_llm(model=alias, temperature=temperature, **kwargs), alias
 
 
