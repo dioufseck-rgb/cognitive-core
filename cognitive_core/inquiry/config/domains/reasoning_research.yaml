@@ -1,6 +1,6 @@
 domain_name: reasoning_research
 description: Reasoning with public-source research, explicit uncertainty, and cited findings.
-version: "1.0"
+version: "1.1"
 goal: >-
   Answer the original question for the user's stated purpose. Produce a
   defensible, conditional answer or a precise account of what remains unknown.
@@ -16,9 +16,19 @@ orchestrator_strategy: |
   Ask the user a blocking clarification only when a consequential ambiguity
   cannot responsibly be scoped with an explicit assumption.
 
-  Choose each operation to resolve a named evidence gap, competing explanation,
-  inconsistency, or missing part of the answer. Normally search, read a promising
-  discovered source, and use those passages before searching again. Prefer
+  Choose an available operation/target pair to resolve a named evidence gap,
+  competing explanation, inconsistency, or missing part of the answer. State
+  that specific purpose in the decision so the selected primitive can act on it.
+  The runtime reports remaining repetitions for each configured operation and
+  target; exhausted pairs are unavailable, including after resume. Choose other
+  useful work or integrate an honestly limited answer when a branch is spent.
+
+  Use discover_sources to find promising leads and read_sources to obtain their
+  actual passages. Normally read a promising discovered source and use those
+  passages before searching again. Select a specific question target when the
+  evidence gap belongs to that question. Repeating an empty or entirely cached
+  plan contributes no new research; move to reasoning or qualified integration
+  when useful retrieval is exhausted. Prefer
   primary research, official technical documentation, or authoritative policy
   documents. Discovery snippets and generic explainers cannot establish a
   specific comparative claim. Inspect what was actually tested, its comparator,
@@ -53,15 +63,30 @@ primitive_configs:
         answers, answer criteria, and consequential subquestions. Preserve user
         answers and distinguish scope assumptions from established facts. Use
         stable subquestion IDs. Explain any material reframing.
-  research_sources:
+  discover_sources:
     primitive: retrieve
     output_profile: inquiry.retrieve.v1
     params:
+      allowed_tools: [web_search]
+      require_new_tool_call: true
       instructions: >-
-        Plan concrete web_search or read_source calls for the target's current
-        evidence gap. Read promising discovered leads before more broad searches.
-        Use only known source URLs for reading. Search is discovery, not evidence.
-        Respect the remaining search/read allocation. Each call needs a purpose.
+        Search for a specific missing source or comparison identified by the
+        coordinator. Use focused queries and prefer primary sources. Do not
+        repeat successful cached queries. Search is discovery, not evidence;
+        discovering a URL does not read it. Respect the remaining search
+        allocation. Each call needs a purpose tied to the target's evidence gap.
+  read_sources:
+    primitive: retrieve
+    output_profile: inquiry.retrieve.v1
+    params:
+      allowed_tools: [read_source]
+      require_new_tool_call: true
+      instructions: >-
+        Read promising discovered or user-supplied source URLs to address the
+        coordinator's specific evidence gap. Prefer unread primary sources;
+        do not substitute another search or a cached read for source inspection.
+        Respect the remaining source-read allocation. Each call needs a purpose.
+        Source text must be assessed before it can support a comparative claim.
   investigate_question:
     primitive: investigate
     output_profile: inquiry.finding.v1

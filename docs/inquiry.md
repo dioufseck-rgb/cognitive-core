@@ -109,6 +109,28 @@ pack. Operation names, primitive identity, and `output_profile` must agree;
 unknown profiles fail explicitly. The effective workflow/domain configuration
 is saved with the Study. Resume uses that saved research configuration.
 
+The shipped domain configures two operations using the same native Retrieve
+profile: `discover_sources` permits `web_search`, while `read_sources` permits
+`read_source`. Their `allowed_tools` and `require_new_tool_call: true` parameters
+are enforced before dispatch. Empty or entirely cached plans cannot be accepted
+as new research by these operations. The coordinator's specific purpose for
+the operation is passed to its primitive, alongside the configured instructions.
+
+Before each decision, the orchestrator receives the currently valid
+operation/target pairs and their remaining repetition counts, calculated from
+the complete accepted history. It also sees research progress and recent tool
+outcomes. A rejected decision receives bounded, cumulative correction feedback;
+correction calls bypass the response cache so neither exact nor semantic cache
+hits can replay the rejected response. They retain the shared protected-call
+controls and consume the model-attempt allocation. Final report review and
+governance constraints apply to this available menu.
+
+Pulling updated YAML does **not** replace a running study's saved configuration.
+Runtime fixes apply when an older study resumes, but an existing
+`research_sources` operation retains its original parameters and name. Start a
+new study to use the revised default domain strategy. Recovery never clears
+accepted-operation counts, consumed budgets, or recorded evidence.
+
 The public entry points are `python -m cognitive_core.inquiry` and
 `cognitive-inquiry`. The earlier `InquiryRunner`, its `cli.py`, and legacy tests
 remain for compatibility and diagnosis. Public commands do not execute that
@@ -129,6 +151,11 @@ reservations and actual research results. JSON/Markdown exports refresh when
 the CLI returns. `status` and `report` read the database without creating an
 LLM or making search calls. `report` can therefore show the latest durable
 partial state after an interrupted process.
+
+The report includes recent accepted operation names and targets, their actual
+search/read/cache/failure counts, and recent contract-rejection messages. This
+distinguishes source discovery, source reading, and cached or empty work when a
+study stalls, without exposing raw rejected model payloads in the report.
 
 Claims are classified as source-based, inference, assumption, or user-supplied.
 Source claims must cite stored passages and quote text present in them. Reports
@@ -232,6 +259,12 @@ framing, revisions, provenance, malformed-output recovery, budgets, stale/late
 results, atomic acceptance, final-review binding, protected calls, clarification
 across a fresh Coordinator, approval separation, and recovery. The broader suite
 checks compatibility with existing framework behavior.
+
+Progress regressions exercise a repeated unavailable choice with the real
+governance cache enabled, a history longer than the prompt's recent-operation
+window, and recovery of a failed SQLite study that retains the older combined
+`research_sources` configuration. They require continuation through a real
+source read and the final report's Challenge and Govern.
 
 Before relying on research results, separately evaluate live runs for coverage,
 source relevance, entailment, useful counterarguments, and calibrated stopping.

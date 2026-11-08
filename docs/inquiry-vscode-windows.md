@@ -259,6 +259,15 @@ keys. These live checks establish what works on your machine.
 The native orchestrator chooses the path; it is not expected to reproduce the
 offline demo's sequence or length. YAML controls the strategy and operation
 instructions. The runtime enforces profiles, budgets, targets, and final review.
+The default YAML uses separate `discover_sources` and `read_sources` operations
+so a decision to inspect a source cannot turn into another broad search.
+The runtime also supplies available operation/target pairs with their remaining
+repetitions and passes the chosen purpose to the primitive.
+
+An existing study resumes with its saved effective YAML configuration. Pulling
+a fix updates runtime behavior but does not replace that saved research
+strategy or reset usage. A new output directory starts a new study with the
+current packaged YAML.
 
 | Status | Meaning | Next action |
 |---|---|---|

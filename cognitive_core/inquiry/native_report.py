@@ -73,4 +73,38 @@ def render_report(instance, state: dict) -> str:
               "Passage validity does not by itself establish substantive support.", "",
               "The native Coordinator database is authoritative. It contains the Study, exact read passages, "
               "accepted operations, resource work orders, and audit events. JSON and Markdown files are inspection exports.", ""]
+    steps = state.get("steps", [])
+    if steps:
+        def cell(value):
+            return str(value).replace("|", "\\|").replace("\n", " ").replace("\r", " ")
+
+        lines += ["### Recent accepted operations", "",
+                  "| # | Configured operation | Target | Recorded tool work |",
+                  "| --- | --- | --- | --- |"]
+        for index, step in enumerate(steps[-12:], start=max(1, len(steps) - 11)):
+            target = step.get("target", {})
+            label = target.get("question_id") or target.get("kind", "study")
+            work = "—"
+            if step.get("primitive") == "retrieve":
+                results = step.get("output", {}).get("sources_queried", [])
+                fresh = [item for item in results if not item.get("cached")]
+                searches = sum(item.get("source") == "web_search" for item in fresh)
+                reads = sum(item.get("source") == "read_source" for item in fresh)
+                failed = sum(item.get("status") != "success" for item in fresh)
+                cached = len(results) - len(fresh)
+                work = (f"{searches} searches; {reads} reads; {cached} cached; {failed} failed"
+                        if results else "Empty plan; no tool calls")
+            lines.append(f"| {index} | {cell(step.get('params_key', step.get('primitive', '')))} "
+                         f"| {cell(label)} | {work} |")
+        lines.append("")
+    rejections = state.get("metadata", {}).get("inquiry_rejections", [])
+    if rejections:
+        lines += ["### Recent contract rejections", "",
+                  "Rejected attempts consumed model allocation but were not accepted operations. "
+                  "A later correction may have succeeded.", ""]
+        for rejection in rejections[-3:]:
+            error = str(rejection.get("error", "Unknown contract error")).replace("\n", " ")
+            lines.append(f"- {rejection.get('profile', 'operation')}, attempt "
+                         f"{rejection.get('attempt', '?')}: {error}")
+        lines.append("")
     return "\n".join(lines)

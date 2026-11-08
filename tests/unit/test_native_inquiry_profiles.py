@@ -17,6 +17,7 @@ from cognitive_core.inquiry.native_profiles import (
     review_basis,
     study_context,
     validate_decision_target,
+    validate_retrieval_options,
     validate_retrieval_plan,
 )
 from cognitive_core.primitives.schemas import GovernOutput
@@ -158,6 +159,25 @@ class NativeInquiryProfilesTests(unittest.TestCase):
         with self.assertRaises(StudyValidationError):
             ingest_research_result(study, "read_source", {"url": URL}, {"url": URL, "text": PASSAGE}, "read", Q1)
 
+    def test_retrieval_policy_is_optional_and_strict_when_configured(self):
+        self.assertEqual(validate_retrieval_options({}), {
+            "allowed_tools": ["web_search", "read_source"], "require_new_tool_call": False,
+        })
+        configured = {"allowed_tools": ["read_source"], "require_new_tool_call": True,
+                      "instructions": "Read the discovered comparison."}
+        options = validate_retrieval_options(configured)
+        self.assertEqual(options, {"allowed_tools": ["read_source"], "require_new_tool_call": True})
+        options["allowed_tools"].append("web_search")
+        self.assertEqual(configured["allowed_tools"], ["read_source"])
+        for invalid in (
+            {"allowed_tools": []}, {"allowed_tools": "read_source"}, {"allowed_tools": None},
+            {"allowed_tools": ["read_source", "read_source"]}, {"allowed_tools": ["execute"]},
+            {"allowed_tools": [["read_source"]]}, {"require_new_tool_call": "true"},
+            {"require_new_tool_call": 1}, {"require_new_tool_call": None},
+        ):
+            with self.subTest(params=invalid), self.assertRaises(StudyValidationError):
+                validate_retrieval_options(invalid)
+
     def test_new_source_version_preserves_existing_passage_identity(self):
         study = with_source()
         original = deepcopy(study["sources"]["S1"])
@@ -229,6 +249,102 @@ class NativeInquiryProfilesTests(unittest.TestCase):
         self.assertGreater(len(view["evidence"][0]["text"]), 120)
         self.assertLessEqual(len(json.dumps(view, ensure_ascii=False)), study["limits"]["max_context_chars"])
         self.assertEqual("".join(p["text"] for p in study["sources"]["S1"]["passages"]), PASSAGE + "\n" + "x" * 14000)
+
+    def test_minimum_context_preserves_a_usable_read_url_and_existing_evidence(self):
+        for scenario in ("discovered", "failed_fallback", "read_and_unread"):
+            with self.subTest(scenario=scenario):
+                study = with_source() if scenario == "read_and_unread" else framed()
+                study["limits"]["max_context_chars"] = 4000
+                next_url = URL + "/next-comparison"
+                study = ingest_research_result(study, "web_search", {"query": "next comparison"}, {
+                    "results": [{"url": next_url, "title": "An unread comparison", "snippet": "Discovery only."}],
+                }, "next-search", Q1)
+                if scenario == "failed_fallback":
+                    study = ingest_research_result(study, "read_source", {"url": next_url},
+                                                  {"error": "Temporary failure."}, "failed-read", Q1)
+                before = deepcopy(study)
+                view = study_context(study, Q1)
+                retained = [source for source in view["source_catalog"] if source["url"] == next_url]
+                self.assertEqual(len(retained), 1)
+                self.assertEqual(retained[0]["status"], "failed" if scenario == "failed_fallback" else "discovered")
+                self.assertLessEqual(len(json.dumps(view, ensure_ascii=False)), 4000)
+                if scenario == "read_and_unread":
+                    self.assertTrue(any(passage["text"] == PASSAGE for passage in view["evidence"]))
+                self.assertEqual(study, before)
+
+    def test_progress_counts_reads_leads_and_failures_without_promoting_discovery(self):
+        study = with_source()
+        unread_url, failed_url = URL + "/unread", URL + "/unavailable"
+        study = ingest_research_result(study, "web_search", {"query": "another comparison"}, {
+            "results": [{"url": unread_url}, {"url": failed_url}],
+        }, "search-2", Q1)
+        study = ingest_research_result(study, "read_source", {"url": failed_url},
+                                      {"error": "Source returned an access error."}, "failed-read", Q1)
+        study["usage"].update(searches=2, reads=2)
+        study = apply_output(study, "retrieve", {
+            "plan": {"calls": [{"tool": "web_search", "arguments": {"query": "another comparison"},
+                                "purpose": "Discover a comparison."}], "rationale": "Find relevant evidence."},
+            "sources_queried": [{"source": "web_search", "status": "success"}],
+        }, Q1, "search-2")
+        before = deepcopy(study)
+        progress = study_context(study, STUDY)["research_progress"]
+        self.assertEqual(progress["read_sources"], 1)
+        self.assertEqual(progress["unread_leads"], 1)
+        self.assertEqual(progress["failed_sources"], 1)
+        self.assertEqual(progress["unread_source_ids"], ["S2"])
+        self.assertEqual(progress["remaining_tool_calls"], {
+            "web_search": study["limits"]["max_searches"] - 2,
+            "read_source": study["limits"]["max_reads"] - 2,
+        })
+        latest = progress["recent_retrievals"][-1]
+        self.assertEqual(latest["outcome"], "discovery_only")
+        self.assertTrue(latest["no_new_read_evidence"])
+        self.assertEqual(study, before)
+
+    def test_progress_exposes_empty_cached_and_failed_retrieval_rationales(self):
+        study = with_source()
+        read_plan = {"calls": [{"tool": "read_source", "arguments": {"url": URL},
+                                "purpose": "Read the comparison."}], "rationale": "Inspect the actual text."}
+        study = apply_output(study, "retrieve", {
+            "plan": read_plan, "sources_queried": [{"source": "read_source", "status": "success"}],
+        }, Q1, "read-1")
+        first = study_context(study, STUDY)["research_progress"]["recent_retrievals"][-1]
+        self.assertEqual(first["new_read_source_ids"], ["S1"])
+        self.assertFalse(first["no_new_read_evidence"])
+        self.assertEqual(first["outcome"], "source_text_read")
+        study = apply_output(study, "retrieve", {
+            "plan": {"calls": [], "rationale": "Use the existing evidence to reason."}, "sources_queried": [],
+        }, Q1, "empty")
+        study = apply_output(study, "retrieve", {
+            "plan": read_plan, "sources_queried": [{"source": "read_source", "status": "success", "cached": True}],
+        }, Q1, "cached")
+        study = apply_output(study, "retrieve", {
+            "plan": read_plan, "sources_queried": [{"source": "read_source", "status": "error", "error": "Timed out."}],
+        }, Q1, "failed")
+        before = deepcopy(study)
+        progress = study_context(study, Q1)["research_progress"]
+        recent = progress["recent_retrievals"]
+        self.assertEqual([record["outcome"] for record in recent], ["empty_plan", "cache_only", "tool_failure"])
+        self.assertEqual(recent[0]["rationale"], "Use the existing evidence to reason.")
+        self.assertEqual(recent[1]["cached_calls"], 1)
+        self.assertEqual(recent[1]["actual_calls"], 0)
+        self.assertEqual(recent[2]["errors"], ["Timed out."])
+        self.assertTrue(all(record["no_new_read_evidence"] for record in recent))
+        self.assertEqual(progress["retrievals_omitted"], 1)
+        self.assertEqual(study, before)
+
+    def test_long_retrieval_history_is_bounded_without_truncating_stored_rationales(self):
+        study = framed()
+        study["limits"]["max_context_chars"] = 4000
+        rationale = ("No additional useful retrieval is available. " * 300).strip()
+        for index in range(8):
+            study = apply_output(study, "retrieve", {
+                "plan": {"calls": [], "rationale": rationale}, "sources_queried": [],
+            }, Q1, f"empty-{index}")
+        view = study_context(study, Q1)
+        self.assertLessEqual(len(json.dumps(view, ensure_ascii=False)), 4000)
+        self.assertLessEqual(len(view["research_progress"]["recent_retrievals"]), 3)
+        self.assertTrue(all(record["plan"]["rationale"] == rationale for record in study["retrievals"]))
 
     def test_final_review_does_not_invalidate_itself_or_change_research_outcome(self):
         study = report_ready()

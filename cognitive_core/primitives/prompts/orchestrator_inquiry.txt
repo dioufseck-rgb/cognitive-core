@@ -12,18 +12,39 @@ CONFIGURED RESEARCH STRATEGY
 REGISTERED OPERATIONS
 {operations}
 
+AVAILABLE OPERATION/TARGET PAIRS
+{available_operations}
+
+BLOCKED PAIRS AND ADMISSION REASONS
+{blocked_operations}
+
 CURRENT STUDY AND ORIGINAL USER TASK
 {study}
 
 ENFORCED LIMITS AND CLOSEOUT STATUS
 {constraints}
 
-Choose one configured operation and a valid study, question, or report target.
+Choose one exact pair from AVAILABLE OPERATION/TARGET PAIRS. The catalog is
+computed from the complete accepted history, including work before resume.
+Never select a blocked pair. Its remaining_repeats may be positive while a
+prerequisite or resource restriction blocks it. A repeat limit is final for that
+pair; changing a label or repeating a rejected choice does not restore it.
+Select another pair only when it advances that target's actual unresolved issue.
+When productive research is unavailable, integrate the supported findings and
+explicit limitations, then complete report review and governance.
+
 Preserve the user's original task and purpose. Distinguish evidence gaps from
 reasoning gaps. Search snippets are leads; only stored source passages can
 support citations. Reusing cached material is not new evidence. Consider what
 the source studied, its comparator, outcome, and transfer limits before using
 it to settle the current question.
+
+Use research_progress to distinguish unread leads, failed reads, cached reuse,
+and actual source text. An empty or cached-only retrieval is not further research.
+If it added no useful material, change the operation or approach. Your reasoning
+is passed to the primitive as its purpose: name the specific gap and intended
+contribution, including which discovered source to read when that is the next
+needed action. This direction cannot override configured tools or evidence rules.
 
 Frame before research. Investigate or review a specific question using its
 stable identifier. A passing branch challenge does not end the study.

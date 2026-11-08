@@ -338,6 +338,68 @@ def _passages(study: dict) -> dict[str, dict]:
             for passage in source["passages"]}
 
 
+def _research_progress(study: dict, target: dict, catalog: list[dict]) -> dict:
+    """Summarize recorded research without treating discovery as read evidence.
+
+    Derive this view from existing records so resumed studies need no migration.
+    Full plans, tool payloads, and evidence remain in their authoritative records.
+    """
+    qid = target.get("question_id")
+    relevant = [record for record in study.get("retrievals", [])
+                if not qid or record.get("target", {}).get("kind") == "study"
+                or record.get("target", {}).get("question_id") == qid]
+    recent = []
+    for record in relevant[-3:]:
+        plan = record.get("plan", {})
+        calls = plan.get("calls", [])
+        results = record.get("sources_queried", [])
+        actual = [result for result in results if not result.get("cached", False)]
+        cached = len(results) - len(actual)
+        failures = [result for result in results if result.get("status") != "success"]
+        new_reads = [source["id"] for source in catalog
+                     if source["status"] == "read" and record.get("invocation_id")
+                     and source.get("read_invocation_id") == record["invocation_id"]]
+        if not calls:
+            outcome = "empty_plan"
+        elif results and cached == len(results):
+            outcome = "cache_only"
+        elif failures:
+            outcome = "tool_failure"
+        elif new_reads:
+            outcome = "source_text_read"
+        elif any(result.get("source") == "read_source" for result in actual):
+            outcome = "read_without_new_text"
+        elif any(result.get("source") == "web_search" for result in actual):
+            outcome = "discovery_only"
+        else:
+            outcome = "no_tool_result"
+        recent.append({
+            "target": {key: value for key, value in record.get("target", {}).items()
+                       if key in {"kind", "question_id"}},
+            "rationale": str(plan.get("rationale", record.get("reasoning", "")))[:300],
+            "planned_tools": [call.get("tool") for call in calls],
+            "actual_calls": len(actual), "cached_calls": cached,
+            "failed_calls": len(failures), "outcome": outcome,
+            "new_read_source_ids": new_reads,
+            "no_new_read_evidence": not new_reads,
+            "errors": [str(result.get("error") or result.get("status", "Tool failed"))[:160]
+                       for result in failures[:2]],
+        })
+    unread = [source["id"] for source in catalog if source["status"] == "discovered"]
+    usage, limits = study["usage"], study["limits"]
+    return {
+        "read_sources": sum(source["status"] == "read" for source in catalog),
+        "unread_leads": len(unread),
+        "failed_sources": sum(source["status"] == "failed" for source in catalog),
+        "unread_source_ids": unread[:12], "unread_source_ids_omitted": max(0, len(unread) - 12),
+        "remaining_tool_calls": {
+            "web_search": max(0, limits["max_searches"] - usage.get("searches", 0)),
+            "read_source": max(0, limits["max_reads"] - usage.get("reads", 0)),
+        },
+        "recent_retrievals": recent, "retrievals_omitted": len(relevant) - len(recent),
+    }
+
+
 def study_context(state: dict, target: dict) -> dict:
     """Project a bounded context without replacing stored evidence with previews."""
     study = _study(state)
@@ -361,7 +423,13 @@ def study_context(state: dict, target: dict) -> dict:
         qid is not None and qid not in source["question_ids"],
         search_priority.get(source["id"], (len(study["searches"]), int(source["id"][1:]))),
     ))
-    keep = [source for i, source in enumerate(catalog) if i < 24 or source["id"] in required_sources]
+    # A source ID alone is not actionable for Retrieve: retain one prioritized
+    # unread URL even when the soft half-budget reserve removes other previews.
+    next_lead = (next((source for status in ("discovered", "failed") for source in catalog
+                       if source["status"] == status), None)
+                 if target["kind"] in {"study", "question"} else None)
+    protected_sources = required_sources | ({next_lead["id"]} if next_lead else set())
+    keep = [source for i, source in enumerate(catalog) if i < 24 or source["id"] in protected_sources]
     report = study.get("report")
     report_view = deepcopy(report) if target["kind"] == "report" else (
         {"revision": report["revision"], "stale": report["stale"],
@@ -394,20 +462,30 @@ def study_context(state: dict, target: dict) -> dict:
                             "truncated": s["truncated"], "passage_ids": [p["id"] for p in s["passages"]]}
                            for s in keep],
         "search_history": deepcopy(study["searches"][-6:]),
+        "research_progress": _research_progress(study, target, catalog),
         "limits": deepcopy(study["limits"]), "usage": deepcopy(study["usage"]),
         "evidence": [], "evidence_passages_omitted": 0,
         "source_catalog_omitted": len(catalog) - len(keep),
     }
     limit = study["limits"].get("max_context_chars", _DEFAULT_LIMITS["max_context_chars"])
     size = lambda: len(json.dumps(view, ensure_ascii=False))
+    # Keep the latest retrieval outcome ahead of older optional history when
+    # the caller has selected a small context allowance.
+    progress = view["research_progress"]
+    while size() > limit // 2 and len(progress["recent_retrievals"]) > 1:
+        progress["recent_retrievals"].pop(0)
+        progress["retrievals_omitted"] += 1
     # Remove unrelated discovery previews before losing required argument/evidence.
-    while size() > limit // 2 and len(view["source_catalog"]) > len(required_sources):
+    while size() > limit // 2 and len(view["source_catalog"]) > len(protected_sources):
         removable = next((i for i in reversed(range(len(view["source_catalog"])))
-                          if view["source_catalog"][i]["id"] not in required_sources), None)
+                          if view["source_catalog"][i]["id"] not in protected_sources), None)
         if removable is None:
             break
         view["source_catalog"].pop(removable)
         view["source_catalog_omitted"] += 1
+    if size() > limit and progress["recent_retrievals"]:
+        progress["retrievals_omitted"] += len(progress["recent_retrievals"])
+        progress["recent_retrievals"] = []
     if size() > limit:
         raise StudyValidationError("Required study context exceeds max_context_chars; narrow the target or increase the limit")
     all_passages = _passages(study)
@@ -424,6 +502,24 @@ def study_context(state: dict, target: dict) -> dict:
                 raise StudyValidationError("Required cited passages exceed max_context_chars; narrow the target or increase the limit")
             view["evidence_passages_omitted"] += 1
     return view
+
+
+def validate_retrieval_options(params: Mapping[str, Any]) -> dict:
+    """Validate optional YAML admission policy, preserving legacy defaults."""
+    if not isinstance(params, Mapping):
+        raise StudyValidationError("Retrieve parameters must be a mapping")
+    supported = ("web_search", "read_source")
+    allowed = params.get("allowed_tools", list(supported))
+    if (not isinstance(allowed, list) or not allowed
+            or any(not isinstance(tool, str) or tool not in supported for tool in allowed)
+            or len(set(allowed)) != len(allowed)):
+        raise StudyValidationError(
+            "Retrieve allowed_tools must be a nonempty list of unique web_search/read_source names"
+        )
+    require_new = params.get("require_new_tool_call", False)
+    if not isinstance(require_new, bool):
+        raise StudyValidationError("Retrieve require_new_tool_call must be a boolean")
+    return {"allowed_tools": list(allowed), "require_new_tool_call": require_new}
 
 
 def validate_retrieval_plan(study: dict, plan: dict | RetrievalPlan) -> RetrievalPlan:

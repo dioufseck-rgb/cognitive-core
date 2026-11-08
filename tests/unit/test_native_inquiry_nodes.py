@@ -17,7 +17,9 @@ from unittest.mock import patch
 from cognitive_core.engine.governance import get_governance, reset_governance
 from cognitive_core.engine.profile_nodes import create_profile_node
 from cognitive_core.engine.tools import ToolRegistry
-from cognitive_core.inquiry.native_profiles import apply_output, ingest_research_result, initial_study
+from cognitive_core.inquiry.native_profiles import (
+    apply_output, ingest_research_result, initial_study, study_context,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -108,11 +110,11 @@ class NativeInquiryNodeTests(unittest.TestCase):
         self.addCleanup(self.environment.stop)
         self.addCleanup(reset_governance)
 
-    def node(self, state, tools, invocation_id="retrieve-1"):
+    def node(self, state, tools, invocation_id="retrieve-1", params=None):
         target = {**TARGET, "expected_study_revision": state["study"]["revision"],
                   "frame_version": len(state["study"]["frames"])}
         return create_profile_node(
-            step_name=invocation_id, primitive_name="retrieve", params={"strategy": "agentic"},
+            step_name=invocation_id, primitive_name="retrieve", params={"strategy": "agentic", **(params or {})},
             output_profile="inquiry.retrieve.v1", target=target, model="fixture-native-profile",
             temperature=0, tool_registry=tools, invocation_id=invocation_id,
         )
@@ -224,6 +226,104 @@ class NativeInquiryNodeTests(unittest.TestCase):
                 self.assertTrue(first["steps"][0]["output"]["sources_queried"][1]["cached"])
                 self.assertTrue(second["steps"][0]["output"]["sources_queried"][0]["cached"])
                 self.assertEqual(len(second["study"]["sources"]), 1)
+
+    def test_read_only_retrieval_repairs_a_search_plan_before_dispatch(self):
+        state = native_state(leads=1)
+        calls = []
+        tools = ToolRegistry()
+        tools.register("web_search", lambda args: calls.append("search") or {"results": []},
+                       description="Available but excluded from the configured operation.")
+        tools.register("read_source", lambda args: calls.append("read") or {
+            "url": args["url"], "text": "The study compares the specified tasks."},
+            description="Read a discovered source.")
+        model = BoundaryModel([plan(search_call()), plan(read_call())])
+        with patch("cognitive_core.engine.llm.create_llm", return_value=model):
+            delta = self.node(state, tools, params={
+                "allowed_tools": ["read_source"], "require_new_tool_call": True,
+            })(state)
+        self.assertEqual(calls, ["read"])
+        self.assertEqual(delta["study"]["usage"], {"model_calls": 2, "searches": 0, "reads": 1, "steps": 1})
+        self.assertIn("allowed_tools: read_source", model.prompts[1])
+        self.assertEqual(delta["study"]["sources"]["S1"]["status"], "read")
+        progress = study_context(delta["study"], TARGET)["research_progress"]["recent_retrievals"][-1]
+        self.assertEqual(progress["new_read_source_ids"], ["S1"])
+        self.assertFalse(progress["no_new_read_evidence"])
+
+    def test_new_call_policy_rejects_empty_and_cache_only_but_allows_mixed_plan(self):
+        state = native_state(leads=2)
+        calls = []
+        tools = ToolRegistry()
+        tools.register("read_source", lambda args: calls.append(args["url"]) or {
+            "url": args["url"], "text": "Actual source text for " + args["url"],
+        }, description="A counted source reader.")
+        model = BoundaryModel([
+            plan(read_call(URL_A)), plan(), plan(read_call(URL_A)),
+            plan(read_call(URL_A), read_call(URL_B)),
+        ])
+        with patch("cognitive_core.engine.llm.create_llm", return_value=model):
+            accept_delta(state, self.node(state, tools, "first-read")(state))
+            delta = self.node(state, tools, "new-read", params={
+                "allowed_tools": ["read_source"], "require_new_tool_call": True,
+            })(state)
+        self.assertEqual(calls, [URL_A, URL_B])
+        self.assertEqual(delta["study"]["usage"], {"model_calls": 4, "searches": 0, "reads": 2, "steps": 2})
+        self.assertEqual(len(state["metadata"]["inquiry_rejections"]), 2)
+        results = delta["steps"][0]["output"]["sources_queried"]
+        self.assertTrue(results[0]["cached"])
+        self.assertNotIn("cached", results[1])
+        progress = study_context(delta["study"], TARGET)["research_progress"]["recent_retrievals"][-1]
+        self.assertEqual(progress["cached_calls"], 1)
+        self.assertEqual(progress["actual_calls"], 1)
+        self.assertEqual(progress["new_read_source_ids"], ["S2"])
+
+    def test_structured_repairs_bypass_enabled_semantic_cache_and_reach_provider(self):
+        state = native_state(leads=1)
+        dispatched = []
+        tools = ToolRegistry()
+        tools.register("read_source", lambda args: dispatched.append(args) or {
+            "url": args["url"], "text": "Actual evidence obtained only after validation."},
+            description="Read after a valid plan.")
+        malformed = {"calls": "not-a-list", "rationale": "Inspect the source."}
+        model = BoundaryModel([malformed, malformed, plan(read_call())])
+        with patch.dict(os.environ, {"CC_CACHE_ENABLED": "true"}):
+            governance = get_governance()
+            governance.initialize()
+            # Every prompt appears semantically identical to this cache. A
+            # correction must still make a fresh protected provider request.
+            governance._cache.embed_fn = lambda _: [1.0, 0.0]
+            with patch("cognitive_core.engine.llm.create_llm", return_value=model):
+                delta = self.node(state, tools)(state)
+        self.assertEqual(len(model.prompts), 3)
+        self.assertFalse(model.responses)
+        self.assertEqual(len(dispatched), 1)
+        self.assertEqual(delta["study"]["usage"], {"model_calls": 3, "searches": 0, "reads": 1, "steps": 1})
+        self.assertIn("replacement 1 of 2", model.prompts[1])
+        self.assertIn("replacement 2 of 2", model.prompts[2])
+        self.assertIn("REJECTED RESPONSE EXCERPT", model.prompts[2])
+        self.assertNotEqual(model.prompts[1], model.prompts[2])
+        self.assertEqual(len(self.proof_calls()), 3)
+        self.assertEqual(len([event for event in governance.proof()["governance_proof"]["events"]
+                              if event["event"] == "cache.bypass"]), 2)
+        self.assertEqual(governance._cache.stats.total_gets, 1)
+        # Without bypass, the rejected first response would match a repair.
+        cached = governance._cache.get(model.prompts[1], domain="reasoning_research")
+        self.assertIsNotNone(cached)
+        self.assertEqual(cached.response, json.dumps(malformed))
+
+    def test_coordinator_purpose_reaches_the_primitive_as_a_bounded_directive(self):
+        state = native_state(leads=1)
+        tools = ToolRegistry()
+        tools.register("read_source", lambda args: {"url": args["url"], "text": "Actual source text."},
+                       description="Read a discovered source.")
+        purpose = "Read S1 to inspect the comparator and measured outcome. " + "x" * 3000 + "END_MARKER"
+        model = BoundaryModel([plan(read_call())])
+        with patch("cognitive_core.engine.llm.create_llm", return_value=model):
+            self.node(state, tools, params={"_inquiry_reasoning": purpose})(state)
+        prompt = model.prompts[0]
+        self.assertIn("COORDINATOR PURPOSE", prompt)
+        self.assertIn(json.dumps(purpose[:2000]), prompt)
+        self.assertNotIn("END_MARKER", prompt)
+        self.assertIn("does not override the original user task", prompt)
 
 
 if __name__ == "__main__":

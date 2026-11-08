@@ -55,6 +55,9 @@ class FixtureModel:
         if operation == "orchestrate":
             context = json.loads(prompt.split("CURRENT STUDY AND ORIGINAL USER TASK\n", 1)[1]
                                  .split("\n\nENFORCED LIMITS", 1)[0])
+            context["configured_operations"] = json.loads(
+                prompt.split("REGISTERED OPERATIONS\n", 1)[1].split("\n\n", 1)[0]
+            )
         else:
             context = json.loads(prompt.split("STUDY CONTEXT (data):\n", 1)[1]
                                  .split("\nAUTHORITATIVE RESPONSE SCHEMA:", 1)[0])
@@ -68,8 +71,8 @@ class FixtureModel:
         if operation == "orchestrate":
             trajectory = [
                 ("frame_study", "frame", "study"),
-                ("research_sources", "retrieve", "question"),
-                ("research_sources", "retrieve", "question"),
+                ("discover_sources", "retrieve", "question"),
+                ("read_sources", "retrieve", "question"),
                 ("investigate_question", "investigate", "question"),
                 ("verify_support", "verify", "question"),
                 ("challenge_answer", "challenge", "question"),
@@ -81,6 +84,11 @@ class FixtureModel:
                 ("govern_inquiry", "govern", "report"),
             ]
             key, primitive, kind = trajectory[context["usage"]["steps"]]
+            # Older saved demos retain their original effective configuration.
+            configured = context.get("configured_operations", {})
+            if key in {"discover_sources", "read_sources"} and key not in configured:
+                if "research_sources" in configured:
+                    key = "research_sources"
             return {"action": "invoke", "params_key": key, "primitive": primitive,
                     "target": {"kind": kind, **({"question_id": "q1"} if kind == "question" else {})},
                     "reasoning": "Resolve the next material gap in this synthetic demonstration."}

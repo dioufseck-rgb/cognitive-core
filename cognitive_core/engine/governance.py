@@ -312,6 +312,7 @@ class GovernancePipeline:
         model: str,
         case_input: dict[str, Any] | None = None,
         before_provider_attempt: Callable[[], None] | None = None,
+        use_cache: bool = True,
     ) -> LLMCallResult:
         """
         Execute an LLM call with full governance pipeline:
@@ -324,6 +325,10 @@ class GovernancePipeline:
         7. Cost tracking
 
         Returns LLMCallResult with the raw_response and metadata.
+
+        Set use_cache=False when correcting a response rejected by the caller's
+        output contract. A similar cached response cannot repair that rejection;
+        all other protections, provider retries, and accounting still apply.
         """
         self.initialize()
         result = LLMCallResult(raw_response="")
@@ -343,7 +348,10 @@ class GovernancePipeline:
                 logger.warning("PII redaction failed for %s: %s", step_name, e)
 
         # ── 2. Semantic Cache Check ──
-        if self._cache:
+        if self._cache and not use_cache:
+            self._record_proof("cache.bypass", step=step_name, domain=domain,
+                               reason="caller_requires_fresh_response")
+        if self._cache and use_cache:
             try:
                 hit = self._cache.get(working_prompt, domain=domain)
                 if hit:
@@ -425,7 +433,7 @@ class GovernancePipeline:
                            redacted=result.redacted)
 
         # ── 5. Cache Store ──
-        if self._cache and not result.cached:
+        if self._cache and use_cache and not result.cached:
             try:
                 self._cache.put(
                     working_prompt, raw,

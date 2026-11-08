@@ -26,6 +26,15 @@ Native clarification work orders can suspend and resume through a fresh local Co
 The deterministic demonstration exercises an actual mistaken finding and correction;
 native integration tests replace only model and external-tool boundaries.
 
+The orchestrator now presents validated operation/target availability and
+remaining repetition counts from the full accepted history, carries its chosen
+operation purpose into the primitive, and supplies cumulative correction
+feedback. The shipped domain separates source discovery and reading as two
+configured uses of the same native Retrieve profile, with tool restrictions
+and a requirement for a new tool call. These are execution/progress safeguards;
+they do not establish the semantic quality of a finding. Existing studies keep
+their saved effective configuration during recovery.
+
 This first slice is **serial and local SQLite**. It does not implement distributed leases,
 transactional outboxes for external queues, parallel branches, post-start budget extension,
 the complete proposed semantic-progress evaluator, analysis execution, or a new web UI.
