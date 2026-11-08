@@ -1,6 +1,6 @@
 """Run with ``python -m cognitive_core.inquiry``."""
 
-from cognitive_core.inquiry.cli import main
+from cognitive_core.inquiry.native_cli import main
 
 
 if __name__ == "__main__":

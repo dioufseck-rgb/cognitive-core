@@ -139,6 +139,13 @@ class CoordinatorStore:
                 suspended_at REAL NOT NULL
             );
 
+            CREATE TABLE IF NOT EXISTS workflow_checkpoints (
+                instance_id TEXT PRIMARY KEY,
+                state_snapshot TEXT NOT NULL,
+                revision INTEGER NOT NULL DEFAULT 0,
+                updated_at REAL NOT NULL
+            );
+
             CREATE TABLE IF NOT EXISTS action_ledger (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 instance_id TEXT NOT NULL,
@@ -359,6 +366,40 @@ class CoordinatorStore:
         )
 
     # ─── Suspension CRUD ─────────────────────────────────────────────
+
+    def save_workflow_checkpoint(self, instance_id: str, state: dict[str, Any]) -> None:
+        """Save the complete, JSON-native workflow state on the shared backend.
+
+        This is the authoritative running checkpoint, not a debug/replay copy.
+        Callers can commit it with the accepted step and ledger entry using
+        ``transaction()``. In particular, never stringify callbacks or model
+        objects: doing so would create a checkpoint that cannot be resumed.
+        """
+        snapshot = json.dumps(state, ensure_ascii=False, allow_nan=False)
+        study = state.get("study", {})
+        revision = study.get("revision", 0) if isinstance(study, dict) else 0
+        if not isinstance(revision, int) or isinstance(revision, bool) or revision < 0:
+            raise ValueError("Workflow checkpoint revision must be a nonnegative integer")
+        # This explicit upsert works with both supported backend dialects;
+        # unlike the legacy INSERT OR REPLACE translator, it needs no PK map.
+        self.db.execute("""
+            INSERT INTO workflow_checkpoints
+                (instance_id, state_snapshot, revision, updated_at)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT (instance_id) DO UPDATE SET
+                state_snapshot = excluded.state_snapshot,
+                revision = excluded.revision,
+                updated_at = excluded.updated_at
+        """, (instance_id, snapshot, revision, time.time()))
+        self._commit()
+
+    def get_workflow_checkpoint(self, instance_id: str) -> dict[str, Any] | None:
+        """Return an independent full state snapshot, or None before creation."""
+        row = self.db.fetchone(
+            "SELECT state_snapshot FROM workflow_checkpoints WHERE instance_id = ?",
+            (instance_id,),
+        )
+        return json.loads(row["state_snapshot"]) if row else None
 
     def save_suspension(self, sus: Suspension):
         # M2: In strict mode, fail fast on non-serializable state

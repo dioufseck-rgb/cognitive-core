@@ -16,7 +16,7 @@ Cognitive Core treats AI-native workflow design as a first-class architectural p
 → **[Reproducing the IEEE Computer results](#reproducing-the-published-results)**  
 → **[Research-assisted inquiries — framing, search, revision, and synthesis](docs/inquiry.md)**
 
-→ **[Native inquiry architecture — design draft for extending the full framework](docs/inquiry-design.md)**
+→ **[Native inquiry architecture — framework extension design and implementation scope](docs/inquiry-design.md)**
 
 ---
 
@@ -39,7 +39,7 @@ Workflows compose typed epistemic operations. Each has a defined input contract,
 
 All outputs inherit from `BaseOutput`: `confidence`, `reasoning`, `evidence_used`, `evidence_missing`. Seven primitives also elicit `reasoning_quality` and `outcome_certainty`; `frame`, `retrieve`, and `govern` do not.
 
-`frame` supplies the initial decomposition for the inquiry runner and can revise it as research develops. Registering Frame does not change the existing institutional agentic transition or closure policies. The inquiry runner has its own bounded lifecycle and checkpoints; it reuses typed primitives and the protected LLM call path, without claiming the institutional workflow's complete governance ledger.
+`frame` supplies the initial decomposition for a native inquiry and can revise it as research develops. The inquiry execution profile uses the existing Coordinator and agentic DEVS engine, with registered research profiles, native checkpoints, resource work orders, epistemic assessment, and final governance. Existing institutional packs retain their transition policies unless they opt into this profile.
 
 `reflect` reasons about the accumulated reasoning, not about the case itself. It lists what has been established and what has been assumed, identifies the single most load-bearing fact, and sets a trajectory: `continue`, `revise` (with a revision target), or `escalate` (with a reason). Its output can shape the specification of the next primitive call. Schema: `ReflectOutput` in `cognitive_core/primitives/schemas.py`; prompt: `cognitive_core/primitives/prompts/reflect.txt`.
 
@@ -151,8 +151,10 @@ python -m cognitive_core.inquiry start \
 python -m cognitive_core.inquiry status inquiries/agent-abstraction
 ```
 
-The inquiry writes an atomic checkpoint and a Markdown report after each step.
-It can pause for user clarification or a budget limit and resume in a new process.
+The Coordinator commits authoritative SQLite checkpoints and an audit ledger.
+The CLI exports a Markdown report and inspectable JSON. Native clarification work
+orders can pause the study and resume through a new Coordinator process. The
+offline demo exercises a material correction and final report review before Govern.
 See [the inquiry guide](docs/inquiry.md) for setup, resume commands, budgets, and limitations.
 
 ### Run the server
@@ -206,7 +208,7 @@ To re-run the benchmark itself (requires `GOOGLE_API_KEY`): `python demos/prior-
 ```
 cognitive_core/           — installable package
 ├── primitives/           — schemas, registry, ten primitive prompt templates + orchestrator
-├── inquiry/              — framing, research tools, persistent reasoning controller, CLI
+├── inquiry/              — native research profiles, study reducers, tools, YAML pack, CLI
 ├── engine/               — DEVS execution kernel, LLM providers, governance pipeline,
 │                           epistemic state computation
 ├── coordinator/          — runtime, store, tasks, delegation, policy, resilience

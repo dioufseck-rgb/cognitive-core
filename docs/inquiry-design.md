@@ -1,6 +1,6 @@
 # Cognitive Core Inquiry: Native Architecture and Extension Design
 
-**Status:** Design draft for review; implementation has not begun.
+**Status:** Reference design; the first minimal native implementation is now available.
 
 **Date:** 2026-11-08.
 
@@ -10,7 +10,29 @@
 
 **Architectural requirement:** Inquiry uses the full native Cognitive Core execution and governance machinery.
 
-This document describes the existing implementation at the baseline above and proposes extensions to it. Statements marked **Existing** describe inspected code. **Proposed** describes work that still needs implementation and verification. YAML examples containing proposed fields are design specifications, not configurations that run on the current checkout.
+This document records the architectural analysis at the baseline above and the intended extensions. Statements marked **Existing** describe that baseline. **Proposed** identifies the design, which is broader than the first implementation. Use the [native inquiry guide](inquiry.md) and the shipped YAML pack for the implemented interfaces; illustrative YAML in this document is not a promise that every proposed field is supported.
+
+### First implementation checkpoint
+
+The public inquiry CLI now uses `Coordinator.start`, native agentic DEVS orchestration,
+registered output profiles, protected model calls, native epistemic/quality/governance
+handling, and canonical CoordinatorStore checkpoints. The packaged configuration lives
+under [`cognitive_core/inquiry/config`](../cognitive_core/inquiry/config). It includes
+the research strategy and per-operation instructions, not just runtime budget settings.
+
+Implemented research behavior includes framing, search/read, source-linked findings,
+support review, challenge/reflection, revision, synthesis, exact-report review, and Govern.
+Native clarification work orders can suspend and resume through a fresh local Coordinator.
+The deterministic demonstration exercises an actual mistaken finding and correction;
+native integration tests replace only model and external-tool boundaries.
+
+This first slice is **serial and local SQLite**. It does not implement distributed leases,
+transactional outboxes for external queues, parallel branches, post-start budget extension,
+the complete proposed semantic-progress evaluator, analysis execution, or a new web UI.
+Opaque provider-internal retries are not a dollar-cost guarantee. Evidence fitting and
+research quality still require live evaluation; deterministic passage checks are structural.
+These limitations narrow the first implementation without changing the native ownership
+boundary established below.
 
 Repository references use relative links and named functions so the design can be reviewed alongside the code. The separate inquiry prototype is a source of reusable components and diagnostic evidence; it is not the target runtime.
 

@@ -36,8 +36,10 @@ The substrate controls the accountability.
 from __future__ import annotations
 
 import json
+import copy
 import time
 import threading
+import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
@@ -57,6 +59,39 @@ from cognitive_core.engine.state import (
     WorkflowState, get_step_output, resolve_param, build_context_from_state,
 )
 from cognitive_core.primitives.registry import PRIMITIVE_CONFIGS
+
+
+class InquiryExecutionError(RuntimeError):
+    """A native inquiry stopped without a validated, governed result."""
+
+
+def _inquiry_snapshot(state: dict) -> dict:
+    """Copy persisted state without runtime callbacks or worker objects."""
+    metadata = {k: v for k, v in state.get("metadata", {}).items()
+                if not k.startswith("_") and not callable(v)}
+    return copy.deepcopy({**state, "metadata": metadata})
+
+
+def _replace_inquiry_state(destination: dict, source: dict) -> None:
+    """Publish an invocation's detached state while retaining runtime hooks."""
+    hooks = {k: v for k, v in destination.get("metadata", {}).items()
+             if k.startswith("_")}
+    snapshot = _inquiry_snapshot(source)
+    snapshot.setdefault("metadata", {}).update(hooks)
+    destination.clear()
+    destination.update(snapshot)
+
+
+def _inquiry_limits(config: dict) -> dict:
+    constraints = config.get("constraints", {})
+    budgets = constraints.get("budgets", {})
+    return {
+        "max_steps": constraints.get("max_steps", 80),
+        "max_model_calls": budgets.get("model_calls", 100),
+        "max_searches": budgets.get("searches", 12),
+        "max_reads": budgets.get("source_reads", 18),
+        "max_output_repairs": budgets.get("output_repairs_per_operation", 2),
+    }
 
 
 # ─── Orchestrator state ───────────────────────────────────────────────────────
@@ -105,6 +140,11 @@ class OrchestratorStep(AtomicDEVS):
         self.temperature = temperature
         self._simulator = None
         self._decision_callback = decision_callback  # called after each orchestrator decision
+        self._is_inquiry = config.get("execution_profile") == "inquiry.v1"
+        self._execution_error: str | None = None
+        self._inquiry_async_lock = threading.RLock()
+        self._inquiry_decision_token: str | None = None
+        self._inquiry_cancelled = threading.Event()
 
         # Parse constraints
         constraints = config.get("constraints", {})
@@ -129,6 +169,8 @@ class OrchestratorStep(AtomicDEVS):
         self.state = OrchestratorState(phase="active")
         self._terminal_invoked = False   # Thread-safe flag: terminal primitive invoked
         self._decision_lock = threading.Lock()  # Serialize decision making
+        if self._is_inquiry:
+            self._validate_inquiry_configuration()
 
     def timeAdvance(self) -> float:
         phase = self.state.phase
@@ -147,7 +189,7 @@ class OrchestratorStep(AtomicDEVS):
             return new
 
         if s.phase == "decided":
-            if s.last_decision.get("action") == "end":
+            if s.last_decision.get("action") in ("end", "error"):
                 new.phase = "done"
                 new.finished = True
             else:
@@ -179,7 +221,7 @@ class OrchestratorStep(AtomicDEVS):
         s = self.state
         if s.phase == "decided":
             decision = s.last_decision
-            if decision.get("action") == "end":
+            if decision.get("action") in ("end", "error"):
                 return {self.out_finished: {"finished": True}}
             primitive = decision.get("primitive", "")
             if primitive in self.out_activate:
@@ -194,6 +236,9 @@ class OrchestratorStep(AtomicDEVS):
 
     def _decide_async(self):
         """Run the orchestrator LLM call in a background thread."""
+        if self._is_inquiry:
+            self._decide_inquiry_async()
+            return
         done_event = threading.Event()
 
         def _run():
@@ -237,6 +282,54 @@ class OrchestratorStep(AtomicDEVS):
         threading.Thread(target=_run, daemon=True).start()
         threading.Thread(target=_watchdog, daemon=True).start()
 
+    def _decide_inquiry_async(self):
+        """Deliver at most one decision; a timeout never becomes success."""
+        token = uuid.uuid4().hex
+        done = threading.Event()
+        with self._inquiry_async_lock:
+            self._inquiry_decision_token = token
+            self._inquiry_cancelled.clear()
+
+        def deliver(decision: dict, error: str | None = None):
+            with self._inquiry_async_lock:
+                if self._inquiry_decision_token != token or done.is_set():
+                    return
+                done.set()
+                if error:
+                    self._execution_error = error
+                    self._inquiry_cancelled.set()
+                    decision = {"action": "error", "reasoning": error}
+                try:
+                    self._record_decision(decision)
+                except Exception as exc:
+                    self._execution_error = f"Could not persist inquiry decision: {exc}"
+                    decision = {"action": "error", "reasoning": self._execution_error}
+                if self._simulator:
+                    self._simulator.inject(
+                        model=self, port=self.in_step_done,
+                        value={"_decision": decision, "_decision_token": token},
+                        sim_time=None,
+                    )
+
+        def run():
+            try:
+                deliver(self._make_decision())
+            except Exception as exc:
+                deliver({}, f"Inquiry orchestration failed: {exc}")
+
+        def watchdog():
+            sla = self.config.get("orchestrator", {}).get("sla_seconds", self.ORCHESTRATOR_SLA)
+            if not done.wait(timeout=sla):
+                deliver({}, "Inquiry orchestrator timed out")
+
+        threading.Thread(target=run, daemon=True).start()
+        threading.Thread(target=watchdog, daemon=True).start()
+
+    def cancel_inquiry(self):
+        with self._inquiry_async_lock:
+            self._inquiry_decision_token = None
+            self._inquiry_cancelled.set()
+
     def extTransition(self, inputs: dict):
         """Handle both step_done (from primitives) and decision injection."""
         s = self.state
@@ -247,6 +340,9 @@ class OrchestratorStep(AtomicDEVS):
 
             # Decision injection from background thread
             if "_decision" in payload:
+                if (self._is_inquiry and payload.get("_decision_token")
+                        != self._inquiry_decision_token):
+                    return new
                 decision = payload["_decision"]
                 new.last_decision = decision
                 new.phase = "decided"
@@ -261,6 +357,8 @@ class OrchestratorStep(AtomicDEVS):
 
     def _make_decision(self) -> dict:
         """Call the orchestrator LLM and return a decision dict."""
+        if getattr(self, "_is_inquiry", False):
+            return self._make_inquiry_decision()
         from cognitive_core.engine.llm import create_llm
         from cognitive_core.engine.nodes import extract_json
 
@@ -459,6 +557,332 @@ class OrchestratorStep(AtomicDEVS):
             print(f"[agentic_devs] Failed to parse orchestrator response: {e}\nRaw: {raw[:300]}", flush=True)
             return {"action": "end", "reasoning": f"Failed to parse orchestrator response: {e}"}
 
+    def _validate_inquiry_configuration(self):
+        """Resolve every configured profile before any provider is called."""
+        from cognitive_core.inquiry.native_profiles import get_profile
+
+        if not isinstance(self.primitive_configs, dict) or not self.primitive_configs:
+            raise InquiryExecutionError("Inquiry requires named primitive configurations")
+        if len(set(self.available_primitives)) != len(self.available_primitives):
+            raise InquiryExecutionError("Inquiry available_primitives contains duplicates")
+        configured = set()
+        for key, cfg in self.primitive_configs.items():
+            if not isinstance(key, str) or not isinstance(cfg, dict):
+                raise InquiryExecutionError("Invalid inquiry primitive configuration")
+            primitive = cfg.get("primitive")
+            if primitive not in self.available_primitives:
+                raise InquiryExecutionError(f"Profile {key!r} selects an unavailable primitive")
+            profile = get_profile(cfg.get("output_profile", ""))
+            if profile.primitive != primitive:
+                raise InquiryExecutionError(f"Profile {key!r} has a mismatched output schema")
+            if not isinstance(cfg.get("params", {}), dict):
+                raise InquiryExecutionError(f"Profile {key!r} params must be an object")
+            if any(str(name).startswith("_inquiry_") for name in cfg.get("params", {})):
+                raise InquiryExecutionError("Inquiry runtime parameters cannot be configured")
+            configured.add(primitive)
+        required = {"frame", "deliberate", "generate", "challenge", "govern"}
+        if not required.issubset(configured):
+            raise InquiryExecutionError(
+                "Inquiry requires Frame, Deliberate, Generate, Challenge and Govern profiles"
+            )
+        if set(self.available_primitives) != configured:
+            raise InquiryExecutionError("Every available inquiry primitive requires a registered configuration")
+        if self.must_end_with not in (None, "govern"):
+            raise InquiryExecutionError("Inquiry terminal primitive must be Govern")
+        if self.challenge_must_pass is not True:
+            raise InquiryExecutionError("Inquiry release requires a passing final Challenge")
+        if not self.must_include.issubset(configured):
+            raise InquiryExecutionError("Inquiry requires an unavailable primitive")
+        limit = self.config.get("constraints", {}).get("max_repeat_per_target", 3)
+        if not isinstance(limit, int) or isinstance(limit, bool) or limit < 1:
+            raise InquiryExecutionError("max_repeat_per_target must be a positive integer")
+
+    def _inquiry_terminal(self) -> bool:
+        from cognitive_core.inquiry.native_profiles import review_basis
+
+        steps = self.workflow_state_ref.get("steps", [])
+        study = self.workflow_state_ref.get("study", {})
+        governance = study.get("governance") or {}
+        report = study.get("report") or {}
+        review = study.get("final_review") or {}
+        if not (steps and steps[-1].get("primitive") == "govern"
+                and steps[-1].get("output_profile") == "inquiry.govern.v1"
+                and governance and governance.get("invocation_id") == steps[-1].get("invocation_id")):
+            return False
+        basis = review_basis(study)
+        return bool(report and not report.get("stale") and review.get("survives")
+                    and review.get("valid") and review.get("basis") == basis
+                    and governance.get("basis") == basis
+                    and review.get("report_revision") == report.get("revision")
+                    and governance.get("report_revision") == report.get("revision"))
+
+    def _validate_inquiry_decision(self, value: Any) -> dict:
+        from cognitive_core.inquiry.native_profiles import (
+            get_profile, validate_decision_target, review_basis,
+        )
+
+        if not isinstance(value, dict):
+            raise ValueError("Decision must be a JSON object")
+        allowed = {"action", "params_key", "primitive", "target", "reasoning"}
+        if set(value) - allowed:
+            raise ValueError("Decision contains undeclared fields")
+        if value.get("action") != "invoke":
+            raise ValueError("Select a configured operation; only validated Govern ends inquiry")
+        key = value.get("params_key")
+        if not isinstance(key, str) or key not in self.primitive_configs:
+            raise ValueError("params_key must name a configured operation")
+        cfg = self.primitive_configs[key]
+        primitive = value.get("primitive", cfg["primitive"])
+        if primitive != cfg["primitive"] or primitive not in self.available_primitives:
+            raise ValueError("Selected primitive does not match params_key")
+        profile = get_profile(cfg["output_profile"])
+        if profile.primitive != primitive:
+            raise ValueError("Selected output profile does not match the primitive")
+        target = value.get("target")
+        if not isinstance(target, dict) or set(target) - {"kind", "question_id"}:
+            raise ValueError("target must contain kind and, for a question, question_id")
+        if target.get("kind") not in ("study", "question", "report"):
+            raise ValueError("Unknown inquiry target kind")
+        if target["kind"] != "question" and "question_id" in target:
+            raise ValueError("Only question targets have a question_id")
+        reasoning = value.get("reasoning")
+        if not isinstance(reasoning, str) or not reasoning.strip():
+            raise ValueError("Decision must explain its expected contribution")
+
+        state = self.workflow_state_ref
+        study = state["study"]
+        validate_decision_target(study, target, primitive)
+        if not study.get("frames") and primitive != "frame":
+            raise ValueError("Frame the study before selecting research operations")
+        steps = state.get("steps", [])
+        if steps and steps[-1].get("primitive") == "generate":
+            if primitive != "challenge" or target["kind"] != "report":
+                raise ValueError("The generated report requires a report-targeted Challenge")
+
+        if primitive == "govern":
+            report = study.get("report") or {}
+            review = study.get("final_review") or {}
+            if (not report or not review.get("survives")
+                    or review.get("report_revision") != report.get("revision")
+                    or review.get("basis") != review_basis(study)):
+                raise ValueError("Govern requires a passing review of the current report and evidence")
+            executed = {step.get("primitive") for step in steps}
+            if (self.must_include - {"govern"}) - executed:
+                raise ValueError("Required accepted operations are still missing")
+
+        if state.get("metadata", {}).get("inquiry_closeout"):
+            if primitive not in {"deliberate", "generate", "challenge", "govern"}:
+                raise ValueError("Research reserve reached; close out with a qualified report")
+            if primitive == "challenge" and target["kind"] != "report":
+                raise ValueError("Closeout review must address the final report")
+
+        # Count stable configured operations and targets, never invented step labels.
+        stable_target = {k: target[k] for k in ("kind", "question_id") if k in target}
+        repeat_count = sum(
+            1 for step in steps
+            if step.get("params_key") == key
+            and {k: v for k, v in step.get("target", {}).items() if k in ("kind", "question_id")}
+            == stable_target
+        )
+        max_repeat = self.config.get("constraints", {}).get("max_repeat_per_target", 3)
+        if repeat_count >= max_repeat:
+            raise ValueError("This configured operation reached its repeat limit for this target")
+        return {
+            "action": "invoke", "params_key": key, "primitive": primitive,
+            "target": stable_target, "reasoning": reasoning.strip(),
+        }
+
+    def _make_inquiry_decision(self) -> dict:
+        from cognitive_core.engine.llm import create_llm
+        from cognitive_core.engine.governance import get_governance
+        from cognitive_core.engine.profile_nodes import (
+            reserve_model_attempt, checkpoint_inquiry, provider_attempt_hook, _parse_object,
+        )
+        from cognitive_core.engine.trace import get_trace
+        from cognitive_core.inquiry.native_profiles import study_context
+
+        state = self.workflow_state_ref
+        study = state["study"]
+        if self._inquiry_terminal():
+            return {"action": "end", "reasoning": "Validated inquiry Govern completed"}
+        limits = study["limits"]
+        if study["usage"]["steps"] >= limits["max_steps"]:
+            raise InquiryExecutionError("Inquiry accepted-step budget exhausted before Govern")
+        if study["usage"]["model_calls"] >= limits["max_model_calls"]:
+            raise InquiryExecutionError("Inquiry model-call budget exhausted before Govern")
+
+        budgets = self.config.get("constraints", {}).get("budgets", {})
+        closeout_calls = budgets.get("closeout_reserve_model_calls", 8)
+        closeout_steps = budgets.get("closeout_reserve_steps", 4)
+        remaining_calls = limits["max_model_calls"] - study["usage"]["model_calls"]
+        remaining_steps = limits["max_steps"] - study["usage"]["steps"]
+        entering_closeout = (
+            not state["metadata"].get("inquiry_closeout")
+            and (remaining_calls <= closeout_calls or remaining_steps <= closeout_steps)
+        )
+        if entering_closeout:
+            if not study.get("frames"):
+                raise InquiryExecutionError("Insufficient inquiry budget to frame and close the study")
+            state["metadata"]["inquiry_closeout"] = {
+                "reason": "Research allocation exhausted; preserve resources for qualified closeout",
+                "remaining_model_calls": remaining_calls,
+                "remaining_steps": remaining_steps,
+            }
+            checkpoint_inquiry(state, "closeout_started", state["metadata"]["inquiry_closeout"])
+            # This declared resource policy starts integration; all later choices
+            # remain native orchestrator decisions subject to review/governance.
+            if not study.get("report") and (
+                not study.get("synthesis") or study["synthesis"].get("stale")
+            ):
+                key = next(k for k, cfg in self.primitive_configs.items()
+                           if cfg["primitive"] == "deliberate")
+                decision = self._validate_inquiry_decision({
+                    "action": "invoke", "params_key": key, "primitive": "deliberate",
+                    "target": {"kind": "study"},
+                    "reasoning": "Integrate accepted work and remaining limitations within the closeout reserve",
+                })
+                decision["invocation_id"] = uuid.uuid4().hex
+                decision["expected_study_revision"] = study.get("revision", 0)
+                decision["step_name"] = f"{key}_{decision['invocation_id'][:12]}"
+                return decision
+
+        profiles = {
+            key: {
+                "primitive": cfg["primitive"], "output_profile": cfg["output_profile"],
+                "params": cfg.get("params", {}),
+            }
+            for key, cfg in self.primitive_configs.items()
+        }
+        template = (Path(__file__).parent.parent / "primitives" / "prompts"
+                    / "orchestrator_inquiry.txt").read_text(encoding="utf-8")
+        view = study_context(state, {"kind": "study"})
+        report = study.get("report") or {}
+        review = study.get("final_review") or {}
+        view["execution"] = {
+            "recent_accepted_operations": [
+                {key: step.get(key) for key in ("primitive", "params_key", "target")}
+                for step in state.get("steps", [])[-8:]
+            ],
+            "report_revision": report.get("revision"),
+            "report_stale": report.get("stale", False),
+            "final_review": {key: review.get(key) for key in ("survives", "valid", "report_revision")},
+        }
+        prompt = template.format(
+            goal=self.goal, strategy=self.strategy,
+            operations=json.dumps(profiles, ensure_ascii=False, default=str),
+            study=json.dumps(view, ensure_ascii=False, default=str),
+            constraints=json.dumps({
+                "max_repeat_per_target": self.config.get("constraints", {}).get("max_repeat_per_target", 3),
+                "must_include": sorted(self.must_include),
+                "remaining_model_calls": remaining_calls,
+                "remaining_accepted_steps": remaining_steps,
+                "closeout": state["metadata"].get("inquiry_closeout"),
+            }, ensure_ascii=False),
+        )
+        orch_model = self.config.get("orchestrator", {}).get("model", self.model)
+        llm = create_llm(model=orch_model, temperature=self.temperature)
+        repairs = limits.get("max_output_repairs", 2)
+        error = ""
+        for attempt in range(repairs + 1):
+            if self._inquiry_cancelled.is_set():
+                raise InquiryExecutionError("Inquiry decision was cancelled")
+            working_prompt = prompt
+            if error:
+                working_prompt += (
+                    "\nYour previous decision was rejected before execution. "
+                    f"Correct this contract violation: {error}\nReturn a complete replacement JSON decision."
+                )
+            reserve_model_attempt(state, "orchestrator" if attempt == 0 else "orchestrator_repair")
+            call_name = f"orchestrator:{state['metadata'].get('instance_id', 'inquiry')}:{study['usage']['model_calls']}"
+            get_trace().on_llm_start(call_name, len(working_prompt))
+            started = time.monotonic()
+            provider_hook = provider_attempt_hook(state, "orchestrator")
+            def before_provider_attempt():
+                if self._inquiry_cancelled.is_set():
+                    raise InquiryExecutionError("Inquiry decision was cancelled")
+                provider_hook()
+            result = get_governance().protected_llm_call(
+                llm=llm, prompt=working_prompt, step_name=call_name,
+                domain=state["metadata"].get("domain", ""), model=orch_model,
+                case_input=state.get("input", {}),
+                before_provider_attempt=before_provider_attempt,
+            )
+            raw = result.raw_response
+            get_trace().on_llm_end(call_name, len(raw), time.monotonic() - started)
+            if self._inquiry_cancelled.is_set():
+                raise InquiryExecutionError("Inquiry decision completed after cancellation")
+            state["metadata"].setdefault("inquiry_model_calls", []).append({
+                "step": call_name, "profile": "inquiry.orchestrator.v1", "model": orch_model,
+                "resolved_model": getattr(llm, "model_name", None) or getattr(llm, "model", None) or orch_model,
+                "attempt": attempt + 1, "input_tokens": getattr(result, "input_tokens", None),
+                "output_tokens": getattr(result, "output_tokens", None), "cached": getattr(result, "cached", False),
+            })
+            try:
+                decision = self._validate_inquiry_decision(_parse_object(raw))
+            except (ValueError, TypeError, KeyError) as exc:
+                error = str(exc)
+                get_trace().on_parse_error(call_name, error)
+                checkpoint_inquiry(state, "orchestrator_output_rejected", {
+                    "attempt": attempt + 1, "error": error,
+                })
+                continue
+            decision["invocation_id"] = uuid.uuid4().hex
+            decision["expected_study_revision"] = study.get("revision", 0)
+            decision["step_name"] = f"{decision['params_key']}_{decision['invocation_id'][:12]}"
+            return decision
+        raise InquiryExecutionError(f"Orchestrator decision remained invalid after bounded repair: {error}")
+
+    def _build_inquiry_step_cfg(self, decision: dict) -> dict:
+        from cognitive_core.engine.profile_nodes import checkpoint_inquiry
+        from cognitive_core.inquiry.native_profiles import study_context
+
+        public = {k: decision[k] for k in ("action", "params_key", "primitive", "target", "reasoning")
+                  if k in decision}
+        validated = self._validate_inquiry_decision(public)
+        state = self.workflow_state_ref
+        expected = decision.get("expected_study_revision", state["study"].get("revision", 0))
+        if expected != state["study"].get("revision", 0):
+            raise InquiryExecutionError("Inquiry decision targets a stale study revision")
+        key = validated["params_key"]
+        config = self.primitive_configs[key]
+        invocation_id = decision.get("invocation_id") or uuid.uuid4().hex
+        runtime_target = {**validated["target"], "expected_study_revision": expected,
+                          "frame_version": len(state["study"].get("frames", []))}
+        if runtime_target["kind"] == "report" and state["study"].get("report"):
+            runtime_target["report_revision"] = state["study"]["report"]["revision"]
+        params = copy.deepcopy(config.get("params", {}))
+        params = {k: resolve_param(v, state) if isinstance(v, str) else v for k, v in params.items()}
+        if state["metadata"].get("inquiry_closeout"):
+            params["additional_instructions"] = (
+                str(params.get("additional_instructions", ""))
+                + "\nThe research allocation has reached its closeout reserve. Integrate only accepted "
+                  "work and preserve unresolved issues. Use budget_exhausted when the allocation "
+                  "prevents meeting the answer criteria; do not equate stopping with an answered study."
+            )
+        params["context"] = json.dumps(study_context(state, validated["target"]), ensure_ascii=False, default=str)
+        params.update({
+            "_inquiry_output_profile": config["output_profile"],
+            "_inquiry_target": runtime_target,
+            "_inquiry_invocation_id": invocation_id,
+            "_inquiry_params_key": key,
+            "_inquiry_expected_revision": expected,
+        })
+        state["metadata"]["inquiry_active_invocation"] = {
+            "invocation_id": invocation_id, "params_key": key,
+            "primitive": validated["primitive"], "target": runtime_target,
+            "expected_study_revision": expected, "status": "dispatched",
+        }
+        checkpoint_inquiry(state, "invocation_dispatched", state["metadata"]["inquiry_active_invocation"])
+        return {
+            "name": decision.get("step_name", f"{key}_{invocation_id[:12]}"),
+            "primitive": validated["primitive"], "params": params,
+            "output_profile": config["output_profile"], "target": runtime_target,
+            "invocation_id": invocation_id,
+            "model": config.get("model", self.model),
+            "temperature": config.get("temperature", self.temperature),
+            "sla_seconds": config.get("sla_seconds", _AgenticWorkflowStep.DEFAULT_SLA_SECONDS),
+        }
+
     def _build_steps_summary(self, steps: list) -> str:
         if not steps:
             return "  (none — this is the first step)"
@@ -501,6 +925,8 @@ class OrchestratorStep(AtomicDEVS):
           - hypothesis        → appended to question/scope for investigate
           - domain_keys_relevant → stored for reference (not injected directly)
         """
+        if getattr(self, "_is_inquiry", False):
+            return self._build_inquiry_step_cfg(decision)
         primitive = decision.get("primitive", "")
         step_name = decision.get("step_name", primitive)
         if not isinstance(step_name, str):
@@ -728,7 +1154,8 @@ class OrchestratorStep(AtomicDEVS):
             try:
                 self._decision_callback(decision)
             except Exception:
-                pass
+                if self._is_inquiry:
+                    raise
 
 
 # ─── Agentic Workflow CoupledDEVS ─────────────────────────────────────────────
@@ -849,6 +1276,12 @@ class _AgenticWorkflowStep(AtomicDEVS):
         self.default_model = default_model
         self.default_temperature = default_temperature
         self._simulator = None
+        self._is_inquiry = workflow_state_ref.get("metadata", {}).get("execution_profile") == "inquiry.v1"
+        self._inquiry_result_lock = threading.RLock()
+        self._inquiry_active_id: str | None = None
+        self._inquiry_expected_revision: int | None = None
+        self._inquiry_cancelled = threading.Event()
+        self._inquiry_pre_acceptance_state: dict | None = None
 
         self.in_activate = self.addInPort("activate")
         self.in_resume = self.addInPort("resume")
@@ -903,11 +1336,18 @@ class _AgenticWorkflowStep(AtomicDEVS):
                     # Store sla_seconds in params so watchdog can read it
                     new.params = dict(new.params)
                     new.params["sla_seconds"] = payload.get("sla_seconds", self.DEFAULT_SLA_SECONDS)
+                    if self._is_inquiry:
+                        self._inquiry_active_id = new.params.get("_inquiry_invocation_id")
+                        self._inquiry_expected_revision = self.workflow_state_ref["study"].get("revision", 0)
+                        self._inquiry_cancelled.clear()
                 new.phase = "active"
             return new
 
         if self.in_resume in inputs:
             result = inputs[self.in_resume][0]
+            if (self._is_inquiry and result.get("invocation_id")
+                    != s.params.get("_inquiry_invocation_id")):
+                return new
             if s.phase == "running":
                 new.phase = "done"
                 new.output = result.get("output")
@@ -929,6 +1369,9 @@ class _AgenticWorkflowStep(AtomicDEVS):
         return {}
 
     def _run_step_async(self, step_state: StepState, t0: float):
+        if self._is_inquiry:
+            self._run_inquiry_step_async(step_state, t0)
+            return
         done_event = threading.Event()
 
         def _run():
@@ -977,12 +1420,106 @@ class _AgenticWorkflowStep(AtomicDEVS):
         threading.Thread(target=_run, daemon=True).start()
         threading.Thread(target=_watchdog, daemon=True).start()
 
-    def _execute_step(self, step_state: StepState) -> tuple[dict, StepInterrupt | None]:
+    def _run_inquiry_step_async(self, step_state: StepState, t0: float):
+        """Run the native node on detached state and discard expired results."""
+        invocation_id = step_state.params.get("_inquiry_invocation_id")
+        candidate = _inquiry_snapshot(self.workflow_state_ref)
+        done = threading.Event()
+
+        def checkpoint_attempt(snapshot, event="checkpoint", details=None):
+            with self._inquiry_result_lock:
+                if (self._inquiry_active_id != invocation_id or self._inquiry_cancelled.is_set()
+                        or done.is_set()):
+                    raise InquiryExecutionError("Inquiry invocation is no longer active")
+                if self.workflow_state_ref["study"].get("revision", 0) != self._inquiry_expected_revision:
+                    raise InquiryExecutionError("Inquiry invocation cannot overwrite a newer study revision")
+                _replace_inquiry_state(self.workflow_state_ref, snapshot)
+                self._inquiry_expected_revision = self.workflow_state_ref["study"].get("revision", 0)
+                callback = self.workflow_state_ref.get("metadata", {}).get("_checkpoint_callback")
+                if callback:
+                    callback(self.workflow_state_ref, event, details)
+
+        candidate.setdefault("metadata", {})["_checkpoint_callback"] = checkpoint_attempt
+
+        def deliver(output, interrupt=None, error=None):
+            with self._inquiry_result_lock:
+                if self._inquiry_active_id != invocation_id or done.is_set():
+                    return
+                done.set()
+                if not error and self.workflow_state_ref["study"].get("revision", 0) != self._inquiry_expected_revision:
+                    error = "Inquiry result targets a newer study revision"
+                if error:
+                    self._inquiry_cancelled.set()
+                    output = {
+                        "error": error, "_inquiry_failure": True,
+                        "primitive": step_state.primitive, "step_name": step_state.step_name,
+                    }
+                    self.workflow_state_ref["metadata"]["inquiry_active_invocation"] = {
+                        "invocation_id": invocation_id, "status": "failed", "reason": error,
+                    }
+                else:
+                    self._inquiry_pre_acceptance_state = _inquiry_snapshot(self.workflow_state_ref)
+                    self._inquiry_pre_acceptance_state["metadata"]["inquiry_model_calls"] = copy.deepcopy(
+                        candidate.get("metadata", {}).get("inquiry_model_calls", [])
+                    )
+                    _replace_inquiry_state(self.workflow_state_ref, candidate)
+                    self._inquiry_expected_revision = self.workflow_state_ref["study"].get("revision", 0)
+                    self.workflow_state_ref["metadata"]["inquiry_active_invocation"] = {
+                        "invocation_id": invocation_id, "status": "accepted",
+                        "params_key": step_state.params.get("_inquiry_params_key"),
+                        "target": step_state.params.get("_inquiry_target"),
+                    }
+                    if isinstance(output, dict):
+                        output = {**output, "primitive": step_state.primitive,
+                                  "step_name": step_state.step_name,
+                                  "invocation_id": invocation_id}
+                if self._simulator:
+                    self._simulator.inject(
+                        model=self, port=self.in_resume,
+                        value={"output": output, "interrupt": interrupt,
+                               "invocation_id": invocation_id,
+                               "elapsed_ms": (time.time() - t0) * 1000},
+                        sim_time=None,
+                    )
+
+        def run():
+            try:
+                output, interrupt = self._execute_step(step_state, execution_state=candidate)
+                deliver(output, interrupt)
+            except Exception as exc:
+                deliver(None, error=f"Inquiry primitive failed: {exc}")
+
+        def watchdog():
+            sla = step_state.params.get("sla_seconds", self.DEFAULT_SLA_SECONDS)
+            if not done.wait(timeout=sla):
+                deliver(None, error=f"Inquiry step {step_state.step_name!r} timed out")
+
+        threading.Thread(target=run, daemon=True).start()
+        threading.Thread(target=watchdog, daemon=True).start()
+
+    def cancel_inquiry(self):
+        with self._inquiry_result_lock:
+            self._inquiry_active_id = None
+            self._inquiry_cancelled.set()
+
+    def _execute_step(
+        self, step_state: StepState, execution_state: dict | None = None,
+    ) -> tuple[dict, StepInterrupt | None]:
         from cognitive_core.engine.nodes import create_node, create_retrieve_node, create_govern_node
 
-        state = self.workflow_state_ref
+        state = self.workflow_state_ref if execution_state is None else execution_state
 
-        if step_state.primitive == "retrieve":
+        if self._is_inquiry:
+            from cognitive_core.engine.profile_nodes import create_profile_node
+            node_fn = create_profile_node(
+                step_name=step_state.step_name, primitive_name=step_state.primitive,
+                params=step_state.params,
+                output_profile=step_state.params["_inquiry_output_profile"],
+                target=step_state.params["_inquiry_target"],
+                model=step_state.model_name, temperature=step_state.temperature,
+                tool_registry=self.tool_registry,
+            )
+        elif step_state.primitive == "retrieve":
             node_fn = create_retrieve_node(
                 step_name=step_state.step_name,
                 params=step_state.params,
@@ -1009,6 +1546,14 @@ class _AgenticWorkflowStep(AtomicDEVS):
             )
 
         delta = node_fn(state)
+        if self._is_inquiry:
+            for accepted in delta.get("steps", []):
+                accepted.update({
+                    "output_profile": step_state.params["_inquiry_output_profile"],
+                    "params_key": step_state.params["_inquiry_params_key"],
+                    "target": copy.deepcopy(step_state.params["_inquiry_target"]),
+                    "invocation_id": step_state.params["_inquiry_invocation_id"],
+                })
         for key, value in delta.items():
             if key in ("steps", "routing_log") and isinstance(value, list):
                 state[key] = state.get(key, []) + value
@@ -1068,7 +1613,14 @@ class AgenticWorkflowExecutor:
         workflow_input: dict,
         step_callback: StepCallback = no_interrupt_callback,
         decision_callback=None,
+        initial_state: dict | None = None,
+        checkpoint_callback=None,
     ) -> StepResult:
+        if self.config.get("execution_profile") == "inquiry.v1":
+            state = self._prepare_inquiry_state(
+                workflow_input, initial_state, checkpoint_callback, require_existing=False,
+            )
+            return self._run(state, step_callback, decision_callback)
         workflow_state: WorkflowState = {
             "input": workflow_input,
             "steps": [],
@@ -1083,6 +1635,75 @@ class AgenticWorkflowExecutor:
         }
         return self._run(workflow_state, step_callback, decision_callback)
 
+    def resume(
+        self,
+        initial_state: dict,
+        step_callback: StepCallback = no_interrupt_callback,
+        decision_callback=None,
+        checkpoint_callback=None,
+    ) -> StepResult:
+        """Continue a committed native agentic state without a static step list."""
+        if self.config.get("execution_profile") == "inquiry.v1":
+            state = self._prepare_inquiry_state(
+                initial_state.get("input", {}), initial_state, checkpoint_callback,
+                require_existing=True,
+            )
+        else:
+            state = copy.deepcopy(initial_state)
+        return self._run(state, step_callback, decision_callback)
+
+    def _prepare_inquiry_state(
+        self, workflow_input: dict, initial_state: dict | None,
+        checkpoint_callback, *, require_existing: bool,
+    ) -> dict:
+        from cognitive_core.inquiry.native_profiles import initial_study
+
+        state = _inquiry_snapshot(initial_state or {"input": workflow_input})
+        state.setdefault("input", copy.deepcopy(workflow_input))
+        for key, default in (("steps", []), ("current_step", ""), ("loop_counts", {}), ("routing_log", [])):
+            state.setdefault(key, default)
+        metadata = state.setdefault("metadata", {})
+        metadata.update({
+            "execution_profile": "inquiry.v1", "mode": "agentic",
+            "use_case": self.config.get("name", ""),
+            "effective_config": copy.deepcopy(self.config),
+        })
+        metadata.setdefault("domain", self.config.get("domain_name", self.config.get("domain", "")))
+        metadata.setdefault("model", self.model)
+        metadata.setdefault("temperature", self.temperature)
+        metadata.setdefault("instance_id", state["input"].get("instance_id", ""))
+        metadata.setdefault("correlation_id", metadata["instance_id"])
+        metadata.pop("inquiry_termination", None)
+        metadata.pop("termination_reason", None)
+        if checkpoint_callback:
+            def checkpoint(snapshot, event="checkpoint", details=None):
+                checkpoint_callback(_inquiry_snapshot(snapshot), event, details)
+            metadata["_checkpoint_callback"] = checkpoint
+        if "study" not in state:
+            if require_existing:
+                raise InquiryExecutionError("Native inquiry resume requires a persisted Study")
+            question = state["input"].get("question", "")
+            if not isinstance(question, str) or not question.strip():
+                raise InquiryExecutionError("Inquiry requires a nonempty question")
+            limits = _inquiry_limits(self.config)
+            overrides = state["input"].get("limits", {})
+            if not isinstance(overrides, dict) or set(overrides) - set(limits):
+                raise InquiryExecutionError("Unknown inquiry limit override")
+            limits.update(overrides)
+            for name, value in limits.items():
+                minimum = 0 if name in {"max_searches", "max_reads", "max_output_repairs"} else 1
+                if not isinstance(value, int) or isinstance(value, bool) or value < minimum:
+                    raise InquiryExecutionError(f"Invalid inquiry limit {name}")
+            state["study"] = initial_study(
+                question=question, purpose=state["input"].get("purpose", ""),
+                context=state["input"].get("context", ""), limits=limits,
+            )
+        elif not isinstance(state["study"], dict):
+            raise InquiryExecutionError("Persisted inquiry Study must be an object")
+        if checkpoint_callback:
+            metadata["_checkpoint_callback"](state, "inquiry_resumed" if require_existing else "inquiry_initialized", {})
+        return state
+
     def _run(
         self,
         workflow_state: dict,
@@ -1090,6 +1711,8 @@ class AgenticWorkflowExecutor:
         decision_callback=None,
     ) -> StepResult:
         interrupt_container: list[StepInterrupt] = []
+        is_inquiry = self.config.get("execution_profile") == "inquiry.v1"
+        simulation_errors: list[Exception] = []
 
         agentic_model = AgenticWorkflowModel(
             config=self.config,
@@ -1117,7 +1740,34 @@ class AgenticWorkflowExecutor:
 
             s = model.state
             if s.phase == "done" and s.output is not None:
-                interrupt = step_callback(s.step_name, s.output, workflow_state)
+                if is_inquiry and s.output.get("_inquiry_failure"):
+                    raise InquiryExecutionError(s.output.get("error", "Inquiry primitive failed"))
+                acceptance = None
+                if is_inquiry:
+                    # The Coordinator acknowledges only after its atomic
+                    # checkpoint commits. A later hook failure must not roll
+                    # that durable acceptance back in memory.
+                    workflow_state.setdefault("metadata", {}).pop("_inquiry_committed_acceptance", None)
+                    acceptance = {
+                        "invocation_id": s.params.get("_inquiry_invocation_id"),
+                        "step_name": s.step_name,
+                        "study_revision": workflow_state["study"]["revision"],
+                    }
+                try:
+                    interrupt = step_callback(s.step_name, s.output, workflow_state)
+                except Exception:
+                    if is_inquiry:
+                        committed = (
+                            bool(acceptance["invocation_id"])
+                            and workflow_state.get("metadata", {}).get("_inquiry_committed_acceptance") == acceptance
+                        )
+                        if not committed and model._inquiry_pre_acceptance_state is not None:
+                            _replace_inquiry_state(workflow_state, model._inquiry_pre_acceptance_state)
+                    raise
+                finally:
+                    if is_inquiry:
+                        workflow_state.get("metadata", {}).pop("_inquiry_committed_acceptance", None)
+                        model._inquiry_pre_acceptance_state = None
                 if interrupt is None and s.interrupt is not None:
                     interrupt = s.interrupt
                 if interrupt is not None:
@@ -1147,9 +1797,47 @@ class AgenticWorkflowExecutor:
 
         sim.setTerminationCondition(_is_done)
 
-        sim_thread = threading.Thread(target=sim.simulate, daemon=True)
+        def simulate():
+            try:
+                sim.simulate()
+            except Exception as exc:
+                simulation_errors.append(exc)
+                sim.stop()
+
+        sim_thread = threading.Thread(target=simulate if is_inquiry else sim.simulate, daemon=True)
         sim_thread.start()
         sim_thread.join(timeout=86400)
+
+        if is_inquiry:
+            agentic_model.orchestrator.cancel_inquiry()
+            for component in agentic_model.step_components.values():
+                component.cancel_inquiry()
+            reason = None
+            if sim_thread.is_alive():
+                sim.stop()
+                reason = "Native inquiry execution deadline reached"
+            elif simulation_errors:
+                reason = str(simulation_errors[0])
+            elif agentic_model.orchestrator._execution_error:
+                reason = agentic_model.orchestrator._execution_error
+            elif not interrupt_container and not agentic_model.orchestrator._inquiry_terminal():
+                reason = "Native inquiry stopped without a validated terminal Govern operation"
+            if reason:
+                workflow_state.setdefault("metadata", {}).update({
+                    "inquiry_termination": {"status": "failed", "reason": reason},
+                    "termination_reason": reason,
+                })
+                checkpoint = workflow_state["metadata"].get("_checkpoint_callback")
+                if checkpoint:
+                    checkpoint(workflow_state, "inquiry_failed", {"reason": reason})
+                error = InquiryExecutionError(reason)
+                error.final_state = _inquiry_snapshot(workflow_state)
+                raise error
+            final_state = _inquiry_snapshot(workflow_state)
+            if interrupt_container:
+                interrupt_container[0].state_at_interrupt = final_state
+                return StepResult(completed=False, final_state=final_state, interrupt=interrupt_container[0])
+            return StepResult(completed=True, final_state=final_state)
 
         if interrupt_container:
             return StepResult(
@@ -1176,6 +1864,8 @@ def run_agentic_workflow_devs(
     action_registry: Any = None,
     step_callback: StepCallback = no_interrupt_callback,
     decision_callback=None,
+    initial_state: dict | None = None,
+    checkpoint_callback=None,
 ) -> StepResult:
     """
     Drop-in replacement for run_agentic_workflow() from agentic.py.
@@ -1184,4 +1874,7 @@ def run_agentic_workflow_devs(
     executor = AgenticWorkflowExecutor(
         config, tool_registry, action_registry, model, temperature
     )
-    return executor.execute(workflow_input, step_callback, decision_callback)
+    return executor.execute(
+        workflow_input, step_callback, decision_callback,
+        initial_state=initial_state, checkpoint_callback=checkpoint_callback,
+    )

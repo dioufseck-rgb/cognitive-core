@@ -42,8 +42,9 @@ import logging
 import os
 import time
 import threading
+from contextlib import ExitStack
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Callable
 
 logger = logging.getLogger("cognitive_core.governance")
 
@@ -310,6 +311,7 @@ class GovernancePipeline:
         domain: str,
         model: str,
         case_input: dict[str, Any] | None = None,
+        before_provider_attempt: Callable[[], None] | None = None,
     ) -> LLMCallResult:
         """
         Execute an LLM call with full governance pipeline:
@@ -377,15 +379,19 @@ class GovernancePipeline:
 
         def _rate_limited_invoke(llm_=llm, msgs=_messages):
             """Single invoke call, wrapped in rate limiter if configured."""
-            if limiter:
-                try:
-                    with limiter.acquire(timeout=30):
-                        return llm_.invoke(msgs)
-                except Exception as _e:
-                    logger.warning("Rate limit acquire failed for %s/%s: %s",
-                                   provider, step_name, _e)
-                    return llm_.invoke(msgs)
-            return llm_.invoke(msgs)
+            with ExitStack() as stack:
+                if limiter:
+                    try:
+                        stack.enter_context(limiter.acquire(timeout=30))
+                    except Exception as _e:
+                        logger.warning("Rate limit acquire failed for %s/%s: %s",
+                                       provider, step_name, _e)
+                # Keep provider exceptions outside the acquisition handler:
+                # retry.py alone owns retries. Native callers can reserve each
+                # actual attempt before it causes an external request.
+                if before_provider_attempt is not None:
+                    before_provider_attempt()
+                return llm_.invoke(msgs)
 
         t0 = time.time()
         _retry_result = invoke_with_retry(

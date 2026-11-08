@@ -1,0 +1,51 @@
+# Local native inquiry pack: Coordinator + agentic DEVS + registered profiles.
+workflow_dir: workflows
+domain_dir: domains
+tool_providers: [serper]
+
+governance_tiers:
+  auto:
+    hitl: none
+    sample_rate: 0.0
+  spot_check:
+    hitl: post_completion
+    sample_rate: 0.10
+    queue: inquiry_review
+    sla: 86400
+  gate:
+    hitl: before_act
+    queue: inquiry_review
+    sla: 86400
+  hold:
+    hitl: before_finalize
+    queue: inquiry_review
+    sla: 172800
+
+quality_gates:
+  min_confidence: 0.50
+  primitive_floors:
+    investigate: 0.50
+    deliberate: 0.50
+    verify: 0.50
+  escalation_tier: gate
+  escalation_queue: inquiry_review
+  exempt_domains: []
+
+capabilities:
+  - need: inquiry_clarification
+    type: human_task
+    queue: inquiry_user
+    contract: inquiry_clarification_v1
+
+contracts:
+  inquiry_clarification_v1:
+    version: 1
+    request:
+      - {name: clarification_id, type: string, required: true}
+      - {name: question, type: string, required: true}
+    response:
+      - {name: clarification_id, type: string, required: true}
+      - {name: answer, type: string, required: true}
+
+delegations: []
+overrides: {}

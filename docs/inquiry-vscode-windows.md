@@ -1,4 +1,4 @@
-# Testing the inquiry runner in VS Code on Windows
+# Testing native inquiry in VS Code on Windows
 
 These instructions use **Windows, VS Code, and its PowerShell terminal**. Run
 each command from the repository root unless a step says otherwise. The first
@@ -8,6 +8,19 @@ accounts.
 The inquiry implementation is on the **`feat/reasoning-inquiry`** branch of
 `dioufseck-rgb/cognitive-core`. Clone that branch to get the code, tests, and
 this guide together.
+
+If you already cloned this branch, update it from the repository root before
+continuing:
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE = "1"
+git switch feat/reasoning-inquiry
+git pull --ff-only
+```
+
+This version uses the native Coordinator and DEVS executor. Start a **new output
+directory** for it; the earlier standalone runner's JSON checkpoints are not
+automatically migrated.
 
 ## 1. Check the prerequisites
 
@@ -106,7 +119,7 @@ messages are not failures; read the final unittest summary.
 To focus on the inquiry tests:
 
 ```powershell
-.\.venv-inquiry\Scripts\python.exe -m unittest discover -s tests/unit -p "test_inquiry*.py" -v
+.\.venv-inquiry\Scripts\python.exe -m unittest discover -s tests/unit -p "test_native_inquiry*.py" -v
 ```
 
 Optional VS Code test UI: run **Python: Configure Tests**, choose **unittest**,
@@ -116,28 +129,42 @@ Testing view. The terminal command above is sufficient for the initial check.
 ## 5. Run the offline demonstration
 
 ```powershell
-.\.venv-inquiry\Scripts\python.exe -m cognitive_core.inquiry demo --output inquiries/offline-01
+.\.venv-inquiry\Scripts\python.exe -m cognitive_core.inquiry demo --output inquiries/native-offline-01
 ```
 
-Expect `Status: completed`, 16 scheduled steps, one simulated search, one
-simulated source read, and two rounds of reasoning on the demonstration branch.
-The demo uses scripted responses and a fictional source; it makes no API calls.
+Expect `Coordinator status: completed`, research outcome `conditional`, **12
+accepted operations, 24 model attempts, one synthetic search, and one source
+read**. Only the model and web boundaries are fixtures. The Coordinator, native
+DEVS executor, protected-call pipeline, epistemic assessment, SQLite checkpoint,
+audit ledger, final review, and Govern actually run.
 
-The first finding overclaims an efficiency benefit. Challenge identifies the
-unsupported claim. Reflect requests a revision, and the revised finding removes
-the empirical claim. The final synthesis retains the qualification and cites
-the example passage.
+The initial finding mistakes a required receipt for a sufficient condition.
+Verify and Challenge identify a missing prior-approval condition. Reflect
+requests a material revision; the corrected answer preserves the limitations
+of the fictional policy. This is an integration test, not live research.
 
-Open `inquiries/offline-01/report.md` and press **Ctrl+Shift+V** to preview it.
-Inspect `state.json` alongside it. Run these read-only commands if useful:
+Open `inquiries/native-offline-01/report.md` and press **Ctrl+Shift+V** to preview
+it. Inspect `state.json` alongside it. The authoritative state is in
+`coordinator.db`; `state.json` is an inspection export. These commands make no
+model or search calls:
 
 ```powershell
-.\.venv-inquiry\Scripts\python.exe -m cognitive_core.inquiry status inquiries/offline-01
-.\.venv-inquiry\Scripts\python.exe -m cognitive_core.inquiry report inquiries/offline-01
+.\.venv-inquiry\Scripts\python.exe -m cognitive_core.inquiry status inquiries/native-offline-01
+.\.venv-inquiry\Scripts\python.exe -m cognitive_core.inquiry report inquiries/native-offline-01
 ```
 
 Use a different output directory, such as `offline-02`, to run the demo again.
 The command intentionally refuses to overwrite an existing inquiry.
+
+Also test durable clarification in separate CLI invocations:
+
+```powershell
+.\.venv-inquiry\Scripts\python.exe -m cognitive_core.inquiry demo --clarify --output inquiries/native-clarify-01
+.\.venv-inquiry\Scripts\python.exe -m cognitive_core.inquiry resume inquiries/native-clarify-01 --answer "c1=Yes, restrict the answer to the fictional policy."
+```
+
+The first invocation suspends after Frame. The second fulfills the actual native
+work order and resumes from the database through a newly created Coordinator.
 
 ## 6. Configure a real model and Serper
 
@@ -178,11 +205,11 @@ Verify presence without printing the values:
 Both should say `True`. These session variables do not automatically appear in
 another terminal. A `.env` file is not automatically loaded by this runner.
 
-Use `--provider openai` explicitly on both `start` and `resume`: the checked-in
-configuration otherwise defaults to Google. `--model default` resolves through
-`llm_config.yaml`; its OpenAI mapping in this checkout is `gpt-4o-mini`. That is
-an existing configuration value, not a guarantee of availability on your
-account. Override `--model` with a model ID your account can use when needed.
+Use `--provider openai` on `start`; resume remembers that selection, and accepts
+an explicit override. `--model default` resolves through `llm_config.yaml`.
+Inspect the provider's configured alias or pass an explicit model ID your
+account can use. A model that passes a connectivity check still needs to be
+evaluated for the inquiry's structured outputs and research quality.
 
 ## 7. Check the three live connections separately
 
@@ -219,71 +246,71 @@ HTTP(S) connections and does not inherit proxy settings. In a managed network,
 an approved transport configuration may be needed; do not disable TLS checks
 or organizational controls to make the test pass.
 
-If a check fails, fix that connection before running a complete inquiry. The
-development workspace could not resolve a public source domain, so live
-transport was not verified there. These checks establish what works on your
-machine.
+If a check fails, fix that connection before running a complete inquiry. This
+implementation was verified with deterministic boundary fixtures, without your
+keys. These live checks establish what works on your machine.
 
 ## 8. Start a small real inquiry
 
 ```powershell
-.\.venv-inquiry\Scripts\python.exe -m cognitive_core.inquiry start "When should an enterprise AI workflow use autonomous agents instead of a fixed workflow?" --purpose "Develop practical architecture criteria and examine the strongest counterargument" --provider openai --model default --max-steps 30 --max-searches 4 --max-reads 6 --output inquiries/agent-design-01
+.\.venv-inquiry\Scripts\python.exe -m cognitive_core.inquiry start "For an internal assistant that searches policy documents and drafts cited answers, when is a fixed retrieve-then-generate workflow sufficient, and when does model-directed multi-step retrieval improve results?" --purpose "Develop practical architecture criteria for a read-only pilot using public sources" --provider openai --model default --max-steps 32 --max-model-calls 96 --max-searches 8 --max-reads 12 --output inquiries/policy-native-01
 ```
 
-The output shows the current operation and subquestion. A live model chooses its
-own path; it is not expected to reproduce the offline demo's sequence or length.
-The small budget is meant to let you inspect behavior early. It may stop before
-the final synthesis.
+The native orchestrator chooses the path; it is not expected to reproduce the
+offline demo's sequence or length. YAML controls the strategy and operation
+instructions. The runtime enforces profiles, budgets, targets, and final review.
 
 | Status | Meaning | Next action |
 |---|---|---|
-| `completed` | The run has produced a reviewed answer, possibly with qualifications. | Read the report and assess the reasoning. |
-| `awaiting_user` | A material clarification is needed. | Answer the displayed ID using `resume`. |
-| `budget_exhausted` | The scheduled step allowance is used. | Inspect partial results and add effort if useful. |
-| `failed` | A model/tool/configuration/contract failure prevented the next step. | Read the sanitized error, fix the cause, and resume. |
-| `ready` | A saved run is ready to continue, including after a keyboard interruption. | Resume it. |
+| `completed` | Native execution and release governance completed. | Read the report and assess its separate research outcome. |
+| `suspended` | A clarification or governance review is pending. | Answer the displayed clarification or resolve the native review task. |
+| `failed` | Execution could not continue. | Inspect the saved error, fix the cause, then recover with `resume`. |
+| `running` | A worker is active, or its process stopped unexpectedly. | Wait if it is active; recover only after it has stopped. |
 
-The budgets limit scheduled work; they are not dollar or token caps. Provider
-retries and page redirects can make additional HTTP requests within a step.
+Research outcomes are separate: `open`, `answered`, `conditional`,
+`evidence_limited`, or `budget_exhausted`. A completed report can honestly be
+conditional or evidence-limited. Closeout reserves effort for synthesis,
+report, final Challenge, and Govern; it cannot guarantee a passing final review.
 
-## 9. Clarify, extend, or interrupt the inquiry
+The model allocation counts orchestration, output correction, and native
+transport retries. It is not a dollar or token cap; provider SDK internals and
+page redirects can make additional HTTP requests. A successful cached tool
+request is reused rather than charged as another search or read.
+
+## 9. Clarify, recover, or interrupt the inquiry
 
 First inspect its current state:
 
 ```powershell
-.\.venv-inquiry\Scripts\python.exe -m cognitive_core.inquiry status inquiries/agent-design-01
+.\.venv-inquiry\Scripts\python.exe -m cognitive_core.inquiry status inquiries/policy-native-01
 ```
 
-If it asks a question labeled `C1`, answer that actual question. Example:
+If it asks a question labeled `c1`, answer that actual question. Example:
 
 ```powershell
-.\.venv-inquiry\Scripts\python.exe -m cognitive_core.inquiry resume inquiries/agent-design-01 --answer "C1=Internal document-review workflows, with a human making the final consequential decision" --provider openai --model default
+.\.venv-inquiry\Scripts\python.exe -m cognitive_core.inquiry resume inquiries/policy-native-01 --answer "c1=Public evidence for a read-only pilot; humans make consequential decisions" --provider openai
 ```
 
-Repeat `--answer` if it asks more than one question. IDs are specific to the
-saved inquiry; do not invent an ID or reuse one that is already answered.
+Repeat `--answer` if it asks more than one question. Execution continues after
+the last blocking answer. Identical repeated answers are idempotent; replacing
+a fulfilled answer is rejected. Clarification fulfillment cannot approve a
+governance-suspended report. See the [native guide](inquiry.md#clarification-recovery-and-governance)
+for that separate review path.
 
-For a budget pause:
+After a provider failure is fixed, run `resume` without an answer. Recovery
+preserves accepted operations, read passages, and consumed budgets. This minimal
+version does not support the legacy `--additional-*` budget flags. Inspect the
+work before choosing a larger budget for a new study.
+
+Press **Ctrl+C** to interrupt. Once the original process has definitely stopped,
+recover an instance still marked `running` with:
 
 ```powershell
-.\.venv-inquiry\Scripts\python.exe -m cognitive_core.inquiry resume inquiries/agent-design-01 --additional-steps 20 --additional-searches 3 --additional-reads 5 --provider openai --model default
+.\.venv-inquiry\Scripts\python.exe -m cognitive_core.inquiry resume inquiries/policy-native-01 --recover-running
 ```
 
-Added allowances are cumulative. A clarification answer and added budget can
-be supplied together. A completed run stays complete; use a new output directory
-to explore a new or revised question.
-
-Extra steps do not reopen a branch already marked `unresolved` because it hit
-the separate revision limit. If a report repeats the same claims or objections
-with little new evidence, inspect `state.json` before buying more iterations.
-For a revised frame or controller version, start a fresh directory and retain
-the first run as a comparison. Reports show claim classifications, read-passage
-references, and the latest critique; the checkpoint records retrieval plans and
-controller interventions as well.
-
-Press **Ctrl+C** to interrupt. Progress is saved; an operation interrupted before
-completion may run again on resume. Do not run two writers on the same inquiry
-directory at once.
+An external request whose result was not committed may run again. Do not run
+two workers on the same inquiry directory or recover while the old one is active.
 
 If you close VS Code or open a new terminal, return to the repository root, set
 `PYTHONUTF8`, `PYTHONDONTWRITEBYTECODE`, and the keys again, then resume with the
@@ -325,20 +352,21 @@ Open the study's `report.md` in Markdown preview. In `state.json`, examine:
 
 | Field | What to look for |
 |---|---|
-| `frames` | Did framing make the question more useful? Was a later change justified? |
-| `questions` | Do the branches contribute to the main question? Did objections lead to substantive revisions? |
-| `searches` | Were queries connected to uncertainties and contrary evidence? |
-| `sources` | Were important sources actually read? Are passages relevant and dated? |
-| `clarifications` | Were questions to you necessary, and did your answers change the work? |
-| `synthesis` | Does the integrated answer reconcile branches and preserve uncertainty? |
-| `events` | Was the work productive, or did it repeat without learning? |
+| `study.frames` | Did framing improve the question without silently changing your purpose? |
+| `study.questions` / `study.findings` | Do branches contribute to the answer? Did objections change the findings? |
+| `study.searches` / `study.sources` | Were searches discriminating and sources actually read? Are passages relevant? |
+| `study.clarifications` | Were questions to you necessary, and did the answers affect the study? |
+| `study.synthesis` / `study.report` | Does integration preserve uncertainty and scope? |
+| `study.final_review` / `study.governance` | Is review current and tied to the actual report? |
+| `steps` / `routing_log` | What did the native executor accept, and why did it choose each operation? |
+| `metadata.inquiry_governance` | Were protected calls, native checkpoints, and governance hooks recorded? |
 
 Compare the final result with one strong ordinary chat response to the same
 question. Judge framing, evidence quality, corrections, synthesis, and how much
 intervention you needed. A long report or many successful steps is not evidence
 that the answer is better.
 
-The v1 runner checks source references and exact quoted support, but it cannot
+The native implementation checks source references and exact quoted support, but it cannot
 mechanically establish that a source is true or that a quotation entails the
 claim. It reuses successful searches and source snapshots within a study; use a
 new inquiry for a fresh examination of the same changing facts. Numerical
@@ -356,9 +384,10 @@ experiments and simulations are outside this version.
 | Serper rejects access | Check the runtime key/account; for quota or rate limiting, inspect the account before retrying. |
 | Source lookup/HTTP/TLS error | Test source reading independently. Follow the network's approved proxy/TLS configuration. |
 | Unknown/unavailable model | Check `llm_config.yaml` and select an available model ID with `--model`. |
-| Invalid JSON or structured output | The runner permits up to two budget-counted corrections and then stops with safe nested field/type diagnostics. After updating the code or model, resume the existing directory to reuse saved searches and sources. Repeated failures are a bug report; evidence checks remain enforced. |
+| Invalid JSON or structured output | Native profiles supply one exact schema and permit two corrections before failing. Inspect the error and preserved state. Fix the model/configuration cause, then recover; a repeated failure is useful bug-report evidence. |
 | Output directory already exists | Use `resume` for unfinished work or a new output directory for a new study. |
-| `budget_exhausted` | This is a saved pause. Inspect the result, then add a bounded amount of effort. |
+| `budget_exhausted` research outcome | The report preserves limits from exhausted research allocation. Budget enlargement is not implemented in this native slice. |
+| A legacy checkpoint is rejected | Start a new native output directory. The earlier JSON store is not the native Coordinator database. |
 
 ## Reference documentation
 

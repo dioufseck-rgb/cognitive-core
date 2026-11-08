@@ -175,6 +175,14 @@ def get_schema_class(primitive_name: str) -> type[BaseOutput]:
     return PRIMITIVE_CONFIGS[name]["schema"]
 
 
+def get_output_profile(name: str):
+    """Resolve a registered native output profile, never arbitrary Python code."""
+    if not isinstance(name, str) or not name.startswith("inquiry."):
+        raise ValueError("Unknown native output profile")
+    from cognitive_core.inquiry.native_profiles import get_profile
+    return get_profile(name)
+
+
 def get_config_spec(primitive_name: str) -> dict[str, Any]:
     """Get the configuration specification for a primitive."""
     name = primitive_name.lower()

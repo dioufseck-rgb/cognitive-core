@@ -11,6 +11,7 @@ topology-independent — same contract in-process or distributed.
 
 from __future__ import annotations
 
+import copy
 import json
 import os
 import sys
@@ -113,6 +114,7 @@ class Coordinator:
         db_path: str | Path = "coordinator.db",
         verbose: bool = True,
         overrides: dict[str, Any] | None = None,
+        tool_registry: Any = None,
     ):
         # Load coordinator config
         if config:
@@ -122,6 +124,11 @@ class Coordinator:
                 self.config = yaml.safe_load(f)
         else:
             self.config = {}
+
+        self._config_path = str(Path(config_path).resolve()) if config_path else ""
+        # An explicit registry is useful for deterministic native integration
+        # tests and embedded callers. It still executes through native Retrieve.
+        self._tool_registry_override = tool_registry
 
         # Apply caller overrides (e.g. absolute paths resolved in run.py)
         if overrides:
@@ -287,9 +294,18 @@ class Coordinator:
             # Re-raise as ValueError so callers get a clean, typed error
             raise ValueError(str(_ve)) from _ve
 
+        native_inquiry = self._workflow_execution_profile(workflow_type) == "inquiry.v1"
+
         # Resolve governance tier — override takes precedence
         tier = governance_tier_override or self._resolve_governance_tier(domain)
         tier_locked = bool(governance_tier_override)
+        if native_inquiry and governance_tier_override:
+            # Delegation may raise an inquiry's review requirement; it cannot
+            # disable the study's own quality checks through a locked tier.
+            tier = self._resolve_governance_tier_upgrade(
+                self._resolve_governance_tier(domain), governance_tier_override
+            )
+            tier_locked = False
 
         # Create instance
         instance = InstanceState.create(
@@ -301,6 +317,7 @@ class Coordinator:
             correlation_id=correlation_id,
         )
         instance.status = InstanceStatus.RUNNING
+        instance._native_inquiry = native_inquiry
         instance.updated_at = time.time()
         # Extract key case facts for UI display (stable, doesn't change)
         if not lineage:
@@ -342,6 +359,9 @@ class Coordinator:
         self._log(f"▶ START {instance.instance_id} "
                    f"({workflow_type}/{domain}) [tier={tier}]")
 
+        if native_inquiry:
+            self._begin_inquiry_proof_capture(instance)
+
         # ── Start gates — kill switches, guardrails, eval gate ──
         try:
             from cognitive_core.engine.governance import get_governance
@@ -359,6 +379,9 @@ class Coordinator:
         except RuntimeError:
             raise
         except Exception as _e:
+            if native_inquiry:
+                self._on_failed(instance, "Inquiry start controls could not be evaluated")
+                raise RuntimeError("Inquiry start controls could not be evaluated") from _e
             self._log(f"  ⚠ Start gates check failed (non-blocking): {_e}")
 
         # ── Spec manifest — capture config hashes at instance start ──
@@ -370,7 +393,7 @@ class Coordinator:
             _manifest = _gov.capture_spec_manifest(
                 workflow_path=str(_wf_path),
                 domain_path=str(_dom_path),
-                coordinator_path="",
+                coordinator_path=self._config_path if native_inquiry else "",
             )
             if _manifest:
                 self.store.log_action(
@@ -407,7 +430,7 @@ class Coordinator:
             or os.environ.get("DATA_MCP_CMD", "")
             or self.config.get("data_mcp_cmd", "")
         )
-        if _mcp_active and not lineage:
+        if _mcp_active and not lineage and not native_inquiry:
             # Only sanitize the root workflow input; delegation children
             # already receive lean inputs constructed by the policy engine.
             case_input = self._lean_case_input(case_input)
@@ -461,6 +484,10 @@ class Coordinator:
         suspension = self.store.get_suspension(instance_id)
         if not suspension:
             raise ValueError(f"No suspension record for {instance_id}")
+        if self._is_native_inquiry_state(suspension.state_snapshot):
+            return self._resume_native_inquiry(
+                instance, suspension, external_input, resume_nonce, model, temperature
+            )
         if resume_nonce and suspension.resume_nonce != resume_nonce:
             raise ValueError("Resume nonce mismatch")
 
@@ -527,6 +554,9 @@ class Coordinator:
         instance = self.store.get_instance(instance_id)
         if not instance:
             raise ValueError(f"Instance not found: {instance_id}")
+        checkpoint = self.store.get_workflow_checkpoint(instance_id)
+        if checkpoint is not None:
+            return checkpoint
         suspension = self.store.get_suspension(instance_id)
         if suspension:
             return suspension.state_snapshot
@@ -582,6 +612,13 @@ class Coordinator:
         suspension = self.store.get_suspension(instance_id)
         if not suspension:
             raise ValueError(f"No suspension record for {instance_id}")
+        if self._is_native_inquiry_state(suspension.state_snapshot):
+            if suspension.suspended_at_step != "__governance_gate__":
+                raise ValueError("Inquiry resources require fulfill_resource; they are not approval requests")
+            checkpoint = self.store.get_workflow_checkpoint(instance_id)
+            if checkpoint is None or checkpoint.get("study") != suspension.state_snapshot.get("study"):
+                raise ValueError("The inquiry changed after review; approval of this snapshot is stale")
+            return self._approve_native_inquiry(instance, suspension, approver, notes)
 
         self._log(f"✓ APPROVED {instance_id} by '{approver or 'system'}'")
 
@@ -658,6 +695,11 @@ class Coordinator:
             raise ValueError(
                 f"Instance {instance_id} is {instance.status.value}, not suspended"
             )
+
+        suspension = self.store.get_suspension(instance_id)
+        if suspension and self._is_native_inquiry_state(suspension.state_snapshot):
+            if suspension.suspended_at_step != "__governance_gate__":
+                raise ValueError("A clarification is not a governance decision; fulfill it or terminate the inquiry")
 
         self._log(f"✗ REJECTED {instance_id} by '{rejector or 'system'}': {reason}")
 
@@ -783,6 +825,19 @@ class Coordinator:
         if task.status != TaskStatus.CLAIMED:
             raise ValueError(
                 f"Task {task_id} is {task.status}, not claimed"
+            )
+
+        if task.callback.method == "fulfill_resource":
+            if action != "fulfill":
+                raise ValueError("Resource tasks require a typed fulfill response, not approval")
+            payload = data or {}
+            return self.fulfill_resource(
+                task.instance_id,
+                payload.get("clarification_id", ""),
+                payload.get("answer", ""),
+                expected_revision=payload.get("expected_revision"),
+                resume_nonce=task.callback.resume_nonce,
+                resolved_by=resolved_by,
             )
 
         # Resolve the task in the queue
@@ -1858,6 +1913,10 @@ class Coordinator:
         step_name = interrupt.suspended_at_step
         requests = interrupt.resource_requests
         partial_state = interrupt.state_at_interrupt
+
+        if self._is_native_inquiry_state(partial_state):
+            self._suspend_inquiry_resources(instance, interrupt)
+            return
 
         self._log(f"  ⏸ INTERRUPTED {instance.instance_id} at '{step_name}'")
         self._log(f"    {len(requests)} blocking resource request(s)")
@@ -3109,6 +3168,592 @@ class Coordinator:
                            f"{len(pending)} provider(s) still pending for "
                            f"{requester.instance_id}")
 
+    # ─── Native inquiry profile lifecycle ────────────────────────────
+
+    def _workflow_execution_profile(self, workflow_type: str) -> str:
+        """Read the optional profile marker without changing legacy loading."""
+        try:
+            path = self._find_workflow(workflow_type)
+        except FileNotFoundError:
+            return ""
+        with path.open(encoding="utf-8-sig") as handle:
+            config = yaml.safe_load(handle) or {}
+        return config.get("execution_profile", "")
+
+    @staticmethod
+    def _is_native_inquiry_state(state: dict[str, Any] | None) -> bool:
+        return bool(
+            isinstance(state, dict)
+            and state.get("metadata", {}).get("execution_profile") == "inquiry.v1"
+        )
+
+    @staticmethod
+    def _inquiry_snapshot(state: dict[str, Any]) -> dict[str, Any]:
+        """Remove transient engine coordination fields; preserve research data."""
+        snapshot = copy.deepcopy(state)
+        snapshot.get("metadata", {}).pop("_checkpoint_callback", None)
+        snapshot.get("metadata", {}).pop("_inquiry_committed_acceptance", None)
+        # Round-trip strictly rather than silently coercing unsupported values.
+        return json.loads(json.dumps(snapshot, ensure_ascii=False, allow_nan=False))
+
+    def _persist_inquiry_checkpoint(
+        self, instance: InstanceState, state: dict[str, Any],
+        event: str = "inquiry_checkpoint", details: dict[str, Any] | None = None,
+    ) -> None:
+        """Commit native state, instance progress and its audit event together."""
+        snapshot = self._inquiry_snapshot(state)
+        revision = snapshot.get("study", {}).get("revision", 0)
+        proof = None
+        cursor = getattr(instance, "_inquiry_proof_cursor", None)
+        if cursor is not None:
+            from cognitive_core.engine.governance import get_governance
+            proof = get_governance().proof()["governance_proof"]
+        proof_events = []
+        with self.store.transaction():
+            current = self.store.get_instance(instance.instance_id)
+            if current is None or current.status != InstanceStatus.RUNNING:
+                raise RuntimeError("An inactive inquiry cannot accept a late execution result")
+            prior = self.store.get_workflow_checkpoint(instance.instance_id)
+            prior_revision = (prior or {}).get("study", {}).get("revision", 0)
+            if revision < prior_revision:
+                raise ValueError("An older inquiry revision cannot overwrite its checkpoint")
+            if proof is not None:
+                # The native CLI runs one synchronous execution segment per
+                # process. Preserve its proof delta, not the singleton's whole
+                # history or cumulative cross-run cost totals. Distributed or
+                # concurrent workers need explicitly context-bound proof sinks.
+                proof_events = [
+                    entry for entry in proof["events"][cursor:]
+                    if entry.get("instance_id", instance.instance_id) == instance.instance_id
+                ]
+                saved_proof = (prior or {}).get("metadata", {}).get("inquiry_governance", {})
+                events = saved_proof.get("events", []) + proof_events
+                snapshot.setdefault("metadata", {})["inquiry_governance"] = {
+                    "scope": "serial_local_execution_segments",
+                    "instance_id": instance.instance_id,
+                    "modules_active": proof["modules_active"],
+                    "events": events,
+                    "protected_llm_calls": sum(e["event"] == "llm.call" for e in events),
+                    "cache_hits": sum(e["event"] == "cache.hit" for e in events),
+                    "input_tokens": sum(e.get("input_tokens", 0) for e in events if e["event"] == "cost.record"),
+                    "output_tokens": sum(e.get("output_tokens", 0) for e in events if e["event"] == "cost.record"),
+                }
+            current.current_step = snapshot.get("current_step", "")
+            current.step_count = len(snapshot.get("steps", []))
+            current.updated_at = time.time()
+            self.store.save_workflow_checkpoint(instance.instance_id, snapshot)
+            self.store.save_instance(current)
+            recorded = self.store.log_action(
+                instance_id=instance.instance_id,
+                correlation_id=instance.correlation_id,
+                action_type=event,
+                details={
+                    **(details or {}), "study_revision": revision,
+                    **({"governance_events": proof_events} if proof is not None else {}),
+                },
+            )
+            if not recorded:
+                raise RuntimeError("Inquiry checkpoint audit event could not be committed")
+        instance.current_step = current.current_step
+        instance.step_count = current.step_count
+        instance.updated_at = current.updated_at
+        if proof is not None:
+            instance._inquiry_proof_cursor = len(proof["events"])
+            state.setdefault("metadata", {})["inquiry_governance"] = snapshot["metadata"]["inquiry_governance"]
+
+    @staticmethod
+    def _begin_inquiry_proof_capture(instance: InstanceState) -> None:
+        """Begin a local execution segment without clearing global controls."""
+        from cognitive_core.engine.governance import get_governance
+        instance._inquiry_proof_cursor = len(get_governance().proof()["governance_proof"]["events"])
+
+    def _require_local_inquiry_queue(self) -> None:
+        if (
+            not isinstance(self.tasks, SQLiteTaskQueue)
+            or self.tasks.db is not self.store.db
+            or self.store.db.backend_type != "sqlite"
+        ):
+            raise NotImplementedError(
+                "Native inquiry resource fulfillment currently requires the shared local SQLite task queue"
+            )
+
+    def _suspend_inquiry_resources(self, instance: InstanceState, interrupt) -> None:
+        """Persist native clarification needs, work orders and tasks together."""
+        self._require_local_inquiry_queue()
+        state = self._inquiry_snapshot(interrupt.state_at_interrupt)
+        study = state.get("study", {})
+        pending = []
+        seen = set()
+        for request in interrupt.resource_requests:
+            context = request.get("context", {})
+            clarification_id = context.get("clarification_id")
+            if request.get("need") != "inquiry_clarification" or not clarification_id:
+                raise ValueError("This inquiry profile supports only typed clarification resource requests")
+            record = study.get("clarifications", {}).get(clarification_id)
+            if not record or not record.get("active", True) or record.get("answer") is not None:
+                raise ValueError("Clarification resource request does not identify an active unanswered question")
+            if clarification_id in seen:
+                continue
+            seen.add(clarification_id)
+            capability = self._find_capability("inquiry_clarification")
+            if capability is None or capability.provider_type != "human_task":
+                raise ValueError("No human-task capability is configured for inquiry_clarification")
+            contract_name = capability.contract_name or request.get("contract", "")
+            if contract_name != "inquiry_clarification_v1":
+                raise ValueError("Inquiry clarification requires the inquiry_clarification_v1 contract")
+            errors = self.policy.validate_work_order_inputs(contract_name, context)
+            if errors:
+                raise ValueError(f"Invalid clarification request: {errors}")
+            pending.append((request, capability, contract_name))
+        if not pending:
+            raise ValueError("Inquiry interrupt has no pending clarification")
+
+        suspension = Suspension.create(
+            instance_id=instance.instance_id, suspended_at_step=interrupt.suspended_at_step,
+            state_snapshot=state, unresolved_needs=[item[0] for item in pending],
+        )
+        with self.store.transaction():
+            for request, capability, contract_name in pending:
+                context = request["context"]
+                clarification_id = context["clarification_id"]
+                work_order = WorkOrder.create(
+                    requester_instance_id=instance.instance_id,
+                    correlation_id=instance.correlation_id,
+                    contract_name=contract_name, inputs=context,
+                    urgency=request.get("urgency", "routine"),
+                )
+                work_order.status = WorkOrderStatus.RUNNING
+                work_order.dispatched_at = time.time()
+                task = Task.create(
+                    task_type=TaskType.RESOURCE_REQUEST, queue=capability.queue,
+                    instance_id=instance.instance_id, correlation_id=instance.correlation_id,
+                    workflow_type=instance.workflow_type, domain=instance.domain,
+                    payload={
+                        "need": "inquiry_clarification", "context": context,
+                        "reason": request.get("reason", ""),
+                        "work_order_id": work_order.work_order_id,
+                    },
+                    callback=TaskCallback(
+                        method="fulfill_resource", instance_id=instance.instance_id,
+                        resume_nonce=suspension.resume_nonce,
+                        context={"clarification_id": clarification_id},
+                    ),
+                )
+                self.store.save_work_order(work_order)
+                self.tasks.publish(task)
+                suspension.work_order_ids.append(work_order.work_order_id)
+                suspension.wo_need_map[work_order.work_order_id] = clarification_id
+                study["clarifications"][clarification_id].update({
+                    "work_order_id": work_order.work_order_id, "task_id": task.task_id,
+                })
+            instance.status = InstanceStatus.SUSPENDED
+            instance.updated_at = time.time()
+            instance.resume_nonce = suspension.resume_nonce
+            instance.pending_work_orders = list(suspension.work_order_ids)
+            self.store.save_suspension(suspension)
+            self.store.save_workflow_checkpoint(instance.instance_id, state)
+            self.store.save_instance(instance)
+            if not self.store.log_action(
+                instance_id=instance.instance_id, correlation_id=instance.correlation_id,
+                action_type="interrupted_for_resources", details={
+                    "suspended_at_step": interrupt.suspended_at_step,
+                    "clarification_ids": list(seen),
+                    "work_order_ids": suspension.work_order_ids,
+                    "resume_nonce": suspension.resume_nonce,
+                },
+            ):
+                raise RuntimeError("Clarification suspension could not be audited")
+
+    def fulfill_resource(
+        self, instance_id: str, clarification_id: str, answer: str, *,
+        expected_revision: int | None = None, resume_nonce: str = "",
+        resolved_by: str = "user", model: str = "default", temperature: float = 0.1,
+    ) -> str:
+        """Fulfill a typed local inquiry clarification, then resume when ready.
+
+        The answer is not report approval. The shared SQLite queue participates
+        in the same backend transaction; external task transports are explicitly
+        outside this initial implementation's atomicity guarantee.
+        """
+        from cognitive_core.inquiry.native_profiles import record_clarification_answer
+
+        self._require_local_inquiry_queue()
+        if not isinstance(clarification_id, str) or not clarification_id:
+            raise ValueError("clarification_id is required")
+        if not isinstance(answer, str) or not answer.strip():
+            raise ValueError("Clarification answer must be nonempty text")
+        answer = answer.strip()
+        with self.store.transaction():
+            instance = self.store.get_instance(instance_id)
+            if instance is None:
+                raise ValueError(f"Instance not found: {instance_id}")
+            matching = [
+                work_order for work_order in self.store.get_work_orders_for_instance(instance_id)
+                if work_order.contract_name == "inquiry_clarification_v1"
+                and work_order.inputs.get("clarification_id") == clarification_id
+            ]
+            if not matching:
+                raise ValueError("No matching clarification work order exists")
+            work_order = matching[-1]
+            if work_order.status == WorkOrderStatus.COMPLETED:
+                if work_order.result and work_order.result.outputs.get("answer") == answer:
+                    return instance_id
+                raise ValueError("An accepted clarification answer cannot be overwritten")
+            suspension = self.store.get_suspension(instance_id)
+            if (
+                instance.status != InstanceStatus.SUSPENDED or suspension is None
+                or not self._is_native_inquiry_state(suspension.state_snapshot)
+                or suspension.suspended_at_step == "__governance_gate__"
+                or work_order.work_order_id not in suspension.work_order_ids
+            ):
+                raise ValueError("The inquiry is not waiting for this clarification")
+            if resume_nonce and suspension.resume_nonce != resume_nonce:
+                raise ValueError("Resume nonce mismatch")
+            state = self._inquiry_snapshot(suspension.state_snapshot)
+            state["study"] = record_clarification_answer(
+                state["study"], clarification_id, answer, expected_revision=expected_revision,
+            )
+            state["study"]["clarifications"][clarification_id]["answered_by"] = resolved_by
+            output = {"clarification_id": clarification_id, "answer": answer}
+            errors = self.policy.validate_work_order_result(work_order.contract_name, output)
+            if errors:
+                raise ValueError(f"Invalid clarification result: {errors}")
+            state.setdefault("input", {}).setdefault("delegation", {})[clarification_id] = output
+            state.setdefault("delegation_results", {})[clarification_id] = output
+            work_order.status = WorkOrderStatus.COMPLETED
+            work_order.completed_at = time.time()
+            work_order.result = WorkOrderResult(
+                work_order_id=work_order.work_order_id, status="completed",
+                outputs=output, completed_at=work_order.completed_at,
+            )
+            self.store.save_work_order(work_order)
+            for task in self.tasks.list_tasks(instance_id=instance_id):
+                if task.payload.get("work_order_id") == work_order.work_order_id:
+                    if task.task_type != TaskType.RESOURCE_REQUEST or task.callback.method != "fulfill_resource":
+                        raise ValueError("Clarification task does not have a resource-fulfillment callback")
+                    if task.status not in (TaskStatus.PENDING, TaskStatus.CLAIMED):
+                        raise ValueError("Clarification task is no longer active")
+                    self.tasks.force_complete(task.task_id)
+            suspension.state_snapshot = state
+            suspension.unresolved_needs = [
+                req for req in suspension.unresolved_needs
+                if req.get("context", {}).get("clarification_id") != clarification_id
+            ]
+            unresolved = [
+                work_order_id for work_order_id in suspension.work_order_ids
+                if (self.store.get_work_order(work_order_id) is None
+                    or self.store.get_work_order(work_order_id).status != WorkOrderStatus.COMPLETED)
+            ]
+            instance.pending_work_orders = unresolved
+            instance.updated_at = time.time()
+            self.store.save_suspension(suspension)
+            self.store.save_workflow_checkpoint(instance_id, state)
+            self.store.save_instance(instance)
+            if not self.store.log_action(
+                instance_id=instance_id, correlation_id=instance.correlation_id,
+                action_type="resource_fulfilled", details={
+                    "clarification_id": clarification_id,
+                    "work_order_id": work_order.work_order_id,
+                    "answer": answer, "resolved_by": resolved_by,
+                    "study_revision": state["study"].get("revision"),
+                }, idempotency_key=f"fulfill:{work_order.work_order_id}",
+            ):
+                raise RuntimeError("Clarification fulfillment could not be audited")
+        if not unresolved:
+            return self.resume(
+                instance_id, {}, resume_nonce=suspension.resume_nonce,
+                model=model, temperature=temperature,
+            )
+        return instance_id
+
+    def _resume_native_inquiry(
+        self, instance: InstanceState, suspension: Suspension,
+        external_input: dict[str, Any], resume_nonce: str, model: str, temperature: float,
+    ) -> str:
+        if suspension.suspended_at_step == "__governance_gate__":
+            raise ValueError("A governance gate requires approve or reject, not generic resume")
+        if resume_nonce and suspension.resume_nonce != resume_nonce:
+            raise ValueError("Resume nonce mismatch")
+        if external_input:
+            raise ValueError("Use fulfill_resource for typed inquiry answers; generic input cannot bypass a need")
+        for work_order_id in suspension.work_order_ids:
+            work_order = self.store.get_work_order(work_order_id)
+            if work_order is None or work_order.status != WorkOrderStatus.COMPLETED:
+                raise ValueError("The inquiry still has unfulfilled resource work orders")
+        state = self._inquiry_snapshot(suspension.state_snapshot)
+        if any(
+            item.get("active", True) and item.get("blocking", True) and item.get("answer") is None
+            for item in state.get("study", {}).get("clarifications", {}).values()
+        ):
+            raise ValueError("The inquiry still has unanswered blocking clarifications")
+        from cognitive_core.engine.governance import get_governance
+        self._begin_inquiry_proof_capture(instance)
+        gate = get_governance().check_start_gates(instance.workflow_type, instance.domain, state.get("input", {}))
+        if gate.get("blocked"):
+            raise RuntimeError(f"Inquiry resume gate blocked: {gate.get('reason', '')}")
+        if gate.get("tier_escalation"):
+            instance.governance_tier = self._resolve_governance_tier_upgrade(
+                instance.governance_tier, gate["tier_escalation"]
+            )
+        with self.store.transaction():
+            instance.status = InstanceStatus.RUNNING
+            instance.updated_at = time.time()
+            instance.pending_work_orders = []
+            instance.error = None
+            self.store.save_instance(instance)
+            self.store.save_workflow_checkpoint(instance.instance_id, state)
+            self.store.log_action(
+                instance_id=instance.instance_id, correlation_id=instance.correlation_id,
+                action_type="resume", details={"resumed_at_step": suspension.suspended_at_step},
+                idempotency_key=f"resume:{instance.instance_id}:{suspension.resume_nonce}",
+            )
+        # Keep the last suspension until a replacement state/outcome is durable.
+        try:
+            result = self._execute_workflow_from_state(
+                instance, state, suspension.suspended_at_step, model, temperature,
+            )
+            if isinstance(result, dict):
+                self._on_completed(instance, result)
+            else:
+                self._on_interrupted(instance, result, model, temperature)
+            current = self.store.get_suspension(instance.instance_id)
+            if current and current.resume_nonce == suspension.resume_nonce and instance.status == InstanceStatus.COMPLETED:
+                self.store.delete_suspension(instance.instance_id)
+        except Exception as exc:
+            self._on_failed(instance, str(exc))
+            raise
+        return instance.instance_id
+
+    def _approve_native_inquiry(
+        self, instance: InstanceState, suspension: Suspension, approver: str, notes: str,
+    ) -> str:
+        self._require_local_inquiry_queue()
+        final_state = self._inquiry_snapshot(suspension.state_snapshot)
+        with self.store.transaction():
+            instance.status = InstanceStatus.COMPLETED
+            instance.updated_at = time.time()
+            instance.result = self._extract_result_summary(final_state)
+            instance.step_count = len(final_state.get("steps", []))
+            for task in self.tasks.list_tasks(instance_id=instance.instance_id):
+                if task.task_type == TaskType.GOVERNANCE_APPROVAL and task.status in (TaskStatus.PENDING, TaskStatus.CLAIMED):
+                    self.tasks.force_complete(task.task_id)
+            self.store.save_instance(instance)
+            self.store.save_workflow_checkpoint(instance.instance_id, final_state)
+            self.store.delete_suspension(instance.instance_id)
+            if not self.store.log_action(
+                instance_id=instance.instance_id, correlation_id=instance.correlation_id,
+                action_type="governance_approved", details={
+                    "approver": approver, "notes": notes,
+                    "study_revision": final_state.get("study", {}).get("revision"),
+                    "report": final_state.get("study", {}).get("report"),
+                }, idempotency_key=f"approve:{instance.instance_id}:{suspension.resume_nonce}",
+            ):
+                raise RuntimeError("Inquiry approval could not be audited")
+        self._evaluate_and_execute_delegations(instance, final_state)
+        self._evaluate_and_execute_executions(instance, final_state)
+        self._check_delegation_completion(instance)
+        return instance.instance_id
+
+    def recover_inquiry(
+        self, instance_id: str, *, allow_running: bool = False,
+        model: str = "default", temperature: float = 0.1,
+    ) -> str:
+        """Explicit local recovery from the last durable native checkpoint.
+
+        ``allow_running`` is an explicit assertion by the local caller that the
+        previous worker/process has stopped. This minimal CLI implementation
+        does not claim a distributed lease or exactly-once network execution.
+        Normal human waits use fulfill_resource/approve instead.
+        """
+        instance = self.store.get_instance(instance_id)
+        if instance is None:
+            raise ValueError(f"Instance not found: {instance_id}")
+        if instance.status == InstanceStatus.RUNNING and not allow_running:
+            raise ValueError("Confirm the previous worker has stopped before recovering a running inquiry")
+        if instance.status not in (InstanceStatus.RUNNING, InstanceStatus.FAILED):
+            raise ValueError("Recovery applies only to failed or explicitly abandoned running inquiries")
+        state = self.store.get_workflow_checkpoint(instance_id)
+        if not self._is_native_inquiry_state(state) or not state.get("study"):
+            raise ValueError("No resumable native inquiry Study checkpoint exists")
+        # An old approval suspension must never be converted into a generic
+        # recovery resume merely because another operation failed afterward.
+        previous = self.store.get_suspension(instance_id)
+        if previous and previous.suspended_at_step == "__governance_gate__":
+            raise ValueError("Recover the governance review explicitly; generic inquiry recovery cannot approve it")
+        state = self._inquiry_snapshot(state)
+        state["metadata"].pop("inquiry_termination", None)
+        state["metadata"].pop("termination_reason", None)
+        suspension = Suspension.create(
+            instance_id=instance_id, suspended_at_step="__inquiry_recovery__",
+            state_snapshot=state,
+        )
+        with self.store.transaction():
+            instance.status = InstanceStatus.SUSPENDED
+            instance.updated_at = time.time()
+            instance.error = None
+            instance.resume_nonce = suspension.resume_nonce
+            self.store.save_suspension(suspension)
+            self.store.save_workflow_checkpoint(instance_id, state)
+            self.store.save_instance(instance)
+            if not self.store.log_action(
+                instance_id=instance_id, correlation_id=instance.correlation_id,
+                action_type="inquiry_recovery_requested",
+                details={"allow_running": allow_running, "study_revision": state["study"].get("revision")},
+            ):
+                raise RuntimeError("Inquiry recovery could not be audited")
+        pending = [
+            (key, record) for key, record in state["study"].get("clarifications", {}).items()
+            if record.get("active", True) and record.get("blocking", True) and record.get("answer") is None
+        ]
+        if pending:
+            from cognitive_core.engine.devs_executor import StepInterrupt
+            interrupt = StepInterrupt(
+                reason="Recovering accepted clarification requests",
+                suspended_at_step=state.get("current_step", "__inquiry_recovery__"),
+                state_at_interrupt=state,
+                resource_requests=[{
+                    "need": "inquiry_clarification", "contract": "inquiry_clarification_v1",
+                    "blocking": True, "reason": record.get("reason", ""),
+                    "context": {
+                        "study_id": instance_id, "clarification_id": key,
+                        "question": record.get("question", ""), "reason": record.get("reason", ""),
+                        "study_revision": state["study"].get("revision", 0),
+                    },
+                } for key, record in pending],
+            )
+            self._suspend_inquiry_resources(instance, interrupt)
+            return instance_id
+        return self.resume(
+            instance_id, {}, resume_nonce=suspension.resume_nonce,
+            model=model, temperature=temperature,
+        )
+
+    def _execute_native_inquiry(
+        self, instance: InstanceState, config: dict[str, Any], case_input: dict[str, Any],
+        model: str, temperature: float, state_snapshot: dict[str, Any] | None = None,
+    ):
+        """Run the registered inquiry profile through the native agentic engine.
+
+        This is a strict specialization of the coordinator's completion hooks,
+        not another scheduler. Operation choice and primitive execution stay in
+        OrchestratorStep and the native node factories. There is no simulation
+        fallback when a live model or configured research provider is missing.
+        """
+        from cognitive_core.engine.agentic_devs import (
+            AgenticWorkflowExecutor, run_agentic_workflow_devs,
+        )
+        from cognitive_core.engine.devs_executor import resource_request_callback
+        from cognitive_core.engine.epistemic import (
+            WorkflowEpistemicRecord, compute_step_epistemic_state,
+        )
+        from cognitive_core.engine.governance import get_governance
+
+        state = self._inquiry_snapshot(state_snapshot) if state_snapshot is not None else {
+            "input": copy.deepcopy(case_input), "steps": [], "current_step": "",
+            "metadata": {}, "loop_counts": {}, "routing_log": [],
+        }
+        metadata = state.setdefault("metadata", {})
+        if state_snapshot is not None and model == "default":
+            model = metadata.get("model", model)
+            temperature = metadata.get("temperature", temperature)
+        metadata.update({
+            "execution_profile": "inquiry.v1", "instance_id": instance.instance_id,
+            "correlation_id": instance.correlation_id, "domain": instance.domain,
+            "workflow_type": instance.workflow_type, "mode": "agentic",
+            "effective_config": copy.deepcopy(config), "model": model,
+            "temperature": temperature,
+        })
+        instance._native_inquiry = True
+        if getattr(instance, "_inquiry_proof_cursor", None) is None:
+            self._begin_inquiry_proof_capture(instance)
+
+        epistemic = WorkflowEpistemicRecord(instance_id=instance.instance_id)
+        prior_steps: list[dict[str, Any]] = []
+        for step in state.get("steps", []):
+            observation = compute_step_epistemic_state(
+                step, prior_steps, list(epistemic.open_gaps)
+            )
+            epistemic.add_step(observation)
+            prior_steps.append(step)
+        instance._epistemic_record = epistemic
+
+        def checkpoint_callback(snapshot, event="inquiry_checkpoint", details=None):
+            self._persist_inquiry_checkpoint(instance, snapshot, event, details)
+
+        def step_callback(step_name, step_output, workflow_state):
+            if step_output.get("error") or step_output.get("timeout"):
+                raise RuntimeError("Rejected inquiry output cannot become an accepted step")
+            accepted = workflow_state.get("steps", [])
+            if not accepted or accepted[-1].get("step_name") != step_name:
+                raise RuntimeError("Native inquiry step has no matching accepted operation")
+            step = accepted[-1]
+            observation = compute_step_epistemic_state(
+                step, accepted[:-1], list(epistemic.open_gaps)
+            )
+            epistemic.add_step(observation)
+            workflow_state.setdefault("epistemic", {})[step_name] = observation.to_dict()
+            checkpoint_callback(workflow_state, "step_completed", {
+                "step_name": step_name, "primitive": step.get("primitive", ""),
+                "output": step.get("output", {}), "epistemic": observation.to_dict(),
+                "confidence": step.get("output", {}).get("confidence"),
+            })
+            # A post-commit governance or resource hook may still fail. Tell
+            # the executor this exact accepted invocation is already durable
+            # so it retains the committed state when recording that failure.
+            workflow_state.setdefault("metadata", {})["_inquiry_committed_acceptance"] = {
+                "invocation_id": step.get("invocation_id"),
+                "step_name": step_name,
+                "study_revision": workflow_state["study"]["revision"],
+            }
+            governance = get_governance()
+            governance.record_step_result(
+                domain=instance.domain, primitive=step.get("primitive", ""),
+                confidence=step.get("output", {}).get("confidence", 0.0),
+                step_name=step_name, instance_id=instance.instance_id,
+            )
+            # ReplayManager intentionally receives no snapshot: the coordinator
+            # transaction above is the only authoritative inquiry checkpoint.
+            governance._record_proof(
+                "step.checkpoint", step=step_name, instance_id=instance.instance_id,
+                authority="coordinator_store", study_revision=workflow_state["study"]["revision"],
+            )
+            return resource_request_callback(step_name, step_output, workflow_state)
+
+        def decision_callback(decision):
+            if not self.store.log_action(
+                instance_id=instance.instance_id,
+                correlation_id=instance.correlation_id,
+                action_type="orchestrator_decision", details=decision,
+            ):
+                raise RuntimeError("Inquiry orchestration decision could not be audited")
+
+        checkpoint_callback(state, "inquiry_execution_started", {
+            "resumed": state_snapshot is not None, "model": model,
+        })
+        tools = self._build_tool_registry(state.get("input", {}))
+        if state_snapshot is None:
+            result = run_agentic_workflow_devs(
+                config, case_input, model, temperature, tool_registry=tools,
+                step_callback=step_callback, decision_callback=decision_callback,
+                initial_state=state, checkpoint_callback=checkpoint_callback,
+            )
+        else:
+            executor = AgenticWorkflowExecutor(
+                config, tool_registry=tools, model=model, temperature=temperature,
+            )
+            result = executor.resume(
+                state, step_callback=step_callback, decision_callback=decision_callback,
+                checkpoint_callback=checkpoint_callback,
+            )
+        checkpoint_callback(result.final_state, "inquiry_execution_returned", {
+            "completed": result.completed, "interrupted": result.interrupt is not None,
+        })
+        if result.completed:
+            return result.final_state
+        if result.interrupt is not None:
+            return result.interrupt
+        raise RuntimeError("Native inquiry stopped without a completion or suspension outcome")
+
     # ─── Workflow Execution ──────────────────────────────────────────
 
     def _execute_workflow(
@@ -3145,6 +3790,10 @@ class Coordinator:
 
         # Load three-layer config
         config, _ = load_three_layer(workflow_path, domain_path)
+        if config.get("execution_profile") == "inquiry.v1":
+            return self._execute_native_inquiry(
+                instance, config, case_input, model, temperature
+            )
         is_agentic = config.get("mode") == "agentic"
 
         # Build tool registry
@@ -3530,6 +4179,15 @@ class Coordinator:
             step_resume, resource_request_callback, StepResult,
         )
 
+        if self._is_native_inquiry_state(state_snapshot):
+            config = state_snapshot.get("metadata", {}).get("effective_config")
+            if not isinstance(config, dict) or config.get("execution_profile") != "inquiry.v1":
+                raise ValueError("Native inquiry checkpoint is missing its effective configuration")
+            return self._execute_native_inquiry(
+                instance, config, state_snapshot.get("input", {}), model, temperature,
+                state_snapshot=state_snapshot,
+            )
+
         workflow_path = self._find_workflow(instance.workflow_type)
         domain_path = self._find_domain(instance.domain)
         config, _ = load_three_layer(workflow_path, domain_path)
@@ -3679,6 +4337,17 @@ class Coordinator:
 
     def _extract_result_summary(self, final_state: dict[str, Any]) -> dict[str, Any]:
         """Extract a structured summary from workflow final state."""
+        if self._is_native_inquiry_state(final_state):
+            # The read-only inquiry's result is its full accepted Study.
+            # Never replace cited passages/claims with display previews.
+            snapshot = self._inquiry_snapshot(final_state)
+            return {
+                "execution_profile": "inquiry.v1",
+                "step_count": len(snapshot.get("steps", [])),
+                "study": snapshot.get("study", {}),
+                "steps": snapshot.get("steps", []),
+                "input": snapshot.get("input", {}),
+            }
         steps = final_state.get("steps", [])
         summary: dict[str, Any] = {
             "step_count": len(steps),
@@ -3768,6 +4437,8 @@ class Coordinator:
         At 5 steps, this typically reduces snapshot from ~80KB to ~15KB.
         At 20 delegation levels, the difference is 1.6MB vs 300KB.
         """
+        if self._is_native_inquiry_state(state):
+            return self._inquiry_snapshot(state)
         import copy
         compact = copy.deepcopy(state)
 
@@ -4338,6 +5009,23 @@ class Coordinator:
         If a case JSON provides tools, it's the primary source — the LLM
         should call the tools the workflow specifies, not everything available.
         """
+        if self._tool_registry_override is not None:
+            return self._tool_registry_override
+
+        configured_providers = self.config.get("tool_providers", [])
+        if configured_providers:
+            from cognitive_core.engine.tools import ToolRegistry
+            registry = ToolRegistry()
+            if not isinstance(configured_providers, list):
+                raise ValueError("tool_providers must be a list of registered provider names")
+            for provider in configured_providers:
+                provider_name = provider if isinstance(provider, str) else provider.get("name") if isinstance(provider, dict) else None
+                if provider_name != "serper":
+                    raise ValueError(f"Unknown registered tool provider: {provider_name!r}")
+                from cognitive_core.inquiry.research import SerperResearchProvider
+                SerperResearchProvider().register_tools(registry)
+            return registry
+
         data_mcp_url = os.environ.get("DATA_MCP_URL", "")
         # env var takes precedence; fall back to coordinator config
         data_mcp_cmd = (

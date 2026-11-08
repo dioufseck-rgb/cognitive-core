@@ -1,0 +1,131 @@
+domain_name: reasoning_research
+description: Reasoning with public-source research, explicit uncertainty, and cited findings.
+version: "1.0"
+goal: >-
+  Answer the original question for the user's stated purpose. Produce a
+  defensible, conditional answer or a precise account of what remains unknown.
+  Distinguish observed evidence, logical inference, assumptions, and user input.
+governance:
+  tier: auto
+
+orchestrator_strategy: |
+  Begin with Frame: preserve the original question and purpose, formulate a
+  useful working question, define answer criteria, and identify a small set of
+  consequential subquestions. Prefer 2-4 subquestions that distinguish plausible
+  answers. Avoid three overlapping restatements of the original question.
+  Ask the user a blocking clarification only when a consequential ambiguity
+  cannot responsibly be scoped with an explicit assumption.
+
+  Choose each operation to resolve a named evidence gap, competing explanation,
+  inconsistency, or missing part of the answer. Normally search, read a promising
+  discovered source, and use those passages before searching again. Prefer
+  primary research, official technical documentation, or authoritative policy
+  documents. Discovery snippets and generic explainers cannot establish a
+  specific comparative claim. Inspect what was actually tested, its comparator,
+  outcomes, and limits before transferring a source's finding to this question.
+
+  Investigate a specific subquestion using the stored passages and explicit
+  reasoning. Verify can assess the claim-to-passage links. Challenge tries the
+  strongest relevant objection; Reflect identifies a material next change.
+  An objection is not resolved by repeating the finding or accepting the
+  author's own confidence. If a revision adds no new evidence, changes no
+  premise, and corrects no reasoning, stop revising that branch and retain its
+  unresolved limitation. Allocate attention across consequential subquestions.
+
+  Deliberate integrates the findings and accounts for each answer criterion.
+  Pure reasoning is allowed when its premises are explicit; do not perform or
+  invent simulations, experiments, causal estimates, or numerical optimization.
+  If those are needed, explain the missing analysis and what it would decide.
+
+  Generate renders the integrated answer with passage citations and limitations.
+  Challenge must then review that exact report, including its coverage, source
+  fit, strongest counterargument, and appropriate qualification. Only a passing
+  final review permits Govern. A limited but honestly qualified answer can pass;
+  unsupported certainty cannot. Govern applies the configured read-only policy.
+
+primitive_configs:
+  frame_study:
+    primitive: frame
+    output_profile: inquiry.frame.v1
+    params:
+      instructions: >-
+        Establish the decision or learning purpose, working question, competing
+        answers, answer criteria, and consequential subquestions. Preserve user
+        answers and distinguish scope assumptions from established facts. Use
+        stable subquestion IDs. Explain any material reframing.
+  research_sources:
+    primitive: retrieve
+    output_profile: inquiry.retrieve.v1
+    params:
+      instructions: >-
+        Plan concrete web_search or read_source calls for the target's current
+        evidence gap. Read promising discovered leads before more broad searches.
+        Use only known source URLs for reading. Search is discovery, not evidence.
+        Respect the remaining search/read allocation. Each call needs a purpose.
+  investigate_question:
+    primitive: investigate
+    output_profile: inquiry.finding.v1
+    params:
+      instructions: >-
+        State a specific answer, its conditions, and the strongest competing
+        explanation. Classify claims as source, inference, assumption, or user.
+        For source claims include exact quotes and an explicit assessment of
+        what the passages support and what they do not. Name unresolved issues.
+        In a revision, identify the material change and respond to the critique.
+  verify_support:
+    primitive: verify
+    output_profile: inquiry.support_review.v1
+    params:
+      instructions: >-
+        Assess each material claim against its cited read passages. Check source
+        relevance, comparator, outcome, applicability, and contradictory material.
+        An exact quote match alone does not establish the claim. Report limits.
+  challenge_answer:
+    primitive: challenge
+    output_profile: inquiry.challenge.v1
+    params:
+      instructions: >-
+        Try to defeat the target's strongest material claims using counterexamples,
+        competing explanations, scope changes, and evidence gaps. For a report,
+        also check the original purpose, all criteria, synthesis, and caveats.
+        Separate an honestly disclosed limit from an unsupported conclusion.
+  reflect_progress:
+    primitive: reflect
+    output_profile: inquiry.reflection.v1
+    params:
+      instructions: >-
+        Assess whether work changed the evidence, assumptions, or conclusions.
+        Recommend one specific next operation or a qualified closeout. Guidance
+        is advisory and local to the target; do not silently alter user intent.
+        Request a blocking clarification if the user's choice is indispensable.
+  synthesize_study:
+    primitive: deliberate
+    output_profile: inquiry.synthesis.v1
+    params:
+      instructions: >-
+        Integrate the accepted branch findings into an answer to the working and
+        original questions. Address every answer criterion. Preserve conflicting
+        evidence and conditional or unresolved branches. Recommend no executed
+        action. Use budget_exhausted when the research allocation forced closeout.
+        If no current findings exist, explicitly state what could not be
+        determined and what evidence or reasoning remains necessary.
+  write_report:
+    primitive: generate
+    output_profile: inquiry.report.v1
+    params:
+      instructions: >-
+        Write a readable Markdown report grounded in the current synthesis.
+        Lead with the answer, explain decision criteria and exceptions, then
+        distinguish evidence from inference and state open questions. Cite read
+        passages using [S1:P1] syntax. Never cite an unread lead or invent results.
+        Do not claim a passing review or governance approval that has not happened.
+  govern_inquiry:
+    primitive: govern
+    output_profile: inquiry.govern.v1
+    params:
+      instructions: >-
+        Apply the configured governance to this read-only research report. A
+        passing final Challenge is necessary but does not replace governance.
+        Use proceed only when the current report is appropriately qualified.
+        Escalate or hold when human review is required. Do not execute actions
+        and do not treat a research clarification as governance approval.

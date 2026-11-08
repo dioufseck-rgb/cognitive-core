@@ -100,7 +100,7 @@ Issues = "https://github.com/dioufseck-rgb/cognitive-core/issues"
 
 [project.scripts]
 cognitive-core = "cognitive_core.coordinator.cli:main"
-cognitive-inquiry = "cognitive_core.inquiry.cli:main"
+cognitive-inquiry = "cognitive_core.inquiry.native_cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["cognitive_core"]
@@ -112,6 +112,7 @@ include = [
     "pyproject.toml",
     "README.md",
     "docs/inquiry.md",
+    "docs/inquiry-design.md",
     "docs/inquiry-vscode-windows.md",
     "llm_config.yaml",
     "LICENSE",

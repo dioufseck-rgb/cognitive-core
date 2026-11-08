@@ -1,0 +1,28 @@
+name: inquiry
+description: A bounded reasoning and public-source inquiry using native Cognitive Core machinery.
+version: "1.0"
+mode: agentic
+execution_profile: inquiry.v1
+goal: "${domain.goal}"
+governance: "${domain.governance}"
+available_primitives: [frame, retrieve, investigate, verify, challenge, reflect, deliberate, generate, govern]
+constraints:
+  max_steps: 32
+  max_repeat_per_target: 6
+  # An evidence-limited closeout must still be rendered, reviewed, and governed.
+  # Investigation is the normal strategy, not a requirement that can become
+  # impossible once the research allocation has been exhausted.
+  must_include: [frame, deliberate, generate, challenge, govern]
+  must_end_with: govern
+  # Final review is tied to the exact report and evidence revision by the
+  # inquiry execution profile. A successful branch Challenge is not terminal.
+  budgets:
+    model_calls: 96
+    searches: 8
+    source_reads: 12
+    output_repairs_per_operation: 2
+    closeout_reserve_model_calls: 12
+    closeout_reserve_steps: 4
+orchestrator:
+  strategy: "${domain.orchestrator_strategy}"
+primitive_configs: "${domain.primitive_configs}"
